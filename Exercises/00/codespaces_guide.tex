@@ -1,0 +1,538 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{graphicx}
+
+% Code styling
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+% Custom boxes
+\newtcolorbox{warningbox}{
+    colback=orange!5!white,
+    colframe=orange!75!black,
+    title=\faExclamationTriangle\ Important
+}
+
+\newtcolorbox{infobox}{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    title=\faInfoCircle\ Note
+}
+
+\newtcolorbox{tipbox}{
+    colback=green!5!white,
+    colframe=green!75!black,
+    title=\faLightbulb\ Tip
+}
+
+\title{Introduction to Deep Learning\\
+GitHub Codespaces - Backup Setup Guide}
+\author{MSc Computer Science}
+\date{Week 1}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\begin{warningbox}
+This guide is a \textbf{backup option} for students who are having trouble with local installation. You should still try to get your local environment working, as it's better for long-term development skills.
+\end{warningbox}
+
+\begin{infobox}
+GitHub Codespaces provides a cloud-based development environment with VS Code in your browser. It's free for students with 60 hours/month of usage.
+\end{infobox}
+
+\subsection{When to Use Codespaces}
+
+Use GitHub Codespaces if:
+\begin{itemize}
+    \item Your local Python installation is broken and you can't fix it quickly
+    \item You're waiting for IT support to resolve installation issues
+    \item You need to work from a different computer temporarily
+    \item Your computer doesn't have enough disk space
+\end{itemize}
+
+\subsection{Advantages}
+
+\begin{itemize}
+    \item No local installation needed
+    \item Works from any computer with a web browser
+    \item Pre-configured environment
+    \item Integrated with GitHub for easy code management
+    \item VS Code interface (similar to local development)
+    \item Free GPU access (limited)
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item Requires internet connection
+    \item 60 hours/month free quota (should be enough for this course)
+    \item Session timeouts after 30 minutes of inactivity
+    \item Files are saved in the cloud (make sure to commit/download)
+\end{itemize}
+
+\section{Prerequisites}
+
+\subsection{GitHub Account}
+
+You need a GitHub account:
+\begin{enumerate}
+    \item Go to \url{https://github.com/signup}
+    \item Create a free account
+    \item Verify your email address
+\end{enumerate}
+
+\subsection{GitHub Student Benefits (Recommended)}
+
+Get free GitHub Pro with student benefits:
+\begin{enumerate}
+    \item Go to \url{https://education.github.com/pack}
+    \item Click ``Sign up for Student Developer Pack''
+    \item Verify your student status (using university email)
+    \item Get increased Codespaces quota and other benefits
+\end{enumerate}
+
+\section{Setting Up Your Repository}
+
+\subsection{Option A: Fork Course Repository (Recommended)}
+
+If the instructor provides a course repository:
+
+\begin{enumerate}
+    \item Go to the course repository URL (provided by instructor)
+    \item Click the ``Fork'' button (top right)
+    \item This creates your own copy of the repository
+    \item You now have your own repository: \texttt{github.com/YourUsername/deep-learning-course}
+\end{enumerate}
+
+\subsection{Option B: Create New Repository}
+
+If starting from scratch:
+
+\begin{enumerate}
+    \item Go to \url{https://github.com/new}
+    \item Repository name: \texttt{deep-learning-course}
+    \item Description: ``Deep Learning Course - Week 1''
+    \item Select ``Public'' or ``Private''
+    \item Check ``Add a README file''
+    \item Check ``Add .gitignore'' → select ``Python''
+    \item Click ``Create repository''
+\end{enumerate}
+
+\section{Creating a Codespace}
+
+\subsection{From Your Repository}
+
+\begin{enumerate}
+    \item Navigate to your repository on GitHub
+    \item Click the green ``Code'' button
+    \item Select the ``Codespaces'' tab
+    \item Click ``Create codespace on main''
+    \item Wait 1-2 minutes for the environment to build
+\end{enumerate}
+
+\begin{infobox}
+The first time you create a Codespace, it may take a few minutes to set up. Subsequent launches will be faster.
+\end{infobox}
+
+\subsection{Codespace Interface}
+
+Once loaded, you'll see:
+\begin{itemize}
+    \item Left sidebar: File explorer, Git, extensions
+    \item Center: Code editor
+    \item Bottom: Terminal
+    \item Top: Menu bar
+\end{itemize}
+
+It looks and works like VS Code!
+
+\section{Setting Up Python Environment}
+
+\subsection{Check Python Version}
+
+In the terminal (bottom panel), run:
+\begin{lstlisting}[language=bash]
+python3 --version
+\end{lstlisting}
+
+Should show Python 3.10 or later.
+
+\subsection{Create Virtual Environment}
+
+\begin{lstlisting}[language=bash]
+# Create virtual environment
+python3 -m venv deep_learning_env
+
+# Activate it
+source deep_learning_env/bin/activate
+
+# You should see (deep_learning_env) in the prompt
+\end{lstlisting}
+
+\subsection{Install Required Packages}
+
+\subsubsection{Using requirements.txt}
+
+If you have the \texttt{requirements.txt} file:
+
+\begin{enumerate}
+    \item Upload \texttt{requirements.txt} to your repository:
+    \begin{itemize}
+        \item Drag and drop into file explorer, or
+        \item Use terminal: create file and paste content
+    \end{itemize}
+    
+    \item Install packages:
+    \begin{lstlisting}[language=bash]
+pip install --upgrade pip
+pip install -r requirements.txt
+    \end{lstlisting}
+\end{enumerate}
+
+\subsubsection{Manual Installation}
+
+\begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio
+pip install jupyter notebook
+pip install matplotlib numpy pandas
+pip install ipywidgets
+\end{lstlisting}
+
+\begin{tipbox}
+Installation in Codespaces is usually faster than local due to GitHub's fast network connection.
+\end{tipbox}
+
+\section{Using Jupyter Notebooks}
+
+\subsection{Opening Notebooks}
+
+\begin{enumerate}
+    \item Upload your \texttt{.ipynb} file:
+    \begin{itemize}
+        \item Drag and drop into file explorer
+        \item Or clone from another repository
+    \end{itemize}
+    
+    \item Click on the \texttt{.ipynb} file to open it
+    
+    \item VS Code will render it as a Jupyter notebook
+\end{enumerate}
+
+\subsection{Selecting Kernel}
+
+\begin{enumerate}
+    \item Click ``Select Kernel'' button (top right of notebook)
+    \item Choose ``Python Environments''
+    \item Select your \texttt{deep\_learning\_env}
+\end{enumerate}
+
+\subsection{Running Cells}
+
+\begin{itemize}
+    \item Click the play button next to a cell, or
+    \item Press Shift + Enter to run current cell and move to next
+    \item Press Ctrl/Cmd + Enter to run current cell
+\end{itemize}
+
+\section{Working with Files}
+
+\subsection{Uploading Files}
+
+\begin{enumerate}
+    \item Drag and drop files into the file explorer (left sidebar)
+    \item Or use terminal:
+    \begin{lstlisting}[language=bash]
+# Download from URL
+wget https://example.com/file.ipynb
+
+# Or upload via GitHub web interface, then git pull
+    \end{lstlisting}
+\end{enumerate}
+
+\subsection{Downloading Files}
+
+\begin{enumerate}
+    \item Right-click file in explorer → Download
+    \item Or commit and push to GitHub, then download from there
+\end{enumerate}
+
+\subsection{Saving Your Work}
+
+\begin{warningbox}
+Codespaces can timeout! Make sure to save your work regularly.
+\end{warningbox}
+
+\textbf{Method 1: Git Commit (Recommended)}
+\begin{lstlisting}[language=bash]
+# Stage all changes
+git add .
+
+# Commit with message
+git commit -m "Week 1 exercises completed"
+
+# Push to GitHub
+git push
+\end{lstlisting}
+
+\textbf{Method 2: Auto-save}
+\begin{itemize}
+    \item Files are auto-saved in Codespace
+    \item But will be lost if Codespace is deleted
+    \item Always commit important work!
+\end{itemize}
+
+\section{Managing Your Codespace}
+
+\subsection{Stopping a Codespace}
+
+When you're done working:
+\begin{enumerate}
+    \item Click ``Codespaces'' in bottom left corner
+    \item Select ``Stop Current Codespace''
+    \item Or just close the browser tab (auto-stops after 30 min)
+\end{enumerate}
+
+\begin{tipbox}
+Stopping your Codespace saves your free quota hours!
+\end{tipbox}
+
+\subsection{Restarting a Codespace}
+
+\begin{enumerate}
+    \item Go to \url{https://github.com/codespaces}
+    \item Find your codespace in the list
+    \item Click the name to reopen it
+    \item Remember to reactivate virtual environment:
+    \begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+\end{enumerate}
+
+\subsection{Deleting a Codespace}
+
+If you want to start fresh:
+\begin{enumerate}
+    \item Go to \url{https://github.com/codespaces}
+    \item Click ``...'' next to your codespace
+    \item Select ``Delete''
+    \item Create a new one from your repository
+\end{enumerate}
+
+\section{Tips and Best Practices}
+
+\subsection{Keyboard Shortcuts}
+
+Learn these VS Code shortcuts:
+\begin{itemize}
+    \item Ctrl/Cmd + P: Quick file open
+    \item Ctrl/Cmd + Shift + P: Command palette
+    \item Ctrl/Cmd + `: Toggle terminal
+    \item Ctrl/Cmd + B: Toggle sidebar
+\end{itemize}
+
+\subsection{Extensions}
+
+Install helpful extensions:
+\begin{enumerate}
+    \item Click Extensions icon (left sidebar)
+    \item Search and install:
+    \begin{itemize}
+        \item Python (Microsoft) - should be pre-installed
+        \item Jupyter (Microsoft) - should be pre-installed
+        \item Pylance - better Python IntelliSense
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Git Integration}
+
+Use the built-in Git interface:
+\begin{enumerate}
+    \item Click Source Control icon (left sidebar)
+    \item See changed files
+    \item Stage changes (+ button)
+    \item Write commit message
+    \item Click checkmark to commit
+    \item Click ``...'' → Push
+\end{enumerate}
+
+\subsection{Terminal Tips}
+
+\begin{lstlisting}[language=bash]
+# Create new terminal: Ctrl+Shift+`
+
+# Split terminal: Click split icon
+
+# Multiple terminals for different tasks:
+# Terminal 1: Jupyter notebook
+# Terminal 2: General commands
+\end{lstlisting}
+
+\section{Common Issues}
+
+\subsection{Codespace Won't Start}
+
+\begin{itemize}
+    \item Check your internet connection
+    \item Wait a few minutes and try again
+    \item Check GitHub status: \url{https://www.githubstatus.com/}
+    \item Try creating a new Codespace
+\end{itemize}
+
+\subsection{Out of Free Hours}
+
+\begin{itemize}
+    \item You get 60 hours/month free (120 with Student Pack)
+    \item Check usage: \url{https://github.com/settings/billing}
+    \item Stop Codespaces when not in use
+    \item Use local environment when possible
+\end{itemize}
+
+\subsection{Kernel Died / Module Not Found}
+
+\begin{enumerate}
+    \item Make sure virtual environment is activated:
+    \begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+    
+    \item Reinstall packages if needed
+    
+    \item Restart kernel: Click ``Restart'' button in notebook toolbar
+\end{enumerate}
+
+\subsection{Files Not Saving}
+
+\begin{enumerate}
+    \item Check file is not read-only
+    \item Manually save: Ctrl/Cmd + S
+    \item Check Codespace has not timed out
+    \item Commit to Git to be safe
+\end{enumerate}
+
+\section{Transitioning to Local Setup}
+
+Once your local installation is working:
+
+\subsection{Downloading Your Work}
+
+\begin{enumerate}
+    \item Commit all changes in Codespace:
+    \begin{lstlisting}[language=bash]
+git add .
+git commit -m "All my work"
+git push
+    \end{lstlisting}
+    
+    \item On your local machine:
+    \begin{lstlisting}[language=bash]
+git clone https://github.com/YourUsername/deep-learning-course
+cd deep-learning-course
+    \end{lstlisting}
+    
+    \item Set up local environment (see Setup Guide)
+    
+    \item Continue working locally
+\end{enumerate}
+
+\subsection{Keeping Codespace as Backup}
+
+\begin{itemize}
+    \item Keep your Codespace but stop it
+    \item Work locally most of the time
+    \item Use Codespace only when:
+    \begin{itemize}
+        \item Working from different computer
+        \item Local environment breaks
+        \item Need more compute power
+    \end{itemize}
+\end{itemize}
+
+\section{Advanced: Using GPU (Optional)}
+
+\begin{infobox}
+GitHub Codespaces offers limited free GPU access. This is optional and not required for Week 1.
+\end{infobox}
+
+\subsection{Requesting GPU}
+
+\begin{enumerate}
+    \item When creating Codespace, click ``...'' → ``Configure dev container''
+    \item Select machine type with GPU
+    \item Note: This uses quota faster
+\end{enumerate}
+
+\subsection{Checking GPU}
+
+\begin{lstlisting}[language=Python]
+import torch
+print(f"CUDA available: {torch.cuda.is_available()}")
+if torch.cuda.is_available():
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+\end{lstlisting}
+
+\section{Resources}
+
+\begin{itemize}
+    \item GitHub Codespaces Docs: \url{https://docs.github.com/en/codespaces}
+    \item VS Code Tips: \url{https://code.visualstudio.com/docs/getstarted/tips-and-tricks}
+    \item Git Tutorial: \url{https://git-scm.com/book/en/v2}
+    \item Course Forum: [link provided by instructor]
+\end{itemize}
+
+\section{Getting Help}
+
+If you have issues with Codespaces:
+
+\begin{enumerate}
+    \item Check GitHub Codespaces documentation
+    \item Post in course forum
+    \item Email instructor with:
+    \begin{itemize}
+        \item Screenshot of error
+        \item What you were trying to do
+        \item Your repository URL
+    \end{itemize}
+    \item Come to office hours
+\end{enumerate}
+
+\section{Summary}
+
+\begin{enumerate}
+    \item Create GitHub account
+    \item Fork/create course repository
+    \item Create Codespace
+    \item Set up virtual environment
+    \item Install packages
+    \item Work in Jupyter notebooks
+    \item \textbf{Commit and push regularly!}
+    \item Stop Codespace when done
+    \item Transition to local setup when possible
+\end{enumerate}
+
+\begin{warningbox}
+Remember: Codespaces is a \textbf{temporary solution}. Work on getting your local environment set up for the long term!
+\end{warningbox}
+
+\end{document}

@@ -1,0 +1,34 @@
+# Introduction to Deep Learning - Course Requirements
+# Python 3.10 or later required
+
+# Deep Learning Framework
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Jupyter and Interactive Computing
+jupyter>=1.0.0
+notebook>=6.5.0
+ipywidgets>=8.0.0
+ipykernel>=6.20.0
+
+# Scientific Computing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Data Processing
+pandas>=2.0.0
+
+# Progress Bars (useful for training loops)
+tqdm>=4.65.0
+
+# Optional but useful
+# For nicer progress bars in Jupyter
+# ipywidgets already included above
+
+# For reproducibility
+# No specific version pinning to allow flexibility

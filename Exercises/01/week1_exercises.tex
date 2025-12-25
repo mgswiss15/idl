@@ -1,0 +1,211 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+% Code styling
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+% Math commands
+\newcommand{\mR}{\mathbb{R}}
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\vw}{\mathbf{w}}
+\newcommand{\vb}{\mathbf{b}}
+\newcommand{\mW}{\mathbf{W}}
+
+\title{Introduction to Deep Learning\\
+Exercise Session 1: Neural Network Basics with PyTorch}
+\author{MSc Computer Science}
+\date{Week 1}
+
+\begin{document}
+
+\maketitle
+
+\section*{Overview}
+In this exercise session, you will:
+\begin{itemize}
+    \item Get familiar with PyTorch tensors and basic operations
+    \item Implement and visualize activation functions
+    \item Understand forward propagation through manual computation
+    \item Build a simple neural network from scratch
+\end{itemize}
+
+\textbf{Prerequisites:} Python 3.x, PyTorch installed. See installation instructions at \url{https://pytorch.org/}
+
+\section{PyTorch Basics (15-20 minutes)}
+
+\subsection{Exercise 1.1: Creating and Manipulating Tensors}
+\begin{enumerate}[label=(\alph*)]
+    \item Create a PyTorch tensor from the list \texttt{[1, 2, 3, 4, 5]} and print its shape and data type.
+    \item Create a $3 \times 4$ tensor filled with random values from a standard normal distribution.
+    \item Create a $2 \times 3$ tensor of ones and a $2 \times 3$ tensor of zeros.
+    \item Reshape the tensor from (b) to shape $(2, 6)$ and then to $(12, 1)$.
+\end{enumerate}
+
+\subsection{Exercise 1.2: Tensor Operations}
+\begin{enumerate}[label=(\alph*)]
+    \item Create two tensors $\vx = [1, 2, 3]$ and $\vw = [0.5, -0.3, 0.8]$. Compute their dot product using \texttt{torch.dot()}.
+    \item Create a matrix $\mW \in \mR^{3 \times 2}$ with random values and a vector $\vx \in \mR^{2}$. Compute $\mW \vx$ using \texttt{torch.matmul()} or the \texttt{@} operator.
+    \item Create two tensors of shape $(2, 3)$ and add them element-wise. Then try adding a tensor of shape $(3,)$ to the $(2, 3)$ tensor (broadcasting).
+\end{enumerate}
+
+\textbf{Key takeaway:} PyTorch tensors work similarly to NumPy arrays but can be moved to GPU and track gradients.
+
+\section{Activation Functions (20 minutes)}
+
+\subsection{Exercise 2.1: Implement Activation Functions}
+Implement the following activation functions using PyTorch operations:
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Sigmoid:} $\sigma(z) = \frac{1}{1 + e^{-z}}$
+    \item \textbf{Tanh:} $\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$
+    \item \textbf{ReLU:} $\text{ReLU}(z) = \max(0, z)$
+\end{enumerate}
+
+Each function should accept a tensor \texttt{z} and return a tensor of the same shape.
+
+\subsection{Exercise 2.2: Visualize Activation Functions}
+\begin{enumerate}[label=(\alph*)]
+    \item Create a tensor \texttt{z} with 100 values evenly spaced between $-5$ and $5$.
+    \item Apply each activation function to \texttt{z} and plot all three on the same graph.
+    \item Compare your implementations with PyTorch's built-in functions: \texttt{torch.sigmoid()}, \texttt{torch.tanh()}, and \texttt{torch.relu()}.
+\end{enumerate}
+
+\subsection{Exercise 2.3: Derivatives of Activation Functions}
+\begin{enumerate}[label=(\alph*)]
+    \item The derivative of sigmoid is: $\sigma'(z) = \sigma(z)(1 - \sigma(z))$
+    \item The derivative of tanh is: $\tanh'(z) = 1 - \tanh^2(z)$
+    \item The derivative of ReLU is: $\text{ReLU}'(z) = \begin{cases} 1 & \text{if } z > 0 \\ 0 & \text{otherwise} \end{cases}$
+    
+    Implement these derivatives and plot them alongside the activation functions.
+\end{enumerate}
+
+\subsection{Exercise 2.4: Vanishing Gradient Problem}
+\begin{enumerate}[label=(\alph*)]
+    \item For sigmoid, compute $\sigma'(z)$ for $z \in \{-10, -5, 0, 5, 10\}$.
+    \item What do you notice about the gradient when $|z|$ is large?
+    \item Why is this a problem for training deep networks?
+\end{enumerate}
+
+\section{Forward Propagation by Hand (25 minutes)}
+
+\subsection{Exercise 3.1: Manual Computation}
+Consider a tiny neural network with:
+\begin{itemize}
+    \item Input: $\vx = [1, 2]$
+    \item Hidden layer: 2 neurons with weights $\mW^{(1)} = \begin{bmatrix} 0.5 & -0.3 \\ 0.8 & 0.2 \end{bmatrix}$ and bias $\vb^{(1)} = [0.1, -0.2]$
+    \item Output layer: 1 neuron with weights $\vw^{(2)} = [1, -0.5]$ and bias $b^{(2)} = 0.3$
+    \item Use ReLU activation for hidden layer, no activation for output
+\end{itemize}
+
+\textbf{Compute by hand (show all steps):}
+\begin{enumerate}[label=(\alph*)]
+    \item Pre-activation of hidden layer: $\mathbf{z}^{(1)} = \mW^{(1)} \vx + \vb^{(1)}$
+    \item Activation of hidden layer: $\mathbf{a}^{(1)} = \text{ReLU}(\mathbf{z}^{(1)})$
+    \item Pre-activation of output layer: $z^{(2)} = \vw^{(2)T} \mathbf{a}^{(1)} + b^{(2)}$
+    \item Final output: $a^{(2)} = z^{(2)}$
+\end{enumerate}
+
+\subsection{Exercise 3.2: Verify with PyTorch}
+Implement the same computation using PyTorch tensors and verify your hand calculations.
+
+\section{Building a Simple Neural Network (30 minutes)}
+
+\subsection{Exercise 4.1: Implement a 2-Layer MLP}
+Create a neural network class that:
+\begin{itemize}
+    \item Has an \texttt{\_\_init\_\_} method that initializes two linear layers
+    \item Input dimension: 2, Hidden dimension: 4, Output dimension: 1
+    \item Has a \texttt{forward} method that applies: Linear $\to$ ReLU $\to$ Linear
+    \item Use \texttt{torch.nn.Linear} for the layers
+\end{itemize}
+
+Starter code:
+\begin{lstlisting}
+import torch
+import torch.nn as nn
+
+class SimpleMLP(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super(SimpleMLP, self).__init__()
+        # TODO: Initialize layers
+        
+    def forward(self, x):
+        # TODO: Implement forward pass
+        return out
+\end{lstlisting}
+
+\subsection{Exercise 4.2: Test on XOR Problem}
+\begin{enumerate}[label=(\alph*)]
+    \item Create the XOR dataset:
+    \begin{lstlisting}
+X = torch.tensor([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=torch.float32)
+y = torch.tensor([[0], [1], [1], [0]], dtype=torch.float32)
+    \end{lstlisting}
+    \item Create an instance of your \texttt{SimpleMLP} with random weights.
+    \item Pass the XOR inputs through the network and observe the outputs.
+    \item Note: The outputs will be random/incorrect since we haven't trained the network yet!
+\end{enumerate}
+
+\subsection{Exercise 4.3: Visualize Decision Boundary}
+\begin{enumerate}[label=(\alph*)]
+    \item Create a grid of points in the range $[-0.5, 1.5] \times [-0.5, 1.5]$.
+    \item Pass these points through your network to get predictions.
+    \item Plot the decision boundary using a contour plot.
+    \item Overlay the XOR data points on the plot.
+    \item What do you observe? Can the random network solve XOR?
+\end{enumerate}
+
+Hint: Use \texttt{torch.meshgrid()} to create the grid and \texttt{matplotlib.pyplot.contourf()} for plotting.
+
+\subsection{Exercise 4.4: Count Parameters}
+\begin{enumerate}[label=(\alph*)]
+    \item Calculate the total number of parameters in your network manually.
+    \item Verify using: \texttt{sum(p.numel() for p in model.parameters())}
+    \item Formula: For a layer with input dim $d_{in}$ and output dim $d_{out}$: \\
+    Number of parameters = $d_{in} \times d_{out} + d_{out}$ (weights + biases)
+\end{enumerate}
+
+\section{Wrap-up Questions}
+
+\begin{enumerate}
+    \item Why can't we use a linear activation function in hidden layers?
+    \item Why is ReLU more popular than sigmoid for hidden layers in modern deep learning?
+    \item How many parameters would a 3-layer MLP have with dimensions [10, 50, 50, 5]?
+    \item Can a single-layer perceptron (no hidden layer) solve the XOR problem? Why or why not?
+\end{enumerate}
+
+\section*{Additional Resources}
+\begin{itemize}
+    \item PyTorch Documentation: \url{https://pytorch.org/docs/}
+    \item PyTorch Tutorials: \url{https://pytorch.org/tutorials/}
+    \item Prince, Chapter 3 (Shallow Neural Networks)
+    \item Prince, Chapter 4 (Deep Neural Networks)
+\end{itemize}
+
+\section*{For Next Week}
+We'll learn about backpropagation and how to actually train these networks! Make sure you understand:
+\begin{itemize}
+    \item The chain rule from calculus
+    \item Matrix multiplication and dimensions
+    \item How to compute gradients of simple functions
+\end{itemize}
+
+\end{document}
