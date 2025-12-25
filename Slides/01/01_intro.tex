@@ -1,0 +1,571 @@
+\documentclass[aspectratio=169, smaller]{beamer}
+\usepackage[]{../slidespreamble}
+\usepackage[]{../math_commands}
+\setbeameroption{hide notes}
+\mode<presentation>
+
+% presentation title
+\title{Introduction to Deep Learning}
+\subtitle{Week 1: Neural Network Basics}
+
+\begin{document}
+
+\begin{frame}{Outline}
+\setcounter{framenumber}{1}
+\tableofcontents[]
+\end{frame}
+
+\section{What is Deep Learning?}
+
+\begin{frame}{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Deep Learning: A Brief History}
+
+\structure{The Journey from Perceptrons to Modern AI}
+\begin{itemize}
+  \item \textbf{1958}: Rosenblatt's Perceptron - single layer, limited capacity
+  \item \textbf{1969}: Minsky \& Papert show perceptron limitations (e.g., XOR problem)
+  \item \textbf{1986}: Backpropagation algorithm popularized (Rumelhart et al.)
+  \item \textbf{1990s-2000s}: ``AI Winter'' - neural networks fall out of favor
+  \item \textbf{2012}: AlexNet wins ImageNet - deep learning renaissance begins
+  \item \textbf{2017-present}: Transformers revolutionize NLP and beyond
+\end{itemize}
+
+\vskip 1em
+\structure{Why now?}
+\begin{itemize}
+  \item Massive datasets (ImageNet, Common Crawl, etc.)
+  \item Computational power (GPUs, TPUs)
+  \item Algorithmic innovations (ReLU, batch normalization, residual connections)
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Deep learning is not new, but practical success is recent
+\item Key insight: depth matters - multiple layers can learn hierarchical representations
+\item The XOR problem showed that single-layer perceptrons cannot learn non-linear functions
+\item AlexNet (2012) was a watershed moment - reduced ImageNet error from 26\% to 15\%
+\item Modern transformers (GPT, BERT) have revolutionized how we think about AI
+}
+
+\begin{frame}{What Can Deep Learning Do?}
+
+\structure{Computer Vision}
+\begin{itemize}
+  \item Image classification, object detection, semantic segmentation
+  \item Face recognition, medical image analysis
+\end{itemize}
+
+\vskip 0.5em
+\structure{Natural Language Processing}
+\begin{itemize}
+  \item Machine translation, text generation, question answering
+  \item Large language models (GPT, Claude, Gemini)
+\end{itemize}
+
+\vskip 0.5em
+\structure{Other Domains}
+\begin{itemize}
+  \item Speech recognition and synthesis
+  \item Game playing (AlphaGo, AlphaZero)
+  \item Protein structure prediction (AlphaFold)
+  \item Autonomous driving, robotics
+\end{itemize}
+
+\vskip 1em
+\alert{Common thread: Learning hierarchical representations from data}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Deep learning excels at pattern recognition in high-dimensional data
+\item Key advantage: automatic feature learning vs hand-crafted features
+\item Examples you can mention: ResNet for vision, Transformers for language, reinforcement learning for games
+\item AlphaFold solved a 50-year-old biology grand challenge
+}
+
+\section{From Linear Models to Neural Networks}
+
+\begin{frame}{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Linear Models: A Quick Recap}
+
+\structure{Linear Regression}
+\begin{itemize}
+  \item Model: $f(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b$
+  \item Input: $\mathbf{x} \in \mR^d$, weights: $\mathbf{w} \in \mR^d$, bias: $b \in \mR$
+  \item Learns a hyperplane in input space
+\end{itemize}
+
+\vskip 1em
+\structure{Linear Classification (e.g., Logistic Regression)}
+\begin{itemize}
+  \item Model: $f(\mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b)$ where $\sigma(z) = \frac{1}{1 + e^{-z}}$
+  \item Decision boundary is still linear
+\end{itemize}
+
+\vskip 1em
+\structure{Fundamental Limitation}
+\begin{itemize}
+  \item Can only learn linear decision boundaries
+  \item Many real-world problems are inherently non-linear
+  \item \alert{Example: XOR problem cannot be solved by linear classifier}
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Students should be familiar with this from parallel ML course
+\item Key point: even with non-linear activation (sigmoid), decision boundary is linear
+\item XOR is the canonical example - we'll show this explicitly next
+\item This motivates why we need multiple layers
+}
+
+\begin{frame}{The XOR Problem}
+
+\structure{Problem Definition}
+\begin{itemize}
+  \item XOR (exclusive OR): output is 1 if inputs differ, 0 otherwise
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.5]
+  % Draw axes
+  \draw[->] (-0.3,0) -- (1.5,0) node[right] {$x_1$};
+  \draw[->] (0,-0.3) -- (0,1.5) node[above] {$x_2$};
+  
+  % Draw points
+  \fill[thwsblue] (0,0) circle (3pt) node[below left] {$(0,0): 0$};
+  \fill[carnelian] (1,0) circle (3pt) node[below right] {$(1,0): 1$};
+  \fill[carnelian] (0,1) circle (3pt) node[above left] {$(0,1): 1$};
+  \fill[thwsblue] (1,1) circle (3pt) node[above right] {$(1,1): 0$};
+  
+  % Try to draw a line - show it's impossible
+  \draw[dashed, gray, thick] (-0.2,1.2) -- (1.2,-0.2);
+  \node[gray] at (1.3, 0.8) {?};
+\end{tikzpicture}
+\end{center}
+
+\vskip 0.5em
+\structure{Why Linear Models Fail}
+\begin{itemize}
+  \item No single line can separate blue points from red points
+  \item \alert{We need non-linear decision boundaries}
+  \item Solution: multiple layers with non-linear activations
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the classic problem that killed the first wave of neural network research
+\item Draw attention to the fact that no matter how you rotate a line, you can't separate the classes
+\item This motivates the need for hidden layers
+\item With one hidden layer and non-linear activations, XOR becomes solvable
+}
+
+\section{Neural Network Architecture}
+
+\begin{frame}{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{The Artificial Neuron}
+
+\structure{Biological Inspiration}
+\begin{itemize}
+  \item Loosely inspired by biological neurons
+  \item Multiple inputs, single output
+  \item Non-linear activation function
+\end{itemize}
+
+\vskip 1em
+\structure{Mathematical Model}
+\begin{itemize}
+  \item Input: $\mathbf{x} = (x_1, x_2, \ldots, x_d)$
+  \item Weights: $\mathbf{w} = (w_1, w_2, \ldots, w_d)$, bias: $b$
+  \item Pre-activation: $z = \sum_{i=1}^d w_i x_i + b = \mathbf{w}^T \mathbf{x} + b$
+  \item Output: $a = \phi(z)$ where $\phi$ is the activation function
+\end{itemize}
+
+\vskip 1em
+\alert{Key insight: Without $\phi$, composition of neurons is still just linear!}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Don't oversell the biological analogy - these are mathematical abstractions
+\item The neuron computes a weighted sum followed by a non-linearity
+\item Emphasize that without non-linear activation, deep networks collapse to linear models
+\item The choice of activation function matters - we'll see why next
+}
+
+\begin{frame}{Activation Functions}
+
+\structure{Common Choices}
+
+\vskip 0.5em
+\textbf{Sigmoid:} $\sigma(z) = \frac{1}{1 + e^{-z}}$
+\begin{itemize}
+  \item Output range: $(0, 1)$
+  \item Historically popular, now less common in hidden layers
+  \item Problem: vanishing gradients for $|z|$ large
+\end{itemize}
+
+\vskip 0.5em
+\textbf{Tanh:} $\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$
+\begin{itemize}
+  \item Output range: $(-1, 1)$
+  \item Zero-centered (better than sigmoid)
+  \item Still suffers from vanishing gradients
+\end{itemize}
+
+\vskip 0.5em
+\textbf{ReLU (Rectified Linear Unit):} $\text{ReLU}(z) = \max(0, z)$
+\begin{itemize}
+  \item Most popular for hidden layers
+  \item Advantages: fast to compute, no vanishing gradient for $z > 0$
+  \item Disadvantage: ``dead neurons'' when $z \leq 0$ always
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Activation functions introduce non-linearity - crucial for learning complex patterns
+\item Sigmoid and tanh have gradient $\approx 0$ when $|z|$ is large - makes training deep networks hard
+\item ReLU is the workhorse of modern deep learning - simple but effective
+\item Variants: Leaky ReLU, ELU, GELU address the dead neuron problem
+\item For output layer: choice depends on task (sigmoid for binary, softmax for multi-class)
+}
+
+\begin{frame}{Multi-Layer Perceptron (MLP)}
+
+\structure{Layer-wise Architecture}
+\begin{itemize}
+  \item \textbf{Input layer:} raw features $\mathbf{x} \in \mR^{d_0}$
+  \item \textbf{Hidden layers:} $L$ layers with dimensions $d_1, d_2, \ldots, d_L$
+  \item \textbf{Output layer:} predictions $\hat{\mathbf{y}} \in \mR^{d_{L+1}}$
+\end{itemize}
+
+\vskip 1em
+\structure{Forward Pass for Layer $\ell$}
+\begin{align*}
+\mathbf{z}^{(\ell)} &= \mathbf{W}^{(\ell)} \mathbf{a}^{(\ell-1)} + \mathbf{b}^{(\ell)} \\
+\mathbf{a}^{(\ell)} &= \phi(\mathbf{z}^{(\ell)})
+\end{align*}
+where:
+\begin{itemize}
+  \item $\mathbf{W}^{(\ell)} \in \mR^{d_\ell \times d_{\ell-1}}$ is the weight matrix
+  \item $\mathbf{b}^{(\ell)} \in \mR^{d_\ell}$ is the bias vector
+  \item $\phi$ is applied element-wise
+  \item Convention: $\mathbf{a}^{(0)} = \mathbf{x}$ (input)
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the fundamental architecture - fully connected layers
+\item Each neuron in layer $\ell$ connected to all neurons in layer $\ell-1$
+\item Number of parameters in layer $\ell$: $d_\ell \cdot d_{\ell-1} + d_\ell$
+\item Activation function applied element-wise to each component
+\item Walk through a concrete example: 2 inputs, 3 hidden neurons, 1 output
+}
+
+\begin{frame}{Network Depth and Width}
+
+\structure{Network Capacity}
+\begin{itemize}
+  \item \textbf{Width:} number of neurons per layer
+  \item \textbf{Depth:} number of hidden layers
+  \item Both affect the model's representational power
+\end{itemize}
+
+\vskip 1em
+\structure{Universal Approximation Theorem (informal)}
+\begin{itemize}
+  \item A neural network with \alert{one hidden layer} of sufficient width can approximate any continuous function on a compact domain
+  \item \textbf{But:} may require exponentially many neurons!
+  \item \alert{Depth is more parameter-efficient than width}
+\end{itemize}
+
+\vskip 1em
+\structure{Why Deep Networks?}
+\begin{itemize}
+  \item Learn hierarchical representations (edges $\to$ shapes $\to$ objects)
+  \item More parameter-efficient for complex functions
+  \item Empirically perform better on real tasks
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Universal approximation is an existence theorem - doesn't tell us how to learn
+\item Deep networks compose features hierarchically - this is key to their success
+\item Example in vision: layer 1 detects edges, layer 2 combines to shapes, layer 3 to parts, etc.
+\item Trade-off: deeper networks are harder to train (vanishing gradients) - we'll address this later
+}
+
+\section{Loss Functions and Learning}
+
+\begin{frame}{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{The Learning Problem}
+
+\structure{Supervised Learning Setup}
+\begin{itemize}
+  \item Training data: $\mathcal{D} = \{(\mathbf{x}_i, \mathbf{y}_i)\}_{i=1}^N$
+  \item Goal: find parameters $\boldsymbol{\theta} = \{\mathbf{W}^{(1)}, \mathbf{b}^{(1)}, \ldots, \mathbf{W}^{(L+1)}, \mathbf{b}^{(L+1)}\}$ that minimize prediction error
+\end{itemize}
+
+\vskip 1em
+\structure{Loss Function}
+\begin{itemize}
+  \item Measures how well the network fits the data
+  \item For a single example: $\mathcal{L}(\hat{\mathbf{y}}, \mathbf{y})$
+  \item Total loss (empirical risk): 
+  $$\mathcal{L}(\boldsymbol{\theta}) = \frac{1}{N} \sum_{i=1}^N \mathcal{L}(f(\mathbf{x}_i; \boldsymbol{\theta}), \mathbf{y}_i)$$
+\end{itemize}
+
+\vskip 1em
+\structure{Optimization Goal}
+$$\boldsymbol{\theta}^* = \arg\min_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta})$$
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This is the standard supervised learning framework
+\item $f(\mathbf{x}; \boldsymbol{\theta})$ is the network output for input $\mathbf{x}$ with parameters $\boldsymbol{\theta}$
+\item Choice of loss function depends on the task
+\item We want to minimize average loss over training data
+\item This is a high-dimensional, non-convex optimization problem
+}
+
+\begin{frame}{Common Loss Functions}
+
+\structure{Regression: Mean Squared Error (MSE)}
+$$\mathcal{L}_{\text{MSE}}(\hat{\mathbf{y}}, \mathbf{y}) = \frac{1}{2}\|\hat{\mathbf{y}} - \mathbf{y}\|^2 = \frac{1}{2}\sum_{j=1}^{d}(\hat{y}_j - y_j)^2$$
+
+Probabilistic interpretation: assumes $y \sim \mathcal{N}(\hat{y}, \sigma^2)$, equivalent to maximum likelihood
+
+\vskip 1em
+\structure{Binary Classification: Binary Cross-Entropy}
+$$\mathcal{L}_{\text{BCE}}(\hat{y}, y) = -y \log(\hat{y}) - (1-y)\log(1-\hat{y})$$
+where $\hat{y} = \sigma(\mathbf{w}^T \mathbf{x} + b) \in (0,1)$ is predicted probability
+
+Probabilistic interpretation: negative log-likelihood for Bernoulli distribution
+
+\end{frame}
+
+\note[enumerate]
+{
+\item MSE: factor of 1/2 makes derivatives cleaner - doesn't affect optimization
+\item MSE penalizes large errors more than small ones (quadratic)
+\item BCE: assumes output is probability (use sigmoid activation)
+\item Both have clean probabilistic interpretations - maximum likelihood estimation
+\item For BCE: $y \in \{0,1\}$ is true label, $\hat{y} \in (0,1)$ is predicted probability
+}
+
+\begin{frame}{Multi-Class Classification: Cross-Entropy}
+
+\structure{Softmax Activation}
+$$\hat{y}_j = \frac{e^{z_j}}{\sum_{k=1}^C e^{z_k}} \quad \text{for } j=1,\ldots,C$$
+\begin{itemize}
+  \item Converts logits $\mathbf{z}$ to probability distribution
+  \item $\sum_{j=1}^C \hat{y}_j = 1$ and $\hat{y}_j \in (0,1)$
+\end{itemize}
+
+\vskip 1em
+\structure{Cross-Entropy Loss}
+$$\mathcal{L}_{\text{CE}}(\hat{\mathbf{y}}, \mathbf{y}) = -\sum_{j=1}^C y_j \log(\hat{y}_j)$$
+
+For one-hot encoded labels (e.g., $\mathbf{y} = [0, 1, 0, 0]$ for class 2):
+$$\mathcal{L}_{\text{CE}} = -\log(\hat{y}_c)$$
+where $c$ is the true class
+
+\vskip 0.5em
+\alert{Probabilistic interpretation: negative log-likelihood for categorical distribution}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Softmax ensures outputs form valid probability distribution
+\item Cross-entropy measures how well predicted distribution matches true distribution
+\item For one-hot labels, only the probability of true class matters
+\item Minimizing cross-entropy = maximizing log-probability of correct class
+\item This is the standard loss for multi-class classification
+}
+
+\begin{frame}{Gradient Descent Preview}
+
+\structure{The Optimization Strategy}
+\begin{itemize}
+  \item We need to minimize $\mathcal{L}(\boldsymbol{\theta})$ over all parameters
+  \item Problem: high-dimensional, non-convex, no closed-form solution
+  \item Solution: \alert{iterative gradient-based optimization}
+\end{itemize}
+
+\vskip 1em
+\structure{Gradient Descent (simplified)}
+$$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}_t)$$
+\begin{itemize}
+  \item $\eta > 0$ is the learning rate (step size)
+  \item Move in direction opposite to gradient (steepest descent)
+  \item Repeat until convergence
+\end{itemize}
+
+\vskip 1em
+\structure{Key Challenge}
+How do we compute $\nabla_{\boldsymbol{\theta}} \mathcal{L}$ efficiently for deep networks?
+
+\alert{Answer: Backpropagation (next lecture!)}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Gradient descent is the workhorse of deep learning optimization
+\item Intuition: follow the slope downhill
+\item Learning rate is crucial hyperparameter - too large = divergence, too small = slow
+\item For neural networks with millions of parameters, we need efficient gradient computation
+\item Backpropagation is the algorithm that makes this tractable - we'll cover it in detail next week
+\item Variants: SGD, momentum, Adam - we'll discuss these too
+}
+
+\section{Course Overview}
+
+\begin{frame}{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Course Structure}
+
+\structure{Weeks 1-3: Foundations}
+\begin{itemize}
+  \item Neural network basics, backpropagation, computational graphs
+  \item Optimization algorithms (SGD, momentum, Adam)
+  \item Regularization techniques (dropout, batch normalization, weight decay)
+\end{itemize}
+
+\vskip 0.5em
+\structure{Weeks 4-6: Convolutional Networks}
+\begin{itemize}
+  \item CNN architectures and design principles
+  \item Transfer learning and data augmentation
+\end{itemize}
+
+\vskip 0.5em
+\structure{Weeks 7-9: Sequential Models}
+\begin{itemize}
+  \item RNNs, LSTMs, GRUs
+  \item Attention mechanisms and Transformers
+\end{itemize}
+
+\vskip 0.5em
+\structure{Weeks 10-14: Advanced Topics}
+\begin{itemize}
+  \item Generative models, self-supervised learning
+  \item Practical considerations: training at scale, deployment
+  \item Ethics and fairness
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item This gives students the roadmap for the semester
+\item Foundation weeks are crucial - make sure students understand basics well
+\item CNN and RNN weeks connect to their second semester courses (CV, NLP, robotics)
+\item Advanced topics give them exposure to current research directions
+\item Emphasize the importance of programming assignments
+}
+
+\begin{frame}{Logistics}
+
+\structure{Course Components}
+\begin{itemize}
+  \item \textbf{Lectures:} 1.5 hours per week (theory and concepts)
+  \item \textbf{Exercises:} 1.5 hours per week (implementation and problem-solving)
+  \item \textbf{Semester Project:} Train models on real datasets
+  \item \textbf{Parallel course:} Basic ML (covers general ML foundations)
+\end{itemize}
+
+\vskip 1em
+\structure{Prerequisites}
+\begin{itemize}
+  \item Programming: Python, NumPy (we'll use PyTorch or TensorFlow)
+  \item Math: Linear algebra, calculus, basic probability
+  \item We'll provide probability refreshers just-in-time as needed
+\end{itemize}
+
+\vskip 1em
+\structure{Recommended Reading}
+\begin{itemize}
+  \item Simon J.D. Prince: \textit{Understanding Deep Learning} (2023)
+  \item Free online: \url{https://udlbook.github.io/udlbook/}
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Set clear expectations early
+\item Emphasize hands-on nature - they'll implement everything
+\item Python and NumPy are essential - students should be comfortable
+\item Prince book is excellent and free - encourage students to use it
+\item Mention that probability will be introduced as needed, not all upfront
+}
+
+\begin{frame}{Next Week: Backpropagation and Optimization}
+
+\structure{What We'll Cover}
+\begin{itemize}
+  \item Computational graphs and automatic differentiation
+  \item Backpropagation algorithm in detail
+  \item Stochastic gradient descent and mini-batches
+  \item Common optimization algorithms (momentum, Adam)
+\end{itemize}
+
+\vskip 1em
+\structure{Preparation}
+\begin{itemize}
+  \item Review: chain rule from calculus
+  \item Review: matrix calculus (gradients, Jacobians)
+  \item Reading: Prince Chapter 6 (Fitting Models), Chapter 7 (Gradients and Initialization)
+\end{itemize}
+
+\vskip 1em
+\structure{Exercise Session This Week}
+\begin{itemize}
+  \item Python/NumPy refresher
+  \item Implementing activation functions
+  \item Forward propagation from scratch
+\end{itemize}
+
+\end{frame}
+
+\note[enumerate]
+{
+\item Prepare students for next week's content
+\item Chain rule is absolutely crucial for backpropagation
+\item Matrix calculus can be tricky - point them to good resources
+\item Exercise session will be hands-on - make sure they have Python set up
+\item This week is about building intuition; next week gets mathematical
+}
+
+\end{document}

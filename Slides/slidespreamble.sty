@@ -57,10 +57,18 @@
 \setbeamerfont{block title}{size=\normalsize, series=\mdseries}
 % \addtobeamertemplate{block begin}{}{\vspace{-1em} \setlength{\parindent}{5em}}
 \addtobeamertemplate{block begin}{}{\setlength{\parindent}{1em}}
-\hypersetup{colorlinks,urlcolor=thwsblue}
+\hypersetup{colorlinks,urlcolor=thwsblue,linkcolor=thwsblue}
 
-% custom formats
-\setbeamertemplate{itemize items}[circle]{}
+% TOC formatting - cleaner, more consistent with general style
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\setbeamercolor{section number projected}{bg=thwsblue,fg=white}
+\setbeamercolor{section in toc}{fg=thwsblue}
+\setbeamercolor{subsection in toc}{fg=black}
+\setbeamerfont{section in toc}{series=\bfseries}
+\setbeamerfont{subsection in toc}{series=\mdseries}
+
+
 
 % beamer notes on second screen
 % \usepackage{pgfpages} % for notes on second screen
