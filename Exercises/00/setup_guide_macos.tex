@@ -1,0 +1,972 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+
+% Code styling
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+% Custom boxes
+\newtcolorbox{warningbox}{
+    colback=red!5!white,
+    colframe=red!75!black,
+    title=\faExclamationTriangle\ Important
+}
+
+\newtcolorbox{infobox}{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    title=\faInfoCircle\ Note
+}
+
+\newtcolorbox{tipbox}{
+    colback=green!5!white,
+    colframe=green!75!black,
+    title=\faLightbulb\ Tip
+}
+
+\newtcolorbox{problembox}{
+    colback=red!5!white,
+    colframe=red!75!black,
+    title=\faBug\ Problem
+}
+
+\newtcolorbox{solutionbox}{
+    colback=green!5!white,
+    colframe=green!75!black,
+    title=\faCheck\ Solution
+}
+
+\title{Introduction to Deep Learning\\
+Local Development Environment Setup Guide\\
+\textbf{macOS}}
+\author{MSc Artificial Intelligence}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Overview}
+
+This guide will help you set up a local Python development environment on \textbf{macOS} for the Deep Learning course. You will:
+\begin{itemize}
+    \item Install Python 3.10 or later
+    \item Create a virtual environment
+    \item Install PyTorch and required packages
+    \item Verify your installation with Jupyter Notebook
+\end{itemize}
+
+\begin{warningbox}
+Please complete this setup \textbf{before} the first exercise session. If you encounter problems, consult the troubleshooting guide or use GitHub Codespaces as a temporary backup.
+\end{warningbox}
+
+\begin{infobox}
+Estimated time: 30-45 minutes depending on your internet speed.\\
+This guide covers both Intel and Apple Silicon (M1/M2/M3) Macs.
+\end{infobox}
+
+\section{Step 1: Check Existing Python Installation}
+
+macOS usually comes with Python, but it's often an older version.
+
+\subsection{Open Terminal}
+
+Press \texttt{Cmd + Space}, type ``Terminal'', and press Enter.
+
+\subsection{Check Python Version}
+
+In terminal, run:
+\begin{lstlisting}[language=bash]
+python3 --version
+\end{lstlisting}
+
+\textbf{If you see \texttt{Python 3.10.x} or higher:}
+\begin{itemize}
+    \item Great! Skip to Step 3 (Setting Up Virtual Environment)
+\end{itemize}
+
+\textbf{If you see an older version or error:}
+\begin{itemize}
+    \item Continue to Step 2 to install Python
+\end{itemize}
+
+\begin{tipbox}
+Don't use \texttt{python} (without the 3) - this often points to Python 2.7 on macOS.
+\end{tipbox}
+
+\section{Step 2: Install Python}
+
+\subsection{Option 1: Using Homebrew (Recommended)}
+
+Homebrew is the most popular package manager for macOS.
+
+\subsubsection{Install Homebrew (if not already installed)}
+
+Check if Homebrew is installed:
+\begin{lstlisting}[language=bash]
+brew --version
+\end{lstlisting}
+
+If not installed, install it:
+\begin{lstlisting}[language=bash]
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+\end{lstlisting}
+
+Follow the instructions to add Homebrew to your PATH.
+
+\subsubsection{Install Python}
+
+\begin{lstlisting}[language=bash]
+brew install python@3.11
+\end{lstlisting}
+
+Wait 2-5 minutes for installation to complete.
+
+\subsubsection{Verify Installation}
+
+\begin{lstlisting}[language=bash]
+python3 --version
+\end{lstlisting}
+
+Should show Python 3.11.x
+
+\subsection{Option 2: Official Python Installer}
+
+If you prefer not to use Homebrew:
+
+\begin{enumerate}
+    \item Go to \url{https://www.python.org/downloads/macos/}
+    \item Click ``Download Python 3.11.x'' (latest version)
+    \item Open the downloaded \texttt{.pkg} file
+    \item Follow the installation wizard
+    \item Use default options and click ``Install''
+    \item Enter your password when prompted
+    \item Click ``Close'' when finished
+\end{enumerate}
+
+\subsubsection{Install Certificates (Important!)}
+
+After installing Python, you need to install SSL certificates:
+
+\begin{lstlisting}[language=bash]
+# Replace 3.11 with your Python version
+/Applications/Python\ 3.11/Install\ Certificates.command
+\end{lstlisting}
+
+This prevents SSL errors when downloading packages.
+
+\subsection{Verify Installation}
+
+Open a new terminal and run:
+\begin{lstlisting}[language=bash]
+python3 --version
+pip3 --version
+\end{lstlisting}
+
+Both should work without errors.
+
+\section{Step 3: Install Xcode Command Line Tools}
+
+These are required for some Python packages.
+
+\subsection{Install Command Line Tools}
+
+\begin{lstlisting}[language=bash]
+xcode-select --install
+\end{lstlisting}
+
+\begin{itemize}
+    \item Click ``Install'' in the popup window
+    \item Accept the license agreement
+    \item Wait 5-10 minutes for installation
+\end{itemize}
+
+\begin{infobox}
+If you get ``command line tools are already installed'', that's fine - skip this step.
+\end{infobox}
+
+\section{Step 4: Create Project Folder}
+
+\subsection{Navigate to Documents}
+
+\begin{lstlisting}[language=bash]
+cd ~/Documents
+\end{lstlisting}
+
+\subsection{Create and Navigate to Project Folder}
+
+\begin{lstlisting}[language=bash]
+mkdir DeepLearning
+cd DeepLearning
+\end{lstlisting}
+
+\begin{tipbox}
+You can verify your current location with:
+\begin{lstlisting}[language=bash]
+pwd
+\end{lstlisting}
+Should show: \texttt{/Users/yourusername/Documents/DeepLearning}
+\end{tipbox}
+
+\section{Step 5: Create Virtual Environment}
+
+A virtual environment keeps your project dependencies isolated.
+
+\subsection{Create the Virtual Environment}
+
+In your \texttt{DeepLearning} folder:
+\begin{lstlisting}[language=bash]
+python3 -m venv deep_learning_env
+\end{lstlisting}
+
+This creates a new folder called \texttt{deep\_learning\_env} containing:
+\begin{itemize}
+    \item Python interpreter
+    \item pip package manager
+    \item Space for installed packages
+\end{itemize}
+
+Wait 10-30 seconds for creation to complete.
+
+\subsection{Activate the Virtual Environment}
+
+\begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+\end{lstlisting}
+
+\subsection{Verify Activation}
+
+After activation, you should see:
+\begin{lstlisting}
+(deep_learning_env) computername:DeepLearning username$
+\end{lstlisting}
+
+The \texttt{(deep\_learning\_env)} prefix indicates the virtual environment is active!
+
+\begin{tipbox}
+To deactivate later, simply type:
+\begin{lstlisting}[language=bash]
+deactivate
+\end{lstlisting}
+\end{tipbox}
+
+\begin{warningbox}
+\textbf{Important:} You must use \texttt{source} to activate. Just running \texttt{deep\_learning\_env/bin/activate} without \texttt{source} will not work!
+\end{warningbox}
+
+\section{Step 6: Install Required Packages}
+
+\begin{warningbox}
+Make sure your virtual environment is activated! You should see \texttt{(deep\_learning\_env)} in your prompt.
+\end{warningbox}
+
+\subsection{Upgrade pip}
+
+First, upgrade pip to the latest version:
+\begin{lstlisting}[language=bash]
+python3 -m pip install --upgrade pip
+\end{lstlisting}
+
+\subsection{Download requirements.txt}
+
+\begin{enumerate}
+    \item Download \texttt{requirements.txt} from the course repository
+    \item Save it to your \texttt{DeepLearning} folder
+    \item Verify it's there:
+    \begin{lstlisting}[language=bash]
+ls requirements.txt
+    \end{lstlisting}
+\end{enumerate}
+
+\begin{tipbox}
+You can download directly from terminal if you have the URL:
+\begin{lstlisting}[language=bash]
+curl -O https://url-to-requirements.txt
+\end{lstlisting}
+\end{tipbox}
+
+\subsection{Install All Packages}
+
+\begin{lstlisting}[language=bash]
+pip install -r requirements.txt
+\end{lstlisting}
+
+\begin{infobox}
+This will take 5-10 minutes as PyTorch is a large package (~700MB). You'll see progress bars for each package being downloaded and installed.
+\end{infobox}
+
+\subsection{Alternative: Manual Installation}
+
+If you don't have \texttt{requirements.txt}, install packages individually:
+
+\begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio
+pip install jupyter notebook
+pip install matplotlib numpy pandas
+pip install ipywidgets
+\end{lstlisting}
+
+\begin{infobox}
+\textbf{For Apple Silicon Macs (M1/M2/M3):} PyTorch will automatically install the ARM64 version optimized for your processor. No special steps needed!
+\end{infobox}
+
+\section{Step 7: Verify Installation}
+
+\subsection{Test Python and PyTorch}
+
+\begin{enumerate}
+    \item Start Python interpreter:
+    \begin{lstlisting}[language=bash]
+python3
+    \end{lstlisting}
+    
+    \item In the Python prompt (\texttt{>>>}), run:
+    \begin{lstlisting}[language=Python]
+import torch
+import platform
+
+print(f"PyTorch version: {torch.__version__}")
+print(f"Python architecture: {platform.machine()}")
+print(f"CUDA available: {torch.cuda.is_available()}")
+print(f"MPS available: {torch.backends.mps.is_available()}")
+
+# Create a test tensor
+x = torch.tensor([1, 2, 3])
+print(f"Test tensor: {x}")
+    \end{lstlisting}
+    
+    \item You should see output similar to:
+    \begin{lstlisting}
+PyTorch version: 2.x.x
+Python architecture: arm64  # or x86_64 for Intel Macs
+CUDA available: False
+MPS available: True  # or False for Intel Macs
+Test tensor: tensor([1, 2, 3])
+    \end{lstlisting}
+    
+    \item Exit Python:
+    \begin{lstlisting}[language=Python]
+exit()
+    \end{lstlisting}
+\end{enumerate}
+
+\begin{infobox}
+\textbf{For M1/M2/M3 Macs:} \texttt{MPS available: True} means you can use Apple's Metal Performance Shaders for GPU acceleration (optional).
+
+\textbf{For Intel Macs:} Both CUDA and MPS will be False - you'll use CPU, which is fine for this course.
+\end{infobox}
+
+\subsection{Launch Jupyter Notebook}
+
+\begin{enumerate}
+    \item Make sure your virtual environment is still activated
+    
+    \item Run:
+    \begin{lstlisting}[language=bash]
+jupyter notebook
+    \end{lstlisting}
+    
+    \item A browser window should open automatically showing the Jupyter interface
+    
+    \item You should see your \texttt{DeepLearning} folder contents
+\end{enumerate}
+
+\begin{tipbox}
+If the browser doesn't open automatically:
+\begin{itemize}
+    \item Look for a URL in the terminal output
+    \item It will look like: \texttt{http://localhost:8888/?token=...}
+    \item Copy this URL and paste it into your browser
+\end{itemize}
+\end{tipbox}
+
+\subsection{Create and Test a Notebook}
+
+\begin{enumerate}
+    \item In Jupyter, click ``New'' → ``Python 3 (ipykernel)''
+    
+    \item In the first cell, type:
+    \begin{lstlisting}[language=Python]
+import torch
+import matplotlib.pyplot as plt
+import numpy as np
+
+print("Setup successful!")
+print(f"PyTorch version: {torch.__version__}")
+
+# Simple test
+x = torch.randn(5)
+print(f"Random tensor: {x}")
+    \end{lstlisting}
+    
+    \item Press \texttt{Shift + Enter} to run the cell
+    
+    \item If you see ``Setup successful!'' and no errors, everything is working!
+    
+    \item Close the notebook (File → Close and Halt)
+    
+    \item Stop Jupyter by pressing \texttt{Ctrl + C} twice in the terminal
+\end{enumerate}
+
+\section{Step 8: Daily Workflow}
+
+Every time you want to work on the course:
+
+\subsection{Starting Your Work Session}
+
+\begin{enumerate}
+    \item Open Terminal (\texttt{Cmd + Space} → ``Terminal'')
+    
+    \item Navigate to your project folder:
+    \begin{lstlisting}[language=bash]
+cd ~/Documents/DeepLearning
+    \end{lstlisting}
+    
+    \item Activate virtual environment:
+    \begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+    
+    \item Start Jupyter:
+    \begin{lstlisting}[language=bash]
+jupyter notebook
+    \end{lstlisting}
+    
+    \item Work in your notebooks
+\end{enumerate}
+
+\subsection{Ending Your Work Session}
+
+\begin{enumerate}
+    \item Save your notebooks (\texttt{Cmd + S})
+    
+    \item Close notebooks in Jupyter (File → Close and Halt)
+    
+    \item Stop Jupyter: \texttt{Ctrl + C} twice in terminal
+    
+    \item Deactivate virtual environment:
+    \begin{lstlisting}[language=bash]
+deactivate
+    \end{lstlisting}
+    
+    \item Close terminal (\texttt{Cmd + Q})
+\end{enumerate}
+
+\begin{tipbox}
+Create a shell alias to make activation easier:
+\begin{lstlisting}[language=bash]
+# Add to ~/.zshrc (or ~/.bash_profile for older macOS)
+alias dlenv='cd ~/Documents/DeepLearning && source deep_learning_env/bin/activate'
+\end{lstlisting}
+Then you can just type \texttt{dlenv} to navigate and activate!
+
+To reload your shell config: \texttt{source ~/.zshrc}
+\end{tipbox}
+
+\section{Optional: IDE Setup}
+
+While Jupyter Notebooks are great for exercises, you may want a full IDE for projects.
+
+\subsection{VS Code (Recommended)}
+
+\subsubsection{Installation}
+
+\begin{enumerate}
+    \item Go to \url{https://code.visualstudio.com/}
+    \item Click ``Download Mac Universal'' (works for both Intel and Apple Silicon)
+    \item Open the downloaded \texttt{.zip} file
+    \item Drag \texttt{Visual Studio Code.app} to your Applications folder
+    \item Launch VS Code from Applications
+\end{enumerate}
+
+\subsubsection{Setup for Python}
+
+\begin{enumerate}
+    \item Click Extensions icon (left sidebar) or press \texttt{Cmd + Shift + X}
+    
+    \item Search for and install:
+    \begin{itemize}
+        \item ``Python'' by Microsoft
+        \item ``Jupyter'' by Microsoft
+    \end{itemize}
+    
+    \item Open your DeepLearning folder: File → Open Folder
+    
+    \item Select Python interpreter:
+    \begin{itemize}
+        \item Press \texttt{Cmd + Shift + P}
+        \item Type ``Python: Select Interpreter''
+        \item Choose the one in \texttt{deep\_learning\_env/bin/python}
+    \end{itemize}
+    
+    \item You can now open and run .ipynb files directly in VS Code!
+\end{enumerate}
+
+\subsection{PyCharm Community (Alternative)}
+
+\begin{enumerate}
+    \item Go to \url{https://www.jetbrains.com/pycharm/download/#section=mac}
+    \item Download Community Edition (free)
+    \item Open the \texttt{.dmg} file
+    \item Drag PyCharm to Applications
+    \item Launch PyCharm
+    \item Open your DeepLearning folder
+    \item Configure interpreter:
+    \begin{itemize}
+        \item PyCharm → Settings → Project → Python Interpreter
+        \item Click gear icon → Add
+        \item Choose ``Existing environment''
+        \item Navigate to: \texttt{~/Documents/DeepLearning/deep\_learning\_env/bin/python}
+    \end{itemize}
+\end{enumerate}
+
+\section{Optional: Apple Silicon GPU Support (M1/M2/M3)}
+
+\begin{infobox}
+Apple Silicon Macs can use Metal Performance Shaders (MPS) for GPU acceleration. This is optional and not required for Week 1, but can speed up training from Week 4 onwards.
+\end{infobox}
+
+\subsection{Check MPS Availability}
+
+MPS should already be available if you have an M1/M2/M3 Mac:
+
+\begin{lstlisting}[language=Python]
+import torch
+
+print(f"MPS available: {torch.backends.mps.is_available()}")
+print(f"MPS built: {torch.backends.mps.is_built()}")
+\end{lstlisting}
+
+Should print:
+\begin{lstlisting}
+MPS available: True
+MPS built: True
+\end{lstlisting}
+
+\subsection{Using MPS in Your Code}
+
+\begin{lstlisting}[language=Python]
+import torch
+
+# Set device to MPS if available, otherwise CPU
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+print(f"Using device: {device}")
+
+# Create tensor on MPS
+x = torch.randn(3, 3).to(device)
+print(f"Tensor device: {x.device}")
+
+# Or create directly on MPS
+y = torch.randn(3, 3, device=device)
+\end{lstlisting}
+
+\begin{infobox}
+You'll learn more about device management in later weeks. For now, just knowing it's available is enough!
+\end{infobox}
+
+\subsection{MPS Limitations}
+
+Some operations may not be supported on MPS yet. If you encounter errors, fall back to CPU:
+
+\begin{lstlisting}[language=Python]
+try:
+    x = x.to('mps')
+except:
+    print("Operation not supported on MPS, using CPU")
+    x = x.to('cpu')
+\end{lstlisting}
+
+\section{Troubleshooting: Architecture Issues (M1/M2/M3)}
+
+\subsection{Check Python Architecture}
+
+Make sure you're using ARM64 Python, not x86\_64 (Rosetta):
+
+\begin{lstlisting}[language=bash]
+python3 -c "import platform; print(platform.machine())"
+\end{lstlisting}
+
+Should print: \texttt{arm64}
+
+If it prints \texttt{x86\_64}, you installed x86 Python. Reinstall using Homebrew:
+
+\begin{lstlisting}[language=bash]
+# Uninstall old Python
+brew uninstall python@3.11
+
+# Make sure Homebrew is ARM64
+arch -arm64 brew install python@3.11
+\end{lstlisting}
+
+\subsection{Rosetta 2}
+
+Some packages may still require Rosetta 2. If prompted, install it:
+
+\begin{lstlisting}[language=bash]
+softwareupdate --install-rosetta
+\end{lstlisting}
+
+\section{Troubleshooting Common Issues}
+
+\subsection{Python Not Found}
+
+\begin{problembox}
+Error: \texttt{python3: command not found}
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Install Python (see Step 2)
+    \item Check if Homebrew installed it:
+    \begin{lstlisting}[language=bash]
+which python3
+/usr/local/bin/python3 --version
+    \end{lstlisting}
+    \item Try with version number:
+    \begin{lstlisting}[language=bash]
+python3.11 --version
+    \end{lstlisting}
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{xcrun Error}
+
+\begin{problembox}
+Error: \texttt{xcrun: error: invalid active developer path}
+\end{problembox}
+
+\begin{solutionbox}
+Install Xcode Command Line Tools:
+\begin{lstlisting}[language=bash]
+xcode-select --install
+\end{lstlisting}
+
+Click ``Install'' and wait for completion.
+\end{solutionbox}
+
+\subsection{SSL Certificate Errors}
+
+\begin{problembox}
+\texttt{SSL: CERTIFICATE\_VERIFY\_FAILED} when installing packages.
+\end{problembox}
+
+\begin{solutionbox}
+Run the certificate installer that comes with Python:
+\begin{lstlisting}[language=bash]
+# Replace 3.11 with your version
+/Applications/Python\ 3.11/Install\ Certificates.command
+\end{lstlisting}
+
+Or if installed via Homebrew:
+\begin{lstlisting}[language=bash]
+pip install --upgrade certifi
+\end{lstlisting}
+\end{solutionbox}
+
+\subsection{Virtual Environment Won't Activate}
+
+\begin{problembox}
+After running activation, no \texttt{(deep\_learning\_env)} prefix appears.
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Make sure you use \texttt{source}:
+    \begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+    
+    \item Check if venv was created:
+    \begin{lstlisting}[language=bash]
+ls deep_learning_env/bin/
+    \end{lstlisting}
+    Should see \texttt{activate} file
+    
+    \item Try recreating:
+    \begin{lstlisting}[language=bash]
+rm -rf deep_learning_env
+python3 -m venv deep_learning_env
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{Architecture Issues (Apple Silicon)}
+
+\begin{problembox}
+Package installation fails with architecture errors on M1/M2/M3 Mac.
+\end{problembox}
+
+\begin{solutionbox}
+\textbf{Check Python architecture:}
+\begin{lstlisting}[language=bash]
+python3 -c "import platform; print(platform.machine())"
+\end{lstlisting}
+
+Should print \texttt{arm64}, not \texttt{x86\_64}.
+
+\textbf{If showing x86\_64:}
+\begin{enumerate}
+    \item You have x86 Python (running under Rosetta)
+    \item Uninstall and reinstall ARM64 version:
+    \begin{lstlisting}[language=bash]
+# If using Homebrew
+brew uninstall python@3.11
+arch -arm64 brew install python@3.11
+    \end{lstlisting}
+    
+    \item Or download official ARM64 installer from python.org
+\end{enumerate}
+
+\textbf{Install Rosetta 2 if needed:}
+\begin{lstlisting}[language=bash]
+softwareupdate --install-rosetta
+\end{lstlisting}
+\end{solutionbox}
+
+\subsection{Homebrew Issues}
+
+\begin{problembox}
+Homebrew commands not working or packages not found.
+\end{problembox}
+
+\begin{solutionbox}
+\textbf{Add Homebrew to PATH:}
+
+For Apple Silicon (M1/M2/M3):
+\begin{lstlisting}[language=bash]
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+source ~/.zshrc
+\end{lstlisting}
+
+For Intel Macs:
+\begin{lstlisting}[language=bash]
+echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
+source ~/.zshrc
+\end{lstlisting}
+
+\textbf{Update Homebrew:}
+\begin{lstlisting}[language=bash]
+brew update
+brew upgrade
+\end{lstlisting}
+\end{solutionbox}
+
+\subsection{Package Installation Fails}
+
+\begin{problembox}
+\texttt{pip install} fails with timeout or connection errors.
+\end{problembox}
+
+\begin{solutionbox}
+\textbf{Try PyTorch CDN (faster):}
+\begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+\end{lstlisting}
+
+\textbf{Increase timeout:}
+\begin{lstlisting}[language=bash]
+pip install --default-timeout=1000 torch
+\end{lstlisting}
+
+\textbf{Check connection:}
+\begin{lstlisting}[language=bash]
+ping pypi.org
+\end{lstlisting}
+\end{solutionbox}
+
+\subsection{Jupyter Notebook Won't Start}
+
+\begin{problembox}
+\texttt{jupyter notebook} fails or browser doesn't open.
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Verify Jupyter is installed:
+    \begin{lstlisting}[language=bash]
+pip install jupyter notebook
+    \end{lstlisting}
+    
+    \item Try different port:
+    \begin{lstlisting}[language=bash]
+jupyter notebook --port=8889
+    \end{lstlisting}
+    
+    \item Check if port 8888 is in use:
+    \begin{lstlisting}[language=bash]
+lsof -i :8888
+    \end{lstlisting}
+    
+    \item Manually copy URL from terminal to browser
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{Module Not Found in Jupyter}
+
+\begin{problembox}
+\texttt{ModuleNotFoundError: No module named 'torch'} in Jupyter.
+\end{problembox}
+
+\begin{solutionbox}
+Jupyter is using wrong Python environment!
+
+\begin{enumerate}
+    \item Activate virtual environment BEFORE starting Jupyter
+    
+    \item Check Python path in notebook:
+    \begin{lstlisting}[language=Python]
+import sys
+print(sys.executable)
+    \end{lstlisting}
+    Should point to \texttt{deep\_learning\_env}
+    
+    \item Register environment as kernel:
+    \begin{lstlisting}[language=bash]
+python -m ipykernel install --user --name=deep_learning_env
+    \end{lstlisting}
+    Then: Kernel → Change kernel → deep\_learning\_env
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{MPS Not Working (Apple Silicon)}
+
+\begin{problembox}
+\texttt{torch.backends.mps.is\_available()} returns False on M1/M2/M3 Mac.
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Make sure you have ARM64 Python (not x86\_64)
+    \item Check macOS version (need macOS 12.3+):
+    \begin{lstlisting}[language=bash]
+sw_vers
+    \end{lstlisting}
+    \item Update PyTorch to latest version:
+    \begin{lstlisting}[language=bash]
+pip install --upgrade torch torchvision torchaudio
+    \end{lstlisting}
+    \item Some operations may not be MPS-compatible yet - use CPU as fallback
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{Permission Issues}
+
+\begin{problembox}
+Getting permission errors when creating files or installing packages.
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Make sure you're working in your home directory (\texttt{\~{}/Documents})
+    \item Never use \texttt{sudo} with pip
+    \item If you used sudo accidentally, fix ownership:
+    \begin{lstlisting}[language=bash]
+sudo chown -R $USER:staff ~/Documents/DeepLearning
+    \end{lstlisting}
+\end{enumerate}
+\end{solutionbox}
+
+\section{Getting Help}
+
+If you've tried the troubleshooting steps and still have issues:
+
+\begin{enumerate}
+    \item Document your error:
+    \begin{itemize}
+        \item Copy full error message
+        \item Note your macOS version (\texttt{sw\_vers})
+        \item Note your Mac type (Intel or M1/M2/M3)
+        \item Note Python version and architecture
+        \item What you were trying to do
+        \item What you've already tried
+    \end{itemize}
+    
+    \item Get help:
+    \begin{itemize}
+        \item Post in course forum with documentation
+        \item Email instructor with details
+        \item Come to office hours
+    \end{itemize}
+    
+    \item Temporary workaround:
+    \begin{itemize}
+        \item Use GitHub Codespaces (see separate guide)
+        \item Continue with exercises while troubleshooting local setup
+    \end{itemize}
+\end{enumerate}
+
+\section{Next Steps}
+
+\begin{enumerate}
+    \item Download Week 1 exercise notebooks from course repository
+    \item Place them in your \texttt{DeepLearning} folder
+    \item Activate virtual environment
+    \item Start Jupyter Notebook
+    \item Open \texttt{week1\_exercises\_starter.ipynb}
+    \item You're ready to start coding!
+\end{enumerate}
+
+\begin{tipbox}
+\textbf{Create a habit:} Always activate your virtual environment before working on course materials!
+\end{tipbox}
+
+\section{Quick Reference}
+
+\subsection{Essential Commands}
+
+\begin{lstlisting}[language=bash]
+# Navigate to project
+cd ~/Documents/DeepLearning
+
+# Activate virtual environment
+source deep_learning_env/bin/activate
+
+# Start Jupyter
+jupyter notebook
+
+# Stop Jupyter
+# Press Ctrl+C twice
+
+# Deactivate virtual environment
+deactivate
+\end{lstlisting}
+
+\subsection{Troubleshooting Quick Fixes}
+
+\begin{itemize}
+    \item \textbf{python3: command not found}: Install Python (Step 2)
+    \item \textbf{SSL certificate errors}: Run Install Certificates.command
+    \item \textbf{xcrun: error}: Install Xcode Command Line Tools (Step 3)
+    \item \textbf{Virtual env won't activate}: Use \texttt{source} command
+    \item \textbf{Module not found in Jupyter}: Activate venv before starting Jupyter
+    \item \textbf{Architecture is x86\_64 on M1/M2/M3}: Reinstall ARM64 Python
+\end{itemize}
+
+\subsection{Default Shell Note}
+
+\begin{infobox}
+macOS Catalina (10.15) and later use \texttt{zsh} as the default shell. Configuration file: \texttt{~/.zshrc}
+
+Older versions use \texttt{bash}. Configuration file: \texttt{~/.bash\_profile}
+\end{infobox}
+
+\end{document}

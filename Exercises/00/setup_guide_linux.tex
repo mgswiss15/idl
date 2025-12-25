@@ -1,0 +1,952 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+
+% Code styling
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+% Custom boxes
+\newtcolorbox{warningbox}{
+    colback=red!5!white,
+    colframe=red!75!black,
+    title=\faExclamationTriangle\ Important
+}
+
+\newtcolorbox{infobox}{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    title=\faInfoCircle\ Note
+}
+
+\newtcolorbox{tipbox}{
+    colback=green!5!white,
+    colframe=green!75!black,
+    title=\faLightbulb\ Tip
+}
+
+\newtcolorbox{problembox}{
+    colback=red!5!white,
+    colframe=red!75!black,
+    title=\faBug\ Problem
+}
+
+\newtcolorbox{solutionbox}{
+    colback=green!5!white,
+    colframe=green!75!black,
+    title=\faCheck\ Solution
+}
+
+\title{Introduction to Deep Learning\\
+Local Development Environment Setup Guide\\
+\textbf{Linux}}
+\author{MSc Artificial Intelligence}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Overview}
+
+This guide will help you set up a local Python development environment on \textbf{Linux} for the Deep Learning course. You will:
+\begin{itemize}
+    \item Install Python 3.10 or later
+    \item Create a virtual environment
+    \item Install PyTorch and required packages
+    \item Verify your installation with Jupyter Notebook
+\end{itemize}
+
+\begin{warningbox}
+Please complete this setup \textbf{before} the first exercise session. If you encounter problems, consult the troubleshooting guide or use GitHub Codespaces as a temporary backup.
+\end{warningbox}
+
+\begin{infobox}
+Estimated time: 20-30 minutes depending on your internet speed and distribution.\\
+This guide covers Ubuntu/Debian. For other distributions (Fedora, Arch, etc.), adjust package manager commands accordingly.
+\end{infobox}
+
+\section{Step 1: Check Existing Python Installation}
+
+Most Linux distributions come with Python pre-installed.
+
+\subsection{Open Terminal}
+
+Press \texttt{Ctrl + Alt + T} or search for ``Terminal'' in your applications.
+
+\subsection{Check Python Version}
+
+In terminal, run:
+\begin{lstlisting}[language=bash]
+python3 --version
+\end{lstlisting}
+
+\textbf{If you see \texttt{Python 3.10.x} or higher:}
+\begin{itemize}
+    \item Great! Skip to Step 3 (Setting Up Virtual Environment)
+    \item But first, check if venv is installed (see Step 2.3)
+\end{itemize}
+
+\textbf{If you see an older version or error:}
+\begin{itemize}
+    \item Continue to Step 2 to install Python
+\end{itemize}
+
+\section{Step 2: Install Python}
+
+\subsection{Ubuntu/Debian}
+
+\subsubsection{Update Package List}
+
+\begin{lstlisting}[language=bash]
+sudo apt update
+\end{lstlisting}
+
+\subsubsection{Install Python 3.11}
+
+\begin{lstlisting}[language=bash]
+sudo apt install python3.11 python3.11-venv python3-pip
+\end{lstlisting}
+
+\begin{infobox}
+If Python 3.11 is not available in your repositories, you may need to add the deadsnakes PPA:
+\begin{lstlisting}[language=bash]
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.11 python3.11-venv
+\end{lstlisting}
+\end{infobox}
+
+\subsubsection{Verify Installation}
+
+\begin{lstlisting}[language=bash]
+python3.11 --version
+\end{lstlisting}
+
+\subsection{Fedora}
+
+\begin{lstlisting}[language=bash]
+sudo dnf install python3.11
+\end{lstlisting}
+
+\subsection{Arch Linux}
+
+\begin{lstlisting}[language=bash]
+sudo pacman -S python python-pip
+\end{lstlisting}
+
+\subsection{Check venv Module}
+
+The \texttt{venv} module is required for creating virtual environments:
+
+\begin{lstlisting}[language=bash]
+python3 -m venv --help
+\end{lstlisting}
+
+\textbf{If you get an error:}
+\begin{lstlisting}[language=bash]
+# Ubuntu/Debian
+sudo apt install python3.11-venv
+
+# Fedora
+sudo dnf install python3-virtualenv
+
+# Arch
+sudo pacman -S python-virtualenv
+\end{lstlisting}
+
+\section{Step 3: Create Project Folder}
+
+\subsection{Navigate to Home Directory}
+
+\begin{lstlisting}[language=bash]
+cd ~
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}[language=bash]
+cd ~/Documents
+\end{lstlisting}
+
+\subsection{Create and Navigate to Project Folder}
+
+\begin{lstlisting}[language=bash]
+mkdir DeepLearning
+cd DeepLearning
+\end{lstlisting}
+
+\begin{tipbox}
+You can verify your current location with:
+\begin{lstlisting}[language=bash]
+pwd
+\end{lstlisting}
+Should show: \texttt{/home/yourusername/DeepLearning}
+\end{tipbox}
+
+\section{Step 4: Create Virtual Environment}
+
+A virtual environment keeps your project dependencies isolated.
+
+\subsection{Create the Virtual Environment}
+
+In your \texttt{DeepLearning} folder:
+\begin{lstlisting}[language=bash]
+python3 -m venv deep_learning_env
+\end{lstlisting}
+
+This creates a new folder called \texttt{deep\_learning\_env} containing:
+\begin{itemize}
+    \item Python interpreter
+    \item pip package manager
+    \item Space for installed packages
+\end{itemize}
+
+Wait 10-30 seconds for creation to complete.
+
+\subsection{Activate the Virtual Environment}
+
+\begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+\end{lstlisting}
+
+\subsection{Verify Activation}
+
+After activation, you should see:
+\begin{lstlisting}
+(deep_learning_env) username@hostname:~/DeepLearning$
+\end{lstlisting}
+
+The \texttt{(deep\_learning\_env)} prefix indicates the virtual environment is active!
+
+\begin{tipbox}
+To deactivate later, simply type:
+\begin{lstlisting}[language=bash]
+deactivate
+\end{lstlisting}
+\end{tipbox}
+
+\begin{warningbox}
+\textbf{Important:} You must use \texttt{source} to activate. Just running \texttt{deep\_learning\_env/bin/activate} without \texttt{source} will not work!
+\end{warningbox}
+
+\section{Step 5: Install Required Packages}
+
+\begin{warningbox}
+Make sure your virtual environment is activated! You should see \texttt{(deep\_learning\_env)} in your prompt.
+\end{warningbox}
+
+\subsection{Upgrade pip}
+
+First, upgrade pip to the latest version:
+\begin{lstlisting}[language=bash]
+python3 -m pip install --upgrade pip
+\end{lstlisting}
+
+\subsection{Download requirements.txt}
+
+\begin{enumerate}
+    \item Download \texttt{requirements.txt} from the course repository
+    \item Save it to your \texttt{DeepLearning} folder
+    \item Verify it's there:
+    \begin{lstlisting}[language=bash]
+ls requirements.txt
+    \end{lstlisting}
+\end{enumerate}
+
+\begin{tipbox}
+You can download directly from terminal if you have the URL:
+\begin{lstlisting}[language=bash]
+wget https://url-to-requirements.txt
+# or
+curl -O https://url-to-requirements.txt
+\end{lstlisting}
+\end{tipbox}
+
+\subsection{Install All Packages}
+
+\begin{lstlisting}[language=bash]
+pip install -r requirements.txt
+\end{lstlisting}
+
+\begin{infobox}
+This will take 5-10 minutes as PyTorch is a large package (~700MB). You'll see progress bars for each package being downloaded and installed.
+\end{infobox}
+
+\subsection{Alternative: Manual Installation}
+
+If you don't have \texttt{requirements.txt}, install packages individually:
+
+\begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio
+pip install jupyter notebook
+pip install matplotlib numpy pandas
+pip install ipywidgets
+\end{lstlisting}
+
+\begin{warningbox}
+\textbf{Never use sudo with pip!} This can break your system Python. Always use virtual environments.
+\end{warningbox}
+
+\section{Step 6: Verify Installation}
+
+\subsection{Test Python and PyTorch}
+
+\begin{enumerate}
+    \item Start Python interpreter:
+    \begin{lstlisting}[language=bash]
+python3
+    \end{lstlisting}
+    
+    \item In the Python prompt (\texttt{>>>}), run:
+    \begin{lstlisting}[language=Python]
+import torch
+print(f"PyTorch version: {torch.__version__}")
+print(f"CUDA available: {torch.cuda.is_available()}")
+
+# Create a test tensor
+x = torch.tensor([1, 2, 3])
+print(f"Test tensor: {x}")
+    \end{lstlisting}
+    
+    \item You should see:
+    \begin{lstlisting}
+PyTorch version: 2.x.x
+CUDA available: False
+Test tensor: tensor([1, 2, 3])
+    \end{lstlisting}
+    
+    \item Exit Python:
+    \begin{lstlisting}[language=Python]
+exit()
+    \end{lstlisting}
+\end{enumerate}
+
+\begin{infobox}
+\texttt{CUDA available: False} is normal if you don't have an NVIDIA GPU. PyTorch will use your CPU, which is fine for this course.
+\end{infobox}
+
+\subsection{Launch Jupyter Notebook}
+
+\begin{enumerate}
+    \item Make sure your virtual environment is still activated
+    
+    \item Run:
+    \begin{lstlisting}[language=bash]
+jupyter notebook
+    \end{lstlisting}
+    
+    \item A browser window should open automatically showing the Jupyter interface
+    
+    \item You should see your \texttt{DeepLearning} folder contents
+\end{enumerate}
+
+\begin{tipbox}
+If the browser doesn't open automatically:
+\begin{itemize}
+    \item Look for a URL in the terminal output
+    \item It will look like: \texttt{http://localhost:8888/?token=...}
+    \item Copy this URL and paste it into your browser
+\end{itemize}
+\end{tipbox}
+
+\subsection{Create and Test a Notebook}
+
+\begin{enumerate}
+    \item In Jupyter, click ``New'' → ``Python 3 (ipykernel)''
+    
+    \item In the first cell, type:
+    \begin{lstlisting}[language=Python]
+import torch
+import matplotlib.pyplot as plt
+import numpy as np
+
+print("Setup successful!")
+print(f"PyTorch version: {torch.__version__}")
+
+# Simple test
+x = torch.randn(5)
+print(f"Random tensor: {x}")
+    \end{lstlisting}
+    
+    \item Press \texttt{Shift + Enter} to run the cell
+    
+    \item If you see ``Setup successful!'' and no errors, everything is working!
+    
+    \item Close the notebook (File → Close and Halt)
+    
+    \item Stop Jupyter by pressing \texttt{Ctrl + C} twice in the terminal
+\end{enumerate}
+
+\section{Step 7: Daily Workflow}
+
+Every time you want to work on the course:
+
+\subsection{Starting Your Work Session}
+
+\begin{enumerate}
+    \item Open Terminal (\texttt{Ctrl + Alt + T})
+    
+    \item Navigate to your project folder:
+    \begin{lstlisting}[language=bash]
+cd ~/DeepLearning
+    \end{lstlisting}
+    
+    \item Activate virtual environment:
+    \begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+    
+    \item Start Jupyter:
+    \begin{lstlisting}[language=bash]
+jupyter notebook
+    \end{lstlisting}
+    
+    \item Work in your notebooks
+\end{enumerate}
+
+\subsection{Ending Your Work Session}
+
+\begin{enumerate}
+    \item Save your notebooks (\texttt{Ctrl + S})
+    
+    \item Close notebooks in Jupyter (File → Close and Halt)
+    
+    \item Stop Jupyter: \texttt{Ctrl + C} twice in terminal
+    
+    \item Deactivate virtual environment:
+    \begin{lstlisting}[language=bash]
+deactivate
+    \end{lstlisting}
+    
+    \item Close terminal
+\end{enumerate}
+
+\begin{tipbox}
+Create a shell alias to make activation easier:
+\begin{lstlisting}[language=bash]
+# Add to ~/.bashrc or ~/.zshrc
+alias dlenv='cd ~/DeepLearning && source deep_learning_env/bin/activate'
+\end{lstlisting}
+Then you can just type \texttt{dlenv} to navigate and activate!
+\end{tipbox}
+
+\section{Optional: IDE Setup}
+
+While Jupyter Notebooks are great for exercises, you may want a full IDE for projects.
+
+\subsection{VS Code (Recommended)}
+
+\subsubsection{Installation}
+
+\textbf{Ubuntu/Debian:}
+\begin{lstlisting}[language=bash]
+# Download .deb package
+wget -O vscode.deb 'https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64'
+
+# Install
+sudo apt install ./vscode.deb
+\end{lstlisting}
+
+\textbf{Fedora:}
+\begin{lstlisting}[language=bash]
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo dnf install code
+\end{lstlisting}
+
+\textbf{Arch:}
+\begin{lstlisting}[language=bash]
+yay -S visual-studio-code-bin
+\end{lstlisting}
+
+\subsubsection{Setup for Python}
+
+\begin{enumerate}
+    \item Launch VS Code: \texttt{code}
+    
+    \item Click Extensions icon (left sidebar) or press \texttt{Ctrl + Shift + X}
+    
+    \item Search for and install:
+    \begin{itemize}
+        \item ``Python'' by Microsoft
+        \item ``Jupyter'' by Microsoft
+    \end{itemize}
+    
+    \item Open your DeepLearning folder: File → Open Folder
+    
+    \item Select Python interpreter:
+    \begin{itemize}
+        \item Press \texttt{Ctrl + Shift + P}
+        \item Type ``Python: Select Interpreter''
+        \item Choose the one in \texttt{deep\_learning\_env/bin/python}
+    \end{itemize}
+    
+    \item You can now open and run .ipynb files directly in VS Code!
+\end{enumerate}
+
+\subsection{PyCharm Community (Alternative)}
+
+\subsubsection{Installation}
+
+\textbf{Ubuntu (Snap):}
+\begin{lstlisting}[language=bash]
+sudo snap install pycharm-community --classic
+\end{lstlisting}
+
+\textbf{Manual Download:}
+\begin{enumerate}
+    \item Go to \url{https://www.jetbrains.com/pycharm/download/#section=linux}
+    \item Download Community Edition
+    \item Extract and run
+\end{enumerate}
+
+\subsubsection{Configuration}
+
+\begin{enumerate}
+    \item Open PyCharm
+    \item Open your DeepLearning folder
+    \item Configure interpreter:
+    \begin{itemize}
+        \item File → Settings → Project → Python Interpreter
+        \item Click gear icon → Add
+        \item Choose ``Existing environment''
+        \item Navigate to: \texttt{~/DeepLearning/deep\_learning\_env/bin/python}
+    \end{itemize}
+\end{enumerate}
+
+\section{Optional: GPU Support}
+
+\begin{infobox}
+GPU support is \textbf{not required} for this course, but can speed up training significantly from Week 4 onwards. Skip this section if you don't have an NVIDIA GPU.
+\end{infobox}
+
+\subsection{Check if You Have NVIDIA GPU}
+
+\begin{lstlisting}[language=bash]
+lspci | grep -i nvidia
+\end{lstlisting}
+
+If you see output listing an NVIDIA GPU, you can set up CUDA. Otherwise, skip this section.
+
+\subsection{Install NVIDIA Drivers}
+
+\textbf{Ubuntu:}
+\begin{lstlisting}[language=bash]
+# Check recommended driver
+ubuntu-drivers devices
+
+# Install recommended driver
+sudo ubuntu-drivers autoinstall
+
+# Or install specific version
+sudo apt install nvidia-driver-535
+
+# Reboot
+sudo reboot
+\end{lstlisting}
+
+\textbf{Fedora:}
+\begin{lstlisting}[language=bash]
+sudo dnf install akmod-nvidia
+sudo reboot
+\end{lstlisting}
+
+\textbf{Arch:}
+\begin{lstlisting}[language=bash]
+sudo pacman -S nvidia nvidia-utils
+sudo reboot
+\end{lstlisting}
+
+\subsection{Verify Driver Installation}
+
+After reboot:
+\begin{lstlisting}[language=bash]
+nvidia-smi
+\end{lstlisting}
+
+Should show your GPU information.
+
+\subsection{Install CUDA Toolkit}
+
+\textbf{Ubuntu:}
+\begin{lstlisting}[language=bash]
+# Add CUDA repository
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt update
+
+# Install CUDA
+sudo apt install cuda-toolkit-11-8
+\end{lstlisting}
+
+\textbf{Other distributions:}
+See \url{https://developer.nvidia.com/cuda-downloads}
+
+\subsection{Reinstall PyTorch with CUDA}
+
+\begin{enumerate}
+    \item Activate your virtual environment
+    
+    \item Uninstall current PyTorch:
+    \begin{lstlisting}[language=bash]
+pip uninstall torch torchvision torchaudio
+    \end{lstlisting}
+    
+    \item Install PyTorch with CUDA 11.8:
+    \begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+    \end{lstlisting}
+    
+    \item Or for CUDA 12.1:
+    \begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+    \end{lstlisting}
+\end{enumerate}
+
+\subsection{Verify GPU Support}
+
+\begin{lstlisting}[language=Python]
+import torch
+
+print(f"CUDA available: {torch.cuda.is_available()}")
+
+if torch.cuda.is_available():
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+    print(f"CUDA version: {torch.version.cuda}")
+    
+    # Test GPU computation
+    x = torch.randn(3, 3).cuda()
+    print(f"Tensor on GPU: {x.device}")
+\end{lstlisting}
+
+Should print:
+\begin{lstlisting}
+CUDA available: True
+GPU: NVIDIA GeForce RTX 3060
+CUDA version: 11.8
+Tensor on GPU: cuda:0
+\end{lstlisting}
+
+\begin{warningbox}
+GPU setup can be tricky. If you have issues, stick with CPU for now. We can revisit GPU setup in Week 4 when it becomes more beneficial.
+\end{warningbox}
+
+\section{Troubleshooting Common Issues}
+
+\subsection{Python Not Found}
+
+\begin{problembox}
+Error: \texttt{python3: command not found}
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Install Python (see Step 2)
+    \item Check if it's installed but not in PATH:
+    \begin{lstlisting}[language=bash]
+which python3
+whereis python3
+    \end{lstlisting}
+    \item Try with version number:
+    \begin{lstlisting}[language=bash]
+python3.11 --version
+    \end{lstlisting}
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{venv Module Not Found}
+
+\begin{problembox}
+Error: \texttt{The virtual environment was not created successfully because ensurepip is not available}
+\end{problembox}
+
+\begin{solutionbox}
+Install venv module:
+\begin{lstlisting}[language=bash]
+# Ubuntu/Debian
+sudo apt install python3.11-venv
+
+# Fedora
+sudo dnf install python3-virtualenv
+
+# Arch
+sudo pacman -S python-virtualenv
+\end{lstlisting}
+\end{solutionbox}
+
+\subsection{Virtual Environment Won't Activate}
+
+\begin{problembox}
+After running activation, no \texttt{(deep\_learning\_env)} prefix appears.
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Make sure you use \texttt{source}:
+    \begin{lstlisting}[language=bash]
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+    
+    \item Check if venv was created successfully:
+    \begin{lstlisting}[language=bash]
+ls deep_learning_env/bin/
+    \end{lstlisting}
+    Should see \texttt{activate} file
+    
+    \item Try recreating:
+    \begin{lstlisting}[language=bash]
+rm -rf deep_learning_env
+python3 -m venv deep_learning_env
+source deep_learning_env/bin/activate
+    \end{lstlisting}
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{Permission Denied}
+
+\begin{problembox}
+Getting ``Permission denied'' errors when creating venv or installing packages.
+\end{problembox}
+
+\begin{solutionbox}
+\textbf{NEVER use sudo with pip or venv!}
+
+\begin{enumerate}
+    \item Make sure you own the directory:
+    \begin{lstlisting}[language=bash]
+cd ~/Documents
+mkdir DeepLearning
+cd DeepLearning
+    \end{lstlisting}
+    
+    \item If you accidentally used sudo, fix permissions:
+    \begin{lstlisting}[language=bash]
+sudo chown -R $USER:$USER ~/Documents/DeepLearning
+    \end{lstlisting}
+    
+    \item Delete venv and recreate without sudo:
+    \begin{lstlisting}[language=bash]
+rm -rf deep_learning_env
+python3 -m venv deep_learning_env
+    \end{lstlisting}
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{Externally-Managed-Environment Error}
+
+\begin{problembox}
+Error: \texttt{externally-managed-environment} when installing packages (Ubuntu 23.04+).
+\end{problembox}
+
+\begin{solutionbox}
+This is exactly why we use virtual environments!
+
+\begin{enumerate}
+    \item Make sure you created a virtual environment
+    \item Make sure it's activated (see \texttt{(deep\_learning\_env)} prefix)
+    \item If activated and still getting error, recreate venv:
+    \begin{lstlisting}[language=bash]
+deactivate
+rm -rf deep_learning_env
+python3 -m venv deep_learning_env
+source deep_learning_env/bin/activate
+pip install -r requirements.txt
+    \end{lstlisting}
+\end{enumerate}
+
+\textbf{Do NOT use} \texttt{--break-system-packages}! Use virtual environments instead.
+\end{solutionbox}
+
+\subsection{Package Installation Fails}
+
+\begin{problembox}
+\texttt{pip install} fails with timeout or connection errors.
+\end{problembox}
+
+\begin{solutionbox}
+\textbf{Try PyTorch CDN (faster):}
+\begin{lstlisting}[language=bash]
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+\end{lstlisting}
+
+\textbf{Increase timeout:}
+\begin{lstlisting}[language=bash]
+pip install --default-timeout=1000 torch
+\end{lstlisting}
+
+\textbf{Check internet connection:}
+\begin{lstlisting}[language=bash]
+ping pypi.org
+\end{lstlisting}
+\end{solutionbox}
+
+\subsection{Jupyter Notebook Won't Start}
+
+\begin{problembox}
+\texttt{jupyter notebook} fails or browser doesn't open.
+\end{problembox}
+
+\begin{solutionbox}
+\begin{enumerate}
+    \item Verify Jupyter is installed:
+    \begin{lstlisting}[language=bash]
+pip install jupyter notebook
+    \end{lstlisting}
+    
+    \item Try different port:
+    \begin{lstlisting}[language=bash]
+jupyter notebook --port=8889
+    \end{lstlisting}
+    
+    \item Check if port 8888 is in use:
+    \begin{lstlisting}[language=bash]
+lsof -i :8888
+    \end{lstlisting}
+    
+    \item Manually copy URL from terminal to browser
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{Module Not Found in Jupyter}
+
+\begin{problembox}
+\texttt{ModuleNotFoundError: No module named 'torch'} in Jupyter.
+\end{problembox}
+
+\begin{solutionbox}
+Jupyter is using wrong Python environment!
+
+\begin{enumerate}
+    \item Activate virtual environment BEFORE starting Jupyter
+    
+    \item Check Python path in notebook:
+    \begin{lstlisting}[language=Python]
+import sys
+print(sys.executable)
+    \end{lstlisting}
+    Should point to \texttt{deep\_learning\_env}
+    
+    \item Register environment as kernel:
+    \begin{lstlisting}[language=bash]
+python -m ipykernel install --user --name=deep_learning_env
+    \end{lstlisting}
+    Then: Kernel → Change kernel → deep\_learning\_env
+\end{enumerate}
+\end{solutionbox}
+
+\subsection{SSL Certificate Errors}
+
+\begin{problembox}
+\texttt{SSL: CERTIFICATE\_VERIFY\_FAILED} when installing packages.
+\end{problembox}
+
+\begin{solutionbox}
+\textbf{Update certificates:}
+\begin{lstlisting}[language=bash]
+# Ubuntu/Debian
+sudo apt install ca-certificates
+sudo update-ca-certificates
+
+# Fedora
+sudo dnf install ca-certificates
+\end{lstlisting}
+
+\textbf{Temporary workaround (not recommended):}
+\begin{lstlisting}[language=bash]
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org torch
+\end{lstlisting}
+\end{solutionbox}
+
+\section{Getting Help}
+
+If you've tried the troubleshooting steps and still have issues:
+
+\begin{enumerate}
+    \item Document your error:
+    \begin{itemize}
+        \item Copy full error message
+        \item Note your Linux distribution and version
+        \item Note Python version (\texttt{python3 --version})
+        \item What you were trying to do
+        \item What you've already tried
+    \end{itemize}
+    
+    \item Get help:
+    \begin{itemize}
+        \item Post in course forum with documentation
+        \item Email instructor with details
+        \item Come to office hours
+    \end{itemize}
+    
+    \item Temporary workaround:
+    \begin{itemize}
+        \item Use GitHub Codespaces (see separate guide)
+        \item Continue with exercises while troubleshooting local setup
+    \end{itemize}
+\end{enumerate}
+
+\section{Next Steps}
+
+\begin{enumerate}
+    \item Download Week 1 exercise notebooks from course repository
+    \item Place them in your \texttt{DeepLearning} folder
+    \item Activate virtual environment
+    \item Start Jupyter Notebook
+    \item Open \texttt{week1\_exercises\_starter.ipynb}
+    \item You're ready to start coding!
+\end{enumerate}
+
+\begin{tipbox}
+\textbf{Create a habit:} Always activate your virtual environment before working on course materials!
+\end{tipbox}
+
+\section{Quick Reference}
+
+\subsection{Essential Commands}
+
+\begin{lstlisting}[language=bash]
+# Navigate to project
+cd ~/DeepLearning
+
+# Activate virtual environment
+source deep_learning_env/bin/activate
+
+# Start Jupyter
+jupyter notebook
+
+# Stop Jupyter
+# Press Ctrl+C twice
+
+# Deactivate virtual environment
+deactivate
+\end{lstlisting}
+
+\subsection{Troubleshooting Quick Fixes}
+
+\begin{itemize}
+    \item \textbf{python3: command not found}: Install Python (Step 2)
+    \item \textbf{venv module not found}: Install \texttt{python3-venv} package
+    \item \textbf{Virtual env won't activate}: Use \texttt{source} command
+    \item \textbf{Module not found in Jupyter}: Activate venv before starting Jupyter
+    \item \textbf{Permission denied}: Don't use \texttt{sudo}, check folder ownership
+    \item \textbf{externally-managed-environment error}: Use virtual environment!
+\end{itemize}
+
+\end{document}
