@@ -172,7 +172,46 @@ sudo dnf install python3-virtualenv
 sudo pacman -S python-virtualenv
 \end{lstlisting}
 
-\section{Step 3: Create Project Folder}
+
+
+Create Virtual Environment Folder
+
+\begin{lstlisting}[language=bash]
+mkdir -p ~/venvs
+\end{lstlisting}
+\begin{tipbox}
+This step is optional but helps keep your virtual environments organized.
+\end{tipbox}
+
+Need to install python3-venv module
+
+\begin{lstlisting}
+# Ubuntu/Debian
+sudo apt install python3.11-venv
+\end{lstlisting}
+
+Create a base virtual environment for testing
+\begin{lstlisting}[language=bash]
+python3 -m venv ~/venvs/idl
+\end{lstlisting}
+
+Activate the test environment
+\begin{lstlisting}[language=bash]
+source ~/venvs/idl/bin/activate
+\end{lstlisting}
+
+# install pytorch from webpage
+python -m pip install 
+
+# install matplotlib
+python -m pip install matplotlib
+
+# install tqdm
+python -m pip install tqdm
+
+# set vs code
+Virtual environments located in the folder identified by the python.venvPath setting (see General Python settings), which can contain multiple virtual environments. The extension looks for virtual environments in the first-level subfolders of venvPath.
+
 
 \subsection{Navigate to Home Directory}
 
@@ -180,11 +219,20 @@ sudo pacman -S python-virtualenv
 cd ~
 \end{lstlisting}
 
-or
+
+\section{Step 3: Create Project Folder}
+
 
 \begin{lstlisting}[language=bash]
 cd ~/Documents
 \end{lstlisting}
+
+
+
+
+
+
+
 
 \subsection{Create and Navigate to Project Folder}
 
