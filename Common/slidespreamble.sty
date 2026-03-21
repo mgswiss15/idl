@@ -1,0 +1,117 @@
+\ProvidesPackage{slidespreamble}[2026/03/21, MG]
+
+% packages loaded automatically with beamer
+% graphicx, hyperref
+% amsmath, amssymb, amsfonts, amstext, amsthm
+
+% font encoding
+% \RequirePackage[utf8]{inputenc} % input encoding - not needed, set \documentclass[utf8]{beamer}
+% \RequirePackage[T1]{fontenc} % font encoding (T1 works badly without lmodern)
+% \RequirePackage{lmodern} % better fonts
+\usefonttheme{serif}
+\usefonttheme{professionalfonts}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{kpfonts}
+
+% reusable macros
+\graphicspath{{Pics/}{\DirectoryPath/Pics/}} % multiple paths depending on the location of the main tex file
+
+% math
+\RequirePackage{bm} % better bold math symbols
+\RequirePackage{wasysym} % even more symbols
+
+% tables
+\RequirePackage{booktabs} % better tables
+\RequirePackage{multirow} % cells spanning multiple rows
+\RequirePackage{multicol} % cells spanning multiple cols
+
+% absolute positioning
+% \usepackage[absolute,overlay,showboxes]{textpos}
+\usepackage[absolute,overlay]{textpos}
+\TPGrid{10}{5}
+
+% THWS color schema
+\usepackage{\DirectoryPath/tango-colors}
+\definecolor{thwsorange}{rgb}{1.0,0.416,0.000}
+\definecolor{thwsblue}{rgb}{0.088,0.236,0.412} 
+\definecolor{thwsgrey}{rgb}{0.85,0.85,0.85} 
+\definecolor{thwspetrol}{rgb}{0.0,0.333,0.392} 
+\definecolor{lightblue}{RGB}{166,189,219} 
+\definecolor{carnelian}{RGB}{179,27,27}
+
+% custom structure formats
+\setbeamercolor{titlelike}{fg=thwspetrol}
+\setbeamercolor{frametitle}{fg=thwspetrol}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setbeamercolor{structure}{fg=thwsblue}
+\setbeamerfont{structure}{series=\bfseries}
+\setbeamercolor{alerted text}{fg=carnelian}
+\setbeamercolor{footline}{fg=thwspetrol}
+\setbeamerfont{block title}{size=\normalsize, series=\mdseries}
+% \addtobeamertemplate{block begin}{}{\vspace{-1em} \setlength{\parindent}{5em}}
+\addtobeamertemplate{block begin}{}{\setlength{\parindent}{1em}}
+% \hypersetup{colorlinks,urlcolor=thwsblue,linkcolor=thwsblue}
+\hypersetup{colorlinks,linkcolor=skyblue3,urlcolor=skyblue3}
+
+% TOC formatting - cleaner, more consistent with general style
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\setbeamercolor{section number projected}{bg=thwsblue,fg=white}
+\setbeamercolor{section in toc}{fg=thwsblue}
+\setbeamercolor{subsection in toc}{fg=black}
+\setbeamerfont{section in toc}{series=\bfseries}
+\setbeamerfont{subsection in toc}{series=\mdseries}
+
+
+% \usepackage{tikz}
+% \usetikzlibrary{arrows.meta}
+
+% \usepackage{pgfplots}
+% \pgfplotsset{compat=1.13}
+% \usepgfplotslibrary{groupplots}
+
+% % absolute positioning
+% \usepackage[absolute,overlay]{textpos}
+
+% \usepackage{listings}
+
+% \usepackage{algorithm}
+% \usepackage{algpseudocode}
+
+% \usepackage{amsmath}
+% \usepackage{amsthm}
+% \usepackage{amssymb}
+% \usepackage{mathtools}
+% \usepackage{bm}
+% \usepackage{wasysym}
+
+% % table packages
+% \usepackage{booktabs}
+% \usepackage{array}
+% \usepackage{multirow}
+% \usepackage{multicol}
+
+% \usepackage[backend=biber, style=authoryear]{biblatex}
+
+% \usepackage[english]{babel}
+% \usepackage{csquotes}
+
+
+
+\makeatletter
+% frame heading
+\setbeamertemplate{frametitle}{
+% Frame title on the left
+\begin{textblock}{15}(0.5,0.5) % Adjust width and position in centemeters
+    {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}\insertframetitle}
+\end{textblock}
+\vskip2ex
+% logo in the right
+\begin{textblock}{2}(14,0) % Adjust width and position in centemeters
+    \includegraphics[width=2cm]{thws-logo_vert_en_orange-rgb.png}%
+\end{textblock}
+}
+\setbeamertemplate{footline}[frame number]{}
+\setbeamertemplate{navigation symbols}{}
+\makeatother
+
