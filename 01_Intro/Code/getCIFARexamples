@@ -1,0 +1,34 @@
+"""
+Created: MG, 2026-03-23
+Purpose: Download CIFAR-10 dataset and save one representative example image
+         per class to ../Pics/cifar10/ for use in lecture slides.
+"""
+
+import torch
+import torchvision
+import torchvision.transforms as transforms
+from PIL import Image
+import os
+
+output_dir = "./01_Intro/Pics/cifar10"
+os.makedirs(output_dir, exist_ok=True)
+
+classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
+           'dog', 'frog', 'horse', 'ship', 'truck']
+
+dataset = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                        download=True,
+                                        transform=transforms.ToTensor())
+
+saved = {c: False for c in classes}
+for img, label in dataset:
+    class_name = classes[label]
+    if not saved[class_name]:
+        img_pil = transforms.ToPILImage()(img)
+        img_pil = img_pil.resize((128, 128), Image.NEAREST)
+        img_pil.save(os.path.join(output_dir, f"{class_name}.png"))
+        saved[class_name] = True
+    if all(saved.values()):
+        break
+
+print("Done — images saved to", output_dir)

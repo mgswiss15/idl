@@ -1,4 +1,4 @@
-\ProvidesPackage{slidespreamble}[2026/03/21, MG]
+\ProvidesPackage{./../Common/slidespreamble}[2026/03/21, MG]
 
 % packages loaded automatically with beamer
 % graphicx, hyperref
@@ -12,9 +12,10 @@
 \usefonttheme{professionalfonts}
 \RequirePackage[T1]{fontenc}
 \RequirePackage{kpfonts}
+% \usepackage[USenglish]{babel}
 
 % reusable macros
-\graphicspath{{Pics/}{\DirectoryPath/Pics/}} % multiple paths depending on the location of the main tex file
+\graphicspath{{Pics/}{../Pics/}{\DirectoryPath/Pics/}} % multiple paths depending on the location of the main tex file
 
 % math
 \RequirePackage{bm} % better bold math symbols
@@ -63,11 +64,21 @@
 \setbeamerfont{subsection in toc}{series=\mdseries}
 
 
-% \usepackage{tikz}
+\RequirePackage{tikz}
 % \usetikzlibrary{arrows.meta}
 
-% \usepackage{pgfplots}
-% \pgfplotsset{compat=1.13}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.13}
+\pgfplotsset{
+    /pgf/number format/.cd,
+    use comma=false, 
+    1000 sep={}
+}
+
+% forloops
+\RequirePackage{pgffor}
+
+
 % \usepgfplotslibrary{groupplots}
 
 % % absolute positioning
@@ -98,20 +109,47 @@
 
 
 
+% \makeatletter
+% % frame heading
+% \setbeamertemplate{frametitle}{
+% % Frame title on the left
+% \begin{textblock}{15}(0.5,0.5) % Adjust width and position in centemeters
+%     {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}\insertframetitle}
+% \end{textblock}
+% \vskip2ex
+% % logo in the right
+% \begin{textblock}{2}(14,0) % Adjust width and position in centemeters
+%     \includegraphics[width=2cm]{thws-logo_vert_en_orange-rgb.png}%
+% \end{textblock}
+% }
+% \setbeamertemplate{footline}[frame number]{}
+% \setbeamertemplate{navigation symbols}{}
+% \makeatother
+
+
+% frametitle / footline templates
 \makeatletter
-% frame heading
 \setbeamertemplate{frametitle}{
-% Frame title on the left
-\begin{textblock}{15}(0.5,0.5) % Adjust width and position in centemeters
-    {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}\insertframetitle}
-\end{textblock}
-\vskip2ex
-% logo in the right
-\begin{textblock}{2}(14,0) % Adjust width and position in centemeters
-    \includegraphics[width=2cm]{thws-logo_vert_en_orange-rgb.png}%
-\end{textblock}
+  \begin{textblock}{10}[0,0](0.3, 0.3)
+    \color{thwspetrol} \insertframetitle
+  \end{textblock}
+  \begin{textblock}{1.5}[1,0](10, 0.2)
+    \includegraphics[width=2cm]{thws-logo_vert_en_orange-rgb.png}
+  \end{textblock}
 }
 \setbeamertemplate{footline}[frame number]{}
-\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{navigation symbols}{} % supress navigation symbols
+\define@key{beamerframe}{c}[true]{% centered page
+    \beamer@frametopskip=25pt plus 1fill\relax%
+    \beamer@framebottomskip=5pt plus 1fill\relax%
+    \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
+    \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
+}
+\define@key{beamerframe}{t}[true]{% top aligned page
+    \beamer@frametopskip=25pt\relax%
+    \beamer@framebottomskip=0pt plus 1fill\relax%
+    \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
+    \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
+}
 \makeatother
 
