@@ -1,0 +1,55 @@
+\begin{tikzpicture}
+            \begin{axis}[
+                width=\textwidth,
+                height=5cm,
+                xlabel={\small Year},
+                ylabel={\small TFLOPS (FP32)},
+                xlabel style={font=\small},
+                ylabel style={font=\small, color=thwspetrol},
+                yticklabel style={font=\tiny, color=thwspetrol},
+                xticklabel style={font=\tiny, anchor=north},
+                xmin=2010, xmax=2026,
+                ymin=0, ymax=2400,
+                xtick={2012, 2015, 2018, 2020, 2022, 2024},
+                ytick={0, 400, 800, 1200, 1600, 2000, 2400},
+                grid=major,
+                grid style={dashed, gray!30},
+title={\structure{GPU Performance (TFLOPS)}},
+        axis y line*=left,
+        axis x line*=bottom,
+            ]
+            % GTX 680 (2012):   3.1
+            % GTX 980 (2014):   4.6
+            % GTX 1080 (2016):  10.6
+            % V100 (2018):      14.1
+            % A100 (2020):      77.6
+            % RTX 4090 (2022):  165
+            % H100 (2022):      756
+            % H200 (2024):      1979
+            \addplot[thwspetrol, thick, mark=*, mark size=2pt] coordinates {
+                (2012,   3)
+                (2014,   5)
+                (2016,  11)
+                (2018,  14)
+                (2020,  78)
+                (2022, 756)
+                (2024, 1979)
+            };
+            % Labels
+            \draw[gray, thin] (axis cs:2012, 3) -- (axis cs:2013, 200);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2013, 200) {GTX 680};
+
+            \draw[gray, thin] (axis cs:2018, 14) -- (axis cs:2017, 250);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2017, 250) {V100};
+
+            \draw[gray, thin] (axis cs:2020, 78) -- (axis cs:2019, 450);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2019, 450) {A100};
+
+            \draw[gray, thin] (axis cs:2022, 756) -- (axis cs:2021, 1000);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2021, 1000) {H100};
+
+            \draw[gray, thin] (axis cs:2024, 1979) -- (axis cs:2023, 2100);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2023, 2100) {H200};
+
+            \end{axis}
+\end{tikzpicture}

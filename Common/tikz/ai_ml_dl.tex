@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+    % AI circle
+    \draw[fill=thwspetrol!15, draw=thwspetrol, thick] (0,0) circle (2cm);
+    \node[thwspetrol, font=\small\bfseries] at (0, 1.8) {AI};
+
+    % ML circle
+    \draw[fill=thwspetrol!35, draw=thwspetrol!80, thick] (0,-0.3) circle (1.6cm);
+    \node[thwspetrol!90, font=\small\bfseries] at (0, 1.1) {ML};
+
+    % DL circle
+    \draw[fill=thwspetrol!60, draw=thwspetrol!90, thick] (0,-0.6) circle (1.2cm);
+    \node[white, font=\small\bfseries] at (0,0.4) {DL};
+
+    % LLMs circle
+    \draw[fill=thwspetrol!90, draw=thwspetrol, thick] (0,-1) circle (0.7cm);
+    \node[white, font=\small\bfseries] at (0,-1) {GenAI};
+
+    % Callout arrow and label
+    \draw[->, thick, orange] (2.5, 0.2) -- (0.55, -0.95);
+    \node[anchor=west, orange, font=\small\bfseries, align=left] at (2., 0.4) {``AI'' today};
+
+\end{tikzpicture}

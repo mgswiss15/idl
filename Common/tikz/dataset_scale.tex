@@ -1,0 +1,98 @@
+\begin{tikzpicture}
+    % Primary axis - number of images (log scale, left)
+    \begin{semilogyaxis}[
+        width=0.85\textwidth,
+        height=6cm,
+        xlabel={\small Year},
+        ylabel={\small Number of Images (log scale)},
+        xlabel style={font=\small},
+        ylabel style={font=\small, color=thwspetrol},
+        yticklabel style={font=\tiny, color=thwspetrol},
+        xmin=1995, xmax=2027,
+        ymin=1e3, ymax=1e10,
+        ytick={1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10},
+        xtick={1998, 2003, 2009, 2014, 2017, 2021, 2023},
+        xticklabel style={font=\tiny, anchor=north},
+        grid=major,
+        grid style={dashed, gray!30},
+        axis y line*=left,
+        axis x line*=bottom,
+        name=mainaxis,
+    ]
+
+    \addplot[thwspetrol, thick, mark=*, mark size=2.5pt] coordinates {
+        (1998,  70000)
+        (2003,  9000)
+        (2009,  1200000)
+        (2014,  330000)
+        (2017,  14000000)
+        (2021,  400000000)
+        (2023,  5000000000)
+    };
+
+    % MNIST
+    \draw[gray, thin] (axis cs:1998, 70000) -- (axis cs:1998, 500000);
+    \node[font=\scriptsize, anchor=south] at (axis cs:1998, 500000) {MNIST (70K)};
+
+    % Caltech
+    \draw[gray, thin] (axis cs:2003, 9000) -- (axis cs:2002, 50000);
+    \node[font=\scriptsize, anchor=south] at (axis cs:2002, 50000) {Caltech-101 (9K)};
+
+    % ImageNet
+    \draw[gray, thin] (axis cs:2009, 1200000) -- (axis cs:2008, 8000000);
+    \node[font=\scriptsize, anchor=south] at (axis cs:2008, 8000000) {ImageNet (1.2M)};
+
+    % COCO
+    \draw[gray, thin] (axis cs:2014, 330000) -- (axis cs:2013, 80000);
+    \node[font=\scriptsize, anchor=north] at (axis cs:2013, 80000) {COCO (330K)};
+
+    % JFT
+    \draw[gray, thin] (axis cs:2017, 14000000) -- (axis cs:2018, 3000000);
+    \node[font=\scriptsize, anchor=north] at (axis cs:2018, 3000000) {JFT (14M)};
+
+    % LAION-400M
+    \draw[gray, thin] (axis cs:2021, 400000000) -- (axis cs:2020, 1500000000);
+    \node[font=\scriptsize, anchor=south] at (axis cs:2020, 1500000000) {LAION-400M};
+
+    % LAION-5B
+    \draw[gray, thin] (axis cs:2023, 5000000000) -- (axis cs:2024, 1500000000);
+    \node[font=\scriptsize, anchor=north] at (axis cs:2024, 1500000000) {LAION-5B (5B)};
+
+    \end{semilogyaxis}
+
+    % Secondary axis - image side size (linear scale, right)
+    % MNIST:       28px
+    % Caltech-101: 200px
+    % ImageNet:    224px
+    % COCO:        480px
+    % JFT:         224px
+    % LAION-400M:  512px
+    % LAION-5B:    1024px
+    \begin{axis}[
+        width=0.85\textwidth,
+        height=6cm,
+        xmin=1995, xmax=2027,
+        ymin=0, ymax=1400,
+        ylabel={\small Image Side Size (px)},
+        ylabel style={font=\small, color=thwsorange},
+        yticklabel style={font=\tiny, color=thwsorange},
+        ytick={0, 200, 400, 600, 800, 1000, 1200, 1400},
+        yticklabels={0, 200, 400, 600, 800, 1000, 1200, 1400},
+        axis y line*=right,
+        axis x line=none,
+        xtick=\empty,
+    ]
+
+    \addplot[thwsorange, thick, dashed, mark=square*, mark size=2pt] coordinates {
+        (1998,  28)
+        (2003,  200)
+        (2009,  224)
+        (2014,  480)
+        (2017,  224)
+        (2021,  512)
+        (2023,  1024)
+    };
+
+    \end{axis}
+
+\end{tikzpicture}

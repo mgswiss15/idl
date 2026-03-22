@@ -1,0 +1,67 @@
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=\textwidth,
+                height=5cm,
+                xlabel={\small Year},
+                ylabel={\small Top-5 Accuracy (\%)},
+                xlabel style={font=\small},
+                ylabel style={font=\small, color=thwsorange},
+                yticklabel style={font=\tiny, color=thwsorange},
+                xticklabel style={font=\tiny, anchor=north},
+                xmin=2010, xmax=2026,
+                ymin=70, ymax=105,
+                xtick={2012, 2015, 2018, 2020, 2022, 2024},
+                ytick={70, 70, 80, 90, 100},
+                grid=major,
+                grid style={dashed, gray!30},
+title={\structure{ImageNet Top-5 Accuracy (\%)}},
+        axis y line*=left,
+        axis x line*=bottom,
+            ]
+            % Pre-DL (2011):    74.3
+            % AlexNet (2012):   84.7
+            % VGG (2014):       92.7
+            % ResNet (2015):    96.4
+            % SENet (2017):     97.7
+            % EfficientNet (2019): 98.7
+            % ViT (2021):       99.0
+            % CoAtNet (2022):   99.2
+            \addplot[thwsorange, thick, mark=*, mark size=2pt] coordinates {
+                (2011, 74.3)
+                (2012, 84.7)
+                (2014, 92.7)
+                (2015, 96.4)
+                (2017, 97.7)
+                (2019, 98.7)
+                (2021, 99.0)
+                (2022, 99.2)
+            };
+
+            % Human performance line
+            \addplot[red, dashed, thick] coordinates {
+                (2010, 95.0)
+                (2026, 95.0)
+            };
+            \node[font=\scriptsize, color=red, anchor=west] at (axis cs:2020, 96.2) {Human ($\approx$95\%)};
+
+            % Labels
+            \draw[gray, thin] (axis cs:2011, 74.3) -- (axis cs:2012, 72);
+            \node[font=\scriptsize, anchor=west] at (axis cs:2012, 72) {SVM};
+
+            \draw[gray, thin] (axis cs:2012, 84.7) -- (axis cs:2013, 80);
+            \node[font=\scriptsize, anchor=north west] at (axis cs:2013, 80) {AlexNet};
+
+            \draw[gray, thin] (axis cs:2014, 92.7) -- (axis cs:2015, 90);
+            \node[font=\scriptsize, anchor=north] at (axis cs:2015, 90) {VGG};
+
+            \draw[gray, thin] (axis cs:2015, 96.4) -- (axis cs:2014, 100);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2014, 100) {ResNet};
+
+            \draw[gray, thin] (axis cs:2019, 98.7) -- (axis cs:2018, 101);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2018, 101) {EfficientNet};
+
+            \draw[gray, thin] (axis cs:2021, 99.0) -- (axis cs:2022, 101);
+            \node[font=\scriptsize, anchor=south] at (axis cs:2022, 101) {ViT};
+
+            \end{axis}
+        \end{tikzpicture}
