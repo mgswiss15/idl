@@ -1,74 +1,181 @@
 \part{Foundations}
+% \addbibresource{foundations.bib}
 
 \section{What is Deep Learning?}
-\slideref{Session 1, Slides 1--12}
+\slideref{Session 1, Slides 1-12}
+
+\subsection{Demonstration}
+
+Before any theory, consider the following experiment. A large language model - specifically Claude - is prompted with a single sentence:
+
+\begin{quote}
+\textit{``Write me a PyTorch script that trains a neural network to classify CIFAR-10 images into 10 classes. Use a simple MLP architecture. Print the training loss each epoch and plot a few example predictions with their true and predicted labels at the end.''}
+\end{quote}
+
+The model produces a complete, runnable Python script. When executed, the script downloads the CIFAR-10 dataset - 60,000 colour images of $32 \times 32$ pixels across 10 classes - trains a neural network, and achieves reasonable classification accuracy. A second prompt requesting a CNN instead of an MLP produces a different script that achieves noticeably higher accuracy on the same task.
+
+This demonstration works. It is genuinely easy. And therein lies the problem: \textit{what just happened?}
+
+The script contains weights, layers, a loss function, a training loop, gradient updates. None of these were explained. The goal of this course is to open that black box - not to prompt better, but to think deeper.
 
 \subsection{What is Deep Learning?}
 \slideref{Session 1: What is Deep Learning?}
 
 Artificial intelligence, machine learning, and deep learning are often used interchangeably in popular discourse, but they refer to distinct and nested concepts.
 
-\textbf{Artificial intelligence} is the broadest term -- it encompasses any technique that enables machines to exhibit behaviour we would consider intelligent, including rule-based expert systems, search algorithms, and learned models.
-
-\textbf{Machine learning} is a subfield of AI in which systems learn from data rather than being programmed with explicit rules. Instead of writing down every decision, we provide examples and let the system discover the underlying patterns.
-
-\textbf{Deep learning} is a subfield of machine learning that uses neural networks with many layers -- so-called deep neural networks. The depth allows the network to learn increasingly abstract representations of the input data.
-
-\textbf{Generative AI} -- encompassing large language models as well as image, video, and music generation systems -- is a specific and currently prominent subset of deep learning. What the general public refers to as ``AI'' today is almost exclusively generative AI, which sits at the innermost level of this hierarchy.
-
-\begin{figure}[h]
+\begin{wrapfigure}{r}{0.35\textwidth}
     \centering
     \resizebox{0.35\textwidth}{!}{
         \input{\CommonPath/tikz/ai_ml_dl.tex}
     }
     \caption{The relationship between AI, machine learning, deep learning, and generative AI.}
     \label{fig:ai_ml_dl}
-\end{figure}
+\end{wrapfigure}
+
+\textbf{Artificial intelligence} is the broadest term - it encompasses any technique that enables machines to exhibit behaviour we would consider intelligent, including rule-based expert systems, search algorithms, and learned models.
+
+\textbf{Machine learning} is a subfield of AI in which systems learn from data rather than being programmed with explicit rules. Instead of writing down every decision, we provide examples and let the system discover the underlying patterns.
+
+\textbf{Deep learning} is a subfield of machine learning that uses neural networks with many layers - so-called deep neural networks. The depth allows the network to learn increasingly abstract representations of the input data.
+
+\textbf{Generative AI} - encompassing large language models as well as image, video, and music generation systems - is a specific and currently prominent subset of deep learning. What the general public refers to as ``AI'' today is almost exclusively generative AI, which sits at the innermost level of this hierarchy.
 
 \begin{definition}[Deep Learning]
 Deep learning is a class of machine learning methods that use multi-layered neural networks to learn hierarchical representations directly from raw data.
 \end{definition}
 
-This definition will sharpen as the course progresses. For now it is sufficient to hold it loosely -- by the end of the course every word in it will have a concrete meaning.
+This definition will sharpen as the course progresses. For now it is sufficient to hold it loosely - by the end of the course every word in it will have a concrete meaning.
 
-\section{A Demonstration}
+\subsection{Why Now?}
+\slideref{Session 1: Why Now? - Four Driving Forces}
 
-Before any theory, consider the following experiment. A large language model -- specifically Claude -- is prompted with a single sentence:
+Deep learning is not a new idea - neural networks have existed since the 1950s. What changed is the confluence of four factors that together made the approach viable at scale. None of these alone was sufficient; together they triggered a revolution.
 
-\begin{quote}
-\textit{``Write me a PyTorch script that trains a neural network to classify CIFAR-10 images into 10 classes. Use a simple MLP architecture. Print the training loss each epoch and plot a few example predictions with their true and predicted labels at the end.''}
-\end{quote}
+\subsubsection{Data}
+\slideref{Session 1: Why Now? - Four Driving Forces, Data - Scale Revolution}
 
-The model produces a complete, runnable Python script. When executed, the script downloads the CIFAR-10 dataset -- 60,000 colour images of $32 \times 32$ pixels across 10 classes -- trains a neural network, and achieves reasonable classification accuracy. A second prompt requesting a CNN instead of an MLP produces a different script that achieves noticeably higher accuracy on the same task.
+The internet created the largest dataset in history by accident. Every uploaded image, every written caption, every search query became potential training material. This was crystallised deliberately in benchmark datasets - ImageNet (2009) provided 1.2 million labelled images across 1,000 categories, and GLUE provided a standardised benchmark for natural language understanding. These benchmarks did not just measure progress, they created it by giving the community a shared target to optimise against.
 
-This demonstration works. It is genuinely easy. And therein lies the problem: \textit{what just happened?}
+Crucially, the field also learned that labels are not always necessary. Self-supervised and weakly supervised learning techniques extract signal directly from unlabelled data, massively expanding what counts as usable training material. The web, in its entirety, became a dataset.
 
-The script contains weights, layers, a loss function, a training loop, gradient updates. None of these were explained. The goal of this course is to open that black box -- not to prompt better, but to think deeper.
+Figure~\ref{fig:dataset_scale} shows the growth in dataset scale over time. Two aspects deserve attention. First, the left axis is logarithmic - each gridline represents a tenfold increase, so the jump from ImageNet to LAION-5B represents roughly four thousand times more data. Second, the orange line shows that resolution grew alongside quantity - from $28 \times 28$ pixels for MNIST to $1024 \times 1024$ for LAION-5B, a 1,000-fold increase in pixels per image. The two dimensions of scale - how many images and how much information per image - grew together.
 
-\section{Why Now?}
+\begin{figure}[h]
+    \centering
+    \input{\CommonPath/tikz/dataset_scale.tex}
+    \caption{Image dataset sizes and resolutions over time. Blue line: number of images (log scale, left axis). Orange line: image side size in pixels (linear scale, right axis).}
+    \label{fig:dataset_scale}
+\end{figure}
 
-Deep learning is not a new idea. The basic principles of neural networks date back to the 1950s. What changed is the confluence of four factors that together made the approach viable at scale.
+\subsubsection{Compute}
+\slideref{Session 1: Compute \& Progress}
 
-\subsection{Data}
+Graphics processing units, designed for the parallel computation of gaming graphics, turned out to be ideally suited for the matrix multiplications at the heart of neural network training. NVIDIA's CUDA programming model made GPUs accessible to researchers without hardware expertise. Custom chips - Google's TPUs, Apple Silicon, and a wave of AI-specific inference hardware - followed, with architectures designed around deep learning from the ground up.
 
-The internet created the largest dataset in history by accident. Every uploaded image, every written caption, every search query became potential training material. This was crystallised deliberately in benchmark datasets: ImageNet (2009) provided 1.2 million labelled images across 1,000 categories, and became the forcing function that drove the field forward for a decade. More recently, datasets such as LAION-5B have scaled this to 5 billion image-text pairs. Crucially, the field also learned that labels are not always necessary -- self-supervised learning techniques extract signal directly from unlabelled data, massively expanding what can be used for training.
+Cloud platforms such as AWS, Microsoft Azure, and Google Cloud democratised access to large-scale compute - a researcher can now rent state-of-the-art hardware by the hour. Learning platforms such as Google Colab, Kaggle Notebooks, and Lightning.ai went further, providing free GPU access directly in the browser with zero setup. As Figure~\ref{fig:gpu_performance} shows, GPU performance has grown from single-digit TFLOPS in 2012 to nearly 2,000 TFLOPS in 2024.
 
-\subsection{Compute}
+\begin{figure}[h]
+    \centering
+    \input{\CommonPath/tikz/gpu_performance.tex}
+    \caption{GPU performance in TFLOPS (FP32) from 2012 to 2024.}
+    \label{fig:gpu_performance}
+\end{figure}
 
-Graphics processing units, designed for the parallel computation of gaming graphics, turned out to be ideally suited for the matrix multiplications at the heart of neural network training. NVIDIA's CUDA programming model made GPUs accessible to researchers without hardware expertise. The cost per floating point operation has fallen by roughly a factor of ten every four years. Cloud computing democratised access -- a researcher can now rent state-of-the-art hardware by the hour. Learning platforms such as Google Colab and Kaggle Notebooks made GPU access free entirely, removing the last barrier for students.
+\subsubsection{Algorithms}
+\slideref{Session 1: Why Now? - Four Driving Forces, Compute \& Progress}
 
-\subsection{Algorithms}
+Several targeted innovations removed practical obstacles that had blocked progress for decades. At the architectural level, the multilayer perceptron (MLP), convolutional neural network (CNN), and recurrent neural network (RNN) established the foundational building blocks, all trained via the backpropagation algorithm. The ReLU activation function mitigated the vanishing gradient problem that had plagued deep networks. Batch normalisation stabilised training. Dropout provided effective regularisation.
 
-Several targeted innovations removed practical obstacles that had blocked progress for decades. The ReLU activation function mitigated the vanishing gradient problem. Batch normalisation stabilised training of deep networks. Residual connections made it possible to train networks of hundreds of layers. The transformer architecture, introduced in 2017, replaced recurrent computation with attention mechanisms and became the foundation of modern language models.
+At a higher level, residual connections (ResNets) made it possible to train networks of hundreds of layers. The attention mechanism and the transformer architecture, introduced in 2017, replaced recurrent computation entirely and became the foundation of modern language and vision models.
 
-\subsection{Community}
+Figure~\ref{fig:imagenet_accuracy} illustrates the impact of these algorithmic advances on the ImageNet benchmark. In 2011, the best classical methods using SVMs achieved around 74\% top-5 accuracy. AlexNet's jump to 84.7\% in 2012 marked the beginning of the deep learning era. Each subsequent architectural innovation - VGG, ResNet, EfficientNet, ViT - pushed accuracy further, surpassing human performance of approximately 95\% around 2015 and reaching over 99\% by 2022.
 
-Perhaps the most underappreciated factor is the open culture of the deep learning community. Results are shared on arXiv before peer review. Code is released alongside papers as a norm rather than an exception. Frameworks such as PyTorch and TensorFlow are open source. Model weights are published openly. Platforms such as HuggingFace have made pre-trained models accessible to anyone. This compounding effect -- where each breakthrough immediately becomes everyone's foundation -- has no parallel in most other scientific fields.
+\begin{figure}[h]
+    \centering
+    \input{\CommonPath/tikz/imagenet_accuracy.tex}
+    \caption{ImageNet top-5 accuracy from 2011 to 2022. Each labelled point corresponds to a key architectural innovation. The dashed red line indicates approximate human performance.}
+    \label{fig:imagenet_accuracy}
+\end{figure}
 
-\section{A Brief History}
+\subsubsection{Community}
 
-\begin{example}[The Perceptron, 1958]
-Frank Rosenblatt's perceptron was the first trainable neural network -- a single layer of weighted inputs that could learn to classify linearly separable patterns. It generated enormous excitement and equally enormous overpromising.
-\end{example}
+Perhaps the most underappreciated factor is the open culture of the deep learning community. Frameworks such as PyTorch, TensorFlow, and JAX are open source, actively maintained, and freely available. The norm of releasing code alongside papers - through platforms such as Papers with Code, Kaggle, and HuggingFace - means that results are reproducible and immediately buildable upon. Research is shared on arXiv before peer review, and major conferences such as NeurIPS, ICML, and ICLR publish proceedings openly.
 
-The limitations of the perceptron were formalised by Minsky and Papert in 1969, who showed it could not solve problems as sim
+This compounding effect - where each breakthrough immediately becomes everyone's foundation - has no parallel in most other scientific fields.
+
+\subsection{Brief History}
+\slideref{Session 1: A Brief History of Deep Learning}
+
+Figure~\ref{fig:history} shows the key milestones in the development of deep learning alongside the periods of reduced funding and interest known as AI winters. For a comprehensive overview of the field's history see \cite{lecun2015deeplearning} and \cite{goodfellow2016deeplearning}.
+
+\begin{figure}[h]
+    \centering
+    \input{\CommonPath/tikz/ai_history.tex}
+    \caption{Key milestones in the history of deep learning. Shaded regions indicate AI winters and the cold spell of the early 2000s.}
+    \label{fig:history}
+\end{figure}
+
+\textbf{1958 - Perceptron.} Frank \cite{rosenblatt1958perceptron} introduced the perceptron - the first trainable neural network. It could learn to classify linearly separable patterns by adjusting weighted connections between inputs and a single output unit. The result generated enormous excitement and equally enormous overpromising about the future of machine intelligence. Rosenblatt himself claimed the perceptron would eventually be able to walk, talk, see, write, reproduce itself, and be conscious of its existence - a level of optimism that would later contribute to the severity of the backlash.
+
+The years following the perceptron saw genuine progress. The ADALINE model \cite{widrow1960adaline} introduced the least mean squares learning rule, which remains in use today. The concept of multilayer networks was understood theoretically, and researchers were actively exploring how to train them. There was a widespread belief that human-level artificial intelligence was only a decade away - a belief shared by many prominent scientists and echoed in generous research funding from DARPA and other agencies.
+
+However, the limitations of single-layer networks were becoming apparent in practice. Many of the problems researchers wanted to solve - pattern recognition, language understanding, game playing - turned out to be far harder than anticipated. The gap between the promise of the perceptron and the reality of what it could achieve was widening.
+
+\textbf{1969 - XOR Problem.} \cite{minsky1969perceptrons} published \textit{Perceptrons}, demonstrating formally that single-layer networks could not solve problems as simple as the XOR function. The 1970s were a difficult period for neural network research. The Lighthill Report \cite{lighthill1973} delivered a damning assessment of AI research in 1973, concluding that the field had failed to deliver on its promises. DARPA cut funding significantly and many researchers moved away from neural networks entirely. This was the first AI winter.
+
+Yet work continued quietly. Paul Werbos derived the backpropagation algorithm in his 1974 PhD thesis \cite{werbos1974thesis} - years before it became widely known. \cite{fukushima1980neocognitron} introduced the Neocognitron, a hierarchical neural network inspired by the visual cortex that anticipated many ideas later formalised in convolutional networks. \cite{hopfield1982neural} networks demonstrated that recurrent networks could function as associative memories. These contributions kept the field alive through the cold years, largely unnoticed by the mainstream AI community which had shifted its focus toward symbolic reasoning and expert systems.
+
+Japan's role in this period deserves particular mention. Fukushima's Neocognitron emerged from NHK Science and Technology Research Laboratories in Tokyo. In 1982 the Japanese government launched the ambitious Fifth Generation Computer Project \cite{fgcs1982}, investing heavily in AI hardware and parallel computing. The project caused significant alarm in the US and UK and triggered substantial counter-investment in AI research on both sides of the Atlantic. Its ultimate failure to deliver human-level reasoning contributed to the disillusionment of the second AI winter.
+
+\textbf{1986 - Backpropagation.} \cite{rumelhart1986backprop} popularised the backpropagation algorithm, providing a practical method for training multi-layer networks by propagating error gradients backwards through the layers. The revival of backpropagation generated enormous enthusiasm. Multilayer networks were successfully applied to speech recognition, image classification, and financial forecasting. LeCun applied backpropagation to convolutional networks at Bell Labs, demonstrating practical handwriting recognition systems used by the US postal service. Hochreiter and Schmidhuber introduced the Long Short-Term Memory (LSTM) network in 1997 \cite{hochreiter1997lstm}, solving the vanishing gradient problem for recurrent networks and laying the foundation for sequence modelling over the following two decades.
+
+However, the second AI winter arrived in the late 1980s and early 1990s. Expert systems - rule-based AI programs that had attracted enormous commercial investment - collapsed as their maintenance costs proved prohibitive and their brittleness became apparent. The Lisp machine market crashed in 1987. DARPA again cut funding. Neural networks hit their own practical ceiling: training deep networks remained unstable, datasets were small, and support vector machines (SVMs) - introduced by \cite{vapnik1995svm} - offered better performance on many tasks with stronger theoretical guarantees. By the mid-1990s SVMs had largely displaced neural networks as the method of choice for classification problems.
+
+\textbf{1998 - LeNet.} Yann \cite{lecun1998gradient} demonstrated convolutional neural networks for handwritten digit recognition, achieving state-of-the-art results on the MNIST dataset. Despite its success, neural networks remained out of favour through the early 2000s - a period sometimes called the cold spell - as support vector machines and other kernel methods dominated the field.
+
+This cold spell was not a complete winter - small groups continued working on deep architectures. \cite{bengio2004representation} explored the difficulty of training deep networks, identifying the vanishing gradient problem as the central obstacle. Hinton's group at Toronto worked on unsupervised pretraining as a way to initialise deep networks before fine-tuning with backpropagation. The theoretical groundwork for the 2006 breakthrough was being laid quietly throughout this period.
+
+\textbf{2006 - Deep Belief Nets.} \cite{hinton2006belief} showed that deep networks could be trained effectively using a layer-wise pretraining procedure . This reignited interest in deep architectures and marked the beginning of the modern deep learning era, even before large datasets and GPU training were fully established.
+
+The key developments of this period were infrastructural rather than algorithmic. \cite{raina2009gpu} demonstrated that GPUs could accelerate neural network training by an order of magnitude, making experiments that previously took weeks feasible in hours. The ImageNet dataset was released by \cite{deng2009imagenet}, providing for the first time a benchmark large and challenging enough to reveal the true potential of deep architectures. \cite{nair2010relu} introduced the ReLU activation function, which proved dramatically more effective than sigmoid and tanh activations for training deep networks. These three developments - GPU training, large-scale data, and better activations - set the stage for AlexNet's breakthrough in 2012.
+
+\textbf{2012 - AlexNet.} \cite{krizhevsky2012alexnet} entered a deep convolutional network trained on GPUs into the ImageNet challenge and won by a margin that shocked the field - reducing the top-5 error rate from 26\% to 15\% in a single year. This moment is widely regarded as the turning point that established deep learning as the dominant paradigm in machine learning.
+
+\textbf{2017 - Transformers.} \cite{vaswani2017attention} introduced the transformer architecture in the paper \textit{Attention Is All You Need}, replacing recurrent computation with self-attention mechanisms. The transformer became the foundation of virtually all modern large-scale models in both language and vision.
+
+\textbf{2022 - ChatGPT.} OpenAI released ChatGPT, bringing large language models to a mass audience for the first time. Within two months it had reached 100 million users, making it the fastest-growing consumer application in history and triggering a wave of public and institutional interest in artificial intelligence that continues today.
+
+The pattern visible in Figure~\ref{fig:history} is worth noting: the history of deep learning is one of recurring cycles of excitement and disappointment, punctuated by genuine breakthroughs. The current era is distinguished not just by the scale of the results but by the breadth of their impact - for the first time, deep learning systems are changing how ordinary people work and communicate on a daily basis.
+
+\subsection{What Can Deep Learning Do?}
+\slideref{Session 1: What Can Deep Learning Do?}
+
+Deep learning today touches almost every domain of human activity. Rather than organising applications by the models used, it is more instructive to group them by the type of task they perform.
+
+\subsubsection{Language and Communication}
+
+Natural language was one of the earliest and remains one of the most impactful application areas. Machine translation systems such as DeepL and Google Translate now produce fluent output across dozens of language pairs, a task that resisted decades of rule-based approaches. Conversational agents - ChatGPT, Claude, Gemini - have brought language models to a mass audience, demonstrating capabilities in reasoning, summarisation, and question answering that were considered out of reach just a few years ago. Code generation tools such as GitHub Copilot and Cursor assist developers by completing, explaining, and generating code in real time.
+
+\subsubsection{Vision and Perception}
+
+Computer vision was the domain in which deep learning first demonstrated decisive superiority over classical methods, with AlexNet's 2012 ImageNet result marking the turning point. Today deep learning powers image classification, object detection, and semantic segmentation across a vast range of applications. Autonomous driving systems parse complex road scenes in real time, combining camera, lidar, and radar inputs to make driving decisions. Satellite and aerial imagery analysis enables large-scale monitoring of land use, deforestation, and infrastructure.
+
+\subsubsection{Healthcare and Medicine}
+
+Medical imaging has been transformed by deep learning. Systems trained on large collections of labelled scans can detect tumours, classify X-rays, and segment anatomical structures with accuracy approaching or exceeding that of specialist clinicians. Beyond imaging, deep learning is applied to genomics - identifying disease-associated variants in DNA sequences - and to clinical decision support systems that assist physicians with diagnosis and treatment planning.
+
+\subsubsection{Generation}
+
+Generative models have emerged as one of the most publicly visible applications of deep learning. Image generation systems such as Stable Diffusion and DALL-E produce photorealistic or stylised images from text descriptions. Video and music generation - tools such as Suno and Udio - extend this capability to temporal media. The same underlying technology that enables generation also enables detection: deepfake detection systems attempt to identify synthetically generated media, an increasingly important capability as generation quality improves.
+
+\subsubsection{Scientific Discovery}
+
+Perhaps the most consequential application of deep learning to date is AlphaFold \cite{jumper2021alphafold}, DeepMind's system for predicting protein three-dimensional structure from amino acid sequence. AlphaFold solved a fifty-year-old open problem in structural biology and earned Demis Hassabis and John Jumper the 2024 Nobel Prize in Chemistry - the first Nobel Prize awarded for work driven by deep learning.
+Deep learning is also applied to drug discovery - predicting molecular properties and identifying candidate compounds - and to climate and weather modelling, where neural networks are beginning to challenge traditional physics-based simulation approaches.
+
+\subsubsection{Decision Making and Control}
+
+Reinforcement learning - a branch of deep learning in which agents learn by interacting with an environment - has produced some of the field's most dramatic results. AlphaGo \cite{silver2016alphago} defeated the world champion Go player in 2016, a milestone considered a decade away by most experts at the time. Robotic systems learn manipulation and locomotion skills directly from experience, without hand-coded controllers. Recommendation systems - the algorithms that determine what appears in TikTok feeds, Netflix homepages, and Spotify playlists - are among the most economically impactful applications of deep learning, shaping the daily media consumption of billions of people.
+
+
+

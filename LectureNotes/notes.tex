@@ -1,86 +1,17 @@
 \documentclass[12pt, a4paper]{scrartcl}
-
 \newcommand{\CommonPath}{../Common}
-
-% Encoding and language
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
-
-% Typography
-\usepackage{microtype}
-\usepackage{lmodern}
-
-% Math
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsthm}
-
-% Colors
-\usepackage[svgnames]{xcolor}
-\definecolor{thwsorange}{RGB}{255, 106, 0}
-\definecolor{thwsblue}{RGB}{22, 60, 105}
-\definecolor{thwsgrey}{RGB}{217, 217, 217}
-\definecolor{thwspetrol}{RGB}{0, 85, 100}
-\definecolor{lightblue}{RGB}{166, 189, 219}
-\definecolor{carnelian}{RGB}{179, 27, 27}
-
-% Theorem environments
-\usepackage{thmtools}
-\declaretheoremstyle[
-    headfont=\bfseries\color{thwspetrol},
-    bodyfont=\normalfont,
-    headpunct={.},
-    postheadspace=0.5em,
-]{defstyle}
-\declaretheoremstyle[
-    headfont=\bfseries\color{thwsorange},
-    bodyfont=\normalfont\itshape,
-    headpunct={.},
-    postheadspace=0.5em,
-]{examplestyle}
-\declaretheorem[style=defstyle, name=Definition]{definition}
-\declaretheorem[style=examplestyle, name=Example]{example}
-\declaretheorem[style=defstyle, name=Remark]{remark}
-
-% Slide reference command
-\newcommand{\slideref}[1]{{\small\color{thwsgrey!70!black}$\triangleright$ \textit{Slide: #1}}}
-
-% Hyperlinks
-\usepackage{hyperref}
-\hypersetup{
-    colorlinks=true,
-    linkcolor=thwspetrol,
-    urlcolor=thwspetrol,
-    citecolor=thwspetrol,
-}
-
-% Page layout
-\usepackage{geometry}
-\geometry{a4paper, margin=2.5cm}
-
-% Header and footer
-\usepackage{scrlayer-scrpage}
-\pagestyle{scrheadings}
-\ihead{\small \textit{Introduction to Deep Learning}}
-\ohead{\small \textit{Session 1: Introduction}}
-\ifoot{\small Magda Gregorová}
-\ofoot{\small \pagemark}
-
-% Graphics
-\usepackage{graphicx}
-
-% Bibliography
-\usepackage[style=authoryear, backend=biber]{biblatex}
-\addbibresource{references.bib}
+\newcommand{\coursename}{Intro to Deep Learning} % to be used in footnote of every slide - empty default 
+\usepackage{\CommonPath/notespreamble}
 
 % Title
-\title{Introduction to Deep Learning\\
-{\large Session 1: Introduction}}
+\title{Introduction to Deep Learning}
 \author{Magda Gregorová\\
 {\small \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}}
-\date{{\small Licensed according to 
+\date{{\small March 2026 \\[0.3em]
+Licensed according to 
 \href{https://creativecommons.org/licenses/by-sa/4.0}{CC-BY-SA 4.0}}}
+
+\addbibresource{foundations.bib}
 
 \begin{document}
 
@@ -89,5 +20,12 @@
 \newpage
 
 \input{foundations.tex}
+
+\section*{Acknowledgements}
+These lecture notes were prepared with the assistance of Claude, a large language model developed by Anthropic. All content has been reviewed, edited, and approved by the author.
+\addcontentsline{toc}{section}{Acknowledgements}
+
+\newpage
+\printbibliography[heading=bibintoc, title={References}]
 
 \end{document}

@@ -1,0 +1,115 @@
+\ProvidesPackage{../Common/notespreamble}[2026/03/21, MG]
+
+% font encoding
+\RequirePackage[T1]{fontenc}
+\RequirePackage{kpfonts}
+
+% page layout
+\RequirePackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+% language
+\RequirePackage[english]{babel}
+\RequirePackage{microtype}
+
+% math
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{bm}
+\RequirePackage{wasysym}
+
+% tables
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage{multicol}
+
+% graphics
+\RequirePackage{graphicx}
+\graphicspath{{Pics/}{../Pics/}{\CommonPath/Pics/}}
+\RequirePackage{wrapfig}
+\RequirePackage{caption}
+\captionsetup{format=plain, indention=0pt}
+
+% THWS color schema
+\RequirePackage{\CommonPath/tango-colors}
+\definecolor{thwsorange}{RGB}{255, 106, 0}
+\definecolor{thwsblue}{RGB}{22, 60, 105}
+\definecolor{thwsgrey}{RGB}{217, 217, 217}
+\definecolor{thwspetrol}{RGB}{0, 85, 100}
+\definecolor{lightblue}{RGB}{166, 189, 219}
+\definecolor{carnelian}{RGB}{179, 27, 27}
+
+% beamer compatibility commands for shared tikz files
+\newcommand{\structure}[1]{{\bfseries\color{thwsblue}#1}}
+\newcommand{\alert}[1]{{\bfseries\color{carnelian}#1}}
+\colorlet{structure.fg}{thwsblue}
+
+% hyperlinks
+\RequirePackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=thwspetrol,
+    urlcolor=thwspetrol,
+    citecolor=thwspetrol,
+}
+
+% tikz and pgfplots
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.13}
+\pgfplotsset{
+    /pgf/number format/.cd,
+    use comma=false,
+    1000 sep={}
+}
+
+% for loops
+\RequirePackage{pgffor}
+
+% theorem environments
+\RequirePackage{amsthm}
+\RequirePackage{thmtools}
+\declaretheoremstyle[
+    headfont=\bfseries\color{thwspetrol},
+    bodyfont=\normalfont,
+    headpunct={.},
+    postheadspace=0.5em,
+    spaceabove=6pt,
+    spacebelow=6pt,
+]{defstyle}
+\declaretheoremstyle[
+    headfont=\bfseries\color{thwsorange},
+    bodyfont=\normalfont\itshape,
+    headpunct={.},
+    postheadspace=0.5em,
+    spaceabove=6pt,
+    spacebelow=6pt,
+]{examplestyle}
+\declaretheoremstyle[
+    headfont=\bfseries\color{thwsblue},
+    bodyfont=\normalfont,
+    headpunct={.},
+    postheadspace=0.5em,
+    spaceabove=6pt,
+    spacebelow=6pt,
+]{remarkstyle}
+\declaretheorem[style=defstyle,   name=Definition]{definition}
+\declaretheorem[style=examplestyle, name=Example]{example}
+\declaretheorem[style=remarkstyle,  name=Remark]{remark}
+
+% slide reference command
+\newcommand{\slideref}[1]{%
+    \marginpar{\tiny\color{thwsgrey!70!black}\raggedright$\triangleright$~#1}%
+}
+
+% header and footer
+\RequirePackage{scrlayer-scrpage}
+\pagestyle{scrheadings}
+\providecommand{\coursename}{}
+\ihead{\small\color{thwspetrol}\textit{\coursename}}
+\ohead{\small\color{thwspetrol}\textit{Lecture Notes}}
+\ifoot{\small\color{thwspetrol} M. Gregorová}
+\ofoot{\small\color{thwspetrol}\pagemark}
+
+% bibliography
+\RequirePackage[style=authoryear, backend=biber]{biblatex}
