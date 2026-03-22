@@ -1,0 +1,56 @@
+\part{Foundations}
+
+\section{What is Deep Learning?}
+\slideref{Session 1, Slides 1--12}
+
+Deep learning is a subfield of machine learning, which is itself a subfield of artificial intelligence. While artificial intelligence encompasses any technique that enables machines to exhibit intelligent behaviour, and machine learning refers to systems that learn from data rather than explicit rules, deep learning specifically concerns itself with learning using deep neural networks -- architectures composed of many successive layers of computation.
+
+A common source of confusion is the popular use of the term ``artificial intelligence'' to refer almost exclusively to large language models such as ChatGPT, Claude, or Gemini. These models are in fact a very specific and recent subset of deep learning, which is itself a subset of the broader field. The relationship is one of strict inclusion: LLMs $\subset$ Deep Learning $\subset$ Machine Learning $\subset$ Artificial Intelligence.
+
+\begin{definition}[Deep Learning]
+Deep learning is a class of machine learning methods that use multi-layered neural networks to learn hierarchical representations directly from raw data.
+\end{definition}
+
+This definition will become more precise as the course progresses. For now it is enough to hold it loosely -- by the end of the course every word in it will have a concrete meaning.
+
+\section{A Demonstration}
+
+Before any theory, consider the following experiment. A large language model -- specifically Claude -- is prompted with a single sentence:
+
+\begin{quote}
+\textit{``Write me a PyTorch script that trains a neural network to classify CIFAR-10 images into 10 classes. Use a simple MLP architecture. Print the training loss each epoch and plot a few example predictions with their true and predicted labels at the end.''}
+\end{quote}
+
+The model produces a complete, runnable Python script. When executed, the script downloads the CIFAR-10 dataset -- 60,000 colour images of $32 \times 32$ pixels across 10 classes -- trains a neural network, and achieves reasonable classification accuracy. A second prompt requesting a CNN instead of an MLP produces a different script that achieves noticeably higher accuracy on the same task.
+
+This demonstration works. It is genuinely easy. And therein lies the problem: \textit{what just happened?}
+
+The script contains weights, layers, a loss function, a training loop, gradient updates. None of these were explained. The goal of this course is to open that black box -- not to prompt better, but to think deeper.
+
+\section{Why Now?}
+
+Deep learning is not a new idea. The basic principles of neural networks date back to the 1950s. What changed is the confluence of four factors that together made the approach viable at scale.
+
+\subsection{Data}
+
+The internet created the largest dataset in history by accident. Every uploaded image, every written caption, every search query became potential training material. This was crystallised deliberately in benchmark datasets: ImageNet (2009) provided 1.2 million labelled images across 1,000 categories, and became the forcing function that drove the field forward for a decade. More recently, datasets such as LAION-5B have scaled this to 5 billion image-text pairs. Crucially, the field also learned that labels are not always necessary -- self-supervised learning techniques extract signal directly from unlabelled data, massively expanding what can be used for training.
+
+\subsection{Compute}
+
+Graphics processing units, designed for the parallel computation of gaming graphics, turned out to be ideally suited for the matrix multiplications at the heart of neural network training. NVIDIA's CUDA programming model made GPUs accessible to researchers without hardware expertise. The cost per floating point operation has fallen by roughly a factor of ten every four years. Cloud computing democratised access -- a researcher can now rent state-of-the-art hardware by the hour. Learning platforms such as Google Colab and Kaggle Notebooks made GPU access free entirely, removing the last barrier for students.
+
+\subsection{Algorithms}
+
+Several targeted innovations removed practical obstacles that had blocked progress for decades. The ReLU activation function mitigated the vanishing gradient problem. Batch normalisation stabilised training of deep networks. Residual connections made it possible to train networks of hundreds of layers. The transformer architecture, introduced in 2017, replaced recurrent computation with attention mechanisms and became the foundation of modern language models.
+
+\subsection{Community}
+
+Perhaps the most underappreciated factor is the open culture of the deep learning community. Results are shared on arXiv before peer review. Code is released alongside papers as a norm rather than an exception. Frameworks such as PyTorch and TensorFlow are open source. Model weights are published openly. Platforms such as HuggingFace have made pre-trained models accessible to anyone. This compounding effect -- where each breakthrough immediately becomes everyone's foundation -- has no parallel in most other scientific fields.
+
+\section{A Brief History}
+
+\begin{example}[The Perceptron, 1958]
+Frank Rosenblatt's perceptron was the first trainable neural network -- a single layer of weighted inputs that could learn to classify linearly separable patterns. It generated enormous excitement and equally enormous overpromising.
+\end{example}
+
+The limitations of the perceptron were formalised by Minsky and Papert in 1969, who showed it could not solve problems as sim
