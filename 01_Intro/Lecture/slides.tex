@@ -26,17 +26,21 @@ pdfkeywords={organization, plan, exam}
 
 \begin{frame}{What is Deep Learning?}
 
-\begin{center}
-{\large \textit{``Pieces of code that do stuff and nobody fully understands how.''}}
-\end{center}
-
 \vskip 2em
 
+\begin{center}
+\structure{\Large \textit{``Pieces of code that do stuff and nobody understands how.''}}
+\end{center}
+
+\vskip 4em
+
+\onslide<2->{
 \structure{What do \textit{you} think Deep Learning is?}
 \begin{itemize}
-    \item Take a moment to write down your answer
-    \item We will come back to this at the end of the course
+    \item Note down your answer
+    \item Will come back at end of course
 \end{itemize}
+}
 
 \end{frame}
 
@@ -84,13 +88,13 @@ pdfkeywords={organization, plan, exam}
 \structure{Approach}
 \begin{itemize}
     \item Ask an AI to write the code for us
-    \item \textbf{Live demo:} prompting Claude to generate a PyTorch classifier
+    \item Execute code as instructed by AI
 \end{itemize}
 
 \vskip 2em
 
 \begin{center}
-{\large \textit{Let's see if we can get a machine to learn\ldots}}
+\structure{\Large \textit{Let's see if we can get a machine to learn\ldots}}
 \end{center}
 
 \end{frame}
@@ -148,9 +152,10 @@ pdfkeywords={organization, plan, exam}
     \item \textbf{GenAI} - LLMs \& image/ video/ music/ and other generation
 \end{itemize}
 
-\vskip 0.5em
+\vskip 1em
 
 \begin{center}
+\resizebox{0.35\textwidth}{!}{
 \begin{tikzpicture}
     % AI circle
     \draw[fill=thwspetrol!15, draw=thwspetrol, thick] (0,0) circle (2cm);
@@ -169,10 +174,10 @@ pdfkeywords={organization, plan, exam}
     \node[white, font=\small\bfseries] at (0,-1) {GenAI};
 
     % Callout arrow and label
-    \draw[->, thick, orange] (1.9, 1.) -- (0.55, -0.95);
-    \node[anchor=west, orange, font=\small\bfseries, align=left] at (2., 1) {``AI'' today};
+    \draw[->, thick, orange] (2.5, 0.2) -- (0.55, -0.95);
+    \node[anchor=west, orange, font=\small\bfseries, align=left] at (2., 0.4) {``AI'' today};
 
-\end{tikzpicture}
+\end{tikzpicture}}
 \end{center}
 
 \end{frame}
@@ -594,11 +599,13 @@ title={\structure{ImageNet Top-5 Accuracy (\%)}},
 
 \begin{frame}{So, What Is Deep Learning?}
 
+\vskip 1em
+
 \begin{center}
-{\large \textit{``Pieces of code that do stuff and nobody fully understands how.''}}
+\structure{\Large \textit{``Pieces of code that do stuff and nobody understands how.''}}
 \end{center}
 
-\vskip 1.5em
+\vskip 1em
 
 \structure{What we saw today}
 \begin{itemize}
@@ -629,7 +636,7 @@ title={\structure{ImageNet Top-5 Accuracy (\%)}},
 \begin{frame}{\ }
 
 \begin{center}
-\vspace{3em}
+\vspace{1em}
 \structure{\LARGE \textbf{Course Roadmap \& Logistics}}\\[1em]
 \end{center}
 
@@ -639,6 +646,7 @@ title={\structure{ImageNet Top-5 Accuracy (\%)}},
 
 \begin{frame}{Where Does This Course Fit?}
 
+\resizebox{\textwidth}{!}{
 \begin{tikzpicture}[
     box/.style={rectangle, rounded corners, minimum width=1.3cm, minimum height=0.5cm,
                 text centered, draw=thwspetrol, fill=lightblue!50, font=\tiny, anchor=west},
@@ -718,9 +726,74 @@ title={\structure{ImageNet Top-5 Accuracy (\%)}},
     \draw[->, very thick, thwspetrol] (0, 3.2) -- (0.3, 3.2);
 
 
-\end{tikzpicture}
+\end{tikzpicture}}
 
 \end{frame}
+
+\begin{frame}{Course Roadmap}
+
+\begin{center}
+
+\textbf{Tentative schedule - subject to change}
+
+\begin{tabular}{clll}
+    \toprule
+    \textbf{Weeks} & \textbf{Block} & \textbf{Topics} \\
+    \midrule
+    1  & Warm-up       & Deep learning intro, probability recap, compute set up \\
+    2 - 3  & Fundamentals       & MLP, forward pass, backprop, loss functions \\
+    4 - 5  & Optimization       & SGD, Adam, batch norm, dropout, weight init \\
+    6 - 7  & CNNs               & Convolution, pooling, LeNet, VGG, ResNet \\
+    8 - 10 & Sequence Models    & RNNs, LSTMs, attention, Transformers \\
+    11 - 12 & Generative Models & Autoencoders, VAEs \\
+    13 & Wrap-up           & Recap, outlook, GANs, diffusion, LLMs \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logistics}
+
+\begin{columns}
+    \begin{column}{0.48\textwidth}
+        \structure{Lecture}
+        \begin{itemize}
+            \item \textbf{Time:} \texttt{[DAY, HH:MM - HH:MM]}
+            \item \textbf{Room:} \texttt{[ROOM]}
+            \item \textbf{Start:} 23 March 2026
+        \end{itemize}
+
+        \vskip 1em
+
+        \structure{Exercise}
+        \begin{itemize}
+            \item \textbf{Time:} \texttt{[DAY, HH:MM - HH:MM]}
+            \item \textbf{Room:} \texttt{[ROOM]}
+            \item \textbf{Start:} 26 March 2026
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+        \structure{Course Materials}
+        \begin{itemize}
+            \item All materials on Moodle
+            \item \href{https://moodle.thws.de}{\texttt{moodle.thws.de}}
+            \item Slides, exercises, homeworks
+            \item Announcements via Moodle
+        \end{itemize}
+
+        \vskip 1em
+
+        \structure{Contact}
+        \begin{itemize}
+            \item \href{mailto:magda.gregorova@thws.de}{\texttt{magda.gregorova@thws.de}}
+            \item Questions - please use Moodle forum first
+        \end{itemize}
+    \end{column}
+\end{columns}
+
+\end{frame}
+
 
 \end{document}
 
