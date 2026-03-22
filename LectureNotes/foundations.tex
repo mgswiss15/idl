@@ -3,15 +3,33 @@
 \section{What is Deep Learning?}
 \slideref{Session 1, Slides 1--12}
 
-Deep learning is a subfield of machine learning, which is itself a subfield of artificial intelligence. While artificial intelligence encompasses any technique that enables machines to exhibit intelligent behaviour, and machine learning refers to systems that learn from data rather than explicit rules, deep learning specifically concerns itself with learning using deep neural networks -- architectures composed of many successive layers of computation.
+\subsection{What is Deep Learning?}
+\slideref{Session 1: What is Deep Learning?}
 
-A common source of confusion is the popular use of the term ``artificial intelligence'' to refer almost exclusively to large language models such as ChatGPT, Claude, or Gemini. These models are in fact a very specific and recent subset of deep learning, which is itself a subset of the broader field. The relationship is one of strict inclusion: LLMs $\subset$ Deep Learning $\subset$ Machine Learning $\subset$ Artificial Intelligence.
+Artificial intelligence, machine learning, and deep learning are often used interchangeably in popular discourse, but they refer to distinct and nested concepts.
+
+\textbf{Artificial intelligence} is the broadest term -- it encompasses any technique that enables machines to exhibit behaviour we would consider intelligent, including rule-based expert systems, search algorithms, and learned models.
+
+\textbf{Machine learning} is a subfield of AI in which systems learn from data rather than being programmed with explicit rules. Instead of writing down every decision, we provide examples and let the system discover the underlying patterns.
+
+\textbf{Deep learning} is a subfield of machine learning that uses neural networks with many layers -- so-called deep neural networks. The depth allows the network to learn increasingly abstract representations of the input data.
+
+\textbf{Generative AI} -- encompassing large language models as well as image, video, and music generation systems -- is a specific and currently prominent subset of deep learning. What the general public refers to as ``AI'' today is almost exclusively generative AI, which sits at the innermost level of this hierarchy.
+
+\begin{figure}[h]
+    \centering
+    \resizebox{0.35\textwidth}{!}{
+        \input{\CommonPath/tikz/ai_ml_dl.tex}
+    }
+    \caption{The relationship between AI, machine learning, deep learning, and generative AI.}
+    \label{fig:ai_ml_dl}
+\end{figure}
 
 \begin{definition}[Deep Learning]
 Deep learning is a class of machine learning methods that use multi-layered neural networks to learn hierarchical representations directly from raw data.
 \end{definition}
 
-This definition will become more precise as the course progresses. For now it is enough to hold it loosely -- by the end of the course every word in it will have a concrete meaning.
+This definition will sharpen as the course progresses. For now it is sufficient to hold it loosely -- by the end of the course every word in it will have a concrete meaning.
 
 \section{A Demonstration}
 
