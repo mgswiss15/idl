@@ -1,5 +1,6 @@
 \documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller]{beamer}
-\newcommand{\DirectoryPath}{../../Common} 
+\newcommand{\DirectoryPath}{../../Common}
+\newcommand{\coursename}{Intro to DL - S1} % to be used in footnote of every slide - empty default 
 \usepackage{\DirectoryPath/slidespreamble}
 \setbeameroption{show notes}
 % \setbeameroption{hide notes}
@@ -536,49 +537,190 @@ title={\structure{ImageNet Top-5 Accuracy (\%)}},
 
 \begin{columns}
     \begin{column}{0.48\textwidth}
-        \structure{Vision}
+        \structure{Language \& Communication}
         \begin{itemize}
-            \item Image classification \& object detection
-            \item Medical imaging - tumour detection, X-ray analysis
-            \item Autonomous driving
-            \item Face recognition
+            \item Translation - DeepL, Google Translate
+            \item Chatting - ChatGPT, Claude, Gemini
+            \item Coding - GitHub Copilot, Cursor
         \end{itemize}
 
-        \vskip 1em
+        \vskip 0.8em
 
-        \structure{Language}
+        \structure{Vision \& Perception}
         \begin{itemize}
-            \item Machine translation
-            \item Question answering - ChatGPT, Claude
-            \item Code generation
-            \item Document summarisation
+            \item Image classification, object detection
+            \item Autonomous \href{https://www.youtube.com/watch?v=wdAoxZO92Zs}{driving}
+            \item Satellite and aerial imagery
+        \end{itemize}
+
+        \vskip 0.8em
+
+        \structure{Healthcare \& Medicine}
+        \begin{itemize}
+            \item Imaging - tumour detection, X-ray
+            \item Genomics and personalised medicine
+            \item Clinical decision support
         \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-        \structure{Generative Models}
+        \structure{Generation}
         \begin{itemize}
-            \item Image generation - Stable Diffusion, DALL-E
-            \item Video generation
-            \item Music and speech synthesis
-            \item Drug and protein design
+            \item Image - Stable Diffusion, DALL-E
+            \item Video and music - Suno, Udio
+            \item Deepfakes and their detection
         \end{itemize}
 
-        \vskip 1em
+        \vskip 0.8em
 
-        \structure{Beyond}
+        \structure{Scientific Discovery}
         \begin{itemize}
-            \item Game playing - AlphaGo, AlphaFold
-            \item Robotics and control
-            \item Scientific discovery
-            \item Recommendation systems
+            \item Protein folding - \href{https://www.youtube.com/watch?v=r4-hXO7MLVU&list=PLqYmG7hTraZAhkAh72kzzLC4r2O4VoVgz&index=3}{AlphaFold}
+            \item Drug discovery
+            \item Climate and weather modelling
+        \end{itemize}
+
+        \vskip 0.8em
+
+        \structure{Decision Making \& Control}
+        \begin{itemize}
+            \item Game playing - \href{https://www.youtube.com/watch?v=WXuK6gekU1Y}{AlphaGo}
+            \item Robotics - \href{https://www.youtube.com/watch?v=x4O8pojMF0w&list=PLOXw6I10VTv9HODt7TFEL72K3Q6C4itG6&index=1}{manipulation}, \href{https://www.youtube.com/watch?v=UNorxwlZlFk}{locomotion}
+            \item Recommendation - TikTok, Netflix
         \end{itemize}
     \end{column}
 \end{columns}
 
 \end{frame}
 
-\section{The Deep Learning Pipeline}
+\begin{frame}{So, What Is Deep Learning?}
+
+\begin{center}
+{\large \textit{``Pieces of code that do stuff and nobody fully understands how.''}}
+\end{center}
+
+\vskip 1.5em
+
+\structure{What we saw today}
+\begin{itemize}
+    \item A machine that learned to recognise images - without being told any rules
+    \item Systems that translate, generate, discover, decide
+    \item Systems that fail and learn from their mistakes to improve
+    \item What did you write down at the beginning? Would you change anything?
+\end{itemize}
+
+\vskip 1.5em
+
+\begin{center}
+\colorbox{structure.fg!15}{%
+    \parbox{0.85\textwidth}{%
+        \centering\vskip 0.4em
+        {\normalsize Deep learning is about learning from examples at scale.}\\[0.3em]
+        {\normalsize This course is about understanding how.}
+        \vskip 0.4em
+    }
+}
+\end{center}
+
+\end{frame}
+
+
 \section{Course Roadmap \& Logistics}
+
+\begin{frame}{\ }
+
+\begin{center}
+\vspace{3em}
+\structure{\LARGE \textbf{Course Roadmap \& Logistics}}\\[1em]
+\end{center}
+
+\end{frame}
+
+\section{Course Roadmap \& Logistics}
+
+\begin{frame}{Where Does This Course Fit?}
+
+\begin{tikzpicture}[
+    box/.style={rectangle, rounded corners, minimum width=1.3cm, minimum height=0.5cm,
+                text centered, draw=thwspetrol, fill=lightblue!50, font=\tiny, anchor=west},
+    box_dark/.style={rectangle, rounded corners, minimum width=1.3cm, minimum height=0.5cm,
+                text centered, draw=thwspetrol, fill=thwsblue!60, font=\tiny, text=white, anchor=west},
+    highlight/.style={rectangle, rounded corners, minimum width=1.3cm, minimum height=0.5cm,
+                text centered, draw=thwsorange, fill=thwsorange!60, font=\tiny\bfseries, anchor=west},
+    elective/.style={rectangle, rounded corners, minimum width=1.3cm, minimum height=0.5cm,
+                text centered, draw=thwspetrol, fill=thwsblue!30, font=\tiny, dashed, anchor=west},
+    standalone/.style={rectangle, rounded corners, minimum width=1.3cm, minimum height=0.5cm,
+                text centered, draw=thwspetrol, fill=lightblue!20, font=\tiny, anchor=west},
+    arrow/.style={->, thick, thwspetrol, dashed},
+]
+
+    % electives band
+    \fill[lightblue!10, rounded corners, anchor=west] (8.4, -0.2) rectangle (10.1, 3.7);
+    \fill[orange1!20, rounded corners, anchor=west] (-1.7, -0.2) rectangle (0, 3.7);
+
+    % S1 band
+    \fill[thwsgrey!20, rounded corners, anchor=west] (0.3, -0.2) rectangle (8.1, 0.8);
+    \node[font=\small\bfseries, thwspetrol, anchor=west] at (0.5, 0.3) {S1};
+
+    % S1 Layer 1
+    \node[box]       (rdmu) at (1.2, 0.3) {Reason \& DM};
+    \node[box]       (math) at (3.0, 0.3) {Math};
+    \node[box]       (aiml) at (4.8, 0.3) {AI \& ML};
+    \node[highlight] (dl)   at (6.6, 0.3) {Intro to DL};
+    \node[standalone] (seminar) at (-1.5, 0.3) {Sci. Seminar};
+    \node[elective]  (el1)  at (8.6, 0.3) {Elective 1};
+
+    % Arrows
+    \draw[arrow] (math) -- (rdmu);
+    \draw[arrow] (math) -- (aiml);
+    \draw[arrow] (aiml) -- (dl);
+
+    % Sci. Seminar - outside band, rotated
+    % \node[standalone] (seminar) at (10.2, 0.3) {Sci. Seminar};
+
+% S2 band
+    \fill[thwsgrey!35, rounded corners, anchor=west] (0.3, 1.1) rectangle (8.1, 2.4);
+    \node[font=\small\bfseries, thwspetrol, anchor=west] at (0.5, 1.6) {S2};
+
+    % S2 Layer 1
+    \node[box] (robot)   at (1.2, 1.6) {Mobile Robots};
+    \node[box_dark, minimum width=2cm] (project) at (2.7, 2.0) {Project};
+    \node[box] (nlp)     at (4.8, 1.6) {NLP};
+    \node[box] (cv)      at (6.6, 1.6) {CV};
+    \node[standalone] (ethics) at (-1.5, 1.6) {Ethics \& AI};
+    \node[elective, fill=thwsblue!10] (el2) at (8.6, 1.6) {Elective 2};
+
+    % Ethics - outside band, rotated
+    % \node[standalone] (ethics) at (10.2, 1.6) {Ethics \& AI};
+
+    % Arrows S1 -> S2
+    \draw[arrow] (rdmu) -- (robot);
+    \draw[arrow] (dl)   -- (nlp);
+    \draw[arrow] (dl)   -- (cv);
+
+% S3 band
+    \fill[thwsgrey!50, rounded corners, anchor=west] (0.3, 2.7) rectangle (8.1, 3.7);
+    \node[font=\small\bfseries, thwspetrol, anchor=west] at (0.5, 3.2) {S3};
+
+    % S3 
+    \node[box_dark, minimum width=5cm] (thesis) at (2.0, 3.2) {Thesis};
+    \node[elective] (el3)    at (8.6, 3.2) {Elective 3};
+
+    % S general flow
+    \draw[->, very thick, thwspetrol] (0.8, 0.8) -- (0.8, 1.1);
+    \draw[->, very thick, thwspetrol] (0.8, 2.4) -- (0.8, 2.7);
+    % \draw[->, very thick, thwspetrol] (7.6, 0.8) -- (7.6, 1.1);
+    % \draw[->, very thick, thwspetrol] (7.6, 2.4) -- (7.6, 2.7);
+    \draw[->, very thick, thwspetrol] (8.1, 0.3) -- (8.4, 0.3);
+    \draw[->, very thick, thwspetrol] (8.1, 1.4) -- (8.4, 1.4);
+    \draw[->, very thick, thwspetrol] (8.4, 2.0) -- (8.1, 2.0);
+    \draw[->, very thick, thwspetrol] (8.4, 3.2) -- (8.1, 3.2);
+    \draw[->, very thick, thwspetrol] (0, 2.0) -- (0.3, 2.0);
+    \draw[->, very thick, thwspetrol] (0, 3.2) -- (0.3, 3.2);
+
+
+\end{tikzpicture}
+
+\end{frame}
 
 \end{document}
 
