@@ -46,6 +46,50 @@ Deep learning is a class of machine learning methods that use multi-layered neur
 
 This definition will sharpen as the course progresses. For now it is sufficient to hold it loosely - by the end of the course every word in it will have a concrete meaning.
 
+\subsection{Brief History}
+\slideref{Session 1: A Brief History of Deep Learning}
+
+Figure~\ref{fig:history} shows the key milestones in the development of deep learning alongside the periods of reduced funding and interest known as AI winters. For a comprehensive overview of the field's history see \cite{lecun2015deeplearning} and \cite{goodfellow2016deeplearning}.
+
+\begin{figure}[h]
+    \centering
+    \input{\CommonPath/tikz/ai_history.tex}
+    \caption{Key milestones in the history of deep learning. Shaded regions indicate AI winters and the cold spell of the early 2000s.}
+    \label{fig:history}
+\end{figure}
+
+\textbf{1958 - Perceptron.} Frank \cite{rosenblatt1958perceptron} introduced the perceptron - the first trainable neural network. It could learn to classify linearly separable patterns by adjusting weighted connections between inputs and a single output unit. The result generated enormous excitement and equally enormous overpromising about the future of machine intelligence. Rosenblatt himself claimed the perceptron would eventually be able to walk, talk, see, write, reproduce itself, and be conscious of its existence - a level of optimism that would later contribute to the severity of the backlash.
+
+The years following the perceptron saw genuine progress. The ADALINE model \cite{widrow1960adaline} introduced the least mean squares learning rule, which remains in use today. The concept of multilayer networks was understood theoretically, and researchers were actively exploring how to train them. There was a widespread belief that human-level artificial intelligence was only a decade away - a belief shared by many prominent scientists and echoed in generous research funding from DARPA and other agencies.
+
+However, the limitations of single-layer networks were becoming apparent in practice. Many of the problems researchers wanted to solve - pattern recognition, language understanding, game playing - turned out to be far harder than anticipated. The gap between the promise of the perceptron and the reality of what it could achieve was widening.
+
+\textbf{1969 - XOR Problem.} \cite{minsky1969perceptrons} published \textit{Perceptrons}, demonstrating formally that single-layer networks could not solve problems as simple as the XOR function. The 1970s were a difficult period for neural network research. The Lighthill Report \cite{lighthill1973} delivered a damning assessment of AI research in 1973, concluding that the field had failed to deliver on its promises. DARPA cut funding significantly and many researchers moved away from neural networks entirely. This was the first AI winter.
+
+Yet work continued quietly. Paul Werbos derived the backpropagation algorithm in his 1974 PhD thesis \cite{werbos1974thesis} - years before it became widely known. \cite{fukushima1980neocognitron} introduced the Neocognitron, a hierarchical neural network inspired by the visual cortex that anticipated many ideas later formalised in convolutional networks. \cite{hopfield1982neural} networks demonstrated that recurrent networks could function as associative memories. These contributions kept the field alive through the cold years, largely unnoticed by the mainstream AI community which had shifted its focus toward symbolic reasoning and expert systems.
+
+Japan's role in this period deserves particular mention. Fukushima's Neocognitron emerged from NHK Science and Technology Research Laboratories in Tokyo. In 1982 the Japanese government launched the ambitious Fifth Generation Computer Project \cite{fgcs1982}, investing heavily in AI hardware and parallel computing. The project caused significant alarm in the US and UK and triggered substantial counter-investment in AI research on both sides of the Atlantic. Its ultimate failure to deliver human-level reasoning contributed to the disillusionment of the second AI winter.
+
+\textbf{1986 - Backpropagation.} \cite{rumelhart1986backprop} popularised the backpropagation algorithm, providing a practical method for training multi-layer networks by propagating error gradients backwards through the layers. The revival of backpropagation generated enormous enthusiasm. Multilayer networks were successfully applied to speech recognition, image classification, and financial forecasting. LeCun applied backpropagation to convolutional networks at Bell Labs, demonstrating practical handwriting recognition systems used by the US postal service. Hochreiter and Schmidhuber introduced the Long Short-Term Memory (LSTM) network in 1997 \cite{hochreiter1997lstm}, solving the vanishing gradient problem for recurrent networks and laying the foundation for sequence modelling over the following two decades.
+
+However, the second AI winter arrived in the late 1980s and early 1990s. Expert systems - rule-based AI programs that had attracted enormous commercial investment - collapsed as their maintenance costs proved prohibitive and their brittleness became apparent. The Lisp machine market crashed in 1987. DARPA again cut funding. Neural networks hit their own practical ceiling: training deep networks remained unstable, datasets were small, and support vector machines (SVMs) - introduced by \cite{vapnik1995svm} - offered better performance on many tasks with stronger theoretical guarantees. By the mid-1990s SVMs had largely displaced neural networks as the method of choice for classification problems.
+
+\textbf{1998 - LeNet.} Yann \cite{lecun1998gradient} demonstrated convolutional neural networks for handwritten digit recognition, achieving state-of-the-art results on the MNIST dataset. Despite its success, neural networks remained out of favour through the early 2000s - a period sometimes called the cold spell - as support vector machines and other kernel methods dominated the field.
+
+This cold spell was not a complete winter - small groups continued working on deep architectures. \cite{bengio2004representation} explored the difficulty of training deep networks, identifying the vanishing gradient problem as the central obstacle. Hinton's group at Toronto worked on unsupervised pretraining as a way to initialise deep networks before fine-tuning with backpropagation. The theoretical groundwork for the 2006 breakthrough was being laid quietly throughout this period.
+
+\textbf{2006 - Deep Belief Nets.} \cite{hinton2006belief} showed that deep networks could be trained effectively using a layer-wise pretraining procedure . This reignited interest in deep architectures and marked the beginning of the modern deep learning era, even before large datasets and GPU training were fully established.
+
+The key developments of this period were infrastructural rather than algorithmic. \cite{raina2009gpu} demonstrated that GPUs could accelerate neural network training by an order of magnitude, making experiments that previously took weeks feasible in hours. The ImageNet dataset was released by \cite{deng2009imagenet}, providing for the first time a benchmark large and challenging enough to reveal the true potential of deep architectures. \cite{nair2010relu} introduced the ReLU activation function, which proved dramatically more effective than sigmoid and tanh activations for training deep networks. These three developments - GPU training, large-scale data, and better activations - set the stage for AlexNet's breakthrough in 2012.
+
+\textbf{2012 - AlexNet.} \cite{krizhevsky2012alexnet} entered a deep convolutional network trained on GPUs into the ImageNet challenge and won by a margin that shocked the field - reducing the top-5 error rate from 26\% to 15\% in a single year. This moment is widely regarded as the turning point that established deep learning as the dominant paradigm in machine learning.
+
+\textbf{2017 - Transformers.} \cite{vaswani2017attention} introduced the transformer architecture in the paper \textit{Attention Is All You Need}, replacing recurrent computation with self-attention mechanisms. The transformer became the foundation of virtually all modern large-scale models in both language and vision.
+
+\textbf{2022 - ChatGPT.} OpenAI released ChatGPT, bringing large language models to a mass audience for the first time. Within two months it had reached 100 million users, making it the fastest-growing consumer application in history and triggering a wave of public and institutional interest in artificial intelligence that continues today.
+
+The pattern visible in Figure~\ref{fig:history} is worth noting: the history of deep learning is one of recurring cycles of excitement and disappointment, punctuated by genuine breakthroughs. The current era is distinguished not just by the scale of the results but by the breadth of their impact - for the first time, deep learning systems are changing how ordinary people work and communicate on a daily basis.
+
 \subsection{Why Now?}
 \slideref{Session 1: Why Now? - Four Driving Forces}
 
@@ -102,50 +146,6 @@ Figure~\ref{fig:imagenet_accuracy} illustrates the impact of these algorithmic a
 Perhaps the most underappreciated factor is the open culture of the deep learning community. Frameworks such as PyTorch, TensorFlow, and JAX are open source, actively maintained, and freely available. The norm of releasing code alongside papers - through platforms such as Papers with Code, Kaggle, and HuggingFace - means that results are reproducible and immediately buildable upon. Research is shared on arXiv before peer review, and major conferences such as NeurIPS, ICML, and ICLR publish proceedings openly.
 
 This compounding effect - where each breakthrough immediately becomes everyone's foundation - has no parallel in most other scientific fields.
-
-\subsection{Brief History}
-\slideref{Session 1: A Brief History of Deep Learning}
-
-Figure~\ref{fig:history} shows the key milestones in the development of deep learning alongside the periods of reduced funding and interest known as AI winters. For a comprehensive overview of the field's history see \cite{lecun2015deeplearning} and \cite{goodfellow2016deeplearning}.
-
-\begin{figure}[h]
-    \centering
-    \input{\CommonPath/tikz/ai_history.tex}
-    \caption{Key milestones in the history of deep learning. Shaded regions indicate AI winters and the cold spell of the early 2000s.}
-    \label{fig:history}
-\end{figure}
-
-\textbf{1958 - Perceptron.} Frank \cite{rosenblatt1958perceptron} introduced the perceptron - the first trainable neural network. It could learn to classify linearly separable patterns by adjusting weighted connections between inputs and a single output unit. The result generated enormous excitement and equally enormous overpromising about the future of machine intelligence. Rosenblatt himself claimed the perceptron would eventually be able to walk, talk, see, write, reproduce itself, and be conscious of its existence - a level of optimism that would later contribute to the severity of the backlash.
-
-The years following the perceptron saw genuine progress. The ADALINE model \cite{widrow1960adaline} introduced the least mean squares learning rule, which remains in use today. The concept of multilayer networks was understood theoretically, and researchers were actively exploring how to train them. There was a widespread belief that human-level artificial intelligence was only a decade away - a belief shared by many prominent scientists and echoed in generous research funding from DARPA and other agencies.
-
-However, the limitations of single-layer networks were becoming apparent in practice. Many of the problems researchers wanted to solve - pattern recognition, language understanding, game playing - turned out to be far harder than anticipated. The gap between the promise of the perceptron and the reality of what it could achieve was widening.
-
-\textbf{1969 - XOR Problem.} \cite{minsky1969perceptrons} published \textit{Perceptrons}, demonstrating formally that single-layer networks could not solve problems as simple as the XOR function. The 1970s were a difficult period for neural network research. The Lighthill Report \cite{lighthill1973} delivered a damning assessment of AI research in 1973, concluding that the field had failed to deliver on its promises. DARPA cut funding significantly and many researchers moved away from neural networks entirely. This was the first AI winter.
-
-Yet work continued quietly. Paul Werbos derived the backpropagation algorithm in his 1974 PhD thesis \cite{werbos1974thesis} - years before it became widely known. \cite{fukushima1980neocognitron} introduced the Neocognitron, a hierarchical neural network inspired by the visual cortex that anticipated many ideas later formalised in convolutional networks. \cite{hopfield1982neural} networks demonstrated that recurrent networks could function as associative memories. These contributions kept the field alive through the cold years, largely unnoticed by the mainstream AI community which had shifted its focus toward symbolic reasoning and expert systems.
-
-Japan's role in this period deserves particular mention. Fukushima's Neocognitron emerged from NHK Science and Technology Research Laboratories in Tokyo. In 1982 the Japanese government launched the ambitious Fifth Generation Computer Project \cite{fgcs1982}, investing heavily in AI hardware and parallel computing. The project caused significant alarm in the US and UK and triggered substantial counter-investment in AI research on both sides of the Atlantic. Its ultimate failure to deliver human-level reasoning contributed to the disillusionment of the second AI winter.
-
-\textbf{1986 - Backpropagation.} \cite{rumelhart1986backprop} popularised the backpropagation algorithm, providing a practical method for training multi-layer networks by propagating error gradients backwards through the layers. The revival of backpropagation generated enormous enthusiasm. Multilayer networks were successfully applied to speech recognition, image classification, and financial forecasting. LeCun applied backpropagation to convolutional networks at Bell Labs, demonstrating practical handwriting recognition systems used by the US postal service. Hochreiter and Schmidhuber introduced the Long Short-Term Memory (LSTM) network in 1997 \cite{hochreiter1997lstm}, solving the vanishing gradient problem for recurrent networks and laying the foundation for sequence modelling over the following two decades.
-
-However, the second AI winter arrived in the late 1980s and early 1990s. Expert systems - rule-based AI programs that had attracted enormous commercial investment - collapsed as their maintenance costs proved prohibitive and their brittleness became apparent. The Lisp machine market crashed in 1987. DARPA again cut funding. Neural networks hit their own practical ceiling: training deep networks remained unstable, datasets were small, and support vector machines (SVMs) - introduced by \cite{vapnik1995svm} - offered better performance on many tasks with stronger theoretical guarantees. By the mid-1990s SVMs had largely displaced neural networks as the method of choice for classification problems.
-
-\textbf{1998 - LeNet.} Yann \cite{lecun1998gradient} demonstrated convolutional neural networks for handwritten digit recognition, achieving state-of-the-art results on the MNIST dataset. Despite its success, neural networks remained out of favour through the early 2000s - a period sometimes called the cold spell - as support vector machines and other kernel methods dominated the field.
-
-This cold spell was not a complete winter - small groups continued working on deep architectures. \cite{bengio2004representation} explored the difficulty of training deep networks, identifying the vanishing gradient problem as the central obstacle. Hinton's group at Toronto worked on unsupervised pretraining as a way to initialise deep networks before fine-tuning with backpropagation. The theoretical groundwork for the 2006 breakthrough was being laid quietly throughout this period.
-
-\textbf{2006 - Deep Belief Nets.} \cite{hinton2006belief} showed that deep networks could be trained effectively using a layer-wise pretraining procedure . This reignited interest in deep architectures and marked the beginning of the modern deep learning era, even before large datasets and GPU training were fully established.
-
-The key developments of this period were infrastructural rather than algorithmic. \cite{raina2009gpu} demonstrated that GPUs could accelerate neural network training by an order of magnitude, making experiments that previously took weeks feasible in hours. The ImageNet dataset was released by \cite{deng2009imagenet}, providing for the first time a benchmark large and challenging enough to reveal the true potential of deep architectures. \cite{nair2010relu} introduced the ReLU activation function, which proved dramatically more effective than sigmoid and tanh activations for training deep networks. These three developments - GPU training, large-scale data, and better activations - set the stage for AlexNet's breakthrough in 2012.
-
-\textbf{2012 - AlexNet.} \cite{krizhevsky2012alexnet} entered a deep convolutional network trained on GPUs into the ImageNet challenge and won by a margin that shocked the field - reducing the top-5 error rate from 26\% to 15\% in a single year. This moment is widely regarded as the turning point that established deep learning as the dominant paradigm in machine learning.
-
-\textbf{2017 - Transformers.} \cite{vaswani2017attention} introduced the transformer architecture in the paper \textit{Attention Is All You Need}, replacing recurrent computation with self-attention mechanisms. The transformer became the foundation of virtually all modern large-scale models in both language and vision.
-
-\textbf{2022 - ChatGPT.} OpenAI released ChatGPT, bringing large language models to a mass audience for the first time. Within two months it had reached 100 million users, making it the fastest-growing consumer application in history and triggering a wave of public and institutional interest in artificial intelligence that continues today.
-
-The pattern visible in Figure~\ref{fig:history} is worth noting: the history of deep learning is one of recurring cycles of excitement and disappointment, punctuated by genuine breakthroughs. The current era is distinguished not just by the scale of the results but by the breadth of their impact - for the first time, deep learning systems are changing how ordinary people work and communicate on a daily basis.
 
 \subsection{What Can Deep Learning Do?}
 \slideref{Session 1: What Can Deep Learning Do?}
