@@ -147,90 +147,59 @@ Answer without computing — just reason about dimensions:
 - Confusing the shape of $A^\top A$ and $AA^\top$ — they are both square but of different sizes
 - Assuming $XW + \mathbf{b}$ is
 
----
-
-## Block 3 — Probability & Statistics (18 min)
+## Block 3 — Calculus & Gradients (18 min)
 
 ### Exercises for students (10 min)
 
-**2.1 — Probability basics**  
-A dataset has 70 positive and 30 negative examples.
+**3.1 — Derivatives**
 
-- What is $P(\text{positive})$?
-- If you draw two examples independently, what is $P(\text{both positive})$?
-- Apply Bayes' theorem: if a classifier outputs "positive" 90% of the time when the true label is positive, and 20% of the time when the true label is negative, what is $P(\text{true positive} \mid \text{predicted positive})$?
-
-**2.2 — Distributions**  
-- Sketch a Gaussian distribution $\mathcal{N}(0, 1)$ and $\mathcal{N}(0, 4)$ on the same axes. What changes?
-- A coin flip has $P(\text{heads}) = 0.6$. What distribution models this? What are its mean and variance?
-
-**2.3 — Cross-entropy**  
-The true label is $y = 1$. A model outputs $\hat{p} = 0.9$.
-
-- Compute the binary cross-entropy loss: $-[y \log \hat{p} + (1-y) \log(1-\hat{p})]$
-- What happens to the loss if the model outputs $\hat{p} = 0.1$ instead?
-
----
-
-### Discussion (8 min)
-
-**Ask a volunteer to present 2.1 and 2.3.**
-
-**Key points to reinforce:**
-- Bayes' theorem: the prior matters — even a good classifier can give misleading posteriors on imbalanced data
-- Cross-entropy: connect explicitly to what they will use as the loss function in the course
-- $\log(0)$ is undefined — this is why we clip predictions in practice
-
-**Common mistakes to flag:**
-- Treating probability and likelihood as synonyms
-- Not applying the log carefully (forgetting the minus sign, computing $\log(0)$)
-- Confusing $P(A|B)$ and $P(B|A)$ — the classic base rate neglect
-
-**Self-study pointer if struggling:**  
-*Probability Theory: The Logic of Science* (Jaynes) for depth, or *Deep Learning* book (Goodfellow et al.) Chapter 3 for the course-relevant subset.
-
----
-
-## Block 4 — Calculus & Gradients (18 min)
-
-### Exercises for students (10 min)
-
-**3.1 — Derivatives**  
 Compute the derivative with respect to $x$:
 
 - $f(x) = x^3 - 2x^2 + 5$
 - $f(x) = \sigma(x) = \frac{1}{1 + e^{-x}}$ — show that $\sigma'(x) = \sigma(x)(1 - \sigma(x))$
 - $f(x) = \max(0, x)$ — what is the derivative? Where is it undefined?
 
-**3.2 — Chain rule**  
-Let $z = wx + b$, $a = \sigma(z)$, $L = (a - y)^2$.
+**3.2 — Chain rule**
 
-- Compute $\frac{\partial L}{\partial w}$ using the chain rule step by step.
-- Write out each intermediate partial derivative.
+Consider the following function:
 
-**3.3 — Gradients**  
-Let $f(\mathbf{w}) = \mathbf{w}^\top \mathbf{w}$ for $\mathbf{w} \in \mathbb{R}^n$.
+$$L(w, b) = \frac{1}{n}\sum_{i=1}^{n}\left(\sigma(wx_i + b) - y_i\right)^2, \quad \text{where } \sigma(z) = \frac{1}{1+e^{-z}}$$
 
-- Compute $\nabla_\mathbf{w} f$.
-- In which direction does $f$ increase fastest?
+- Identify the composite structure. Define intermediate variables $z_i$, $a_i$, and $r_i$ such that $L$ can be written as a composition of simple functions.
+- Using your decomposition, compute $\frac{\partial L}{\partial w}$ step by step using the chain rule. Write out each intermediate partial derivative explicitly. Use the result from 3.1 that $\sigma'(z) = \sigma(z)(1-\sigma(z))$.
+- For $n=2$, $\mathbf{x} = (1, 2)^\top$, $\mathbf{y} = (0, 1)^\top$, $w = 2$, $b = 0$: evaluate $\frac{\partial L}{\partial w}$ numerically. In which direction would you adjust $w$ to decrease $L$?
+
+**3.3 — Gradients of a linear layer**
+
+Consider a single linear layer with weight vector $\mathbf{w} \in \mathbb{R}^d$ and bias $b \in \mathbb{R}$, with MSE loss:
+
+$$L(\mathbf{w}, b) = \frac{1}{n}\sum_{i=1}^{n}\left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y_i\right)^2$$
+
+- Define $r_i = \mathbf{w}^\top \mathbf{x}^{(i)} + b - y_i$. Compute $\nabla_\mathbf{w} L$ and $\frac{\partial L}{\partial b}$. What is the shape of $\nabla_\mathbf{w} L$?
+- Now extend to a full linear layer with weight matrix $W \in \mathbb{R}^{m \times d}$ and bias vector $\mathbf{b} \in \mathbb{R}^m$, with loss:
+
+$$L(W, \mathbf{b}) = \frac{1}{n}\sum_{i=1}^{n}\|\mathbf{y}^{(i)} - (W\mathbf{x}^{(i)} + \mathbf{b})\|_2^2$$
+
+Define $\mathbf{r}^{(i)} = W\mathbf{x}^{(i)} + \mathbf{b} - \mathbf{y}^{(i)}$. Compute $\nabla_W L$ and $\nabla_\mathbf{b} L$. What are their shapes? How do they relate to the shapes of $W$ and $\mathbf{b}$?
 
 ---
 
 ### Discussion (8 min)
 
-**Ask a volunteer to present 3.1 (sigmoid derivative) and 3.2.**
+**Ask a volunteer to present 3.1 (sigmoid derivative) and 3.2 (decomposition and chain rule).**
 
 **Key points to reinforce:**
-- The chain rule derivation in 3.2 *is* backpropagation — make this connection explicit
-- ReLU derivative: undefined at 0 but we just pick 0 or 1 in practice (subgradient)
-- The gradient points in the direction of steepest ascent; we go *opposite* to it (gradient descent)
+- The chain rule derivation in 3.2 *is* backpropagation — make this connection explicit: every training step computes exactly these derivatives automatically
+- ReLU derivative: undefined at 0 but we pick 0 or 1 in practice (subgradient) — this will come up when implementing activations
+- The gradient $\nabla_\mathbf{w} L$ has the same shape as $\mathbf{w}$, and $\nabla_W L$ has the same shape as $W$ — gradients always match the shape of their parameter
+- The numerical result in 3.2 tells students *which direction* to move — connect explicitly to gradient descent
 
 **Common mistakes to flag:**
-- Applying chain rule in the wrong order
-- Forgetting that $\partial z / \partial w = x$ (the input, not the weight)
-- Treating the gradient of a scalar w.r.t. a vector as a scalar
+- Applying the chain rule in the wrong order
+- Forgetting that $\frac{\partial z_i}{\partial w} = x_i$ — the derivative is the input, not the weight
+- Treating $\nabla_\mathbf{w} L$ as a scalar rather than a vector of the same shape as $\mathbf{w}$
 
-**Self-study pointer if struggling:**  
+**Self-study pointer if struggling:**
 *Mathematics for Machine Learning* (Deisenroth et al.) — Chapter 5 (Vector Calculus). Khan Academy calculus for basics.
 
 ---
@@ -265,17 +234,6 @@ D = A.T            # shape?
 E = A.sum(dim=0)   # shape?
 ```
 
-**4.3 — Gradient computation**  
-```python
-x = torch.tensor(3.0, requires_grad=True)
-y = x ** 2
-y.backward()
-```
-
-- What is `x.grad`?
-- What does `requires_grad=True` tell PyTorch to do?
-- Why is this relevant to training neural networks?
-
 ---
 
 ### Discussion (8 min)
@@ -294,6 +252,56 @@ y.backward()
 
 **Self-study pointer if struggling:**  
 Official PyTorch tutorials: *Learning the Basics* and *Autograd tutorial* at pytorch.org. The setup guide distributed before CW13 also covers basic tensor operations.
+
+---
+
+## Block 5 — Coding & Installation Check (15 min)
+
+### Exercises for students (12 min)
+
+> No scaffolding is provided — students write the code from scratch. The expected numerical results are already known from Blocks 2 and 3, so they can self-check immediately. If the environment is not set up correctly, this block will surface it.
+
+**5.1 — MSE computation**
+
+Using PyTorch tensors, implement the MSE loss $\text{MSE} = \frac{1}{n}\|\mathbf{f}(\mathbf{x}) - \mathbf{y}\|_2^2$ where $f(\mathbf{x}) = 3\mathbf{x} - 1$ for the following vectors:
+
+$$\mathbf{x} = (1, 2, 3, 4, 5, 6, 7, 8)^\top, \quad \mathbf{y} = (2.1, 5.2, 7.8, 11.1, 14.9, 17.2, 20.8, 23.1)^\top$$
+
+- Create $\mathbf{x}$ and $\mathbf{y}$ as PyTorch tensors
+- Compute $\hat{\mathbf{y}} = f(\mathbf{x})$ using tensor operations
+- Compute the MSE manually using tensor operations — do not use any PyTorch loss functions
+- Print the result and verify it matches your pen and paper expectations
+
+**5.2 — Gradient of a linear layer**
+
+Using the symbolic result from 3.3, implement $\nabla_W L$ and $\nabla_\mathbf{b} L$ manually for the following:
+
+$$W \in \mathbb{R}^{2 \times 3}, \quad \mathbf{b} \in \mathbb{R}^2, \quad n = 4 \text{ samples}$$
+
+$$X = \begin{pmatrix} 1 & 2 & 1 \\ 0 & 1 & 3 \\ 2 & 0 & 1 \\ 1 & 1 & 2 \end{pmatrix}, \quad Y = \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \\ 0 & 0 \end{pmatrix}, \quad W = \begin{pmatrix} 1 & 0 & 1 \\ 0 & 1 & 0 \end{pmatrix}, \quad \mathbf{b} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$$
+
+- Create all tensors in PyTorch
+- Compute the residuals $\mathbf{r}^{(i)} = W\mathbf{x}^{(i)} + \mathbf{b} - \mathbf{y}^{(i)}$ for all samples
+- Compute $\nabla_W L$ and $\nabla_\mathbf{b} L$ using your symbolic result from 3.3 — no autograd
+- Print the shapes of $\nabla_W L$ and $\nabla_\mathbf{b} L$ and verify they match the shapes of $W$ and $\mathbf{b}$
+
+---
+
+### Discussion (3 min)
+
+**This block is primarily a self-check — keep the discussion short and focused on issues that came up.**
+
+**Key points to reinforce:**
+- If the MSE result from 5.1 matches the pen and paper result, the environment is working correctly
+- The shape of $\nabla_W L$ must match $W$ and the shape of $\nabla_\mathbf{b} L$ must match $\mathbf{b}$ — if not, something is wrong in the implementation
+- Computing gradients manually before using autograd builds understanding of what PyTorch does under the hood — they will appreciate this in the backpropagation lecture
+
+**Common issues to flag:**
+- Tensor dtype mismatches — use `torch.float32` consistently
+- Shape errors when computing residuals — remind students to check intermediate shapes
+- Students who used a PyTorch loss function instead of implementing manually — ask them to redo it
+
+**Note for instructor:** Students who finish early can verify their result for 5.2 using `torch.autograd` and check that the gradients match. Do not announce this upfront — let fast finishers discover it as a bonus.
 
 ---
 
