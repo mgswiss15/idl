@@ -1,0 +1,259 @@
+\documentclass[12pt, a4paper]{scrartcl}
+\newcommand{\CommonPath}{../../Common}
+\newcommand{\coursename}{Intro to Deep Learning}
+\usepackage{\CommonPath/notespreamble}
+
+% Title
+\title{Exercise Session 1 --- Solution Sheet\\
+\large Prerequisites Self-Assessment}
+\author{Magda Gregorová\\
+{\small \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}}
+\date{{\small March 2026 \\[0.3em]
+\textbf{Instructor use only --- do not distribute}}}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+%----------------------------------------------------------------------
+\section{Mathematical Notation}
+%----------------------------------------------------------------------
+
+\begin{enumerate}
+
+\item
+$\displaystyle\sum_{i=1}^{4} x_i = 2 + 5 + 1 + 3 = 11$, \quad
+$\displaystyle\prod_{i=1}^{4} x_i = 2 \cdot 5 \cdot 1 \cdot 3 = 30$.
+
+\item Plain-English translations:
+\begin{itemize}
+    \item $w \in \mathbb{R}$: $w$ is a real-valued scalar.
+    \item $\mathbf{x} \in \mathbb{R}^{784}$: $\mathbf{x}$ is a vector of 784 real numbers.
+    \item $f: \mathbb{R}^n \to \mathbb{R}$: $f$ is a function that takes an $n$-dimensional real vector as input and returns a real scalar.
+    \item $\forall i \in \{1, \ldots, n\}$: for every integer $i$ from 1 to $n$.
+    \item $A \in \mathbb{R}^{m \times n}$: $A$ is a matrix with $m$ rows and $n$ columns of real numbers.
+\end{itemize}
+
+\item Subscripts and superscripts:
+\begin{enumerate}
+    \item $x_3^{(1)}$ is the 3rd feature of the 1st data sample. It appears in row 1, column 3 of $X$, i.e.\ $X_{13}$.
+    \item $X \in \mathbb{R}^{200 \times 8}$: 200 rows (samples), 8 columns (features).
+    \item The indices are swapped: $x_k^{(i)}$ would mean the $k$-th feature of the $i$-th sample, which reverses the intended meaning. This matters because code and math must agree on which index is which --- swapped indices produce incorrect implementations.
+    \item $\bar{x}_i = \dfrac{1}{n}\displaystyle\sum_{k=1}^{n} x_i^{(k)}$. There are $d$ such means in total, one per feature, forming a vector $\bar{\mathbf{x}} \in \mathbb{R}^d$.
+\end{enumerate}
+
+\item $(f \circ g)(x) = f(g(x)) = (x+1)^2$, so $(f \circ g)(3) = 16$.\\
+$(g \circ f)(x) = g(f(x)) = x^2 + 1$, so $(g \circ f)(3) = 10$.\\
+They are not equal in general: composition is not commutative.
+
+\item $g \circ h$: input space $\mathbb{R}^n$, output space $\mathbb{R}$ (apply $h$ first, then $g$).\\
+$h \circ g$: not well-defined. $g$ outputs a scalar in $\mathbb{R}$, but $h$ expects a vector in $\mathbb{R}^n$ as input.
+
+\item $f: \mathbb{R}^n \to \mathbb{R}^m$. The output of $W\mathbf{x} + \mathbf{b}$ is in $\mathbb{R}^m$, and $\sigma$ is applied elementwise so the output remains in $\mathbb{R}^m$.\\
+For $g \circ f$ to be well-defined, $g$ must accept inputs in $\mathbb{R}^m$, so $V \in \mathbb{R}^{p \times m}$ and $\mathbf{c} \in \mathbb{R}^p$ for some $p$.
+
+\item $NN: \mathbb{R}^{784} \to \mathbb{R}^{10}$.
+
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Linear Algebra}
+%----------------------------------------------------------------------
+
+\begin{enumerate}
+
+\item $\displaystyle\sum_{i=1}^{n} x_i y_i$ --- this is the dot product $\mathbf{x} \cdot \mathbf{y}$.\\
+Relation to $\ell_2$ norm: $\|\mathbf{x}\|_2^2 = \mathbf{x} \cdot \mathbf{x} = \displaystyle\sum_{i=1}^{n} x_i^2$, i.e.\ the squared $\ell_2$ norm is the dot product of a vector with itself.
+
+\item $f(\mathbf{x}) = 2\mathbf{x} = (2, 4, 6)^\top$.\\
+$f(\mathbf{x}) - \mathbf{y} = (0.5, -0.5, -1)^\top$.\\
+$\|f(\mathbf{x}) - \mathbf{y}\|_2^2 = 0.25 + 0.25 + 1 = 1.5$.\\
+$\mathrm{MSE} = 1.5$.\\
+MSE $= 0$ means the predictions exactly match the targets.
+
+\item Matrix operations:
+\begin{enumerate}
+    \item $A\mathbf{x} = \begin{pmatrix} 1\cdot1 + 2\cdot(-1) + 0\cdot2 \\ 3\cdot1 + 1\cdot(-1) + 4\cdot2 \end{pmatrix} = \begin{pmatrix} -1 \\ 10 \end{pmatrix}$. Shape: $(2,)$.
+
+    \item $AA^\top = \begin{pmatrix} 1 & 2 & 0 \\ 3 & 1 & 4 \end{pmatrix} \begin{pmatrix} 1 & 3 \\ 2 & 1 \\ 0 & 4 \end{pmatrix} = \begin{pmatrix} 5 & 5 \\ 5 & 26 \end{pmatrix} \in \mathbb{R}^{2\times2}$.
+
+    $A^\top A = \begin{pmatrix} 1 & 3 \\ 2 & 1 \\ 0 & 4 \end{pmatrix}\begin{pmatrix} 1 & 2 & 0 \\ 3 & 1 & 4 \end{pmatrix} = \begin{pmatrix} 10 & 5 & 12 \\ 5 & 5 & 4 \\ 12 & 4 & 16 \end{pmatrix} \in \mathbb{R}^{3\times3}$.
+
+    Note: $AA^\top \neq A^\top A$ --- they are not even the same size.
+\end{enumerate}
+
+\item Shape tracking:
+\begin{enumerate}
+    \item $W_1\mathbf{x} \in \mathbb{R}^4$, then $W_2(W_1\mathbf{x}) \in \mathbb{R}^2$. Shape of $W_2W_1\mathbf{x}$: $(2,)$.\\
+    $W_1^\top \in \mathbb{R}^{3\times4}$, $W_2^\top \in \mathbb{R}^{4\times2}$, so $W_1^\top W_2^\top \in \mathbb{R}^{3\times2}$.
+
+    \item $XW \in \mathbb{R}^{n\times m}$. Adding $\mathbf{b} \in \mathbb{R}^m$ requires broadcasting $\mathbf{b}$ across the $n$ rows. Shape of $XW + \mathbf{b}$: $(n, m)$.
+
+    \item Step by step:
+    \begin{itemize}
+        \item $B^\top \in \mathbb{R}^{n\times n}$, so $B + B^\top \in \mathbb{R}^{n\times n}$.
+        \item $A(B + B^\top) \in \mathbb{R}^{m\times n}$.
+        \item $A(B + B^\top)C \in \mathbb{R}^{m\times p}$.
+        \item $A(B + B^\top)C\mathbf{v} \in \mathbb{R}^{m}$.
+    \end{itemize}
+    Final shape: $(m,)$.
+\end{enumerate}
+
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Calculus \& Gradients}
+%----------------------------------------------------------------------
+
+\begin{enumerate}
+
+\item $f'(x) = 3x^2 - 4x$.
+
+\item Key steps: write $\sigma(x) = (1 + e^{-x})^{-1}$ and apply the chain rule:
+\[
+\sigma'(x) = \frac{e^{-x}}{(1+e^{-x})^2} = \frac{1}{1+e^{-x}} \cdot \frac{e^{-x}}{1+e^{-x}} = \sigma(x)(1 - \sigma(x)).
+\]
+
+\item $f'(x) = \begin{cases} 0 & x < 0 \\ 1 & x > 0 \end{cases}$. Undefined at $x = 0$ (in practice we set it to 0 or 1).
+
+\item Chain rule:
+\begin{enumerate}
+    \item Decomposition: $z_i = wx_i + b$, \; $a_i = \sigma(z_i)$, \; $r_i = a_i - y_i$, \; $L = \dfrac{1}{n}\displaystyle\sum_i r_i^2$.
+
+    \item Key steps:
+    \[
+    \frac{\partial L}{\partial w} = \frac{1}{n}\sum_{i=1}^{n} \frac{\partial L}{\partial r_i}\frac{\partial r_i}{\partial a_i}\frac{\partial a_i}{\partial z_i}\frac{\partial z_i}{\partial w} = \frac{2}{n}\sum_{i=1}^{n} r_i \cdot 1 \cdot \sigma(z_i)(1-\sigma(z_i)) \cdot x_i.
+    \]
+
+    \item For $n=2$, $x_1=1$, $x_2=2$, $y_1=0$, $y_2=1$, $w=2$, $b=0$:
+    \begin{itemize}
+        \item $z_1 = 2$, $a_1 = \sigma(2) \approx 0.880$, $r_1 = 0.880$
+        \item $z_2 = 4$, $a_2 = \sigma(4) \approx 0.982$, $r_2 = -0.018$
+        \item $\sigma(2)(1-\sigma(2)) \approx 0.105$, \quad $\sigma(4)(1-\sigma(4)) \approx 0.018$
+        \item $\dfrac{\partial L}{\partial w} = \dfrac{2}{2}\left[0.880 \cdot 0.105 \cdot 1 + (-0.018) \cdot 0.018 \cdot 2\right] \approx 0.092 - 0.001 \approx 0.091$
+    \end{itemize}
+    The gradient is positive, so decrease $L$ by decreasing $w$.
+\end{enumerate}
+
+\item Let $r_i = \mathbf{w}^\top \mathbf{x}^{(i)} + b - y_i$. Then:
+\[
+\nabla_\mathbf{w} L = \frac{2}{n}\sum_{i=1}^{n} r_i\, \mathbf{x}^{(i)}, \qquad \frac{\partial L}{\partial b} = \frac{2}{n}\sum_{i=1}^{n} r_i.
+\]
+Shape of $\nabla_\mathbf{w} L$: $(d,)$ --- same as $\mathbf{w}$.
+
+\item Let $\mathbf{r}^{(i)} = W\mathbf{x}^{(i)} + \mathbf{b} - \mathbf{y}^{(i)}$. Then:
+\[
+\nabla_W L = \frac{2}{n}\sum_{i=1}^{n} \mathbf{r}^{(i)} (\mathbf{x}^{(i)})^\top, \qquad \nabla_\mathbf{b} L = \frac{2}{n}\sum_{i=1}^{n} \mathbf{r}^{(i)}.
+\]
+Shape of $\nabla_W L$: $(m, d)$ --- same as $W$. Shape of $\nabla_\mathbf{b} L$: $(m,)$ --- same as $\mathbf{b}$.\\
+Gradients always have the same shape as the parameter they differentiate with respect to.
+
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Python \& PyTorch Concepts}
+%----------------------------------------------------------------------
+
+\begin{enumerate}
+
+\item Prints \texttt{[1, 2, 3, 4]}. \texttt{y = x} does not copy the list --- both variables point to the same object in memory, so \texttt{y.append(4)} modifies \texttt{x} as well. Fix: \texttt{y = x.copy()} or \texttt{y = list(x)}.
+
+\item Shapes:
+\begin{itemize}
+    \item \texttt{C = A @ B}: $(3, 2)$
+    \item \texttt{D = A.T}: $(4, 3)$
+    \item \texttt{E = A.sum(dim=0)}: $(4,)$ --- summing over dim 0 collapses the rows, leaving one value per column.
+\end{itemize}
+
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Coding \& Installation Check}
+%----------------------------------------------------------------------
+
+\subsection*{5.1 --- MSE computation}
+
+\begin{verbatim}
+import torch
+
+x = torch.tensor([1., 2., 3., 4., 5., 6., 7., 8.])
+y = torch.tensor([2.1, 5.2, 7.8, 11.1, 14.9, 17.2, 20.8, 23.1])
+
+y_hat = 3 * x - 1
+
+residuals = y_hat - y
+mse = (residuals ** 2).mean()
+
+print(f"y_hat: {y_hat}")
+print(f"MSE:   {mse.item():.4f}")
+\end{verbatim}
+
+Expected output: \texttt{MSE: 0.2000}.
+
+\subsection*{5.2 --- Gradient of a linear layer}
+
+\begin{verbatim}
+import torch
+
+X = torch.tensor([[1., 2., 1.],
+                  [0., 1., 3.],
+                  [2., 0., 1.],
+                  [1., 1., 2.]])          # (4, 3)
+
+Y = torch.tensor([[1., 0.],
+                  [0., 1.],
+                  [1., 1.],
+                  [0., 0.]])              # (4, 2)
+
+W = torch.tensor([[1., 0., 1.],
+                  [0., 1., 0.]])          # (2, 3)
+
+b = torch.tensor([0., 0.])               # (2,)
+
+n = X.shape[0]
+
+# Compute residuals R[i] = W x[i] + b - y[i], batched: R = X @ W.T + b - Y
+R = X @ W.T + b - Y                      # (4, 2)
+
+# Gradients from Section 3.6
+grad_W = (2 / n) * R.T @ X              # (2, 3)
+grad_b = (2 / n) * R.sum(dim=0)         # (2,)
+
+print(f"grad_W:\n{grad_W}")
+print(f"grad_W shape: {grad_W.shape}")   # should be (2, 3)
+print(f"grad_b: {grad_b}")
+print(f"grad_b shape: {grad_b.shape}")   # should be (2,)
+\end{verbatim}
+
+Expected output:
+\begin{verbatim}
+grad_W:
+tensor([[4.0000, 4.0000, 9.0000],
+        [0.5000, 2.5000, 1.5000]])
+grad_W shape: torch.Size([2, 3])
+grad_b: tensor([4.5000, 1.0000])
+grad_b shape: torch.Size([2])
+\end{verbatim}
+
+\textbf{Fast finisher:} verify using autograd:
+\begin{verbatim}
+W_auto = W.clone().requires_grad_(True)
+b_auto = b.clone().requires_grad_(True)
+
+R_auto = X @ W_auto.T + b_auto - Y
+loss = (R_auto ** 2).sum() / n * 2      # note: factor 2 from MSE derivative
+loss.backward()
+
+print(f"autograd grad_W:\n{W_auto.grad}")
+print(f"autograd grad_b: {b_auto.grad}")
+\end{verbatim}
+
+\section*{Acknowledgements}
+This solution sheet was prepared with the assistance of Claude, a large
+language model developed by Anthropic. All content has been reviewed, edited,
+and approved by the author.
+\addcontentsline{toc}{section}{Acknowledgements}
+
+\end{document}
