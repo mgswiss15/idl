@@ -43,25 +43,12 @@
 
 > The goal here is not computation — it is *reading comprehension*. Students should translate each expression into plain English or a concrete numerical example.
 
-**1.1 — Reading summation and product notation**
+**1.1 — Summation and product notation**
 
-- Write out the sum $\displaystyle\sum_{i=1}^{4} x_i$ explicitly if $\mathbf{x} = (2, 5, 1, 3)^\top$. What is its value?
-- What does $\displaystyle\sum_{i=1}^{n} x_i^2$ compute? Describe it in one sentence.
-- Write out $\displaystyle\prod_{i=1}^{3} a_i$ explicitly for $a_1 = 2,\, a_2 = 3,\, a_3 = 4$.
+- Compute $\displaystyle\sum_{i=1}^{4} x_i$ and $\displaystyle\prod_{i=1}^{4} x_i$ for $\mathbf{x} = (2, 5, 1, 3)^\top$.
+- Let $p_k \geq 0$ for $k = 1, \ldots, K$ and $\displaystyle\sum_{k=1}^{K} p_k = 1$. What kind of mathematical object do the $p_k$ represent? Write an expression for $\displaystyle\sum_{k=1}^{K} k \cdot p_k$ and describe what it computes.
 
-**1.2 — Subscripts, superscripts, and indexing**
-
-Match each expression to its plain-English description:
-
-| Expression | Description |
-|---|---|
-| $x_i$ | The $j$-th column of matrix $W$ |
-| $x^{(k)}$ | The element in row $i$, column $j$ of matrix $A$ |
-| $W_{ij}$ | The $i$-th element of vector $\mathbf{x}$ |
-| $\mathbf{w}^{[l]}$ | The $k$-th training example |
-| $A_{ij}$ | The weight vector of the $l$-th layer |
-
-**1.3 — Set and type notation**
+**1.2 — Set and type notation**
 
 Translate each expression into plain English:
 
@@ -71,27 +58,44 @@ Translate each expression into plain English:
 - $\forall i \in \{1, \ldots, n\}$
 - $A \in \mathbb{R}^{m \times n}$
 
+**1.3 — Subscripts and superscripts**
+
+Read the following definition carefully:
+
+> Let $x_i^{(k)}$ denote the $i$-th feature of the $k$-th data sample, where $i \in \{1, \ldots, d\}$ and $k \in \{1, \ldots, n\}$. The full dataset is collected into a matrix $X \in \mathbb{R}^{n \times d}$, where $X_{ki} = x_i^{(k)}$.
+
+Now answer:
+
+- What does $x_3^{(1)}$ refer to? Where does it appear in $X$?
+- What is the shape of $X$ if you have 200 samples and 8 features? Which dimension is which?
+- A classmate writes $x_k^{(i)}$ when they mean "the $i$-th feature of the $k$-th sample." What is wrong, and why does it matter?
+- Write an expression for the mean of a feature $i$ across all samples. Use $\sum$ notation. How many such means are there in total?
+
 **1.4 — Function and composition notation**
 
-- If $f(x) = x^2$ and $g(x) = x + 1$, what is $(f \circ g)(x)$? Compute $(f \circ g)(3)$.
-- A neural network layer is often written as $f(\mathbf{x}) = \sigma(W\mathbf{x} + \mathbf{b})$. Identify: what is the input, what is the output, and what does each symbol represent?
+- If $f(x) = x^2$ and $g(x) = x + 1$, compute $(f \circ g)(3)$ and $(g \circ f)(3)$.
+- Let $h: \mathbb{R}^n \to \mathbb{R}$ and $g: \mathbb{R} \to \mathbb{R}$. What are the input and output space of $g \circ h$? What about $h \circ g$?
+- A neural network layer is written as $f(\mathbf{x}) = \sigma(W\mathbf{x} + \mathbf{b})$ where $W \in \mathbb{R}^{m \times n}$, $\mathbf{b} \in \mathbb{R}^m$, $\mathbf{x} \in \mathbb{R}^n$, and $\sigma: \mathbb{R} \to \mathbb{R}$ is applied elementwise. What is the input and output space of $f$? For a second layer $g(\mathbf{y}) = \sigma(V\mathbf{y} + \mathbf{c})$ to be composable as $g \circ f$, what constraints follow on $V$ and $\mathbf{c}$?
+- Consider a three-layer network $NN = f_3 \circ f_2 \circ f_1$ with $f_1: \mathbb{R}^{784} \to \mathbb{R}^{128}$, $f_2: \mathbb{R}^{128} \to \mathbb{R}^{64}$, $f_3: \mathbb{R}^{64} \to \mathbb{R}^{10}$. What is the input and ouput space of the NN?
 
 ---
 
 ### Discussion (7 min)
 
-**Ask a volunteer to present 1.2 and 1.3 — these tend to reveal the most confusion.**
+**Ask a volunteer to present 1.3 and 1.4 (first two points) — these tend to reveal the most confusion.**
 
 **Key points to reinforce:**
 - Subscripts index *elements*; superscripts in parentheses $(k)$ index *examples or iterations* — the parentheses distinguish them from exponentiation
 - $\mathbb{R}^n$ is not a number — it is a *space*; saying $\mathbf{x} \in \mathbb{R}^n$ means $\mathbf{x}$ is a vector of $n$ real numbers
 - $f: A \to B$ is a complete statement — it tells you the domain and codomain, not just the rule
 - Composition $f \circ g$ means "apply $g$ first, then $f$" — the order is right-to-left, which surprises students
+- Dimension compatibility is not optional — a mismatch crashes the computation, in both math and code
 
 **Common mistakes to flag:**
 - Reading $x^{(k)}$ as "$x$ to the power $k$" — the parentheses are the key distinction
 - Treating $\sum$ as a single number without thinking about what is varying
 - Confusing $W_{ij}$ (a scalar element) with $W$ (the whole matrix)
+- Assuming $f \circ g = g \circ f$
 
 **A useful framing to offer:**
 > "Mathematical notation is a compression format. Once you can read it fluently, a single line like $\mathbf{y} = \sigma(W\mathbf{x} + \mathbf{b})$ tells you everything about a layer's computation. Struggling to read notation is like struggling to read code — it slows everything else down."
@@ -105,43 +109,43 @@ Translate each expression into plain English:
 
 ### Exercises for students (10 min)
 
-**1.1 — Vector operations**  
-Let $\mathbf{a} = (2, -1, 3)^\top$ and $\mathbf{b} = (0, 4, 1)^\top$.
+**2.1 — Vectors and inner products**
 
-- Compute $\mathbf{a} + \mathbf{b}$, $3\mathbf{a} - \mathbf{b}$
-- Compute the dot product $\mathbf{a} \cdot \mathbf{b}$
-- Compute $\|\mathbf{a}\|_2$
+- Write the following expression in summation notation: "the sum of all pairwise products $x_i y_i$ for $i = 1, \ldots, n$." Does this expression look familiar? Is there any relation to an $\ell_2$ norm and if so what?
+- A simple loss function used in regression is mean squared error $\text{MSE} = \|f(\mathbf{x}) - \mathbf{y}\|_2^2$. Let $f(\mathbf{x}) = 2\mathbf{x}$, $\mathbf{x} = (1, 2, 3)^\top$, and $\mathbf{y} = (1.5, 4.5, 7)^\top$. Compute the MSE. What does a value of zero mean?
 
-**1.2 — Matrix multiplication**  
-Let
-$$A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \quad \mathbf{x} = \begin{pmatrix} 1 \\ -1 \end{pmatrix}$$
+**2.2 — Matrix operations**
 
-- Compute $A\mathbf{x}$
-- What are the dimensions of $A^\top A$? Compute it.
+Let $A = \begin{pmatrix} 1 & 2 & 0 \\ 3 & 1 & 4 \end{pmatrix}$ and $\mathbf{x} = \begin{pmatrix} 1 \\ -1 \\ 2 \end{pmatrix}$.
 
-**1.3 — Conceptual**  
-- What does it mean for two vectors to be orthogonal?
-- If $A$ is an $m \times n$ matrix and $B$ is $n \times p$, what is the shape of $AB$?
-- What is the rank of a matrix intuitively?
+- Compute $A\mathbf{x}$. What is the shape of the result?
+- Compute $A^\top$. What is its shape? Is $AA^\top$ defined? What about $A^\top A$? Compute both.
+- Is $A^\top A = AA^\top$? What does this tell you about matrix multiplication in general?
+
+**2.3 — Shape tracking**
+
+Answer without computing — just reason about dimensions:
+
+- Let $W_1 \in \mathbb{R}^{4 \times 3}$, $W_2 \in \mathbb{R}^{2 \times 4}$, $\mathbf{x} \in \mathbb{R}^3$. What is the shape of $W_2 W_1 \mathbf{x}$? What about $W_1^\top W_2^\top$?
+- Let $X \in \mathbb{R}^{n \times d}$, $W \in \mathbb{R}^{d \times m}$, $\mathbf{b} \in \mathbb{R}^m$. What is the shape of $XW + \mathbf{b}$? What needs to hold for the addition to be valid?
+- Let $A \in \mathbb{R}^{m \times n}$, $B \in \mathbb{R}^{n \times n}$, $C \in \mathbb{R}^{n \times p}$, $\mathbf{v} \in \mathbb{R}^p$. What is the shape of $A(B + B^\top)C\mathbf{v}$? At each step, write the intermediate shape.
 
 ---
 
 ### Discussion (8 min)
 
-**Ask a volunteer to present 1.1 and 1.2 on the board.**
+**Ask a volunteer to present 2.2 and the last bullet of 2.3.**
 
 **Key points to reinforce:**
-- Matrix–vector product $A\mathbf{x}$: this is the core computation of every neural network layer
-- Shape tracking: students who can't track shapes will struggle with implementing networks — emphasise this
-- Dot product = weighted sum — fundamental operation in neurons
+- Matrix–vector product $A\mathbf{x}$ is the core computation of every neural network layer — every forward pass is a sequence of these
+- $A^\top A \neq AA^\top$ in general, and they don't even have the same shape unless $A$ is square — commutativity does not hold for matrix multiplication
+- Broadcasting in 2.3: adding $\mathbf{b} \in \mathbb{R}^m$ to $XW \in \mathbb{R}^{n \times m}$ works because $\mathbf{b}$ is broadcast across rows — worth flagging as this is what PyTorch does silently
+- Shape tracking is a debugging skill — when a network crashes, the first thing to check is shapes at each layer
 
 **Common mistakes to flag:**
-- Confusing row vs. column vectors
-- Multiplying matrices in the wrong order ($AB \neq BA$ in general)
-- Forgetting that matrix multiplication requires inner dimensions to match
-
-**Self-study pointer if struggling:**  
-*Mathematics for Machine Learning* (Deisenroth et al., free PDF) — Chapter 2 (Linear Algebra). Also Gilbert Strang's *Introduction to Linear Algebra*.
+- Multiplying matrices in the wrong order — always check inner dimensions first
+- Confusing the shape of $A^\top A$ and $AA^\top$ — they are both square but of different sizes
+- Assuming $XW + \mathbf{b}$ is
 
 ---
 
