@@ -4,6 +4,8 @@
 **Session:** CW13 — 90 min, immediately after the intro lecture
 **Format:** Students work independently, one volunteer presents, group discussion
 
+**https://whiteboard.fi/**  for sharing whiteboards
+
 ---
 
 ## Timing Overview
