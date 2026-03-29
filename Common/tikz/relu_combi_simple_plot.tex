@@ -1,4 +1,3 @@
-% Common/tikz/relu_combination_plot.tex
 \begin{tikzpicture}[scale=0.8]
 \tikzstyle{pt}    = [circle, draw, fill=thwsblue!40, minimum size=0.1cm, inner sep=0pt]
 \tikzstyle{annot} = [font=\scriptsize]
@@ -9,8 +8,9 @@
 
 % ReLU 1: 
 % Dashed extension below zero
+\draw[dashed, thwsblue] (1., 0) -- ++(-0.5, -0.25);
 % Solid active part
-\draw[thick, thwsblue] (-.1, 0.1) -- (3.5, 1.62) node[annot, right] {$\sigma_1$};
+\draw[thick, thwsblue] (1., 0) -- ++(3, 1.5) node[annot, right] {$\sigma_1$};
 
 % ReLU 2: activates at x=2.2, slope 1.8
 % Dashed extension below zero
@@ -20,13 +20,16 @@
 
 % Sum: piecewise linear curve
 \draw[thick, thwsorange]
-    (-0.05, 0.45) --
+    (-0.05, 0.55) --
+    (1.0, 0.55) --
     (2.2, 1.45) --
     (3.5, 3.60) node[annot, right, anchor=west] {$f_\theta$};
 
 % Breakpoint marker
+\draw[dashed, thwsgrey] (1.0, 0) -- (1.0, 0.55);
+\node[annot] at (1.0, -0.2) {$b_1$};
 \draw[dashed, thwsgrey] (2.2, 0) -- (2.2, 1.45);
-\node[annot] at (2.2, -0.2) {$b$};
+\node[annot] at (2.2, -0.2) {$b_2$};
 
 % Data points
 \node[pt] at (0.3,  0.55) {};

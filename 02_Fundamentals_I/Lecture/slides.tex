@@ -122,6 +122,8 @@ too expensive to compute}
 \end{columns}
 \end{frame}
 
+\section{Regression - Linear / Nonlinear}
+
 \begin{frame}{Regression and Linear Model}
 
 \vskip 1em
@@ -237,57 +239,53 @@ Rectified Linear Unit
 \end{frame}
 
 \begin{frame}{Combining Multiple ReLUs}
-\vskip 1em
+\vskip 0.5em
 \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-\structure{Combine:} weighted sum of ReLU neurons
-\[ \yhat = f_\theta(x) = \thetaw{2}{1}{0} + \sum_j \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} \, x + \thetab{1}{j}\right) \]
-        \structure{Effect:} one bend per neuron
+    \begin{column}{0.6\textwidth}
 
-        \vskip 0.8em
+\structure{Combine:} weighted sum of ReLU functions
+\[ \yhat = f_\theta(x) = \thetab{2}{1} + \thetaw{2}{1}{1} \sigma_1 + \thetaw{2}{1}{2}\sigma_2 \]
+\[\sigma_1 = \text{ReLU}(\thetaw{1}{1}{1} \, x + \thetab{1}{1}) \quad \sigma_2 = \text{ReLU}(\thetaw{1}{2}{1} \, x + \thetab{1}{2})\]
 
-        \structure{Key insight:} more neurons $\Rightarrow$ more breakpoints $\Rightarrow$ more expressive $f_\theta$
+\vskip 0.8em
+\structure{Effect:} one bend per ReLU term
+\[ \yhat = f_\theta(x) = \thetab{2}{1} + \thetaw{2}{1}{1} \sigma_1 + \thetaw{2}{1}{2}\sigma_2 + \thetaw{2}{1}{3}\sigma_3\]
+\[\sigma_3 = \text{ReLU}(\thetaw{1}{3}{1} \, x + \thetab{1}{3})\]
+
+\vskip 0.8em
+\structure{Key result:} more breakpoints $\Rightarrow$ more expressive $f_\theta$
+\[ \yhat = f_\theta(x) = \thetab{2}{1} + \sum_j \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} \, x + \thetab{1}{j}\right) \]
 
     \end{column}
     \begin{column}{0.4\textwidth}
-% \input{\CommonPath/tikz/relu_combination_plot.tex}
 \input{\CommonPath/tikz/relu_combi_simple_plot.tex}
 \input{\CommonPath/tikz/relu_combi_double_plot.tex}
-
-
-
     \end{column}
     \begin{column}{0.05\textwidth}
     \end{column}
 \end{columns}
 \end{frame}
 
+\begin{frame}{This is a Neural Network}
 
-\begin{frame}{Combining Multiple ReLUs}
-\begin{columns}[c]
+\vskip 0.5em
+
+\begin{columns}[t]
     \begin{column}{0.52\textwidth}
-\vskip 1em
-\structure{Combine:} weighted sum of ReLU neurons
-\[ \yhat = f_\theta(x) = \thetaw{2}{1}{0} + \sum_j \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} \, x + \thetab{1}{j}\right) \]
-            \input{\CommonPath/tikz/relu_combination_plot.tex}
-
-        \structure{Effect:} one bend per neuron
-
-        \vskip 0.8em
-
-        \structure{Key insight:} more neurons $\Rightarrow$ more breakpoints $\Rightarrow$ more expressive $f_\theta$
-
+        \[ \yhat = \thetab{2}{1} + \thetaw{2}{1}{1} \sigma_1 + \thetaw{2}{1}{2}\sigma_2 \]
+        \vskip 0.5em
+        \centering
+        \input{\CommonPath/tikz/relu_combination.tex}
+        \vskip 0.5em
+        \input{\CommonPath/tikz/relu_combination_midway.tex}
     \end{column}
-    \begin{column}{0.4\textwidth}
-            % \input{\CommonPath/tikz/relu_combination.tex}
-
-            \input{\CommonPath/tikz/relu_combination_midway.tex}
-
-            \input{\CommonPath/tikz/relu_combination_simple.tex}
-    \end{column}
-    \begin{column}{0.05\textwidth}
+    \begin{column}{0.45\textwidth}
+        \vskip 2.5em
+        \centering
+        \input{\CommonPath/tikz/relu_combination_simple.tex}
     \end{column}
 \end{columns}
+
 \end{frame}
 
 \begin{frame}{This is a neural network}
