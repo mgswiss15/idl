@@ -11,8 +11,8 @@
 \node[input] (x) at (-2, -1) {$x$};
 
 % Neuron
-\node[neuron] (n1) at (0, 0) {$\sigma_1$};
-\node[neuron] (n2) at (0, -1) {$\sigma_2$};
+\node[neuron] (n1) at (0, 0) {$h_1$};
+\node[neuron] (n2) at (0, -1) {$h_2$};
 \node[input,fill=thwsblue!5, dashed] (const2) at (0, 1) {$1$};
 
 % Connections
@@ -22,7 +22,7 @@
 \draw[conn, dashed] (const) -- (n2);
 
 % Output neuron
-\node[neuron] (outn) at (2, -0.5) {$\Sigma$};
+\node[neuron] (outn) at (2, -0.5) {$o$};
 
 % Connections
 \draw[conn] (n1) -- (outn);

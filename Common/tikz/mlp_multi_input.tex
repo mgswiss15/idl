@@ -13,9 +13,9 @@
 \draw[dotted, thick, outer sep=3pt] (x2) -- (xd);
 
 % Hidden neurons
-\node[neuron] (n1) at (0,  0.) {$\sigma_1$};
-\node[neuron] (n2) at (0, -1.0) {$\sigma_2$};
-\node[neuron] (n3) at (0, -2.5) {$\sigma_k$};
+\node[neuron] (n1) at (0,  0.) {$h_1$};
+\node[neuron] (n2) at (0, -1.0) {$h_2$};
+\node[neuron] (n3) at (0, -2.5) {$h_k$};
 \draw[dotted, thick, outer sep=3pt] (n2) -- (n3);
 
 % Connections input -> hidden
@@ -26,7 +26,7 @@
 }
 
 % Output neuron
-\node[neuron] (out) at (2, -1) {$\Sigma$};
+\node[neuron] (out) at (2, -1) {$o$};
 
 % Connections hidden -> output
 \draw[conn] (n1) -- (out);
