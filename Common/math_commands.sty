@@ -1,7 +1,69 @@
 \ProvidesPackage{math_commands}
 
-% Author: MG, 2025-11-22
+% -------------------------------------------------------
+% Packages
+% -------------------------------------------------------
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{bm}
 
-\newcommand{\mP}{\mathbb{P}} % probability measure
-\newcommand{\salg}{\mathscr{S}} % sigma-algebra
-\newcommand{\mR}{\mathbb{R}} % real numbers
+% -------------------------------------------------------
+% Vectors and matrices (bold upright via \mathbf)
+% -------------------------------------------------------
+% Inputs / outputs
+\newcommand{\vx}{\mathbf{x}}          % input vector
+\newcommand{\vy}{\mathbf{y}}          % target vector
+\newcommand{\yhat}{\hat{y}}           % scalar prediction
+\newcommand{\vyhat}{\hat{\mathbf{y}}} % vector prediction
+
+% Network quantities (layer index l as superscript)
+\newcommand{\mW}{\mathbf{W}}          % weight matrix (use as \mW^{(l)})
+\newcommand{\vw}{\mathbf{w}}          % weight vector (use as \mw^{(l)})
+\newcommand{\vb}{\mathbf{b}}          % bias vector   (use as \vb^{(l)})
+\newcommand{\vz}{\mathbf{z}}          % pre-activation (use as \vz^{(l)})
+\newcommand{\va}{\mathbf{a}}          % post-activation (use as \va^{(l)})
+
+% Layer 0 is the input: \va^{(0)} = \vx
+% Scalars
+\newcommand{\act}{\sigma}             % activation function
+\newcommand{\params}{\theta}          % all parameters collectively
+\newcommand{\layer}{l}               % layer index
+\newcommand{\nlayers}{L}             % total number of layers
+
+% -------------------------------------------------------
+% Loss and probability
+% -------------------------------------------------------
+\newcommand{\loss}{\mathcal{L}}       % loss function
+\newcommand{\risk}{\mathcal{R}}       % empirical risk
+\newcommand{\prob}{p}                 % probability
+\newcommand{\Prob}{\mathbb{P}}        % probability measure
+\newcommand{\Expect}{\mathbb{E}}      % expectation
+\newcommand{\KL}{\mathrm{KL}}         % KL divergence
+
+% -------------------------------------------------------
+% Calculus and optimization
+% -------------------------------------------------------
+\newcommand{\grad}{\nabla}            % gradient operator
+\newcommand{\gradL}{\nabla_{\params}\loss} % gradient of loss w.r.t. params
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}} % partial derivative
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}} % second partial
+\newcommand{\lr}{\eta}                % learning rate
+
+% -------------------------------------------------------
+% Sets and dimensions
+% -------------------------------------------------------
+\newcommand{\R}{\mathbb{R}}           % real numbers
+\newcommand{\N}{\mathbb{N}}           % natural numbers
+\newcommand{\dataset}{\mathcal{D}}    % dataset
+\newcommand{\nsamples}{N}             % number of training samples
+\newcommand{\din}{d_{\mathrm{in}}}    % input dimension
+\newcommand{\dout}{d_{\mathrm{out}}}  % output dimension
+% \newcommand{\dh}{d_{\mathrm{h}}}      % hidden dimension
+
+% -------------------------------------------------------
+% Norms and operations
+% -------------------------------------------------------
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}   % norm
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}     % absolute value
+\newcommand{\inner}[2]{\langle #1, #2 \rangle}        % inner product
+\newcommand{\T}{^{\top}}              % transpose shortcut: \mW\T

@@ -1,0 +1,35 @@
+% Common/tikz/perceptron_boundary.tex
+\begin{tikzpicture}[scale=1.0]
+\tikzstyle{posit} = [circle, draw, fill=thwsorange!60, minimum size=0.35cm, inner sep=0pt]
+\tikzstyle{neg} = [circle, draw, fill=thwsblue!40, minimum size=0.35cm, inner sep=0pt]
+\tikzstyle{annot} = [font=\scriptsize]
+
+% Axes
+\draw[-Stealth, thick] (-0.3, 0) -- (4.2, 0) node[right, annot] {$x_1$};
+\draw[-Stealth, thick] (0, -0.3) -- (0, 3.8) node[above, annot] {$x_2$};
+
+% Decision boundary: x2 = -x1 + 3.2  (w = [1,1], b = -3.2)
+\draw[thick, carnelian] (0.2, 3.0) -- (3.6, 0.0) node[right, annot, carnelian] {$\vw\T\vx + b = 0$};
+
+% Normal vector
+\draw[-Stealth, thick, thwsorange] (1.7, 1.5) -- ++(0.7, 0.7) node[right, annot] {$\vw$};
+
+% % Positive class points (above boundary)
+\node[posit] at (0.5, 2.8) {};
+\node[posit] at (0.8, 3.2) {};
+\node[posit] at (0.4, 2.2) {};
+\node[posit] at (1.1, 2.9) {};
+\node[posit] at (0.6, 3.5) {};
+
+% Negative class points (below boundary)
+\node[neg] at (2.8, 0.4) {};
+\node[neg] at (3.2, 0.8) {};
+\node[neg] at (3.5, 0.3) {};
+\node[neg] at (2.5, 0.9) {};
+\node[neg] at (3.0, 1.4) {};
+
+% Class labels
+\node[annot, thwsorange] at (0.5, 1.6) {$\hat{y}=1$};
+\node[annot, thwsblue]   at (3.5, 1.8) {$\hat{y}=0$};
+
+\end{tikzpicture}

@@ -1,0 +1,34 @@
+% Common/tikz/classification_2d.tex
+\begin{tikzpicture}[scale=0.9]
+\tikzstyle{posit} = [circle, draw, fill=thwsorange!60, minimum size=0.1cm, inner sep=0pt]
+\tikzstyle{neg} = [circle, draw, fill=thwsblue!40, minimum size=0.1cm, inner sep=0pt]
+\tikzstyle{annot} = [font=\scriptsize]
+
+% Axes
+\draw[-Stealth, thick] (-0.3, 0) -- (3.8, 0) node[right, annot] {$x_1$};
+\draw[-Stealth, thick] (0, -0.3) -- (0, 3.2) node[above, annot] {$x_2$};
+
+% Classificaiton boundary
+\onslide<2->{
+\draw[thick, thwsorange] (0.0, 0.3) -- (3.6, 2.6) node[annot, anchor=south] {separating line};}
+
+% posititive class
+\node[posit] at (0.5, 2.4) {};
+\node[posit] at (0.8, 2.9) {};
+\node[posit] at (0.4, 2.0) {};
+\node[posit] at (1.1, 2.6) {};
+\node[posit] at (0.7, 3.0) {};
+
+% Negative class
+\node[neg] at (2.6, 0.5) {};
+\node[neg] at (3.0, 0.9) {};
+\node[neg] at (3.2, 0.4) {};
+\node[neg] at (2.4, 1.0) {};
+\node[neg] at (2.9, 1.3) {};
+
+% Labels
+\node[annot, thwsorange] at (1.7, 2.9) {$y=1$};
+\node[annot, thwsblue]   at (1.8, 0.5) {$y=0$};
+
+
+\end{tikzpicture}

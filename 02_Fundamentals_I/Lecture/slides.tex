@@ -1,0 +1,57 @@
+\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller]{beamer}
+\newcommand{\CommonPath}{../../Common}
+\newcommand{\coursename}{Intro to DL - S2}
+\usepackage{\CommonPath/slidespreamble}
+\usepackage{\CommonPath/math_commands}
+% \setbeameroption{show notes}
+\setbeameroption{hide notes}
+
+\title{Introduction to Deep Learning}
+\subtitle{Session 2: Perceptron, MLPs \& Activations \\[1em]
+\small March 2026}
+\author{Magda Gregorová - \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}
+\institute{\includegraphics[width=0.3\textwidth]{thws-logo_vert_en_orange-rgb.png}}
+\hypersetup{
+pdftitle={Introduction to Deep Learning},
+pdfauthor={Magda Gregorová},
+pdfkeywords={perceptron, MLP, activation functions, backpropagation}
+}
+
+\date{{\color{skyblue1}\footnotesize Licensed according to
+\href{https://creativecommons.org/licenses/by-sa/4.0}{\color{skyblue1}CC-BY-SA 4.0}}}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+\begin{frame}{Lecture Overview}
+
+\tableofcontents
+
+\end{frame}
+
+\section{Supervised Learning}
+
+\begin{frame}{Supervised learning}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item Dataset: $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$
+            \item Goal: learn $f(\vx; \params)$ that generalizes to new inputs
+            \item $\params$ — parameters learned from data
+            \vskip 1em
+            \item \structure{Regression}: $y \in \R$
+            \item \structure{Classification}: $y \in \{0, 1\}$ (or more classes)
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \input{\CommonPath/tikz/regression_1d.tex}
+        \vskip 0.5em
+        \input{\CommonPath/tikz/classification_2d.tex}
+    \end{column}
+\end{columns}
+\end{frame}
+\end{document}
