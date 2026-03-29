@@ -54,4 +54,225 @@ pdfkeywords={perceptron, MLP, activation functions, backpropagation}
     \end{column}
 \end{columns}
 \end{frame}
+
+\begin{frame}{Regression}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item Output is continuous: $y \in \R$
+            \item Given data $\dataset = \{(x^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$
+            \item Goal: find $f(x; \params)$ that fits the data and generalizes
+            \vskip 1em
+            \item Simplest model: a line
+            \[ f(x; \params) = wx + b, \quad \params = (w, b) \]
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \input{\CommonPath/tikz/regression_1d.tex}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{The linear model}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item $f(x; \params) = wx + b$, \quad $\params = (w, b)$
+            \vskip 0.5em
+            \item<2-> Works well when data is linear
+            \vskip 0.5em
+            \item<3-> Fails when data has curvature
+            \vskip 0.5em
+            \item<3-> We need a more expressive $f(\cdot\,; \params)$
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \texttt{[linear\_fit.tex]}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Piecewise linear functions}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item What if we allow the function to bend?
+            \vskip 0.5em
+            \item<2-> A piecewise linear function:
+            \begin{itemize}
+                \item linear between breakpoints
+                \item can approximate any continuous function
+            \end{itemize}
+            \vskip 0.5em
+            \item<3-> More breakpoints = more expressive $f(\cdot\,; \params)$
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \texttt{[piecewise\_linear.tex]}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{ReLU as a building block}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item Rectified Linear Unit:
+            \[ \text{ReLU}(x) = \max(0, x) \]
+            \item<2-> A single ReLU introduces one bend
+            \vskip 0.5em
+            \item<3-> Linear combination of ReLUs:
+            \[ f(x; \params) = \sum_j v_j \, \text{ReLU}(w_j x + b_j) \]
+            \item<3-> Each term contributes one breakpoint
+            \vskip 0.5em
+            \item<4-> More neurons = more bends = more expressive
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \texttt{[relu\_combination.tex]}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{This is a neural network}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item Each hidden neuron computes:
+            \[ z_j^{(1)} = w_j x + b_j, \quad a_j^{(1)} = \text{ReLU}(z_j^{(1)}) \]
+            \item Output layer combines:
+            \[ f(x; \params) = \sum_j v_j a_j^{(1)} + c \]
+            \vskip 0.5em
+            \item<2-> In matrix form:
+            \begin{align*}
+                \vz^{(1)} &= \mW^{(1)}\vx + \vb^{(1)} \\
+                \va^{(1)} &= \text{ReLU}(\vz^{(1)}) \\
+                f(\vx; \params) &= \mW^{(2)}\va^{(1)} + \vb^{(2)}
+            \end{align*}
+            \item<2-> Parameters: $\params = \{\mW^{(1)}, \vb^{(1)}, \mW^{(2)}, \vb^{(2)}\}$
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \texttt{[mlp\_1hidden.tex]}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Universal approximation}
+    \begin{block}{Universal Approximation Theorem}
+        Let $\act: \R \to \R$ be a non-constant, bounded, continuous activation function.
+        Then for any continuous function $g: [0,1]^d \to \R$ and any $\varepsilon > 0$,
+        there exists a 1-hidden-layer neural network $f(\cdot\,; \params)$ such that:
+        \[ \sup_{\vx \in [0,1]^d} |f(\vx; \params) - g(\vx)| < \varepsilon \]
+    \end{block}
+    \vskip 1em
+    \begin{columns}
+        \begin{column}{0.48\textwidth}
+            \structure{What it tells us}
+            \begin{itemize}
+                \item MLPs are universal approximators
+                \item Enough neurons can fit any continuous function
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \structure{What it doesn't tell us}
+            \begin{itemize}
+                \item How many neurons are needed
+                \item How to find the parameters $\params$
+                \item Whether the model will generalize
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Classification}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \begin{itemize}
+            \item Output is discrete: $y \in \{0, 1\}$
+            \vskip 0.5em
+            \item Linear classifier: decision boundary is a hyperplane
+            \[ \hat{y} = \mathbb{1}[f(\vx; \params) \geq 0] \]
+            \vskip 0.5em
+            \item<2-> Not all problems are linearly separable
+            \begin{itemize}
+                \item<2-> XOR: four points, no linear boundary works
+            \end{itemize}
+            \vskip 0.5em
+            \item<3-> Neural network with ReLU: non-linear decision boundary
+            \item<3-> Same architecture as for regression
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        \centering
+        \only<1>{\texttt{[linear\_boundary.tex]}}
+        \only<2->{\texttt{[xor\_boundary.tex]}}
+    \end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Activation functions}
+\begin{columns}
+    \begin{column}{0.48\textwidth}
+        \structure{What makes a good activation?}
+        \begin{itemize}
+            \item Non-linear — otherwise depth buys nothing
+            \item Differentiable — needed for backpropagation
+            \item Computationally cheap
+        \end{itemize}
+        \vskip 1em
+        \structure{Common choices}
+        \begin{itemize}
+            \item \textbf{Sigmoid}: $\sigma(z) = \frac{1}{1+e^{-z}} \in (0,1)$
+            \item \textbf{Tanh}: $\tanh(z) \in (-1, 1)$
+            \item \textbf{ReLU}: $\max(0, z)$ — sparse, fast, but dying neurons
+        \end{itemize}
+        \vskip 0.5em
+        \structure{Dying ReLU problem}
+        \begin{itemize}
+            \item Neurons with $z < 0$ output 0 and have zero gradient
+            \item Can become permanently inactive during training
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+        \centering
+        \texttt{[activation\_functions.tex]}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Notation summary}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{cll}
+    \hline
+    \textbf{Symbol} & \textbf{Meaning} & \textbf{Dimensions} \\
+    \hline
+    $\vx$ & input & $\R^{d}$ \\
+    $y$ & target output & $\R$ or $\{0,1\}$ \\
+    $\params$ & all parameters & — \\
+    $\mW^{(l)}$ & weight matrix, layer $l$ & $\R^{d_{l} \times d_{l-1}}$ \\
+    $\vb^{(l)}$ & bias vector, layer $l$ & $\R^{d_{l}}$ \\
+    $\vz^{(l)}$ & pre-activation, layer $l$ & $\R^{d_{l}}$ \\
+    $\va^{(l)}$ & post-activation, layer $l$ & $\R^{d_{l}}$ \\
+    $\act$ & activation function & $\R \to \R$ \\
+    $L$ & number of hidden layers & — \\
+    \hline
+\end{tabular}
+\end{center}
+\vskip 0.5em
+\begin{center}
+    \structure{Forward pass:} \quad
+    $\vz^{(l)} = \mW^{(l)}\va^{(l-1)} + \vb^{(l)}$ \quad
+    $\va^{(l)} = \act(\vz^{(l)})$ \quad
+    $\va^{(0)} = \vx$
+\end{center}
+\end{frame}
+
 \end{document}
