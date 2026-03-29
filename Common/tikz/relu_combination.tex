@@ -1,0 +1,47 @@
+% Common/tikz/relu_combination.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{every node}=[font=\scriptsize]
+\tikzstyle{neuron} = [circle, draw, fill=thwsorange!20, minimum size=0.6cm, outer sep=3pt]
+\tikzstyle{input} = [circle, draw, fill=thwsblue!15, minimum size=0.6cm, outer sep=3pt]
+\tikzstyle{conn} = [thick, -Stealth, color=thwsblue]
+\tikzstyle{outarr} = [thick, -Stealth]
+
+% Input nodes
+\node[input] (const) at (-2, 0.5) {$1$};
+\node[input] (x) at (-2, -0.5) {$x$};
+
+% Neuron
+\node[neuron] (n1) at (0, 0) {$\sigma$};
+
+% Connections
+\draw[conn] (const) -- (n1) node[midway, above] {$\thetaw{1}{1}{0}$};
+\draw[conn] (x) -- (n1) node[midway, below] {$\thetaw{1}{1}{1}$};
+
+
+% Input nodes
+\node[input] (const) at (-2, -1.5) {$1$};
+\node[input] (x) at (-2, -2.5) {$x$};
+
+% Neuron
+\node[neuron] (n2) at (0, -2) {$\sigma$};
+
+% Connections
+\draw[conn] (const) -- (n2) node[midway, above] {$\thetaw{1}{2}{0}$};
+\draw[conn] (x) -- (n2) node[midway, below] {$\thetaw{1}{2}{1}$};
+
+% Output neuron
+\node[neuron] (outn) at (2, -1) {$\Sigma$};
+
+% Connections
+\draw[conn] (n1) -- (outn) node[midway, below] {$\thetaw{2}{1}{1}$};
+\draw[conn] (n2) -- (outn) node[midway, below] {$\thetaw{2}{1}{2}$};
+
+% Final constant
+\node[input] (const2) at (0, 1) {$1$};
+\draw[conn] (const2) -- (outn) node[midway, above] {$\thetaw{2}{1}{0}$};
+
+
+% Output
+\draw[outarr] (outn) -- ++(1.5, 0) node[right] {$\yhat$};
+
+\end{tikzpicture}

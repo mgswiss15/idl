@@ -78,7 +78,7 @@ too expensive to compute}
 
 \vskip 0.8em
 
-\structure{Goal:} learn $f_\params: \inspace \to \outspace$ from $\dataset$ such that $f_\params \approx f^*$
+\structure{Goal:} learn $f_ \theta: \inspace \to \outspace$ from $\dataset$ such that $f_ \theta \approx f^*$
 \alert{$\Rightarrow$ predict on \textbf{unseen} inputs $\vx \notin \dataset$}
 
 \vskip 2em
@@ -88,7 +88,7 @@ too expensive to compute}
 
 \vskip 0.8em
 
-\structure{Notation:} $f_\params(\vx) = f(\vx; \params) = \yhat$
+\structure{Notation:} $f_ \theta(\vx) = f(\vx;  \theta) = \yhat$
 
 \end{frame}
 
@@ -101,7 +101,7 @@ too expensive to compute}
 \structure{Classification (binary)}
 \begin{itemize}
     \item Output: discrete label $\outspace = \{0, 1\}$
-    \item Goal: find $f_\params: \inspace \to \{0, 1\}$
+    \item Goal: find $f_ \theta: \inspace \to \{0, 1\}$
     \item Predict category for input
 \end{itemize}
         \vskip 0.5em
@@ -112,7 +112,7 @@ too expensive to compute}
 \structure{Regression}
 \begin{itemize}
     \item Output: continuous value $\outspace = \R$
-    \item Goal: find $f_\params: \inspace \to \R$
+    \item Goal: find $f_ \theta: \inspace \to \R$
     \item Predict numerical value for input
 \end{itemize}
         \vskip 0.5em
@@ -122,85 +122,170 @@ too expensive to compute}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Regression}
-\begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item Output is continuous: $y \in \R$
-            \item Given data $\dataset = \{(x^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$
-            \item Goal: find $f(x; \params)$ that fits the data and generalizes
-            \vskip 1em
-            \item Simplest model: a line
-            \[ f(x; \params) = wx + b, \quad \params = (w, b) \]
-        \end{itemize}
+\begin{frame}{Regression and Linear Model}
+
+\vskip 1em
+
+\begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+        \structure{Simplest model:} linear function
+        \[ \yhat = f_ \theta(x) = \theta_1 x + \theta_0, \qquad  \pvec = (\theta_0, \theta_1) \]
+
+        \vskip 0.3em
+\begin{center}
+\input{\CommonPath/tikz/linear_neuron.tex}
+\end{center}
+        \vskip 0.3em
+
+        \structure{Limitation:} real data is rarely linear
+
+        \vskip 0.8em
+
+        \structure{Solution:} more expressive $f_ \theta$
+
+        \vskip 0.8em
+
+        \structure{How:} $f_ \theta = \sin, \log, \sqrt, \exp, \dots$ {\color{thwsblue}\faQuestion}
+
     \end{column}
-    \begin{column}{0.42\textwidth}
-        \centering
-        \input{\CommonPath/tikz/regression_1d.tex}
+    \begin{column}{0.4\textwidth}
+\begin{flushright}
+        \input{\CommonPath/tikz/regression_1d_line.tex}
+        \input{\CommonPath/tikz/regression_1d_nonlinear.tex}
+\end{flushright}
+    \end{column}
+    \begin{column}{0.05\textwidth}
     \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}{The linear model}
-\begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item $f(x; \params) = wx + b$, \quad $\params = (w, b)$
-            \vskip 0.5em
-            \item<2-> Works well when data is linear
-            \vskip 0.5em
-            \item<3-> Fails when data has curvature
-            \vskip 0.5em
-            \item<3-> We need a more expressive $f(\cdot\,; \params)$
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.42\textwidth}
-        \centering
-        \texttt{[linear\_fit.tex]}
-    \end{column}
-\end{columns}
-\end{frame}
+\begin{frame}{Nonlinear Regression}
 
-\begin{frame}{Piecewise linear functions}
-\begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item What if we allow the function to bend?
-            \vskip 0.5em
-            \item<2-> A piecewise linear function:
-            \begin{itemize}
-                \item linear between breakpoints
-                \item can approximate any continuous function
-            \end{itemize}
-            \vskip 0.5em
-            \item<3-> More breakpoints = more expressive $f(\cdot\,; \params)$
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.42\textwidth}
-        \centering
-        \texttt{[piecewise\_linear.tex]}
-    \end{column}
-\end{columns}
-\end{frame}
+\vskip 1em
 
-\begin{frame}{ReLU as a building block}
-\begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item Rectified Linear Unit:
+\begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+{\color{thwsorange}\faLightbulb}\ \structure{Idea:} piecewise linear functions
+
+\vskip 0.5em
+\structure{How:} more breaks, more expressive $f_\theta$
+
+\vskip 0.5em
+\alert{Key result:} approximate any continuous func
+
+\vskip 2em
+\structure{Building block}
+\begin{columns}[c]
+    \begin{column}{0.45\textwidth}
+Rectified Linear Unit
             \[ \text{ReLU}(x) = \max(0, x) \]
-            \item<2-> A single ReLU introduces one bend
-            \vskip 0.5em
-            \item<3-> Linear combination of ReLUs:
-            \[ f(x; \params) = \sum_j v_j \, \text{ReLU}(w_j x + b_j) \]
-            \item<3-> Each term contributes one breakpoint
-            \vskip 0.5em
-            \item<4-> More neurons = more bends = more expressive
-        \end{itemize}
     \end{column}
-    \begin{column}{0.42\textwidth}
+    \begin{column}{0.45\textwidth}
         \centering
-        \texttt{[relu\_combination.tex]}
+\input{\CommonPath/tikz/relu.tex}
+    \end{column}
+\end{columns}
+
+\end{column}
+    \begin{column}{0.4\textwidth}
+\begin{flushright}
+        \input{\CommonPath/tikz/regression_1d_piecewise_simple.tex}
+        \input{\CommonPath/tikz/regression_1d_piecewise.tex}
+\end{flushright}
+    \end{column}
+    \begin{column}{0.05\textwidth}
+    \end{column}
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}{Linear Function + ReLU}
+
+\vskip 2em
+
+\begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+        \structure{Add nonlinearity:} RELU $\circ$ linear function
+        \[ \yhat = f_\theta(x) = \sigma(\theta_1 x + \theta_0), \quad \sigma(x) = ReLU(x) = \max(0,x) \]
+
+        \vskip 0.3em
+        \begin{center}
+            \input{\CommonPath/tikz/relu_neuron.tex}
+        \end{center}
+        \vskip 0.3em
+
+        \structure{Effect:} one bend at $x = -\theta_0 / \theta_1$
+
+        \vskip 0.8em
+
+\structure{Limitation:} only one breakpoint - not expressive enough
+
+        \vskip 0.8em
+
+        \structure{Solution:} combine multiple ReLUs
+
+    \end{column}
+    \begin{column}{0.4\textwidth}
+        \begin{flushright}
+            \input{\CommonPath/tikz/regression_1d_relu_simple.tex}
+        \end{flushright}
+    \end{column}
+    \begin{column}{0.05\textwidth}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Combining Multiple ReLUs}
+\vskip 1em
+\begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+\structure{Combine:} weighted sum of ReLU neurons
+\[ \yhat = f_\theta(x) = \thetaw{2}{1}{0} + \sum_j \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} \, x + \thetab{1}{j}\right) \]
+        \structure{Effect:} one bend per neuron
+
+        \vskip 0.8em
+
+        \structure{Key insight:} more neurons $\Rightarrow$ more breakpoints $\Rightarrow$ more expressive $f_\theta$
+
+    \end{column}
+    \begin{column}{0.4\textwidth}
+% \input{\CommonPath/tikz/relu_combination_plot.tex}
+\input{\CommonPath/tikz/relu_combi_simple_plot.tex}
+\input{\CommonPath/tikz/relu_combi_double_plot.tex}
+
+
+
+    \end{column}
+    \begin{column}{0.05\textwidth}
+    \end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Combining Multiple ReLUs}
+\begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+\vskip 1em
+\structure{Combine:} weighted sum of ReLU neurons
+\[ \yhat = f_\theta(x) = \thetaw{2}{1}{0} + \sum_j \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} \, x + \thetab{1}{j}\right) \]
+            \input{\CommonPath/tikz/relu_combination_plot.tex}
+
+        \structure{Effect:} one bend per neuron
+
+        \vskip 0.8em
+
+        \structure{Key insight:} more neurons $\Rightarrow$ more breakpoints $\Rightarrow$ more expressive $f_\theta$
+
+    \end{column}
+    \begin{column}{0.4\textwidth}
+            % \input{\CommonPath/tikz/relu_combination.tex}
+
+            \input{\CommonPath/tikz/relu_combination_midway.tex}
+
+            \input{\CommonPath/tikz/relu_combination_simple.tex}
+    \end{column}
+    \begin{column}{0.05\textwidth}
     \end{column}
 \end{columns}
 \end{frame}
@@ -212,15 +297,15 @@ too expensive to compute}
             \item Each hidden neuron computes:
             \[ z_j^{(1)} = w_j x + b_j, \quad a_j^{(1)} = \text{ReLU}(z_j^{(1)}) \]
             \item Output layer combines:
-            \[ f(x; \params) = \sum_j v_j a_j^{(1)} + c \]
+            \[ f(x;  \theta) = \sum_j v_j a_j^{(1)} + c \]
             \vskip 0.5em
             \item<2-> In matrix form:
             \begin{align*}
                 \vz^{(1)} &= \mW^{(1)}\vx + \vb^{(1)} \\
                 \va^{(1)} &= \text{ReLU}(\vz^{(1)}) \\
-                f(\vx; \params) &= \mW^{(2)}\va^{(1)} + \vb^{(2)}
+                f(\vx;  \theta) &= \mW^{(2)}\va^{(1)} + \vb^{(2)}
             \end{align*}
-            \item<2-> Parameters: $\params = \{\mW^{(1)}, \vb^{(1)}, \mW^{(2)}, \vb^{(2)}\}$
+            \item<2-> Parameters: $ \theta = \{\mW^{(1)}, \vb^{(1)}, \mW^{(2)}, \vb^{(2)}\}$
         \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
@@ -234,8 +319,8 @@ too expensive to compute}
     \begin{block}{Universal Approximation Theorem}
         Let $\act: \R \to \R$ be a non-constant, bounded, continuous activation function.
         Then for any continuous function $g: [0,1]^d \to \R$ and any $\varepsilon > 0$,
-        there exists a 1-hidden-layer neural network $f(\cdot\,; \params)$ such that:
-        \[ \sup_{\vx \in [0,1]^d} |f(\vx; \params) - g(\vx)| < \varepsilon \]
+        there exists a 1-hidden-layer neural network $f(\cdot\,;  \theta)$ such that:
+        \[ \sup_{\vx \in [0,1]^d} |f(\vx;  \theta) - g(\vx)| < \varepsilon \]
     \end{block}
     \vskip 1em
     \begin{columns}
@@ -250,7 +335,7 @@ too expensive to compute}
             \structure{What it doesn't tell us}
             \begin{itemize}
                 \item How many neurons are needed
-                \item How to find the parameters $\params$
+                \item How to find the parameters $ \theta$
                 \item Whether the model will generalize
             \end{itemize}
         \end{column}
@@ -264,7 +349,7 @@ too expensive to compute}
             \item Output is discrete: $y \in \{0, 1\}$
             \vskip 0.5em
             \item Linear classifier: decision boundary is a hyperplane
-            \[ \hat{y} = \mathbb{1}[f(\vx; \params) \geq 0] \]
+            \[ \hat{y} = \mathbb{1}[f(\vx;  \theta) \geq 0] \]
             \vskip 0.5em
             \item<2-> Not all problems are linearly separable
             \begin{itemize}
@@ -323,7 +408,7 @@ too expensive to compute}
     \hline
     $\vx$ & input & $\R^{d}$ \\
     $y$ & target output & $\R$ or $\{0,1\}$ \\
-    $\params$ & all parameters & — \\
+    $ \theta$ & all parameters & — \\
     $\mW^{(l)}$ & weight matrix, layer $l$ & $\R^{d_{l} \times d_{l-1}}$ \\
     $\vb^{(l)}$ & bias vector, layer $l$ & $\R^{d_{l}}$ \\
     $\vz^{(l)}$ & pre-activation, layer $l$ & $\R^{d_{l}}$ \\

@@ -23,10 +23,18 @@
 \newcommand{\vz}{\mathbf{z}}          % pre-activation (use as \vz^{(l)})
 \newcommand{\va}{\mathbf{a}}          % post-activation (use as \va^{(l)})
 
+% -------------------------------------------------------
+% Network parameters (theta convention)
+% -------------------------------------------------------
+\newcommand{\thetamat}[1]{\boldsymbol{\Theta}^{(#1)}}   % weight matrix layer l: \thetamat{l}
+\newcommand{\thetavec}[1]{\boldsymbol{\theta}^{(#1)}}   % parameter vector layer l: \thetavec{l}
+\newcommand{\thetaw}[3]{\theta^{(#1)}_{#2#3}}           % single weight: \thetaw{l}{j}{i}
+\newcommand{\thetab}[2]{\theta^{(#1)}_{#20}}            % bias: \thetab{l}{j}
+
 % Layer 0 is the input: \va^{(0)} = \vx
 % Scalars
 \newcommand{\act}{\sigma}             % activation function
-\newcommand{\params}{\theta}          % all parameters collectively
+\newcommand{\pvec}{\boldsymbol{\theta}}          % all parameters collectively
 \newcommand{\layer}{l}               % layer index
 \newcommand{\nlayers}{L}             % total number of layers
 

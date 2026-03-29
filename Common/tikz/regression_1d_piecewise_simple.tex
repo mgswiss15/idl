@@ -1,0 +1,29 @@
+% Common/tikz/regression_1d_piecewise.tex
+\begin{tikzpicture}[scale=0.8]
+\tikzstyle{pt}    = [circle, draw, fill=thwsblue!40, minimum size=0.1cm, inner sep=0pt]
+\tikzstyle{annot} = [font=\scriptsize]
+
+% Axes
+\draw[-Stealth, thick] (-0.3, 0) -- (3.8, 0) node[right, annot] {$x$};
+\draw[-Stealth, thick] (0, -0.3) -- (0, 3.2) node[above, annot] {$y$};
+
+% Piecewise linear fit
+\draw[thick, thwsorange]
+    (-0.05, 0.45) --
+    (2.2, 1.45) --
+    (3.35, 3.60) node[annot, right, anchor=west] {$f_\theta$};
+
+% Data points (same as nonlinear)
+\node[pt] at (0.3, 0.55) {};
+\node[pt] at (0.6, 0.7) {};
+\node[pt] at (1.0, 0.60) {};
+\node[pt] at (1.5, 0.8) {};
+\node[pt] at (1.8, 1.10) {};
+\node[pt] at (2.0, 1.0) {};
+\node[pt] at (2.2, 1.45) {};
+\node[pt] at (2.45, 1.90) {};
+\node[pt] at (2.5, 2.30) {};
+\node[pt] at (2.8, 2.60) {};
+\node[pt] at (3.0, 3.30) {};
+
+\end{tikzpicture}
