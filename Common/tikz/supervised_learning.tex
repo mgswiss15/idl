@@ -1,0 +1,32 @@
+% Common/tikz/supervised_learning.tex
+\begin{tikzpicture}[scale=0.9]
+\tikzstyle{box} = [draw, rounded corners, thick, minimum width=2.8cm, minimum height=1.2cm, align=center, font=\large]
+\tikzstyle{lbl} = [font=\small]
+\tikzstyle{math} = [color=carnelian, font=\normalsize]
+\tikzstyle{annot} = [color=thwsblue, font=\large]
+
+% Three main boxes
+\node[box] (ins) at (0, 0) {$x \in \inspace$};
+\node[box, fill=thwspetrol!20, draw=thwsblue] (model) at (4.5, 0) {$f_\params \approx f^*$};
+\node[box] (outs) at (9, 0) {$y \in \outspace$};
+
+% Arrows between boxes
+\draw[-Stealth, thick] (ins.east) -- (model.west);
+\draw[-Stealth, thick] (model.east) -- (outs.west);
+
+% Labels above boxes
+\node[annot] [above=0.1 of ins] {Inputs};
+\node[annot] [above=0.1 of model] {Model};
+\node[annot] [above=0.1 of outs] {Outputs};
+
+% Math labels below boxes
+\node[math] (isp) [below=0.3 of ins] {input space};
+\node[math] (osp) [below=0.3 of outs] {output space};
+\node[math] (param) [below=0.3 of model] {parameters};
+
+% Arrows from math labels up to boxes
+\draw[-Stealth, thick, carnelian] (isp) -- (0.3, -0.2);
+\draw[-Stealth, thick, carnelian] (9, -1.1) -- (9.3, -0.2);
+\draw[-Stealth, thick, carnelian] (4.5, -1.1) -- (4.2, -0.2);
+
+\end{tikzpicture}

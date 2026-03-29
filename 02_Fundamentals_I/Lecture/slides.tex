@@ -1,4 +1,4 @@
-\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller]{beamer}
+\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller, t]{beamer}
 \newcommand{\CommonPath}{../../Common}
 \newcommand{\coursename}{Intro to DL - S2}
 \usepackage{\CommonPath/slidespreamble}
@@ -34,23 +34,90 @@ pdfkeywords={perceptron, MLP, activation functions, backpropagation}
 
 \section{Supervised Learning}
 
-\begin{frame}{Supervised learning}
+\begin{frame}{Why Machine Learning}
+
+\vskip 2em
+
+\begin{columns}[c]
+  \begin{column}{0.25\textwidth}
+\centering
+    \structure{Traditional Software}\\[1em]
+    \includegraphics[width=4cm]{TraditionalPipeline.excalidraw}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+\centering
+\tikz\draw[-Stealth, thick, thwspetrol] (0,0) -- (3.5,0);\\[0.5em]
+\scriptsize{
+adapt to changing conditions\\
+too many variations to capture\\
+too complex to understand fully\\
+too expensive to compute}
+  \end{column}
+  \begin{column}{0.25\textwidth}
+\centering
+    \structure{Machine Learning}\\[1em]
+    \includegraphics[width=3.3cm]{MLPipeline.excalidraw}
+  \end{column}
+  \begin{column}{0.05\textwidth}
+\centering
+    \
+  \end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Supervised Learning}
+
+\vskip 2em
+
+\structure{Setup:} data pairs $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$ with $\vx \in \inspace$, $y \in \outspace$
+
+\vskip 0.8em
+
+\structure{Assumption:} exists true relationship $f^*: \inspace \to \outspace, \ y = f^*(\vx)$, \alert{but $f^*$ is never observed!}
+
+\vskip 0.8em
+
+\structure{Goal:} learn $f_\params: \inspace \to \outspace$ from $\dataset$ such that $f_\params \approx f^*$
+\alert{$\Rightarrow$ predict on \textbf{unseen} inputs $\vx \notin \dataset$}
+
+\vskip 2em
+
+\centering
+\input{\CommonPath/tikz/supervised_learning.tex}
+
+\vskip 0.8em
+
+\structure{Notation:} $f_\params(\vx) = f(\vx; \params) = \yhat$
+
+\end{frame}
+
+\begin{frame}{Supervised Learning - Basic Tasks}
+
+\vskip 1em
+
 \begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item Dataset: $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$
-            \item Goal: learn $f(\vx; \params)$ that generalizes to new inputs
-            \item $\params$ — parameters learned from data
-            \vskip 1em
-            \item \structure{Regression}: $y \in \R$
-            \item \structure{Classification}: $y \in \{0, 1\}$ (or more classes)
-        \end{itemize}
+    \begin{column}{0.5\textwidth}
+\structure{Classification (binary)}
+\begin{itemize}
+    \item Output: discrete label $\outspace = \{0, 1\}$
+    \item Goal: find $f_\params: \inspace \to \{0, 1\}$
+    \item Predict category for input
+\end{itemize}
+        \vskip 0.5em
+        \centering
+        \input{\CommonPath/tikz/classification_2d.tex}
     \end{column}
-    \begin{column}{0.42\textwidth}
+    \begin{column}{0.5\textwidth}
+\structure{Regression}
+\begin{itemize}
+    \item Output: continuous value $\outspace = \R$
+    \item Goal: find $f_\params: \inspace \to \R$
+    \item Predict numerical value for input
+\end{itemize}
+        \vskip 0.5em
         \centering
         \input{\CommonPath/tikz/regression_1d.tex}
-        \vskip 0.5em
-        \input{\CommonPath/tikz/classification_2d.tex}
     \end{column}
 \end{columns}
 \end{frame}
