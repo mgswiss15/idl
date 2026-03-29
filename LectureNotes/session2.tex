@@ -1,47 +1,47 @@
 \section{Shallow Neural Networks}
 \slideref{Session 2}
 
-These notes accompany the second lecture of the course. The goal of this session is to build up, from first principles, the simplest possible neural network --- a so-called \textbf{shallow} or \textbf{one-hidden-layer} neural network --- and to understand precisely what it can represent. No optimisation is discussed here; that comes in later sessions. The question we ask is purely one of expressiveness: what class of functions can such a network compute?
+These notes accompany the second lecture of the course. The goal of this session is to build up, from first principles, the simplest possible neural network - a so-called \textbf{shallow} or \textbf{one-hidden-layer} neural network - and to understand precisely what it can represent. No optimisation is discussed here; that comes in later sessions. The question we ask is purely one of expressiveness: what class of functions can such a network compute?
 
-% -------------------------------------------------------
+% - - - - - - - - - - - - - - - - - --
 \subsection{Supervised Learning}
 \slideref{Session 2: Supervised Learning}
 
 We begin with the general framework that motivates everything that follows. In \textbf{supervised learning} we are given a dataset of input-output pairs
 \[
-    \dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}
+ \dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}
 \]
 where each input $\vx^{(i)} \in \inspace$ belongs to some input space $\inspace$ and each output $y^{(i)} \in \outspace$ belongs to some output space $\outspace$. We assume that there exists a true underlying relationship - a mapping $f^*: \inspace \to \outspace$ such that $y = f^*(\vx)$, but we never have direct access to $f^*$. We only have access to the finitely many observations in the dataset $\dataset$.
 
-The goal is to learn a parameterised function $f_\theta: \inspace \to \outspace$ from $\dataset$ such that it approximates the true unkonwn mapping $f_\theta \approx f^*$. The notation $f_\theta(\vx) = f(\vx; \theta) = \yhat$ will be used throughout the course: $\yhat$ denotes the model's prediction for input $\vx$ given parameters $\theta$. The goal is not merely to fit the training data, but to predict accurately on \textit{\textbf{unseen}} inputs --- this is the \textbf{generalisation} requirement, which we will revisit in depth in later sessions.
+The goal is to learn a parameterised function $f_\theta: \inspace \to \outspace$ from $\dataset$ such that it approximates the true unkonwn mapping $f_\theta \approx f^*$. The notation $f_\theta(\vx) = f(\vx; \theta) = \yhat$ will be used throughout the course: $\yhat$ denotes the model's prediction for input $\vx$ given parameters $\theta$. The goal is not merely to fit the training data, but to predict accurately on \textit{\textbf{unseen}} inputs - this is the \textbf{generalisation} requirement, which we will revisit in depth in later sessions.
 
 \begin{figure}[h]
-    \centering
-    \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/supervised_learning.tex}}
-    \caption{Supervised learning: given data pairs $(\vx, y)$, learn a model $f_\theta$ that approximates the true relationship $f^*$.}
-    \label{fig:supervised_learning}
+ \centering
+ \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/supervised_learning.tex}}
+ \caption{Supervised learning: given data pairs $(\vx, y)$, learn a model $f_\theta$ that approximates the true relationship $f^*$.}
+ \label{fig:supervised_learning}
 \end{figure}
 
 Supervised learning encompasses two fundamental task types. In \textbf{regression}, the output space is continuous: $\outspace = \R$ (or more generally $\R^k$), and the goal is to predict a numerical value. In \textbf{classification}, the output space is discrete, and the goal is to assign each input to one of two categories. These two tasks are illustrated in Figure~\ref{fig:classification_2d} and Figure~\ref{fig:regression_1d}.
 
 \begin{figure}[h]
-    \centering
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/classification_2d.tex}}
-        \caption{Binary classification: two classes separated by a decision boundary.}
-        \label{fig:classification_2d}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d.tex}}
-        \caption{Regression: fitting a continuous function to data points.}
-        \label{fig:regression_1d}
-    \end{minipage}
+ \centering
+ \begin{minipage}{0.45\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/classification_2d.tex}}
+ \caption{Binary classification: two classes separated by a decision boundary.}
+ \label{fig:classification_2d}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.48\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d.tex}}
+ \caption{Regression: fitting a continuous function to data points.}
+ \label{fig:regression_1d}
+ \end{minipage}
 \end{figure}
 
-% -------------------------------------------------------
+% - - - - - - - - - - - - - - - - - --
 \subsection{Regression and the Linear Model}
 \slideref{Session 2: Regression and Linear Model}
 
@@ -49,169 +49,245 @@ We focus first on the regression setting with a single input $x \in \R$ and a si
 
 The simplest parameterised function we will work with is an affine function - often called simply \textbf{linear model} in the machine learning literature:
 \[
-    \yhat = f_\theta(x) = \theta_1 x + \theta_0, \qquad \pvec = (\theta_0, \theta_1) \in \R^2.
+ \yhat = f_\theta(x) = \theta_1 x + \theta_0, \qquad \pvec = (\theta_0, \theta_1) \in \R^2.
 \]
 
 \begin{wrapfigure}{r}{0.3\textwidth}
-    \centering
-    \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/linear_neuron.tex}}
-    \caption{Graphical representation of the linear model as a single neuron.}
-    \label{fig:linear_neuron}
+ \centering
+ \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/linear_neuron.tex}}
+ \caption{Graphical representation of the linear model as a single neuron.}
+ \label{fig:linear_neuron}
 \end{wrapfigure}
-This model has two parameters: a slope $\theta_1$ and an intercept $\theta_0$ and can be represented graphically as a single \textbf{neuron}, shown in Figure~\ref{fig:linear_neuron}. The input $x$ and the constant $1$ (carrying the bias $\theta_0$) feed into the neuron, which computes the weighted sum and produces the output $\yhat$. This graphical representation may seem unnecessary for such a simple model, but it will prove invaluable as we build more complex networks --- the same diagram extends naturally to multiple inputs, multiple neurons, and multiple layers.
+This model has two parameters: a slope $\theta_1$ and an intercept $\theta_0$ and can be represented graphically as a single \textbf{neuron}, shown in Figure~\ref{fig:linear_neuron}. The input $x$ and the constant $1$ (carrying the bias $\theta_0$) feed into the neuron, which computes the weighted sum and produces the output $\yhat$. This graphical representation may seem unnecessary for such a simple model, but it will prove invaluable as we build more complex networks - the same diagram extends naturally to multiple inputs, multiple neurons, and multiple layers.
 
 The representational capacity of the linear model is severely limited - it can only fit data that lies approximately along a straight line. When the true relationship $f^*$ is nonlinear, a linear model will fail systematically, as illustrated in Figure~\ref{fig:regression_nonlinear}: it will underfit the data regardless of how the parameters are chosen. This is not a failure of optimisation; it is a failure of expressiveness. The model class is simply too small to contain the true function.
 
 \begin{figure}[h]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_line.tex}}
-        \caption{A linear model fits the data well when the true relationship is linear.}
-        \label{fig:regression_linear}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.43\textwidth}
-        \centering
-        \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_nonlinear.tex}}
-        \caption{A linear model fails to capture nonlinear relationships in the data.}
-        \label{fig:regression_nonlinear}
-    \end{minipage}
+ \centering
+ \begin{minipage}{0.5\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_line.tex}}
+ \caption{A linear model fits the data well when the true relationship is linear.}
+ \label{fig:regression_linear}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.43\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_nonlinear.tex}}
+ \caption{A linear model fails to capture nonlinear relationships in the data.}
+ \label{fig:regression_nonlinear}
+ \end{minipage}
 \end{figure}
 
 This observation motivates the central question of the lecture: how can we construct a richer class of functions $f_\theta$ that can capture nonlinear relationships?
 
-% -------------------------------------------------------
+% - - - - - - - - - - - - - - - - - --
 \subsection{Nonlinear Regression and Activation Functions}
 \slideref{Session 2: Nonlinear Regression}
 
 \begin{wrapfigure}{r}{0.3\textwidth}
-    \centering
-    \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu_neuron.tex}}
-    \caption{A nonlinear neuron applies activation function $\sigma$ to the linear combination of its inputs.}
-    \label{fig:relu_neuron}
+ \centering
+ \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu_neuron.tex}}
+ \caption{A nonlinear neuron applies activation function $\sigma$ to the linear combination of its inputs.}
+ \label{fig:relu_neuron}
 \end{wrapfigure}
 The linear model introduced in the previous section has a fundamental limitation: it can only represent affine relationships between inputs and outputs. To move beyond this, we introduce a \textbf{nonlinear activation function} $\sigma: \R \to \R$ applied to the output of the linear computation. The neuron now computes:
 \[
-    \yhat = f_\theta(x) = \sigma(\theta_1 x + \theta_0).
+ \yhat = f_\theta(x) = \sigma(\theta_1 x + \theta_0).
 \]
-The activation function is what gives the neural network its expressive power -changing the mapping between inputs $\inspace$  and outputs $\outspace$ from linear to nonlinear. The graphical representation of this nonlinear neuron is shown in Figure~\ref{fig:relu_neuron}: it is identical to the linear neuron, but the node now carries the symbol $\sigma$ to indicate that a nonlinearity is applied before the output is produced.
+The activation function is what gives the neural network its expressive power -changing the mapping between inputs $\inspace$ and outputs $\outspace$ from linear to nonlinear. The graphical representation of this nonlinear neuron is shown in Figure~\ref{fig:relu_neuron}: it is identical to the linear neuron, but the node now carries the symbol $\sigma$ to indicate that a nonlinearity is applied before the output is produced.
 
 \begin{wrapfigure}{l}{0.3\textwidth}
-    \centering
-    \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu.tex}}
-    \caption{The ReLU activation function: inactive (zero) for $x \leq 0$, active (linear) for $x > 0$.}
-    \label{fig:relu}
+ \centering
+ \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu.tex}}
+ \caption{The ReLU activation function: inactive (zero) for $x \leq 0$, active (linear) for $x > 0$.}
+ \label{fig:relu}
 \end{wrapfigure}
 The choice of activation function matters. The most widely used activation function in modern deep learning is the \textbf{Rectified Linear Unit}, or \textbf{ReLU} \parencite{nair2010relu, glorot2011relu}:
 \[
-    \sigma(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \quad \text{(active)} \\ 0 & x \leq 0 \quad \text{(inactive).} \end{cases}
+ \sigma(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \quad \text{(active)} \\ 0 & x \leq 0 \quad \text{(inactive).} \end{cases}
 \]
 \begin{wrapfigure}{r}{0.3\textwidth}
-    \centering
-    \resizebox{0.28\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_relu_simple.tex}}
-    \caption{A single ReLU neuron applied to a linear function produces one breakpoint at $x = -\theta_0 / \theta_1$.}
-    \label{fig:relu_single}
+ \centering
+ \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_relu_simple.tex}}
+ \caption{A single ReLU applied to a linear function produces one breakpoint at $x = -\theta_0 / \theta_1$.}
+ \label{fig:relu_single}
 \end{wrapfigure}
-The ReLU is remarkably simple: it passes positive values unchanged and clamps negative values to zero. A neuron is said to be \textbf{active} when its pre-activation value is positive, and \textbf{inactive} otherwise. Despite its simplicity --- or perhaps because of it --- the ReLU is extremely effective in practice and will be our default activation function throughout this course. We return to a broader comparison of activation functions in a later session.
+The ReLU is remarkably simple: it passes positive values unchanged and clamps negative values to zero. A \textbf{ReLU neuron} is said to be \textbf{active} when its pre-activation value is positive, and \textbf{inactive} otherwise. Despite its simplicity - or perhaps because of it - the ReLU is extremely effective in practice and will be our default activation function throughout this course. We return to a broader comparison of activation functions in a later session.
 
-Composing the ReLU with a linear function introduces exactly one breakpoint, at $x = -\theta_0 / \theta_1$, where the output transitions from inactive (zero) to active (rising linearly). This single bend is still not expressive enough to capture complex nonlinear relationships. The key insight, developed in the next section, is that a \textit{weighted sum} of such neurons produces a piecewise linear function with one bend per neuron --- and piecewise linear functions can approximate any continuous function.
+Composing the ReLU with a linear function introduces exactly one breakpoint, at $x = -\theta_0 / \theta_1$, where the output transitions from inactive (zero) to active (rising linearly). This single bend is still not expressive enough to capture complex nonlinear relationships. The key insight, developed in the next section, is that a \textit{weighted sum} of such ReLU activated functions produces a piecewise linear function with one bend per ReLU - and piecewise linear functions can approximate any continuous function.
 
+\subsection{Combining ReLUs: Piecewise Linear Functions}
+\slideref{Session 2: Combining Multiple ReLUs}
 
-\subsection{Piecewise Linear Functions and the ReLU}
-\slideref{Session 2: Nonlinear Regression, Activation function: ReLU}
-
-
-
-A natural answer is to consider \textbf{piecewise linear functions} --- functions that are linear within each of several intervals, with \textit{breakpoints} where the slope changes. A piecewise linear function with enough breakpoints can approximate any continuous function to arbitrary precision, as we shall formalise shortly.
-
-The key question is how to represent piecewise linear functions in a parameterised and learnable form. The answer is the \textbf{Rectified Linear Unit}, or \textbf{ReLU}:
+A single ReLU neuron introduces one breakpoint and is therefore only marginally more expressive than a linear model. The power comes from combining multiple such neurons. Consider a weighted sum of $k$ ReLU-activated linear functions:
 \[
-    \sigma(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \\ 0 & x \leq 0. \end{cases}
+ \yhat = f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, \sigma(\theta_{j1} x + \theta_{j0}).
 \]
-The ReLU is the simplest nonlinear function one can imagine: it passes positive values unchanged and clamps negative values to zero. It introduces exactly one breakpoint, at $x = 0$.
+Each term contributes one breakpoint at $x = -\theta_{j0} / \theta_{j1}$. The resulting function is \textbf{piecewise linear} - linear within each interval between breakpoints, with up to $k$ bends in total. As $k$ increases, the function can capture increasingly complex shapes, as illustrated in Figure~\ref{fig:relu_combination}.
 
-Composing the ReLU with a linear function $\theta_1 x + \theta_0$ yields:
+\begin{figure}[h]
+ \centering
+ \begin{minipage}{0.48\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combi_simple_plot.tex}}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.48\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combi_double_plot.tex}}
+ \end{minipage}
+ \caption{Left: combination of two ReLU functions producing two breakpoint. Right: combination of three ReLU functions producing three breakpoints. More neurons yield more expressive functions.}
+ \label{fig:relu_combination}
+\end{figure}
+
+The graphical representation of this computation for $k = 2$ ReLU activations is shown in Figure~\ref{fig:relu_combination_diagram}. 
+Each \textbf{hidden neuron} $j$ - so called because its activations are internal to the network and not directly observed as inputs or outputs - receives the input $x$ and independently computes $h_j = \sigma(\theta_{j1} x + \theta_{j0})$. 
+Note that in the full representation (left), the input $x$ and bias constant $1$ are shown separately for each neuron --- this makes explicit that each neuron has its own independent set of parameters $(\theta_{j1}, \theta_{j0})$, even though they share the same input. The output neuron then forms the weighted sum $\yhat = \theta_0 + \theta_1 h_1 + \theta_2 h_2$. The centre diagram shows the same network with parameters omitted and the bias nodes drawn as dashed - a common convention indicating that bias inputs are always present but typically not drawn explicitly. The right diagram shows only the bare network topology. An important detail not visible in any of these diagrams: the output neuron $o$ applies no activation function - it computes a plain weighted sum. Nonlinearity is introduced only in the hidden layer; the output is linear in the hidden activations.
+
+\begin{figure}[h]
+ \centering
+ \begin{minipage}{0.32\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combination.tex}}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.32\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combination_midway.tex}}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.32\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combination_simple.tex}}
+ \end{minipage}
+ \caption{Three levels of abstraction for a two-neuron network. Left: full representation with all weights $\theta_{j1}, \theta_{j0}$ and output weights labelled. Centre: simplified representation with bias nodes shown as dashed. Right: compact schematic showing topology only.}
+ \label{fig:relu_combination_diagram}
+\end{figure}
+
+\subsection{Shallow Neural Networks}
+\slideref{Session 2: One Layer Neural Network}
+
+We now generalise from two hidden neurons to $k$ hidden neurons, and from a single input to multiple inputs. The resulting architecture is a \textbf{one-hidden-layer neural network}, also called a \textbf{shallow neural network}.
+
+With a single input $x \in \R$ and $k$ hidden neurons, the network computes:
+\begin{align*}
+ h_j &= \sigma(\theta_{j1} \, x + \theta_{j0}), \qquad j = 1, \ldots, k \\
+ \yhat &= f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, h_j.
+\end{align*}
+Each hidden neuron $j$ has its own parameters $\theta_{j1}$ (weight) and $\theta_{j0}$ (bias), and contributes one breakpoint to the piecewise linear output. The output neuron forms a weighted sum of all hidden activations with weights $\theta_j$ and a global bias $\theta_0$. The graphical representation is shown in Figure~\ref{fig:mlp}.
+
+\begin{figure}[h]
+ \centering
+ \begin{minipage}{0.45\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/mlp_single_input.tex}}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.52\textwidth}
+ \centering
+ \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/mlp_multi_input.tex}}
+ \end{minipage}
+ \caption{Left: one-hidden-layer network with a single input $x$ and $k$ hidden neurons. Right: extension to $d$ inputs $\vx = (x_1, \ldots, x_d)$. Each hidden neuron applies a ReLU activation; the output neuron computes a plain weighted sum.}
+ \label{fig:mlp}
+\end{figure}
+
+Extending to $d$ inputs $\vx = (x_1, \ldots, x_d) \in \R^d$ is straightforward. Each hidden neuron now computes a linear combination of all inputs:
+\begin{align*}
+ h_j &= \sigma\!\left(\sum_{i=1}^{d} \theta_{ji} \, x_i + \theta_{j0}\right), \qquad j = 1, \ldots, k \\
+ \yhat &= f_\theta(\vx) = \theta_0 + \sum_{j=1}^{k} \theta_j \, h_j.
+\end{align*}
+The weight $\theta_{ji}$ connects input $x_i$ to hidden neuron $j$, and $\theta_{j0}$ is the bias of neuron $j$. The output formula is unchanged --- the hidden activations $h_j$ are combined into a single prediction $\yhat$ regardless of the input dimensionality.
+
+The collection of all parameters --- the weights $\theta_{ji}$, biases $\theta_{j0}$, output weights $\theta_j$, and output bias $\theta_0$ --- is denoted collectively as $\pvec$. Learning this network means finding the values of $\pvec$ that make $f_\theta(\vx) \approx f^*(\vx)$ on the training data. 
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Universal Approximation}
+\slideref{Session 2: Universal Approximation}
+
+The piecewise linear intuition suggests that a shallow network with enough neurons can approximate any reasonable function. This is made precise by the \textbf{Universal Approximation Theorem}.
+
+\begin{wrapfigure}{r}{0.3\textwidth}
+    \centering
+    \resizebox{0.28\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_piecewise.tex}}
+    \caption{A piecewise linear function approximating a nonlinear curve.}
+    \label{fig:piecewise_approx}
+\end{wrapfigure}
+\begin{theorem}[Universal Approximation \parencite{cybenko1989approximation, hornik1991approximation}]
+For any continuous function $g: \inspace \to \R$ defined on a compact set $\inspace \subseteq \R^d$ and any $\varepsilon > 0$, there exists a one-hidden-layer neural network $f_\theta$ such that
 \[
-    \yhat = f_\theta(x) = \sigma(\theta_1 x + \theta_0).
+\sup_{\vx \in \inspace} |f_\theta(\vx) - g(\vx)| < \varepsilon.
 \]
-This function is flat (zero) for $x < -\theta_0 / \theta_1$ and rises linearly for $x > -\theta_0 / \theta_1$. The parameters $\theta_0$ and $\theta_1$ control the location of the breakpoint and the slope of the active region, respectively. A single such function still has only one breakpoint and is therefore not much more expressive than a linear model.
+\end{theorem}
+This result was first proved by \cite{cybenko1989approximation} for sigmoid activations and later extended by \cite{hornik1991approximation} to a broad class of activation functions. 
+We do not prove this result here as it relies on advanced math concepts from measure theory and the Stone-Weierstrass theorem. The piecewise linear intuition developed in the previous section - more neurons, more breakpoints, better approximation - provides the geometric essence of why the theorem holds.
 
-The power comes from combining multiple such functions. Consider a weighted sum of $k$ ReLU-activated linear functions:
+The theorem is powerful: it says that the class of shallow neural networks is dense in the space of continuous functions. No matter what continuous function you want to approximate, a shallow network can get arbitrarily close.
+However, the theorem has important limitations that are easily overlooked. It guarantees existence - there \textit{exists} a network that approximates $g$ - but says nothing about how large that network must be, or how to find its parameters. In the worst case, exponentially many neurons may be required. The theorem also says nothing about generalisation: a network that perfectly approximates $f^*$ on $\inspace$ may still fail on out-of-distribution inputs. Depth, which the theorem ignores, turns out to matter enormously in practice - deeper networks can represent the same functions far more efficiently than shallow ones, a point we return to later.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Binary Classification}
+\slideref{Session 2: Binary Classification}
+
+We now turn to the classification setting. In \textbf{binary classification}, the output space is $\outspace = \{0, 1\}$, and the goal is to assign each input $\vx \in \inspace$ to one of two classes.
+
+The simplest approach is a \textbf{linear classifier}: predict class 1 if a linear function of the input exceeds zero, and class 0 otherwise:
 \[
-    \yhat = f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, \sigma(\theta_{j1} x + \theta_{j0}).
+\yhat = \mathbf{1}\!\left[\theta_0 + \sum_{i=1}^{d} \theta_i x_i \geq 0\right].
 \]
-Each term contributes one breakpoint at $x = -\theta_{j0} / \theta_{j1}$. The resulting function is piecewise linear with up to $k$ breakpoints. As $k$ increases, the function can bend more, capturing increasingly complex shapes. This is the core idea behind the neural network.
+The set of points satisfying $\theta_0 + \sum_i \theta_i x_i = 0$ is a hyperplane in $\R^d$ - the \textbf{decision boundary}. The weight vector $(\theta_1, \ldots, \theta_d)$ is normal to this hyperplane, and $\theta_0$ controls its offset from the origin. In two dimensions, the decision boundary is a line; in three dimensions, a plane; in general, a $(d-1)$-dimensional hyperplane.
 
-% % -------------------------------------------------------
-% \subsection{Shallow Neural Networks}
-% \slideref{Session 2: Two Linear Functions + ReLU, One Layer Neural Network}
+A linear classifier can only represent \textbf{linearly separable} problems - those in which the two classes can be separated by a single hyperplane. Many real problems are not linearly separable. A simple example: consider two clusters of one class located at the top-left and bottom-right of the input space, with a cluster of the other class in the middle. No straight line can separate them.
 
-% The weighted sum of ReLU functions described above is precisely a \textbf{one-hidden-layer neural network} --- also called a \textbf{shallow neural network}. To see this, we interpret each term $\sigma(\theta_{j1} x + \theta_{j0})$ as the output of a \textbf{hidden neuron}: a unit that computes a linear combination of its inputs, applies a nonlinear activation function, and passes the result to an output unit that forms a weighted sum.
+The solution is exactly analogous to the regression case: replace the linear function with a neural network. The decision boundary $f_\theta(\vx) = 0$ becomes a nonlinear surface, capable of carving out arbitrarily complex regions of the input space:
+\[
+\yhat = \mathbf{1}\!\left[f_\theta(\vx) \geq 0\right].
+\]
+The same shallow network architecture used for regression - a linear combination of ReLU-activated linear functions - can serve as $f_\theta$ here. The universal approximation theorem applies equally to classification.
 
-% More formally, a one-hidden-layer network with $k$ hidden neurons and a single input $x$ computes:
-% \begin{align*}
-%     h_j &= \sigma(\theta_{j1} x + \theta_{j0}), \qquad j = 1, \ldots, k \\
-%     \yhat &= \theta_0 + \sum_{j=1}^{k} \theta_j h_j.
-% \end{align*}
-% The quantities $h_j$ are the \textbf{hidden activations} --- the outputs of the hidden layer. The final output $\yhat$ is a linear combination of these activations.
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \resizebox{0.9\textwidth}{!}{\input{\CommonPath/tikz/classification_2d_math.tex}}
+        \caption{A linear classifier separates two classes with a hyperplane. The weight vector $\pvec$ is normal to the decision boundary.}
+        \label{fig:classification_linear}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/classification_2d_nonlinear.tex}}
+        \caption{A nonlinearly separable dataset. A neural network with a nonlinear decision boundary $f_\theta(\vx) = 0$ is required.}
+        \label{fig:classification_nonlinear}
+    \end{minipage}
+\end{figure}
 
-% Extending to multiple inputs $\vx = (x_1, \ldots, x_d) \in \R^d$ is straightforward: each hidden neuron computes a linear combination of all inputs:
-% \begin{align*}
-%     h_j &= \sigma\!\left(\sum_{i=1}^{d} \theta_{ji} x_i + \theta_{j0}\right), \qquad j = 1, \ldots, k \\
-%     \yhat &= \theta_0 + \sum_{j=1}^{k} \theta_j h_j.
-% \end{align*}
-% In matrix notation, defining $\boldsymbol{\Theta}^{(1)} \in \R^{k \times d}$ as the matrix of input weights and $\boldsymbol{\theta}^{(1)}_0 \in \R^k$ as the vector of biases for the hidden layer, and $\boldsymbol{\Theta}^{(2)} \in \R^{1 \times k}$ as the output weights, the forward pass becomes:
-% \[
-%     \vh = \sigma\!\left(\boldsymbol{\Theta}^{(1)} \vx + \boldsymbol{\theta}^{(1)}_0\right), \qquad \yhat = \boldsymbol{\Theta}^{(2)} \vh + \theta_0
-% \]
-% where $\sigma$ is applied elementwise. This compact notation will be generalised to deeper networks in subsequent sessions.
+% - - - - - - - - - - - - - - - - - --
+\subsection{Biological vs Artificial Neuron}
+\slideref{Session 2: Biological vs Artificial Neuron}
 
-% % -------------------------------------------------------
-% \subsection{Universal Approximation}
-% \slideref{Session 2: Universal Approximation}
+Having built up the neural network entirely from mathematical and computational considerations, it is worth pausing to examine the biological analogy that motivates the terminology.
 
-% The piecewise linear intuition suggests that a shallow network with enough neurons can approximate any reasonable function. This is made precise by the \textbf{Universal Approximation Theorem}.
+A biological neuron illustrated in Figure~\ref{fig:biological_neuron} receives signals from other neurons via \textbf{dendrites}, integrates these signals in the \textbf{cell body} (soma), and fires an electrical pulse along its \textbf{axon} if the integrated signal exceeds a threshold. The artificial neuron in Figure~\ref{fig:artificial_neuron} mimics this schematically: inputs $\vx$ play the role of dendrites, the weighted sum $\sum_i \theta_i x_i + \theta_0$ plays the role of integration in the soma, and the activation function $\sigma$ plays the role of the firing threshold.
 
-% \begin{theorem}[Universal Approximation \cite{cybenko1989approximation, hornik1991approximation}]
-% For any continuous function $g: \inspace \to \R$ defined on a compact set $\inspace \subseteq \R^d$ and any $\varepsilon > 0$, there exists a one-hidden-layer neural network $f_\theta$ such that
-% \[
-%     \sup_{\vx \in \inspace} |f_\theta(\vx) - g(\vx)| < \varepsilon.
-% \]
-% \end{theorem}
+The analogy is useful as a narrative device but should not be taken literally. Real neurons are vastly more complex than the linear-threshold model: they operate in continuous time, communicate via spike trains rather than real-valued signals, exhibit rich temporal dynamics, and are embedded in three-dimensional physical structures that constrain their connectivity. The artificial neuron strips all of this away, retaining only the most abstract essence of the computation.
 
-% This result was first proved by \cite{cybenko1989approximation} for sigmoid activations and later extended by \cite{hornik1991approximation} to a broad class of activation functions. The theorem is powerful: it says that the class of shallow neural networks is dense in the space of continuous functions. No matter what continuous function you want to approximate, a shallow network can get arbitrarily close.
+Indeed, the mathematical objects we have been working with - piecewise linear functions, weighted sums, nonlinear activations - were derived entirely from the regression and classification problems, without any reference to biology. The biological inspiration played a historical role in motivating the research programme, but the justification for using neural networks today is empirical and mathematical, not biological.
 
-% However, the theorem has important limitations that are easily overlooked. It guarantees existence --- there \textit{exists} a network that approximates $g$ --- but says nothing about how large that network must be, or how to find its parameters. In the worst case, exponentially many neurons may be required. The theorem also says nothing about generalisation: a network that perfectly approximates $f^*$ on $\inspace$ may still fail on out-of-distribution inputs. Depth, which the theorem ignores, turns out to matter enormously in practice --- deeper networks can represent the same functions far more efficiently than shallow ones, a point we return to in later sessions.
-
-% % -------------------------------------------------------
-% \subsection{Binary Classification}
-% \slideref{Session 2: Binary Classification}
-
-% We now turn to the classification setting. In \textbf{binary classification}, the output space is $\outspace = \{0, 1\}$, and the goal is to assign each input $\vx \in \inspace$ to one of two classes.
-
-% The simplest approach is a \textbf{linear classifier}: predict class 1 if a linear function of the input exceeds zero, and class 0 otherwise:
-% \[
-%     \yhat = \mathbf{1}\!\left[\theta_0 + \sum_{i=1}^{d} \theta_i x_i \geq 0\right].
-% \]
-% The set of points satisfying $\theta_0 + \sum_i \theta_i x_i = 0$ is a hyperplane in $\R^d$ --- the \textbf{decision boundary}. The weight vector $(\theta_1, \ldots, \theta_d)$ is normal to this hyperplane, and $\theta_0$ controls its offset from the origin. In two dimensions, the decision boundary is a line; in three dimensions, a plane; in general, a $(d-1)$-dimensional hyperplane.
-
-% A linear classifier can only represent \textbf{linearly separable} problems --- those in which the two classes can be separated by a single hyperplane. Many real problems are not linearly separable. A simple example: consider two clusters of one class located at the top-left and bottom-right of the input space, with a cluster of the other class in the middle. No straight line can separate them.
-
-% The solution is exactly analogous to the regression case: replace the linear function with a neural network. The decision boundary $f_\theta(\vx) = 0$ becomes a nonlinear surface, capable of carving out arbitrarily complex regions of the input space:
-% \[
-%     \yhat = \mathbf{1}\!\left[f_\theta(\vx) \geq 0\right].
-% \]
-% The same shallow network architecture used for regression --- a linear combination of ReLU-activated linear functions --- can serve as $f_\theta$ here. The universal approximation theorem applies equally to classification.
-
-% % -------------------------------------------------------
-% \subsection{Biological vs Artificial Neuron}
-% \slideref{Session 2: Biological vs Artificial Neuron}
-
-% Having built up the neural network entirely from mathematical and computational considerations, it is worth pausing to examine the biological analogy that motivates the terminology.
-
-% A biological neuron receives signals from other neurons via \textbf{dendrites}, integrates these signals in the \textbf{cell body} (soma), and fires an electrical pulse along its \textbf{axon} if the integrated signal exceeds a threshold. The artificial neuron mimics this schematically: inputs $\vx$ play the role of dendrites, the weighted sum $\sum_i \theta_i x_i + \theta_0$ plays the role of integration in the soma, and the activation function $\sigma$ plays the role of the firing threshold.
-
-% The analogy is useful as a narrative device but should not be taken literally. Real neurons are vastly more complex than the linear-threshold model: they operate in continuous time, communicate via spike trains rather than real-valued signals, exhibit rich temporal dynamics, and are embedded in three-dimensional physical structures that constrain their connectivity. The artificial neuron strips all of this away, retaining only the most abstract essence of the computation.
-
-% Indeed, the mathematical objects we have been working with --- piecewise linear functions, weighted sums, nonlinear activations --- were derived entirely from the regression and classification problems, without any reference to biology. The biological inspiration played a historical role in motivating the research programme, but the justification for using neural networks today is empirical and mathematical, not biological.
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Neuron3}
+        {\tiny Image: Egm4313.s12 at English Wikipedia, \href{https://creativecommons.org/licenses/by-sa/3.0}{CC BY-SA 3.0}, via Wikimedia Commons}
+        \caption{A biological neuron with dendrites, soma, and axon.}
+        \label{fig:biological_neuron}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/artificial_neuron.tex}}
+        \caption{The artificial neuron: a weighted sum of inputs followed by a nonlinear activation function.}
+        \label{fig:artificial_neuron}
+    \end{minipage}
+\end{figure}

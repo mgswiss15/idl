@@ -289,7 +289,7 @@ $\sigma: \R \to \R$ - nonlinear \alert{activation} function
 \section{Shallow Neural Network}
 
 
-\begin{frame}{One Layer Neural Network}
+\begin{frame}{1-Hidden Layer Neural Network}
 
 \vskip 1em
 
@@ -349,26 +349,35 @@ For any continuous function $g: \inspace \to \R$ and any $\varepsilon > 0$, ther
 \end{columns}
 \end{frame}
 
-\section{Binary Classification}
 
 \begin{frame}{Binary Classification}
 
 \vskip 0.5em
 
 \begin{columns}[c]
-\begin{column}{0.5\textwidth}
-\structure{Linear classification boundary:}
- \[ \yhat = \mathds{1}\left[\theta_0 + \sum_i \theta_i x_i \geq 0\right] \]
-\vskip 0.8em
-\structure{Limitation:} not linearly separable
-\vskip 0.8em
-\structure{Solution:} linear $\rightarrow$ non-linear
-\[ \yhat = \mathds{1}\left[f_\theta(\vx) \geq 0\right] \]
-\end{column}
-\begin{column}{0.5\textwidth}
-\input{\CommonPath/tikz/classification_2d_math.tex}
-\input{\CommonPath/tikz/classification_2d_nonlinear.tex}
-\end{column}
+    \begin{column}{0.5\textwidth}
+        \structure{Linear classifier:}
+        \[ \yhat = \mathds{1}\left[\theta_0 + \sum_i \theta_i x_i \geq 0\right] \]
+        \structure{Decision boundary:}\\[0.3em]
+Hyperplane $\theta_0 + \pvec\T\vx = 0$
+
+        \vskip 0.8em
+
+        \structure{Limitation:} only works for \textbf{linearly separable} problems
+
+        \vskip 0.8em
+
+        \structure{Solution:} replace linear with neural network
+        \[ \yhat = \mathds{1}\left[f_\theta(\vx) \geq 0\right] \]
+        \structure{Decision boundary:}\\[0.3em]
+        Nonlinear surface $f_\theta(\vx) = 0$
+    \end{column}
+    \begin{column}{0.5\textwidth}
+        \input{\CommonPath/tikz/classification_2d_math.tex}
+        \input{\CommonPath/tikz/classification_2d_nonlinear.tex}
+    \end{column}
+    \begin{column}{0.05\textwidth}
+    \end{column}
 \end{columns}
 
 \end{frame}
@@ -396,8 +405,8 @@ For any continuous function $g: \inspace \to \R$ and any $\varepsilon > 0$, ther
 \structure{Artificial neuron $f: \R^d \to \R$}
 \begin{itemize}
 \item Inputs: $\vx \in \R^d$
-\item Parameters: $\pvec \in \R^{d}$
-\item Output: $y = f_\theta(\vx) = \sigma(\pvec\T \vx + \theta_0)$
+\item Activations: $\sigma(\pvec\T \vx + \theta_0)$
+\item Output: $y = f_\theta(\vx)$
 \end{itemize}
 \vskip 1em
 \centering

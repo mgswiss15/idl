@@ -49,10 +49,10 @@
 % hyperlinks
 \RequirePackage{hyperref}
 \hypersetup{
-    colorlinks=true,
-    linkcolor=thwspetrol,
-    urlcolor=thwspetrol,
-    citecolor=thwspetrol,
+ colorlinks=true,
+ linkcolor=thwspetrol,
+ urlcolor=thwspetrol,
+ citecolor=thwspetrol,
 }
 
 % tikz and pgfplots
@@ -62,9 +62,9 @@
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.13}
 \pgfplotsset{
-    /pgf/number format/.cd,
-    use comma=false,
-    1000 sep={}
+ /pgf/number format/.cd,
+ use comma=false,
+ 1000 sep={}
 }
 
 % for loops
@@ -74,36 +74,37 @@
 \RequirePackage{amsthm}
 \RequirePackage{thmtools}
 \declaretheoremstyle[
-    headfont=\bfseries\color{thwspetrol},
-    bodyfont=\normalfont,
-    headpunct={.},
-    postheadspace=0.5em,
-    spaceabove=6pt,
-    spacebelow=6pt,
+ headfont=\bfseries\color{thwspetrol},
+ bodyfont=\normalfont,
+ headpunct={.},
+ postheadspace=0.5em,
+ spaceabove=6pt,
+ spacebelow=6pt,
 ]{defstyle}
 \declaretheoremstyle[
-    headfont=\bfseries\color{thwsorange},
-    bodyfont=\normalfont\itshape,
-    headpunct={.},
-    postheadspace=0.5em,
-    spaceabove=6pt,
-    spacebelow=6pt,
+ headfont=\bfseries\color{thwsorange},
+ bodyfont=\normalfont\itshape,
+ headpunct={.},
+ postheadspace=0.5em,
+ spaceabove=6pt,
+ spacebelow=6pt,
 ]{examplestyle}
 \declaretheoremstyle[
-    headfont=\bfseries\color{thwsblue},
-    bodyfont=\normalfont,
-    headpunct={.},
-    postheadspace=0.5em,
-    spaceabove=6pt,
-    spacebelow=6pt,
+ headfont=\bfseries\color{thwsblue},
+ bodyfont=\normalfont,
+ headpunct={.},
+ postheadspace=0.5em,
+ spaceabove=6pt,
+ spacebelow=6pt,
 ]{remarkstyle}
-\declaretheorem[style=defstyle,   name=Definition]{definition}
+\declaretheorem[style=defstyle, name=Definition]{definition}
 \declaretheorem[style=examplestyle, name=Example]{example}
-\declaretheorem[style=remarkstyle,  name=Remark]{remark}
+\declaretheorem[style=remarkstyle, name=Remark]{remark}
+\declaretheorem[style=plain, name=Theorem]{theorem}
 
 % slide reference command
 \newcommand{\slideref}[1]{%
-    \marginpar{\tiny\color{thwsgrey!70!black}\raggedright$\triangleright$~#1}%
+ \marginpar{\tiny\color{thwsgrey!70!black}\raggedright$\triangleright$~#1}%
 }
 
 % header and footer
