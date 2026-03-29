@@ -1,0 +1,45 @@
+% Common/tikz/mlp_multi_input.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{every node}=[font=\scriptsize]
+\tikzstyle{neuron} = [circle, draw, fill=thwsorange!20, minimum size=0.6cm, outer sep=3pt]
+\tikzstyle{input}  = [circle, draw, fill=thwsblue!15, minimum size=0.6cm, outer sep=3pt]
+\tikzstyle{conn}   = [thick, -Stealth, color=thwsblue]
+\tikzstyle{outarr} = [thick, -Stealth]
+
+% Input nodes
+\node[input] (x1) at (-2,  0.) {$x_1$};
+\node[input] (x2) at (-2, -1) {$x_2$};
+\node[input] (xd) at (-2, -2.5) {$x_d$};
+\draw[dotted, thick, outer sep=3pt] (x2) -- (xd);
+
+% Hidden neurons
+\node[neuron] (n1) at (0,  0.) {$\sigma_1$};
+\node[neuron] (n2) at (0, -1.0) {$\sigma_2$};
+\node[neuron] (n3) at (0, -2.5) {$\sigma_k$};
+\draw[dotted, thick, outer sep=3pt] (n2) -- (n3);
+
+% Connections input -> hidden
+\foreach \x in {x1, x2, xd} {
+    \draw[conn] (\x) -- (n1);
+    \draw[conn] (\x) -- (n2);
+    \draw[conn] (\x) -- (n3);
+}
+
+% Output neuron
+\node[neuron] (out) at (2, -1) {$\Sigma$};
+
+% Connections hidden -> output
+\draw[conn] (n1) -- (out);
+\draw[conn] (n2) -- (out);
+\draw[conn] (n3) -- (out);
+
+% Output
+\draw[outarr] (out) -- ++(1.5, 0) node[right] {$\yhat$};
+
+% Layer labels
+\node[thwsblue] at (-3, 0.8) {\textbf{Layers:}};
+\node[thwsblue] at (-2, 0.8) {input};
+\node[thwsorange] at (0, 0.8) {hidden};
+\node[thwsblue] at (2, 0.8) {output};
+
+\end{tikzpicture}

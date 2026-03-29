@@ -23,7 +23,7 @@ pdfkeywords={perceptron, MLP, activation functions, backpropagation}
 \begin{document}
 
 \begin{frame}[plain]
-    \titlepage
+ \titlepage
 \end{frame}
 
 \begin{frame}{Lecture Overview}
@@ -39,12 +39,12 @@ pdfkeywords={perceptron, MLP, activation functions, backpropagation}
 \vskip 2em
 
 \begin{columns}[c]
-  \begin{column}{0.25\textwidth}
+ \begin{column}{0.25\textwidth}
 \centering
-    \structure{Traditional Software}\\[1em]
-    \includegraphics[width=4cm]{TraditionalPipeline.excalidraw}
-  \end{column}
-  \begin{column}{0.4\textwidth}
+ \structure{Traditional Software}\\[1em]
+ \includegraphics[width=4cm]{TraditionalPipeline.excalidraw}
+ \end{column}
+ \begin{column}{0.4\textwidth}
 \centering
 \tikz\draw[-Stealth, thick, thwspetrol] (0,0) -- (3.5,0);\\[0.5em]
 \scriptsize{
@@ -52,16 +52,16 @@ adapt to changing conditions\\
 too many variations to capture\\
 too complex to understand fully\\
 too expensive to compute}
-  \end{column}
-  \begin{column}{0.25\textwidth}
+ \end{column}
+ \begin{column}{0.25\textwidth}
 \centering
-    \structure{Machine Learning}\\[1em]
-    \includegraphics[width=3.3cm]{MLPipeline.excalidraw}
-  \end{column}
-  \begin{column}{0.05\textwidth}
+ \structure{Machine Learning}\\[1em]
+ \includegraphics[width=3.3cm]{MLPipeline.excalidraw}
+ \end{column}
+ \begin{column}{0.05\textwidth}
 \centering
-    \
-  \end{column}
+ \
+ \end{column}
 \end{columns}
 
 \end{frame}
@@ -88,7 +88,7 @@ too expensive to compute}
 
 \vskip 0.8em
 
-\structure{Notation:} $f_ \theta(\vx) = f(\vx;  \theta) = \yhat$
+\structure{Notation:} $f_ \theta(\vx) = f(\vx; \theta) = \yhat$
 
 \end{frame}
 
@@ -97,28 +97,28 @@ too expensive to compute}
 \vskip 1em
 
 \begin{columns}
-    \begin{column}{0.5\textwidth}
+ \begin{column}{0.5\textwidth}
 \structure{Classification (binary)}
 \begin{itemize}
-    \item Output: discrete label $\outspace = \{0, 1\}$
-    \item Goal: find $f_ \theta: \inspace \to \{0, 1\}$
-    \item Predict category for input
+ \item Output: discrete label $\outspace = \{0, 1\}$
+ \item Goal: find $f_ \theta: \inspace \to \{0, 1\}$
+ \item Predict category for input
 \end{itemize}
-        \vskip 0.5em
-        \centering
-        \input{\CommonPath/tikz/classification_2d.tex}
-    \end{column}
-    \begin{column}{0.5\textwidth}
+ \vskip 0.5em
+ \centering
+ \input{\CommonPath/tikz/classification_2d.tex}
+ \end{column}
+ \begin{column}{0.5\textwidth}
 \structure{Regression}
 \begin{itemize}
-    \item Output: continuous value $\outspace = \R$
-    \item Goal: find $f_ \theta: \inspace \to \R$
-    \item Predict numerical value for input
+ \item Output: continuous value $\outspace = \R$
+ \item Goal: find $f_ \theta: \inspace \to \R$
+ \item Predict numerical value for input
 \end{itemize}
-        \vskip 0.5em
-        \centering
-        \input{\CommonPath/tikz/regression_1d.tex}
-    \end{column}
+ \vskip 0.5em
+ \centering
+ \input{\CommonPath/tikz/regression_1d.tex}
+ \end{column}
 \end{columns}
 \end{frame}
 
@@ -129,44 +129,83 @@ too expensive to compute}
 \vskip 1em
 
 \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-        \structure{Simplest model:} linear function
-        \[ \yhat = f_ \theta(x) = \theta_1 x + \theta_0, \qquad  \pvec = (\theta_0, \theta_1) \]
+ \begin{column}{0.52\textwidth}
+ \structure{Simplest model:} linear function
+ \[ \yhat = f_ \theta(x) = \theta_1 x + \theta_0, \qquad \pvec = (\theta_0, \theta_1) \]
 
-        \vskip 0.3em
+ \vskip 0.3em
 \begin{center}
 \input{\CommonPath/tikz/linear_neuron.tex}
 \end{center}
-        \vskip 0.3em
+ \vskip 0.3em
 
-        \structure{Limitation:} real data is rarely linear
+ \structure{Limitation:} real data is rarely linear
 
-        \vskip 0.8em
+ \vskip 0.8em
 
-        \structure{Solution:} more expressive $f_ \theta$
+ \structure{Solution:} more expressive $f_ \theta$
 
-        \vskip 0.8em
+ \vskip 0.8em
 
-        \structure{How:} $f_ \theta = \sin, \log, \sqrt, \exp, \dots$ {\color{thwsblue}\faQuestion}
+ \structure{How:} $f_ \theta = \sin, \log, \sqrt, \exp, \dots$ {\color{thwsblue}\faQuestion}
 
-    \end{column}
-    \begin{column}{0.4\textwidth}
+ \end{column}
+ \begin{column}{0.4\textwidth}
 \begin{flushright}
-        \input{\CommonPath/tikz/regression_1d_line.tex}
-        \input{\CommonPath/tikz/regression_1d_nonlinear.tex}
+ \input{\CommonPath/tikz/regression_1d_line.tex}
+ \input{\CommonPath/tikz/regression_1d_nonlinear.tex}
 \end{flushright}
-    \end{column}
-    \begin{column}{0.05\textwidth}
-    \end{column}
+ \end{column}
+ \begin{column}{0.05\textwidth}
+ \end{column}
 \end{columns}
 \end{frame}
+
+
+\begin{frame}{Nonlinear Regression}
+\vskip 1em
+\begin{columns}[c]
+ \begin{column}{0.52\textwidth}
+\structure{Linear:} $\yhat = f_ \theta(x) = \theta_1 x + \theta_0$
+\begin{center}
+\input{\CommonPath/tikz/linear_neuron.tex}
+\end{center}
+\structure{Nonlinear:} $\yhat = f_ \theta(x) = \sigma(\theta_1 x + \theta_0)$\\[0.2em]
+$\sigma: \R \to \R$ - nonlinear \alert{activation} function
+ \begin{center}
+ \input{\CommonPath/tikz/relu_neuron.tex}
+ \end{center}
+\vskip 1em
+{\color{thwsorange}\faLightbulb}\ \structure{Idea:} piecewise linear functions
+\end{column}
+ \begin{column}{0.4\textwidth}
+\begin{flushright}
+ \input{\CommonPath/tikz/regression_1d_piecewise_simple.tex}
+ \input{\CommonPath/tikz/regression_1d_piecewise.tex}
+\end{flushright}
+ \end{column}
+ \begin{column}{0.05\textwidth}
+ \end{column}
+\end{columns}
+
+\end{frame}
+
 
 \begin{frame}{Nonlinear Regression}
 
 \vskip 1em
 
 \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
+ \begin{column}{0.52\textwidth}
+
+\structure{Linear:} $\yhat = f_ \theta(x) = \theta_1 x + \theta_0, \qquad \pvec = (\theta_0, \theta_1)$
+
+\vskip 0.5em
+
+\structure{Nonlinear:} $\yhat = f_ \theta(x) = \sigma(\theta_1 x + \theta_0)$\\[0.2em]
+$\sigma: \R \to \R$ - nonlinear \alert{activation} function
+
+\vskip 1em
 {\color{thwsorange}\faLightbulb}\ \structure{Idea:} piecewise linear functions
 
 \vskip 0.5em
@@ -178,25 +217,25 @@ too expensive to compute}
 \vskip 2em
 \structure{Building block}
 \begin{columns}[c]
-    \begin{column}{0.45\textwidth}
+ \begin{column}{0.45\textwidth}
 Rectified Linear Unit
-            \[ \text{ReLU}(x) = \max(0, x) \]
-    \end{column}
-    \begin{column}{0.45\textwidth}
-        \centering
+ \[ \text{ReLU}(x) = \max(0, x) \]
+ \end{column}
+ \begin{column}{0.45\textwidth}
+ \centering
 \input{\CommonPath/tikz/relu.tex}
-    \end{column}
+ \end{column}
 \end{columns}
 
 \end{column}
-    \begin{column}{0.4\textwidth}
+ \begin{column}{0.4\textwidth}
 \begin{flushright}
-        \input{\CommonPath/tikz/regression_1d_piecewise_simple.tex}
-        \input{\CommonPath/tikz/regression_1d_piecewise.tex}
+ \input{\CommonPath/tikz/regression_1d_piecewise_simple.tex}
+ \input{\CommonPath/tikz/regression_1d_piecewise.tex}
 \end{flushright}
-    \end{column}
-    \begin{column}{0.05\textwidth}
-    \end{column}
+ \end{column}
+ \begin{column}{0.05\textwidth}
+ \end{column}
 \end{columns}
 
 \end{frame}
@@ -207,41 +246,45 @@ Rectified Linear Unit
 \vskip 2em
 
 \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-        \structure{Add nonlinearity:} RELU $\circ$ linear function
-        \[ \yhat = f_\theta(x) = \sigma(\theta_1 x + \theta_0), \quad \sigma(x) = ReLU(x) = \max(0,x) \]
+ \begin{column}{0.52\textwidth}
+ \structure{Building block}
+\begin{columns}[c]
+ \begin{column}{0.45\textwidth}
+Rectified Linear Unit
+ \[ \text{ReLU}(x) = \max(0, x) \]
+ \end{column}
+ \begin{column}{0.45\textwidth}
+ \centering
+\input{\CommonPath/tikz/relu.tex}
+ \end{column}
+\end{columns}
 
-        \vskip 0.3em
-        \begin{center}
-            \input{\CommonPath/tikz/relu_neuron.tex}
-        \end{center}
-        \vskip 0.3em
 
-        \structure{Effect:} one bend at $x = -\theta_0 / \theta_1$
+ \structure{Effect:} one bend at $x = -\theta_0 / \theta_1$
 
-        \vskip 0.8em
+ \vskip 0.8em
 
 \structure{Limitation:} only one breakpoint - not expressive enough
 
-        \vskip 0.8em
+ \vskip 0.8em
 
-        \structure{Solution:} combine multiple ReLUs
+ \structure{Solution:} combine multiple ReLUs
 
-    \end{column}
-    \begin{column}{0.4\textwidth}
-        \begin{flushright}
-            \input{\CommonPath/tikz/regression_1d_relu_simple.tex}
-        \end{flushright}
-    \end{column}
-    \begin{column}{0.05\textwidth}
-    \end{column}
+ \end{column}
+ \begin{column}{0.4\textwidth}
+ \begin{flushright}
+ \input{\CommonPath/tikz/regression_1d_relu_simple.tex}
+ \end{flushright}
+ \end{column}
+ \begin{column}{0.05\textwidth}
+ \end{column}
 \end{columns}
 \end{frame}
 
 \begin{frame}{Combining Multiple ReLUs}
 \vskip 0.5em
 \begin{columns}[c]
-    \begin{column}{0.6\textwidth}
+ \begin{column}{0.6\textwidth}
 
 \structure{Combine:} weighted sum of ReLU functions
 \[ \yhat = f_\theta(x) = \thetab{2}{1} + \thetaw{2}{1}{1} \sigma_1 + \thetaw{2}{1}{2}\sigma_2 \]
@@ -256,144 +299,218 @@ Rectified Linear Unit
 \structure{Key result:} more breakpoints $\Rightarrow$ more expressive $f_\theta$
 \[ \yhat = f_\theta(x) = \thetab{2}{1} + \sum_j \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} \, x + \thetab{1}{j}\right) \]
 
-    \end{column}
-    \begin{column}{0.4\textwidth}
+ \end{column}
+ \begin{column}{0.4\textwidth}
 \input{\CommonPath/tikz/relu_combi_simple_plot.tex}
 \input{\CommonPath/tikz/relu_combi_double_plot.tex}
-    \end{column}
-    \begin{column}{0.05\textwidth}
-    \end{column}
+ \end{column}
+ \begin{column}{0.05\textwidth}
+ \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}{This is a Neural Network}
+\begin{frame}{Two Linear Functions + ReLU}
 
-\vskip 0.5em
+\vskip 1em
 
-\begin{columns}[t]
-    \begin{column}{0.52\textwidth}
-        \[ \yhat = \thetab{2}{1} + \thetaw{2}{1}{1} \sigma_1 + \thetaw{2}{1}{2}\sigma_2 \]
-        \vskip 0.5em
-        \centering
-        \input{\CommonPath/tikz/relu_combination.tex}
-        \vskip 0.5em
-        \input{\CommonPath/tikz/relu_combination_midway.tex}
-    \end{column}
-    \begin{column}{0.45\textwidth}
-        \vskip 2.5em
-        \centering
-        \input{\CommonPath/tikz/relu_combination_simple.tex}
-    \end{column}
+\begin{columns}[c]
+ \begin{column}{0.5\textwidth}
+\structure{Mathematical representation :}
+\[ \yhat = f_\theta(x) = \thetab{2}{1} + \thetaw{2}{1}{1} \sigma_1 + \thetaw{2}{1}{2}\sigma_2 \]
+\[\sigma_1 = \text{ReLU}(\thetaw{1}{1}{1} \, x + \thetab{1}{1}) \quad \sigma_2 = \text{ReLU}(\thetaw{1}{2}{1} \, x + \thetab{1}{2})\]
+ \vskip 0.5em
+\structure{Graphical representation:}
+ \vskip 0.5em
+
+\centering 
+ \input{\CommonPath/tikz/relu_combination.tex}
+ \end{column}
+ \begin{column}{0.5\textwidth}
+\structure{Simplified graphical representation:}
+ \vskip 0.5em
+
+\begin{center}
+ \input{\CommonPath/tikz/relu_combination_midway.tex}
+\end{center}
+
+ \vskip 2.5em
+\structure{Most simple graphical representation:}
+ \vskip 0.5em
+
+\centering
+ \input{\CommonPath/tikz/relu_combination_simple.tex}
+ \end{column}
 \end{columns}
 
+\end{frame}
+
+
+\begin{frame}{One Layer Neural Network}
+
+\vskip 1em
+
+\begin{columns}[t]
+ \begin{column}{0.48\textwidth}
+ \structure{Multiple neurons, single input}
+ \[ \yhat = f_\theta(x) = \thetab{2}{1} + \sum_{j=1}^{k} \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} x + \thetab{1}{j}\right) \]
+
+\[ \yhat = f_\theta(x) = \thetab{2}{1} + \sum_{j=1}^{k} \thetaw{2}{1}{j} \, \sigma\!\left(\thetaw{1}{j}{1} x + \thetab{1}{j}\right) \]
+\[ \yhat = \thetamat{2} \, \sigma\!\left(\thetamat{1} x + \thetavec{1}\right) + \thetab{2}{1} \]
+
+ \vskip 0.5em
+ \centering
+ \input{\CommonPath/tikz/mlp_single_input.tex}
+ \end{column}
+ \begin{column}{0.48\textwidth}
+ \structure{Multiple neurons, multiple inputs}
+ \[ \yhat = f_\theta(\vx) = \thetab{2}{1} + \sum_{j=1}^{k} \thetaw{2}{1}{j} \, \sigma\!\left(\sum_{i=1}^{d}\thetaw{1}{j}{i} x_i + \thetab{1}{j}\right) \]
+
+\[ \yhat = f_\theta(\vx) = \thetab{2}{1} + \sum_{j=1}^{k} \thetaw{2}{1}{j} \, \sigma\!\left(\sum_{i=1}^{d}\thetaw{1}{j}{i} x_i + \thetab{1}{j}\right) \]
+\[ \yhat = \thetamat{2} \, \sigma\!\left(\thetamat{1} \vx + \thetavec{1}\right) + \thetab{2}{1} \]
+ \vskip 0.5em
+ \centering
+ \input{\CommonPath/tikz/mlp_multi_input.tex}
+ \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{From biological to artificial neuron}
+
+\vskip 1em
+
+\begin{columns}[c]
+ \begin{column}{0.48\textwidth}
+ \structure{Biological neuron}
+ \begin{itemize}
+ \item Dendrites receive signals
+ \item Cell body integrates inputs
+ \item Axon fires if threshold exceeded
+ \end{itemize}
+ \vskip 1em
+\centering
+ \includegraphics[width=0.9\textwidth]{Neuron3}\\[-0.5em]
+ {\tiny Image: Egm4313.s12 at English Wikipedia, \href{https://creativecommons.org/licenses/by-sa/3.0}{CC BY-SA 3.0}, via Wikimedia Commons}
+ \end{column}
+ \begin{column}{0.5\textwidth}
+ \structure{Artificial neuron $f: \R^d \to \R$}
+ \begin{itemize}
+ \item Inputs: $\vx \in \R^d$
+ \item Params: weights $\vw \in \R^d$, bias $b \in \R$
+ \item Output: $z = f(\vx) = \sum_i w_i x_i + b = \vw\T\vx + b$
+ \end{itemize}
+ \vskip 1em
+\centering
+ \input{\CommonPath/tikz/artificial_neuron.tex}
+ \end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{This is a neural network}
 \begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item Each hidden neuron computes:
-            \[ z_j^{(1)} = w_j x + b_j, \quad a_j^{(1)} = \text{ReLU}(z_j^{(1)}) \]
-            \item Output layer combines:
-            \[ f(x;  \theta) = \sum_j v_j a_j^{(1)} + c \]
-            \vskip 0.5em
-            \item<2-> In matrix form:
-            \begin{align*}
-                \vz^{(1)} &= \mW^{(1)}\vx + \vb^{(1)} \\
-                \va^{(1)} &= \text{ReLU}(\vz^{(1)}) \\
-                f(\vx;  \theta) &= \mW^{(2)}\va^{(1)} + \vb^{(2)}
-            \end{align*}
-            \item<2-> Parameters: $ \theta = \{\mW^{(1)}, \vb^{(1)}, \mW^{(2)}, \vb^{(2)}\}$
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.42\textwidth}
-        \centering
-        \texttt{[mlp\_1hidden.tex]}
-    \end{column}
+ \begin{column}{0.55\textwidth}
+ \begin{itemize}
+ \item Each hidden neuron computes:
+ \[ z_j^{(1)} = w_j x + b_j, \quad a_j^{(1)} = \text{ReLU}(z_j^{(1)}) \]
+ \item Output layer combines:
+ \[ f(x; \theta) = \sum_j v_j a_j^{(1)} + c \]
+ \vskip 0.5em
+ \item<2-> In matrix form:
+ \begin{align*}
+ \vz^{(1)} &= \mW^{(1)}\vx + \vb^{(1)} \\
+ \va^{(1)} &= \text{ReLU}(\vz^{(1)}) \\
+ f(\vx; \theta) &= \mW^{(2)}\va^{(1)} + \vb^{(2)}
+ \end{align*}
+ \item<2-> Parameters: $ \theta = \{\mW^{(1)}, \vb^{(1)}, \mW^{(2)}, \vb^{(2)}\}$
+ \end{itemize}
+ \end{column}
+ \begin{column}{0.42\textwidth}
+ \centering
+ \texttt{[mlp\_1hidden.tex]}
+ \end{column}
 \end{columns}
 \end{frame}
 
 \begin{frame}{Universal approximation}
-    \begin{block}{Universal Approximation Theorem}
-        Let $\act: \R \to \R$ be a non-constant, bounded, continuous activation function.
-        Then for any continuous function $g: [0,1]^d \to \R$ and any $\varepsilon > 0$,
-        there exists a 1-hidden-layer neural network $f(\cdot\,;  \theta)$ such that:
-        \[ \sup_{\vx \in [0,1]^d} |f(\vx;  \theta) - g(\vx)| < \varepsilon \]
-    \end{block}
-    \vskip 1em
-    \begin{columns}
-        \begin{column}{0.48\textwidth}
-            \structure{What it tells us}
-            \begin{itemize}
-                \item MLPs are universal approximators
-                \item Enough neurons can fit any continuous function
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.48\textwidth}
-            \structure{What it doesn't tell us}
-            \begin{itemize}
-                \item How many neurons are needed
-                \item How to find the parameters $ \theta$
-                \item Whether the model will generalize
-            \end{itemize}
-        \end{column}
-    \end{columns}
+ \begin{block}{Universal Approximation Theorem}
+ Let $\act: \R \to \R$ be a non-constant, bounded, continuous activation function.
+ Then for any continuous function $g: [0,1]^d \to \R$ and any $\varepsilon > 0$,
+ there exists a 1-hidden-layer neural network $f(\cdot\,; \theta)$ such that:
+ \[ \sup_{\vx \in [0,1]^d} |f(\vx; \theta) - g(\vx)| < \varepsilon \]
+ \end{block}
+ \vskip 1em
+ \begin{columns}
+ \begin{column}{0.48\textwidth}
+ \structure{What it tells us}
+ \begin{itemize}
+ \item MLPs are universal approximators
+ \item Enough neurons can fit any continuous function
+ \end{itemize}
+ \end{column}
+ \begin{column}{0.48\textwidth}
+ \structure{What it doesn't tell us}
+ \begin{itemize}
+ \item How many neurons are needed
+ \item How to find the parameters $ \theta$
+ \item Whether the model will generalize
+ \end{itemize}
+ \end{column}
+ \end{columns}
 \end{frame}
 
 \begin{frame}{Classification}
 \begin{columns}
-    \begin{column}{0.55\textwidth}
-        \begin{itemize}
-            \item Output is discrete: $y \in \{0, 1\}$
-            \vskip 0.5em
-            \item Linear classifier: decision boundary is a hyperplane
-            \[ \hat{y} = \mathbb{1}[f(\vx;  \theta) \geq 0] \]
-            \vskip 0.5em
-            \item<2-> Not all problems are linearly separable
-            \begin{itemize}
-                \item<2-> XOR: four points, no linear boundary works
-            \end{itemize}
-            \vskip 0.5em
-            \item<3-> Neural network with ReLU: non-linear decision boundary
-            \item<3-> Same architecture as for regression
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.42\textwidth}
-        \centering
-        \only<1>{\texttt{[linear\_boundary.tex]}}
-        \only<2->{\texttt{[xor\_boundary.tex]}}
-    \end{column}
+ \begin{column}{0.55\textwidth}
+ \begin{itemize}
+ \item Output is discrete: $y \in \{0, 1\}$
+ \vskip 0.5em
+ \item Linear classifier: decision boundary is a hyperplane
+ \[ \hat{y} = \mathbb{1}[f(\vx; \theta) \geq 0] \]
+ \vskip 0.5em
+ \item<2-> Not all problems are linearly separable
+ \begin{itemize}
+ \item<2-> XOR: four points, no linear boundary works
+ \end{itemize}
+ \vskip 0.5em
+ \item<3-> Neural network with ReLU: non-linear decision boundary
+ \item<3-> Same architecture as for regression
+ \end{itemize}
+ \end{column}
+ \begin{column}{0.42\textwidth}
+ \centering
+ \only<1>{\texttt{[linear\_boundary.tex]}}
+ \only<2->{\texttt{[xor\_boundary.tex]}}
+ \end{column}
 \end{columns}
 \end{frame}
 
 
 \begin{frame}{Activation functions}
 \begin{columns}
-    \begin{column}{0.48\textwidth}
-        \structure{What makes a good activation?}
-        \begin{itemize}
-            \item Non-linear — otherwise depth buys nothing
-            \item Differentiable — needed for backpropagation
-            \item Computationally cheap
-        \end{itemize}
-        \vskip 1em
-        \structure{Common choices}
-        \begin{itemize}
-            \item \textbf{Sigmoid}: $\sigma(z) = \frac{1}{1+e^{-z}} \in (0,1)$
-            \item \textbf{Tanh}: $\tanh(z) \in (-1, 1)$
-            \item \textbf{ReLU}: $\max(0, z)$ — sparse, fast, but dying neurons
-        \end{itemize}
-        \vskip 0.5em
-        \structure{Dying ReLU problem}
-        \begin{itemize}
-            \item Neurons with $z < 0$ output 0 and have zero gradient
-            \item Can become permanently inactive during training
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-        \centering
-        \texttt{[activation\_functions.tex]}
-    \end{column}
+ \begin{column}{0.48\textwidth}
+ \structure{What makes a good activation?}
+ \begin{itemize}
+ \item Non-linear — otherwise depth buys nothing
+ \item Differentiable — needed for backpropagation
+ \item Computationally cheap
+ \end{itemize}
+ \vskip 1em
+ \structure{Common choices}
+ \begin{itemize}
+ \item \textbf{Sigmoid}: $\sigma(z) = \frac{1}{1+e^{-z}} \in (0,1)$
+ \item \textbf{Tanh}: $\tanh(z) \in (-1, 1)$
+ \item \textbf{ReLU}: $\max(0, z)$ — sparse, fast, but dying neurons
+ \end{itemize}
+ \vskip 0.5em
+ \structure{Dying ReLU problem}
+ \begin{itemize}
+ \item Neurons with $z < 0$ output 0 and have zero gradient
+ \item Can become permanently inactive during training
+ \end{itemize}
+ \end{column}
+ \begin{column}{0.48\textwidth}
+ \centering
+ \texttt{[activation\_functions.tex]}
+ \end{column}
 \end{columns}
 \end{frame}
 
@@ -401,27 +518,27 @@ Rectified Linear Unit
 \begin{center}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabular}{cll}
-    \hline
-    \textbf{Symbol} & \textbf{Meaning} & \textbf{Dimensions} \\
-    \hline
-    $\vx$ & input & $\R^{d}$ \\
-    $y$ & target output & $\R$ or $\{0,1\}$ \\
-    $ \theta$ & all parameters & — \\
-    $\mW^{(l)}$ & weight matrix, layer $l$ & $\R^{d_{l} \times d_{l-1}}$ \\
-    $\vb^{(l)}$ & bias vector, layer $l$ & $\R^{d_{l}}$ \\
-    $\vz^{(l)}$ & pre-activation, layer $l$ & $\R^{d_{l}}$ \\
-    $\va^{(l)}$ & post-activation, layer $l$ & $\R^{d_{l}}$ \\
-    $\act$ & activation function & $\R \to \R$ \\
-    $L$ & number of hidden layers & — \\
-    \hline
+ \hline
+ \textbf{Symbol} & \textbf{Meaning} & \textbf{Dimensions} \\
+ \hline
+ $\vx$ & input & $\R^{d}$ \\
+ $y$ & target output & $\R$ or $\{0,1\}$ \\
+ $ \theta$ & all parameters & — \\
+ $\mW^{(l)}$ & weight matrix, layer $l$ & $\R^{d_{l} \times d_{l-1}}$ \\
+ $\vb^{(l)}$ & bias vector, layer $l$ & $\R^{d_{l}}$ \\
+ $\vz^{(l)}$ & pre-activation, layer $l$ & $\R^{d_{l}}$ \\
+ $\va^{(l)}$ & post-activation, layer $l$ & $\R^{d_{l}}$ \\
+ $\act$ & activation function & $\R \to \R$ \\
+ $L$ & number of hidden layers & — \\
+ \hline
 \end{tabular}
 \end{center}
 \vskip 0.5em
 \begin{center}
-    \structure{Forward pass:} \quad
-    $\vz^{(l)} = \mW^{(l)}\va^{(l-1)} + \vb^{(l)}$ \quad
-    $\va^{(l)} = \act(\vz^{(l)})$ \quad
-    $\va^{(0)} = \vx$
+ \structure{Forward pass:} \quad
+ $\vz^{(l)} = \mW^{(l)}\va^{(l-1)} + \vb^{(l)}$ \quad
+ $\va^{(l)} = \act(\vz^{(l)})$ \quad
+ $\va^{(0)} = \vx$
 \end{center}
 \end{frame}
 
