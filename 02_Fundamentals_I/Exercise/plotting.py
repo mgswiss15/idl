@@ -18,19 +18,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from linear import (
-    linear_scalar,
-    relu_scalar,
-    stack_layers,
-    linear_vector,
-    relu_tensor,
-    forward_loop,
-    forward_vectorised,
-)
-
-
-# Shared x-axis for all scalar plots
-_X_SCALAR = [x * 0.01 for x in range(-200, 201)]   # -2.0 to 2.0
+from linear import *
 
 
 def _maybe_save_show(fig, save_path, show):
@@ -39,6 +27,45 @@ def _maybe_save_show(fig, save_path, show):
     if show:
         plt.show()
     return fig
+
+
+def plot_func(func, x_vals, theta=None, show=False, save_path=None):
+    """Plot a scalar function over a range of x values.
+
+    Args:
+        func:      callable — either f(x) or f(x, theta)
+        x_vals:    list or 1-D tensor of scalar x values
+        theta:     tuple for parametric functions, or None
+        show:      if True, display the plot interactively
+        save_path: if given, save the figure to this path (e.g. 'figures/linear')
+                   — .png is appended automatically if not present
+    """
+    if theta is not None:
+        y_vals = [func(x, theta) for x in x_vals]
+        label = rf"$\theta={theta}$"
+    else:
+        y_vals = [func(x) for x in x_vals]
+        label = func.__name__
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(x_vals, y_vals, label=label)
+    ax.axhline(0, color="black", linewidth=0.5)
+    ax.axvline(0, color="black", linewidth=0.5)
+    ax.set_xlabel("$x$")
+    ax.set_ylabel("$f(x)$")
+    ax.legend()
+    ax.set_title(f"{func.__name__}")
+    fig.tight_layout()
+
+    if save_path is not None:
+        if not save_path.endswith(".png"):
+            save_path = save_path + ".png"
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+    if show:
+        plt.show()
+
+    return fig
+
 
 
 # ==============================================================================
