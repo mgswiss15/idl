@@ -105,3 +105,35 @@ def relu_tensor(x):
         Tensor of same shape with negative values zeroed out.
     """
     return torch.clamp(x, min=0.0)
+
+
+def relu_unit_vector(x, theta):
+    """Single ReLU unit with vector input: sigma(theta_1 · x + theta_0).
+
+    Args:
+        x:     1-D tensor, shape (d,)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1_1, ..., theta_1_d)
+
+    Returns:
+        Scalar output (0-d tensor).
+    """
+    return relu_tensor(linear_vector(x, theta))
+
+
+def shallow_vector(x, theta_hidden, theta_out):
+    """Shallow network with vector input and scalar output.
+
+    Computes: theta_out[0] + sum_j theta_out[j] * relu_unit_vector(x, theta_hidden[j-1])
+
+    Args:
+        x:            1-D tensor, shape (d,)
+        theta_hidden: list of k tensors of shape (d+1,), one per hidden unit
+        theta_out:    1-D tensor of shape (k+1,)
+
+    Returns:
+        Scalar output (0-d tensor).
+    """
+    out = theta_out[0]
+    for j, th in enumerate(theta_hidden):
+        out = out + theta_out[j + 1] * relu_unit_vector(x, th)
+    return out
