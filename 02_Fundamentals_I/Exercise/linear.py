@@ -74,6 +74,7 @@ def stack_relu(x, theta):
         out = linear_scalar(out, th)
         if i < len(theta) - 1:
             out = relu_scalar(out)
+        # out = relu_scalar(out)
     return out
 
 
@@ -81,20 +82,19 @@ def stack_relu(x, theta):
 # Vector functions
 # ==============================================================================
 
-def linear_vector(x, theta_1, theta_0):
+def linear_vector(x, theta):
     """Linear function with vector input and scalar output.
 
     Computes the dot product: theta_1 · x + theta_0.
 
     Args:
-        x:       1-D tensor, shape (n,)
-        theta_1: 1-D tensor, shape (n,)
-        theta_0: scalar (float or 0-d tensor)
+        x:     1-D tensor, shape (d,)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Scalar output (0-d tensor).
     """
-    return torch.dot(theta_1, x) + theta_0
+    return torch.dot(theta[1:], x) + theta[0]
 
 
 def relu_tensor(x):

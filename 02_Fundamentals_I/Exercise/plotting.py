@@ -21,7 +21,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-def plot_func(func, x_vals, theta=None, label=None, ax=None, show=False, save_path=None):
+def plot_func(func, x_vals, theta=None, label=None, title=None, ax=None, show=False, save_path=None):
     """Plot a scalar function over a range of x values.
 
     Can draw onto an existing Axes (for overlaying multiple functions) or
@@ -32,6 +32,7 @@ def plot_func(func, x_vals, theta=None, label=None, ax=None, show=False, save_pa
         x_vals:    list of scalar x values
         theta:     tensor or list of tensors for parametric functions, or None
         label:     legend label — if None, a default is generated from theta or func name
+        title:     plot title — if None, a default is generated from theta or func name
         ax:        existing matplotlib Axes to draw onto — if None, a new figure is created
         show:      if True, display the plot interactively
         save_path: if given, save to this path (.png appended if missing)
@@ -47,11 +48,18 @@ def plot_func(func, x_vals, theta=None, label=None, ax=None, show=False, save_pa
     if theta is not None:
         y_vals = [func(x, theta) for x in x_vals]
         if label is None:
-            label = rf"$\theta_0={theta[0].item():.2f},\;\theta_1={theta[1].item():.2f}$"
+            if isinstance(theta, list):
+                label = func.__name__
+            else:
+                label = rf"$\theta = ({theta[0].item():.2f}, {theta[1].item():.2f})$"
     else:
         y_vals = [func(x) for x in x_vals]
         if label is None:
             label = func.__name__
+
+    if title is None:
+        title = func.__name__
+
 
     ax.plot(x_vals, y_vals, label=label)
     ax.axhline(0, color="black", linewidth=0.5)
@@ -59,6 +67,7 @@ def plot_func(func, x_vals, theta=None, label=None, ax=None, show=False, save_pa
     ax.set_xlabel("$x$")
     ax.set_ylabel("$f(x)$")
     ax.legend()
+    ax.set_title(title)
     fig.tight_layout()
 
     if save_path is not None:

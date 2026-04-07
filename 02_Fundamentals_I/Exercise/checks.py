@@ -8,12 +8,7 @@ implementing the corresponding functions in linear.py.
 """
 
 import torch
-from linear import (
-    linear_scalar,
-    relu_scalar,
-    stack_linear,
-    stack_relu,
-)
+from linear import *
 
 
 def check_block1():
@@ -30,3 +25,14 @@ def check_block2():
     assert stack_linear(1.0, theta) == -1.25, "stack_linear implementation not correct"
     assert stack_relu(1.0, theta)   == 0.0,   "stack_relu implementation not correct"
     print("Block 2 checks passed.")
+
+
+def check_block3():
+    """Sanity checks for linear_vector and relu_tensor."""
+    x = torch.tensor([1.0, 2.0])
+    theta = torch.tensor([0.3, 0.5, -1.0])   # theta_0=0.3, theta_1=[0.5, -1.0]
+    # 0.5*1 + (-1.0)*2 + 0.3 = -1.2
+    assert abs(linear_vector(x, theta).item() - (-1.2)) < 1e-5, "linear_vector implementation not correct"
+    t = torch.tensor([-1.0, 0.0, 2.0])
+    assert torch.allclose(relu_tensor(t), torch.tensor([0.0, 0.0, 2.0])), "relu_tensor implementation not correct"
+    print("Block 3 checks passed.")
