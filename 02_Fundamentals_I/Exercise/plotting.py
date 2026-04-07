@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 import torch
 
 
-def plot_func(func, x_vals, theta=None, label=None, title=None, ax=None, show=False, save_path=None):
+def plot_func(func, theta=None, label=None, title=None, ax=None, show=False, save_path=None):
     """Plot a scalar function over a range of x values.
 
     Can draw onto an existing Axes (for overlaying multiple functions) or
@@ -36,7 +36,6 @@ def plot_func(func, x_vals, theta=None, label=None, title=None, ax=None, show=Fa
 
     Args:
         func:      callable — f(x), f(x, theta), or f(x, *theta) for multi-arg functions
-        x_vals:    list of scalar x values
         theta:     tensor for single-argument functions, list of tensors for
                    multi-argument functions (unpacked via *theta), or None
         label:     legend label — if None, a default is generated
@@ -48,6 +47,8 @@ def plot_func(func, x_vals, theta=None, label=None, title=None, ax=None, show=Fa
     Returns:
         The matplotlib Figure.
     """
+    x_vals = [x * 0.01 for x in range(-200, 200)]
+
     if ax is None:
         fig, ax = plt.subplots(figsize=(6, 4))
     else:
@@ -120,6 +121,40 @@ def plot_surface(func, theta, title=None, show=False, save_path=None):
     ax.set_zlabel("$f(x)$")
     if title is not None:
         ax.set_title(title)
+    fig.tight_layout()
+
+    if save_path is not None:
+        if not save_path.endswith(".png"):
+            save_path = save_path + ".png"
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+    if show:
+        plt.show()
+
+    return fig
+
+
+def plot_timing(times, labels, N, title=None, show=False, save_path=None):
+    """Bar chart comparing wall-clock times of different implementations.
+
+    Args:
+        times:     list of elapsed times in seconds
+        labels:    list of labels for each bar
+        N:         number of samples used in the timing experiment
+        title:     axes title — if None, a default is generated
+        show:      if True, display the plot interactively
+        save_path: if given, save to this path (.png appended if missing)
+
+    Returns:
+        The matplotlib Figure.
+    """
+    fig, ax = plt.subplots(figsize=(6, 4))
+    bars = ax.bar(labels, times, color=["steelblue", "darkorange", "seagreen"][:len(times)])
+    for bar, t in zip(bars, times):
+        ax.text(bar.get_x() + bar.get_width() / 2,
+                t + max(times) * 0.01,
+                f"{t:.4f} s", ha="center", va="bottom", fontsize=9)
+    ax.set_ylabel("Wall-clock time (s)")
+    ax.set_title(title if title else f"Timing comparison (N={N:,} samples)")
     fig.tight_layout()
 
     if save_path is not None:

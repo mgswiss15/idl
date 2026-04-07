@@ -87,7 +87,7 @@ def linear_vector(x, theta):
 
     Args:
         x:     1-D tensor, shape (d,)
-        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1_1, ..., theta_1_d)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Scalar output (0-d tensor).
@@ -112,7 +112,7 @@ def relu_unit_vector(x, theta):
 
     Args:
         x:     1-D tensor, shape (d,)
-        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1_1, ..., theta_1_d)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Scalar output (0-d tensor).
@@ -137,3 +137,115 @@ def shallow_vector(x, theta_hidden, theta_out):
     for j, th in enumerate(theta_hidden):
         out = out + theta_out[j + 1] * relu_unit_vector(x, th)
     return out
+
+
+# ==============================================================================
+# Block 4 – Batching
+# ==============================================================================
+
+def shallow_batch_loop(X, theta_hidden, theta_out):
+    """Shallow network forward pass over a batch using a Python loop over samples.
+
+    Args:
+        X:            2-D tensor, shape (N, d)
+        theta_hidden: list of k tensors of shape (d+1,), one per hidden unit
+        theta_out:    1-D tensor of shape (k+1,)
+
+    Returns:
+        Output tensor, shape (N,)
+    """
+    outputs = []
+    for i in range(X.shape[0]):
+        outputs.append(shallow_vector(X[i], theta_hidden, theta_out))
+    return torch.stack(outputs)
+
+
+def linear_batch(X, theta):
+    """Linear function over a batch of samples with scalar output per sample.
+
+    Vectorised version of linear_vector over N samples.
+
+    Args:
+        X:     2-D tensor, shape (N, d)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
+
+    Returns:
+        Output tensor, shape (N,)
+    """
+    return X @ theta[1:] + theta[0]
+
+
+def shallow_batch(X, theta_hidden, theta_out):
+    """Shallow network forward pass over a batch, vectorised over samples.
+
+    Uses linear_batch for each hidden unit — processes all N samples at once
+    per unit, but still loops over hidden units.
+
+    Args:
+        X:            2-D tensor, shape (N, d)
+        theta_hidden: list of k tensors of shape (d+1,), one per hidden unit
+        theta_out:    1-D tensor of shape (k+1,)
+
+    Returns:
+        Output tensor, shape (N,)
+    """
+    out = theta_out[0].expand(X.shape[0])
+    for j, th in enumerate(theta_hidden):
+        h = relu_tensor(linear_batch(X, th))   # shape (N,)
+        out = out + theta_out[j + 1] * h
+    return out
+
+
+def linear_layer(X, Theta):
+    """Linear layer mapping a batch of inputs to multiple outputs.
+
+    Applies a linear transformation to all N samples simultaneously,
+    producing k outputs per sample.
+
+    Args:
+        X:     2-D tensor, shape (N, d)
+        Theta: 2-D tensor, shape (k, d+1) — each row is one output unit's parameters
+               (theta_0, theta_1, ..., theta_d)
+
+    Returns:
+        Output tensor, shape (N, k)
+    """
+    return X @ Theta[:, 1:].T + Theta[:, 0]
+
+
+def shallow_batch_vectorised(X, Theta_hidden, theta_out):
+    """Shallow network forward pass, fully vectorised over samples and hidden units.
+
+    Uses linear_layer to compute all hidden activations at once.
+
+    Args:
+        X:             2-D tensor, shape (N, d)
+        Theta_hidden:  2-D tensor, shape (k, d+1) — each row is one hidden unit's parameters
+        theta_out:     1-D tensor of shape (k+1,)
+
+    Returns:
+        Output tensor, shape (N,)
+    """
+    H = relu_tensor(linear_layer(X, Theta_hidden))   # shape (N, k)
+    return H @ theta_out[1:] + theta_out[0]          # shape (N,)
+
+
+# ==============================================================================
+# Block 6 – Two-layer MLP
+# ==============================================================================
+ 
+def mlp_batch(X, Theta_1, Theta_2, theta_out):
+    """Two-layer MLP forward pass, fully vectorised.
+ 
+    Args:
+        X:         2-D tensor, shape (N, d)
+        Theta_1:   2-D tensor, shape (k1, d+1)  — first hidden layer parameters
+        Theta_2:   2-D tensor, shape (k2, k1+1) — second hidden layer parameters
+        theta_out: 1-D tensor, shape (k2+1,)    — output layer parameters
+ 
+    Returns:
+        Output tensor, shape (N,)
+    """
+    H1 = relu_tensor(linear_layer(X, Theta_1))       # shape (N, k1)
+    H2 = relu_tensor(linear_layer(H1, Theta_2))      # shape (N, k2)
+    return linear_batch(H2, theta_out)                # shape (N,)
