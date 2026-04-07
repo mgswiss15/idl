@@ -38,41 +38,41 @@ def relu_scalar(x):
     return max(0.0, x)
 
 
-def relu_unit(x, theta_1, theta_0):
-    """Single ReLU unit: relu(theta_1 * x + theta_0).
+def stack_linear(x, theta):
+    """Composition of multiple scalar linear functions.
+
+    Applies k linear functions in sequence with no activation in between.
+    Note: a composition of linear functions is itself linear.
 
     Args:
-        x:       scalar input
-        theta_1: weight parameter
-        theta_0: bias parameter
+        x:     scalar input (Python float)
+        theta: list of 1-D tensors of shape (2,), one per layer — (theta_0, theta_1)
 
     Returns:
         Scalar output.
     """
-    return relu_scalar(linear_scalar(x, theta_1, theta_0))
+    out = x
+    for th in theta:
+        out = linear_scalar(out, th)
+    return out
 
 
-def stack_layers(x, params):
-    """Forward pass through an arbitrary chain of scalar linear+ReLU layers.
+def stack_relu(x, theta):
+    """Composition of multiple scalar linear functions with ReLU activations.
 
-    ReLU is applied after every layer except the last.
+    Applies ReLU after every layer except the last.
 
     Args:
-        x:      scalar input (Python float)
-        params: list of (theta_1, theta_0) tuples, one per layer
+        x:     scalar input (Python float)
+        theta: list of 1-D tensors of shape (2,), one per layer — (theta_0, theta_1)
 
     Returns:
-        Scalar output after passing through all layers.
-
-    Example:
-        stack_layers(1.0, [(2.0, -0.5), (1.0, 0.0)])
-        → relu(2.0 * 1.0 - 0.5) = relu(1.5) = 1.5
-        → 1.0 * 1.5 + 0.0 = 1.5
+        Scalar output.
     """
     out = x
-    for i, (theta_1, theta_0) in enumerate(params):
-        out = linear_scalar(out, theta_1, theta_0)
-        if i < len(params) - 1:
+    for i, th in enumerate(theta):
+        out = linear_scalar(out, th)
+        if i < len(theta) - 1:
             out = relu_scalar(out)
     return out
 

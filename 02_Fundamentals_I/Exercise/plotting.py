@@ -6,55 +6,59 @@ plotting.py: visualisations for each exercise block.
 Each function returns a matplotlib Figure and optionally saves or displays it.
 
 Usage from notebook:
-    from plotting import plot_linear_scalar
-    fig = plot_linear_scalar()   # renders inline
+    import plotting
 
-Usage from script:
-    fig = plot_linear_scalar(save_path="figures/linear_scalar.png")
+    fig = plotting.plot_func(func=linear_scalar, x_vals=x_scalar, theta=theta)
+
+    fig, ax = plt.subplots()
+    plotting.plot_func(func=linear_scalar, x_vals=x_scalar, theta=theta1, ax=ax)
+    plotting.plot_func(func=stack_linear,  x_vals=x_scalar, theta=thetas, ax=ax,
+                       label="stack_linear", save_path='figures/stack_linear')
 """
 
-import torch
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from linear import *
 
-
-def _maybe_save_show(fig, save_path, show):
-    if save_path is not None:
-        fig.savefig(save_path, dpi=150, bbox_inches="tight")
-    if show:
-        plt.show()
-    return fig
-
-
-def plot_func(func, x_vals, theta=None, show=False, save_path=None):
+def plot_func(func, x_vals, theta=None, label=None, ax=None, show=False, save_path=None):
     """Plot a scalar function over a range of x values.
+
+    Can draw onto an existing Axes (for overlaying multiple functions) or
+    create a new Figure if none is provided.
 
     Args:
         func:      callable — either f(x) or f(x, theta)
-        x_vals:    list or 1-D tensor of scalar x values
-        theta:     tuple for parametric functions, or None
+        x_vals:    list of scalar x values
+        theta:     tensor or list of tensors for parametric functions, or None
+        label:     legend label — if None, a default is generated from theta or func name
+        ax:        existing matplotlib Axes to draw onto — if None, a new figure is created
         show:      if True, display the plot interactively
-        save_path: if given, save the figure to this path (e.g. 'figures/linear')
-                   — .png is appended automatically if not present
+        save_path: if given, save to this path (.png appended if missing)
+
+    Returns:
+        The matplotlib Figure.
     """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 4))
+    else:
+        fig = ax.get_figure()
+
     if theta is not None:
         y_vals = [func(x, theta) for x in x_vals]
-        label = rf"$\theta={theta}$"
+        if label is None:
+            label = rf"$\theta_0={theta[0].item():.2f},\;\theta_1={theta[1].item():.2f}$"
     else:
         y_vals = [func(x) for x in x_vals]
-        label = func.__name__
+        if label is None:
+            label = func.__name__
 
-    fig, ax = plt.subplots(figsize=(6, 4))
     ax.plot(x_vals, y_vals, label=label)
     ax.axhline(0, color="black", linewidth=0.5)
     ax.axvline(0, color="black", linewidth=0.5)
     ax.set_xlabel("$x$")
     ax.set_ylabel("$f(x)$")
     ax.legend()
-    ax.set_title(f"{func.__name__}")
     fig.tight_layout()
 
     if save_path is not None:
