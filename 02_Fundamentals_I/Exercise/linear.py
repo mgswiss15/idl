@@ -13,13 +13,13 @@ import torch
 # Scalar functions
 # ==============================================================================
 
-def linear_scalar(x, theta_1, theta_0):
+def linear_scalar(x, theta_0, theta_1):
     """Scalar linear function: f(x) = theta_1 * x + theta_0.
 
     Args:
         x:       scalar input (Python float)
-        theta_1: weight parameter (Python float)
         theta_0: bias parameter (Python float)
+        theta_1: weight parameter (Python float)
 
     Returns:
         Scalar output theta_1 * x + theta_0.
