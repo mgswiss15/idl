@@ -2,8 +2,8 @@
 E2 – Forward Pass from Scratch
 Introduction to Deep Learning, THWS
 
-linear.py: implement all functions in this file.
-Run the notebook cells to test your implementations using checks.py.
+linear.py: implementations of scalar and vector linear functions,
+activation functions, and shallow neural networks.
 """
 
 import torch
@@ -23,7 +23,7 @@ def linear_scalar(x, theta):
     Returns:
         Scalar output theta_1 * x + theta_0.
     """
-    pass
+    return theta[1] * x + theta[0]
 
 
 def relu_scalar(x):
@@ -35,7 +35,7 @@ def relu_scalar(x):
     Returns:
         max(0, x)
     """
-    pass
+    return max(0.0, x)
 
 
 # ==============================================================================
@@ -52,7 +52,7 @@ def relu_unit(x, theta):
     Returns:
         Scalar output.
     """
-    pass
+    return relu_scalar(linear_scalar(x, theta))
 
 
 def shallow(x, theta_hidden, theta_out):
@@ -70,7 +70,10 @@ def shallow(x, theta_hidden, theta_out):
     Returns:
         Scalar output.
     """
-    pass
+    out = theta_out[0]
+    for j, th in enumerate(theta_hidden):
+        out = out + theta_out[j + 1] * relu_unit(x, th)
+    return out
 
 
 # ==============================================================================
@@ -84,12 +87,12 @@ def linear_vector(x, theta):
 
     Args:
         x:     1-D tensor, shape (d,)
-        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1_1, ..., theta_1_d)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Scalar output (0-d tensor).
     """
-    pass
+    return torch.dot(theta[1:], x) + theta[0]
 
 
 def relu_tensor(x):
@@ -101,7 +104,7 @@ def relu_tensor(x):
     Returns:
         Tensor of same shape with negative values zeroed out.
     """
-    pass
+    return torch.clamp(x, min=0.0)
 
 
 def relu_unit_vector(x, theta):
@@ -109,12 +112,12 @@ def relu_unit_vector(x, theta):
 
     Args:
         x:     1-D tensor, shape (d,)
-        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1_1, ..., theta_1_d)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Scalar output (0-d tensor).
     """
-    pass
+    return relu_tensor(linear_vector(x, theta))
 
 
 def shallow_vector(x, theta_hidden, theta_out):
@@ -130,7 +133,10 @@ def shallow_vector(x, theta_hidden, theta_out):
     Returns:
         Scalar output (0-d tensor).
     """
-    pass
+    out = theta_out[0]
+    for j, th in enumerate(theta_hidden):
+        out = out + theta_out[j + 1] * relu_unit_vector(x, th)
+    return out
 
 
 # ==============================================================================
@@ -148,7 +154,10 @@ def shallow_batch_loop(X, theta_hidden, theta_out):
     Returns:
         Output tensor, shape (N,)
     """
-    pass
+    outputs = []
+    for i in range(X.shape[0]):
+        outputs.append(shallow_vector(X[i], theta_hidden, theta_out))
+    return torch.stack(outputs)
 
 
 def linear_batch(X, theta):
@@ -158,12 +167,12 @@ def linear_batch(X, theta):
 
     Args:
         X:     2-D tensor, shape (N, d)
-        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1_1, ..., theta_1_d)
+        theta: 1-D tensor, shape (d+1,) — (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Output tensor, shape (N,)
     """
-    pass
+    return X @ theta[1:] + theta[0]
 
 
 def shallow_batch(X, theta_hidden, theta_out):
@@ -180,7 +189,11 @@ def shallow_batch(X, theta_hidden, theta_out):
     Returns:
         Output tensor, shape (N,)
     """
-    pass
+    out = theta_out[0].expand(X.shape[0])
+    for j, th in enumerate(theta_hidden):
+        h = relu_tensor(linear_batch(X, th))   # shape (N,)
+        out = out + theta_out[j + 1] * h
+    return out
 
 
 def linear_layer(X, Theta):
@@ -192,12 +205,12 @@ def linear_layer(X, Theta):
     Args:
         X:     2-D tensor, shape (N, d)
         Theta: 2-D tensor, shape (k, d+1) — each row is one output unit's parameters
-               (theta_0, theta_1_1, ..., theta_1_d)
+               (theta_0, theta_1, ..., theta_d)
 
     Returns:
         Output tensor, shape (N, k)
     """
-    pass
+    return X @ Theta[:, 1:].T + Theta[:, 0]
 
 
 def shallow_batch_vectorised(X, Theta_hidden, theta_out):
@@ -213,23 +226,26 @@ def shallow_batch_vectorised(X, Theta_hidden, theta_out):
     Returns:
         Output tensor, shape (N,)
     """
-    pass
+    H = relu_tensor(linear_layer(X, Theta_hidden))   # shape (N, k)
+    return H @ theta_out[1:] + theta_out[0]          # shape (N,)
 
 
 # ==============================================================================
 # Block 6 – Two-layer MLP
 # ==============================================================================
-
+ 
 def mlp_batch(X, Theta_1, Theta_2, theta_out):
     """Two-layer MLP forward pass, fully vectorised.
-
+ 
     Args:
         X:         2-D tensor, shape (N, d)
         Theta_1:   2-D tensor, shape (k1, d+1)  — first hidden layer parameters
         Theta_2:   2-D tensor, shape (k2, k1+1) — second hidden layer parameters
         theta_out: 1-D tensor, shape (k2+1,)    — output layer parameters
-
+ 
     Returns:
         Output tensor, shape (N,)
     """
-    pass
+    H1 = relu_tensor(linear_layer(X, Theta_1))       # shape (N, k1)
+    H2 = relu_tensor(linear_layer(H1, Theta_2))      # shape (N, k2)
+    return linear_batch(H2, theta_out)                # shape (N,)
