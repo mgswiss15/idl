@@ -40,9 +40,9 @@ pdfkeywords={deep networks, loss functions, gradient descent, backpropagation}
 
 \begin{columns}[c]
 \begin{column}{0.48\textwidth}
-\structure{Recall:} 1-hidden-layer network
+\structure{Recall (Session 2):} 1-hidden-layer network
 \begin{align*}
-h_j &= \sigma\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
+h_j &= \sigma\!\left(\textstyle\sum_i \theta_{ji}\, x_i + \theta_{j0}\right) \\
 \yhat &= \theta_0 + \textstyle\sum_j \theta_j\, h_j
 \end{align*}
 \vskip 0.5em
