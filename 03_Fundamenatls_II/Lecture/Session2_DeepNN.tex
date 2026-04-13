@@ -158,7 +158,7 @@ activation $\act$ applied \textbf{elementwise}
 \centering
 \input{\CommonPath/tikz/mlp_layer_notation.tex}
 \vskip 1em
-\structure{Forward pass:} evaluate layer by layer, $l = 1 \to L$
+\alert{\textbf{Forward pass:}} evaluate layer by layer, $l = 1 \to L$
 \end{column}
 \begin{column}{0.1\textwidth}
 \end{column}
@@ -268,7 +268,7 @@ cols = neurons in layer $l-1$
  
 \vskip 0.5em
  
-\structure{Batch forward pass:}
+\alert{\textbf{Batch forward pass:}}
 \[ \mathbf{H}^{(l)} = \act\!\left(\mathbf{1}\thetavec{l}_0{}\T + \mathbf{H}^{(l-1)} \left(\thetamat{l}\right)\T\right) \]
  
 \end{column}
@@ -304,8 +304,8 @@ cols = neurons in layer $l-1$
 \begin{column}{0.48\textwidth}
 \structure{What we have:}
 \begin{itemize}
-\item Network $f_\theta$ with forward pass \checkmark
-\item Dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$ \checkmark
+\item Network $f_\theta$ with forward pass% \checkmark
+\item Dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$% \checkmark
 \end{itemize}
  
 \vskip 1.5em
@@ -316,18 +316,25 @@ cols = neurons in layer $l-1$
 \end{itemize}
  
 \vskip 1.5em
- 
-\structure{Two open questions:}
-\begin{enumerate}
-\item How do we \textbf{measure} how wrong $f_\theta$ is? \\ \alert{$\Rightarrow$ loss function}
-\item How do we \textbf{find} good $\pvec$ systematically? \\ \alert{$\Rightarrow$ optimization}
-\end{enumerate}
 \end{column}
 \begin{column}{0.48\textwidth}
 \centering
 \input{\CommonPath/tikz/learning_problem.tex}
 \end{column}
 \end{columns}
+
+\vskip 1em
+
+\begin{columns}
+\begin{column}{0.48\textwidth}
+\structure{Two open questions:} \\[0.5em]
+1. How do we \textbf{measure} how wrong $f_\theta$ is? \\ \alert{$\Rightarrow$ loss function}
+\end{column}
+\begin{column}{0.48\textwidth}
+\vskip 0.6em
+2. How do we \textbf{find} good $\pvec$ systematically? \\ \alert{$\Rightarrow$ optimization}
+\end{column}
+\end{columns} 
  
 \end{frame}
  
@@ -344,8 +351,8 @@ cols = neurons in layer $l-1$
 \vskip 1.5em
  
 \begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Per-sample loss} $\ell(\yhat, y)$:
+\begin{column}{0.45\textwidth}
+\structure{Per-sample loss (cost) \ } $\ell(\yhat, y)$:
 \begin{itemize}
 \item $\ell(\yhat, y) = 0$ when $\yhat = y$ (perfect)
 \item $\ell(\yhat, y) > 0$ otherwise
@@ -354,11 +361,11 @@ cols = neurons in layer $l-1$
  
 \vskip 1em
  
-\structure{Dataset loss} $\loss(\pvec)$:
+\structure{Dataset loss \ } $\loss(\pvec)$:
 \[ \loss(\pvec) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell\!\left(f_\theta(\vx^{(i)}), y^{(i)}\right) \]
 Average over all training samples
 \end{column}
-\begin{column}{0.48\textwidth}
+\begin{column}{0.45\textwidth}
 \structure{Choice of $\ell$ depends on the task:}
  
 \vskip 0.8em
@@ -372,7 +379,10 @@ Multiclass & Cross-Entropy \\
 \end{tabular}
  
 \vskip 1.5em
-\alert{The loss is the compass --- it tells the model which direction is ``better''.}
+\alert{Loss: model compass - what is ``better''?}
+\end{column}
+\begin{column}{0.05\textwidth}
+\
 \end{column}
 \end{columns}
  
@@ -383,24 +393,35 @@ Multiclass & Cross-Entropy \\
 \begin{frame}{Regression: Mean Squared Error}
  
 \vskip 1em
- 
+
+\begin{beamercolorbox}[rounded=true, sep=0.8em]{highlight body}
+% \centering
+\begin{columns}[c]
+\begin{column}{0.45\textwidth}
+\alert{\textbf{Target \& prediction dim match}}\\[0.5em]
+Scalar output: $y \in \R, \, \yhat \in \R$
+\end{column}
+\begin{column}{0.45\textwidth}
+\alert{\textbf{Last layer has no activation}}\\[0.5em]
+Raw output: $\yhat = \vh^{(L)} = \thetavec{L}_0 + \thetamat{L}\vh^{(L-1)}$
+\end{column}
+\end{columns}
+\end{beamercolorbox}
+
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
-\structure{Setting:} $y \in \R$, $\yhat = \vz^{(L)} \in \R$ (no output activation)
  
 \vskip 1em
  
 \structure{Mean Squared Error (MSE):}
-\[ \ell(\yhat, y) = (\yhat - y)^2 \]
-\[ \loss(\pvec) = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left(\yhat^{(i)} - y^{(i)}\right)^2 \]
+\[ \ell(\yhat, y) = (\yhat - y)^2, \quad \loss(\pvec) = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left(\yhat^{(i)} - y^{(i)}\right)^2 \]
  
-\vskip 1em
  
 \structure{Intuition:}
 \begin{itemize}
-\item Penalizes large errors quadratically
-\item Errors of opposite sign cancel in average --- use absolute value or square
-\item Squaring also makes $\ell$ differentiable
+\item + / - values $\to$ absolute or square
+\item Large errors quadratically
+\item Differentiable
 \end{itemize}
 \end{column}
 \begin{column}{0.44\textwidth}

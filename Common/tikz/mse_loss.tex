@@ -1,5 +1,37 @@
-% PLACEHOLDER: mse_loss
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {mse\_loss};
+% Common/tikz/mse_loss.tex
+\begin{tikzpicture}[scale=0.8]
+\tikzstyle{pt}    = [circle, draw, fill=thwsblue!40, minimum size=0.1cm, inner sep=0pt]
+\tikzstyle{annot} = [font=\scriptsize]
+
+% Axes
+\draw[-Stealth, thick] (-0.3, 0) -- (3.8, 0) node[right, annot] {$x$};
+\draw[-Stealth, thick] (0, -0.3) -- (0, 3.5) node[above, annot] {$y$};
+
+% Piecewise linear fit
+\draw[thick, carnelian]
+    (-0.05, 0.4) -- (1.0, 0.65) -- (1.9, 1.15) -- (2.5, 2.30) -- (3.5, 3.4)
+    node[annot, right, anchor=west] {$f_\theta$};
+
+% Data points and residuals
+\foreach \x/\y/\yfit in {
+    0.3/0.55/0.48,
+    0.6/0.7/0.54,
+    1.0/0.60/0.65,
+    1.5/0.8/0.90,
+    1.8/1.10/1.10,
+    2.0/1.0/1.35,
+    2.2/1.45/1.7,
+    2.5/2.30/2.30,
+    2.8/2.60/2.6,
+    3.0/3.30/2.85} {
+    % Residual line
+    \draw[thwspetrol!60, thin] (\x, \y) -- (\x, \yfit);
+    % Data point
+    \node[pt] at (\x, \y) {};
+}
+
+% Residual label
+\draw[thwspetrol!60, -Stealth, thin] (1.35, 1.3) -- (1.9, 1.18);
+\node[annot, thwspetrol] at (1.1, 1.5) {$\yhat^{(i)}\!-y^{(i)}$};
+
 \end{tikzpicture}
