@@ -1,5 +1,52 @@
-% PLACEHOLDER: gradient_descent_2d
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {gradient\_descent\_2d};
+% Common/tikz/gradient_descent_2d.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{annot} = [font=\scriptsize]
+
+% Axes
+\draw[-Stealth, thick] (-2.8, 0) -- (2.8, 0) node[right, annot] {$\theta$};
+\draw[-Stealth, thick] (0, -0.2) -- (0, 3.5) node[above, annot] {$\loss(\theta)$};
+
+% Parabola: L = 0.4*theta^2
+\draw[thick, carnelian, domain=-2.6:2.6, samples=60]
+    plot (\x, {0.4*\x*\x});
+
+% GD steps: theta_{t+1} = theta_t - eta * 2*theta_t = theta_t * (1 - 2*eta)
+% eta = 0.35, so multiplier = 0.3
+% t0=2.2, t1=1.54, t2=1.08, t3=0.76, t4=0.53
+\def\sa{2.2}
+\def\sb{1.54}
+\def\sc{1.08}
+\def\sd{0.76}
+\def\se{0.53}
+
+% Points on curve
+\fill[thwsblue] (\sa, {0.4*\sa*\sa}) circle (2.5pt);
+\fill[thwsblue] (\sb, {0.4*\sb*\sb}) circle (2.5pt);
+\fill[thwsblue] (\sc, {0.4*\sc*\sc}) circle (2.5pt);
+\fill[thwsblue] (\sd, {0.4*\sd*\sd}) circle (2.5pt);
+\fill[thwsblue] (\se, {0.4*\se*\se}) circle (2.5pt);
+
+% Vertical drop lines to axis
+\foreach \t in {\sa, \sb, \sc, \sd, \se} {
+    \draw[thwsblue!40, dashed, thin] (\t, 0) -- (\t, {0.4*\t*\t});
+}
+
+% Horizontal update arrows on axis
+\draw[-Stealth, thwsblue, thick] (\sa, -0.15) -- (\sb, -0.15);
+\draw[-Stealth, thwsblue, thick] (\sb, -0.25) -- (\sc, -0.25);
+\draw[-Stealth, thwsblue, thick] (\sc, -0.35) -- (\sd, -0.35);
+\draw[-Stealth, thwsblue, thick] (\sd, -0.45) -- (\se, -0.45);
+
+% Labels
+\node[annot, thwsblue, above] at (\sa, {0.4*\sa*\sa}) {$\theta_0$};
+\node[annot, thwsblue, above] at (\sb, {0.4*\sb*\sb}) {$\theta_1$};
+\node[annot, thwsblue, above] at (\sc, {0.4*\sc*\sc}) {$\theta_2$};
+
+% Minimum
+\fill[carnelian] (0, 0) circle (2pt);
+\node[annot, below right] at (0.1, 0) {$\theta^*$};
+
+% eta label
+\node[annot, thwsblue] at (1.85, -0.55) {$\eta \cdot \nabla\loss$};
+
 \end{tikzpicture}

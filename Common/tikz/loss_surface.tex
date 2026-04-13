@@ -1,5 +1,17 @@
-% PLACEHOLDER: loss_surface
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {loss\_surface};
+% Common/tikz/loss_surface.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{annot} = [font=\scriptsize]
+
+% Axes
+\draw[-Stealth, thick] (-2.8, 0) -- (2.8, 0) node[right, annot] {$\theta$};
+\draw[-Stealth, thick] (0, -0.2) -- (0, 3.5) node[above, annot] {$\loss(\theta)$};
+
+% Parabola: L = theta^2, scaled by 0.4
+\draw[thick, carnelian, domain=-2.6:2.6, samples=60]
+    plot (\x, {0.4*\x*\x});
+
+% Minimum label
+\fill[carnelian] (0, 0) circle (2pt);
+\node[annot, below right] at (0, 0) {$\theta^*$};
+
 \end{tikzpicture}

@@ -434,115 +434,115 @@ Raw output: $\yhat = \vh^{(L)} = \thetavec{L}_0 + \thetamat{L}\vh^{(L-1)}$
  
 \end{frame}
  
-% -------------------------------------------------------
+% % -------------------------------------------------------
  
-\begin{frame}{Classification: Probability Output}
+% \begin{frame}{Classification: Probability Output}
  
-\vskip 1em
+% \vskip 1em
  
-\begin{columns}[c]
-\begin{column}{0.52\textwidth}
-\structure{Setting:} $y \in \{0, 1\}$, we want $f_\theta(\vx) \in (0,1)$
+% \begin{columns}[c]
+% \begin{column}{0.52\textwidth}
+% \structure{Setting:} $y \in \{0, 1\}$, we want $f_\theta(\vx) \in (0,1)$
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Problem:} raw network output $z^{(L)} \in \R$ --- not a probability
+% \structure{Problem:} raw network output $z^{(L)} \in \R$ --- not a probability
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Solution:} apply \textbf{sigmoid} as output activation
-\[ \yhat = \act(z^{(L)}) = \frac{1}{1 + e^{-z^{(L)}}} \in (0,1) \]
+% \structure{Solution:} apply \textbf{sigmoid} as output activation
+% \[ \yhat = \act(z^{(L)}) = \frac{1}{1 + e^{-z^{(L)}}} \in (0,1) \]
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Interpretation:} $\yhat = P(y = 1 \mid \vx)$
+% \structure{Interpretation:} $\yhat = P(y = 1 \mid \vx)$
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Decision:} predict class 1 if $\yhat \geq 0.5$, else class 0
-\end{column}
-\begin{column}{0.44\textwidth}
-\centering
-\input{\CommonPath/tikz/sigmoid.tex}
-\vskip 1em
-\input{\CommonPath/tikz/sigmoid_neuron_output.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \structure{Decision:} predict class 1 if $\yhat \geq 0.5$, else class 0
+% \end{column}
+% \begin{column}{0.44\textwidth}
+% \centering
+% \input{\CommonPath/tikz/sigmoid.tex}
+% \vskip 1em
+% \input{\CommonPath/tikz/sigmoid_neuron_output.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
  
-\end{frame}
+% \end{frame}
  
-% -------------------------------------------------------
+% % -------------------------------------------------------
  
-\begin{frame}{Binary Classification: Binary Cross-Entropy}
+% \begin{frame}{Binary Classification: Binary Cross-Entropy}
  
-\vskip 1em
+% \vskip 1em
  
-\begin{columns}[c]
-\begin{column}{0.52\textwidth}
-\structure{Binary Cross-Entropy (BCE):}
-\[
-\ell(\yhat, y) = -y \log \yhat - (1-y)\log(1-\yhat)
-\]
-\[ \loss(\pvec) = -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left[y^{(i)}\log\yhat^{(i)} + (1-y^{(i)})\log(1-\yhat^{(i)})\right] \]
+% \begin{columns}[c]
+% \begin{column}{0.52\textwidth}
+% \structure{Binary Cross-Entropy (BCE):}
+% \[
+% \ell(\yhat, y) = -y \log \yhat - (1-y)\log(1-\yhat)
+% \]
+% \[ \loss(\pvec) = -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left[y^{(i)}\log\yhat^{(i)} + (1-y^{(i)})\log(1-\yhat^{(i)})\right] \]
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Intuition:}
-\begin{itemize}
-\item When $y=1$: loss $= -\log\yhat$ --- penalizes low confidence in correct class
-\item When $y=0$: loss $= -\log(1-\yhat)$ --- penalizes high confidence in wrong class
-\item \alert{Confident wrong predictions are punished most severely}
-\end{itemize}
-\end{column}
-\begin{column}{0.44\textwidth}
-\centering
-\input{\CommonPath/tikz/bce_loss.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \structure{Intuition:}
+% \begin{itemize}
+% \item When $y=1$: loss $= -\log\yhat$ --- penalizes low confidence in correct class
+% \item When $y=0$: loss $= -\log(1-\yhat)$ --- penalizes high confidence in wrong class
+% \item \alert{Confident wrong predictions are punished most severely}
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.44\textwidth}
+% \centering
+% \input{\CommonPath/tikz/bce_loss.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
  
-\end{frame}
+% \end{frame}
  
-% -------------------------------------------------------
+% % -------------------------------------------------------
  
-\begin{frame}{Multiclass Classification: Softmax + Cross-Entropy}
+% \begin{frame}{Multiclass Classification: Softmax + Cross-Entropy}
  
-\vskip 0.5em
+% \vskip 0.5em
  
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Setting:} $y \in \{1,\ldots,C\}$, output $\vz^{(L)} \in \R^C$
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \structure{Setting:} $y \in \{1,\ldots,C\}$, output $\vz^{(L)} \in \R^C$
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Softmax} converts logits to probabilities:
-\[ \yhat_c = \frac{e^{z^{(L)}_c}}{\sum_{c'=1}^{C} e^{z^{(L)}_{c'}}}, \quad c = 1,\ldots,C \]
-\begin{itemize}
-\item $\yhat_c \in (0,1)$, \quad $\sum_c \yhat_c = 1$
-\item Amplifies the largest logit
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{Cross-Entropy loss:}
-\[ \ell(\yhat, y) = -\sum_{c=1}^{C} \mathds{1}[y=c]\, \log \yhat_c \]
-\vskip 0.3em
-With one-hot label: only the true class contributes
-\[ \ell(\yhat, y) = -\log \yhat_y \]
+% \structure{Softmax} converts logits to probabilities:
+% \[ \yhat_c = \frac{e^{z^{(L)}_c}}{\sum_{c'=1}^{C} e^{z^{(L)}_{c'}}}, \quad c = 1,\ldots,C \]
+% \begin{itemize}
+% \item $\yhat_c \in (0,1)$, \quad $\sum_c \yhat_c = 1$
+% \item Amplifies the largest logit
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \structure{Cross-Entropy loss:}
+% \[ \ell(\yhat, y) = -\sum_{c=1}^{C} \mathds{1}[y=c]\, \log \yhat_c \]
+% \vskip 0.3em
+% With one-hot label: only the true class contributes
+% \[ \ell(\yhat, y) = -\log \yhat_y \]
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Intuition:} maximize the predicted probability of the correct class
-\end{column}
-\end{columns}
+% \structure{Intuition:} maximize the predicted probability of the correct class
+% \end{column}
+% \end{columns}
  
-\vskip 1em
-\centering
-\input{\CommonPath/tikz/softmax.tex}
+% \vskip 1em
+% \centering
+% \input{\CommonPath/tikz/softmax.tex}
  
-\end{frame}
+% \end{frame}
  
 % -------------------------------------------------------
 \section{Gradient Descent}
@@ -552,9 +552,9 @@ With one-hot label: only the true class contributes
  
 \vskip 1em
  
-\begin{columns}[c]
-\begin{column}{0.52\textwidth}
-\structure{Goal:} find parameters that minimize the loss
+% \begin{columns}[c]
+% \begin{column}{0.52\textwidth}
+\structure{Goal:} find parameters that \alert{\textbf{minimize loss}}
 \[ \pvec^* = \arg\min_{\pvec}\ \loss(\pvec) \]
  
 \vskip 0.8em
@@ -569,14 +569,14 @@ With one-hot label: only the true class contributes
 \vskip 0.8em
  
 \structure{Strategy:} iterative, gradient-based optimization
-\end{column}
-\begin{column}{0.44\textwidth}
-\centering
-\input{\CommonPath/tikz/loss_surface.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \end{column}
+% % \begin{column}{0.44\textwidth}
+% \centering
+% \input{\CommonPath/tikz/loss_surface.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
  
 \end{frame}
  
@@ -584,7 +584,7 @@ With one-hot label: only the true class contributes
  
 \begin{frame}{Gradient Descent}
  
-\vskip 1em
+\vskip 2em
  
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
@@ -606,9 +606,9 @@ With one-hot label: only the true class contributes
 \item Repeat until convergence
 \end{itemize}
  
-\vskip 0.8em
+% \vskip 0.8em
  
-\structure{Key question:} how do we compute $\nabla_{\pvec} \loss(\pvec)$?
+% \structure{Key question:} how do we compute $\nabla_{\pvec} \loss(\pvec)$?
 \end{column}
 \begin{column}{0.44\textwidth}
 \centering
@@ -620,43 +620,43 @@ With one-hot label: only the true class contributes
  
 \end{frame}
  
-% -------------------------------------------------------
+% % -------------------------------------------------------
  
-\begin{frame}{Walking Down a Hill}
+% \begin{frame}{Walking Down a Hill}
  
-\vskip 1em
+% \vskip 1em
  
-\begin{columns}[c]
-\begin{column}{0.52\textwidth}
-\structure{Intuition:} a hiker descending a mountain in fog
-\begin{itemize}
-\item Cannot see the whole landscape --- only local slope
-\item Step in the direction that goes downhill
-\item Repeat until no more descent
-\end{itemize}
+% \begin{columns}[c]
+% \begin{column}{0.52\textwidth}
+% \structure{Intuition:} a hiker descending a mountain in fog
+% \begin{itemize}
+% \item Cannot see the whole landscape --- only local slope
+% \item Step in the direction that goes downhill
+% \item Repeat until no more descent
+% \end{itemize}
  
-\vskip 1em
+% \vskip 1em
  
-\structure{Effect of learning rate $\eta$:}
-\begin{itemize}
-\item $\eta$ too large: \alert{overshoots}, may diverge
-\item $\eta$ too small: very slow convergence
-\item $\eta$ just right: steady descent
-\end{itemize}
+% \structure{Effect of learning rate $\eta$:}
+% \begin{itemize}
+% \item $\eta$ too large: \alert{overshoots}, may diverge
+% \item $\eta$ too small: very slow convergence
+% \item $\eta$ just right: steady descent
+% \end{itemize}
  
-\vskip 1em
+% \vskip 1em
  
-\structure{Complication:} loss surface has many \textbf{valleys} (local minima) --- the hiker may get stuck
-\end{column}
-\begin{column}{0.44\textwidth}
-\centering
-\input{\CommonPath/tikz/hiker_loss_surface.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \structure{Complication:} loss surface has many \textbf{valleys} (local minima) --- the hiker may get stuck
+% \end{column}
+% \begin{column}{0.44\textwidth}
+% \centering
+% \input{\CommonPath/tikz/hiker_loss_surface.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
  
-\end{frame}
+% \end{frame}
  
 % -------------------------------------------------------
  
@@ -682,504 +682,504 @@ With one-hot label: only the true class contributes
  
 \end{frame}
  
-% -------------------------------------------------------
-\section{Computation Graphs}
-% -------------------------------------------------------
- 
- 
-\begin{frame}{Computation Graphs --- Motivation}
- 
-\vskip 1em
- 
-\structure{Idea:} decompose complex functions into simple atomic operations
- 
-\vskip 1em
- 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Why?}
-\begin{itemize}
-\item Make computation of gradients easier
-\item Each node only needs to know its \textbf{local} derivative
-\item \textbf{Reuse} intermediate values from forward pass in backward pass
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{How?}
-\begin{itemize}
-\item \alert{Input nodes} --- data and parameters
-\item \alert{Compute nodes} --- elementary operations
-\item Edges --- data flow between nodes
-\end{itemize}
-\end{column}
-\end{columns}
- 
-\vskip 1.5em
- 
-\structure{Example:} linear regression $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$
- 
-\vskip 0.5em
-\centering
-\input{\CommonPath/tikz/compgraph\_linreg.tex}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Computation Graphs --- Flexible Level of Detail}
- 
-\vskip 0.5em
- 
-\structure{Same function, different decompositions:}
-\[ \ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2 \]
- 
-\vskip 0.5em
-\centering
-\input{\CommonPath/tikz/compgraph\_levels.tex}
- 
-\vskip 1em
- 
-\begin{columns}[t]
-\begin{column}{0.32\textwidth}
-\centering
-\structure{Fine-grained}\\[0.3em]
-{\small
-(1) $h = \theta_1 x$\\
-(2) $\yhat = \theta_0 + h$\\
-(3) $z = \yhat - y$\\
-(4) $\ell = z^2$
-}
-\end{column}
-\begin{column}{0.32\textwidth}
-\centering
-\structure{Coarser}\\[0.3em]
-{\small
-(1) $\yhat = \theta_0 + \theta_1 x$\\
-(2) $\ell = (\yhat - y)^2$
-}
-\end{column}
-\begin{column}{0.32\textwidth}
-\centering
-\structure{Vectorized}\\[0.3em]
-{\small
-(1) $\yhat = \pvec\T \vx$\\
-(2) $\ell = (\yhat - y)^2$
-}
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Computation Graphs --- Flexible Operations}
- 
-\vskip 0.5em
- 
-\structure{Same graph structure, different models:}
- 
-\vskip 1em
-\centering
-\input{\CommonPath/tikz/compgraph\_models.tex}
- 
-\vskip 1em
- 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Linear regression + MSE}\\[0.5em]
-{\small
-(1) $\yhat = \theta_0 + \theta_1 x$\\
-(2) $\ell = (\yhat - y)^2$
-}
-\end{column}
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Logistic regression + BCE}\\[0.5em]
-{\small
-(1) $\yhat = \act(\theta_0 + \theta_1 x)$\\
-(2) $\ell = -y\log\yhat - (1-y)\log(1-\yhat)$
-}
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Computation Graphs --- Scalar vs Vector}
- 
-\vskip 0.5em
- 
-\structure{Scalar notation} (one neuron at a time) vs \structure{vector notation} (whole layer at once):
- 
-\vskip 1em
-\centering
-\input{\CommonPath/tikz/compgraph\_scalar\_vector.tex}
- 
-\vskip 1em
- 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Scalar}\\[0.5em]
-{\small
-(1) $h = h(x, \theta_0)$\\
-(2) $u = u(h, \theta_1)$, $v = v(h, \theta_2)$\\
-(3) $\yhat = \yhat(u, v)$\\
-(4) $\ell = \ell(\yhat, y)$
-}
-\end{column}
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Vector}\\[0.5em]
-{\small
-(1) $\vh = \vh(\vx, \theta_0)$\\
-(2) $\vz = \vz(\vh, \pvec)$\\
-(3) $\yhat = \yhat(\vz)$\\
-(4) $\ell = \ell(\yhat, y)$
-}
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
-\section{Backpropagation}
-% -------------------------------------------------------
- 
-\begin{frame}{Forward and Backward Pass}
- 
-\vskip 2em
- 
-\structure{Forward pass} --- compute prediction and loss:
- 
-\vskip 0.5em
-\centering
-\input{\CommonPath/tikz/compgraph\_forward\_backward.tex}
- 
-\vskip 1.5em
- 
-\begin{columns}[c]
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Forward pass}\\[0.3em]
-$\vx \longrightarrow \va^{(1)} \longrightarrow \cdots \longrightarrow \va^{(L)} \longrightarrow \ell$
-\end{column}
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Backward pass}\\[0.3em]
-$\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfrac{\partial \ell}{\partial \va^{(L)}} \longleftarrow \ell$
-\end{column}
-\end{columns}
- 
-\vskip 1em
-\centering
-\alert{\textbf{Backpropagation} = computing the backward pass efficiently}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Two Key Rules}
- 
-\vskip 1em
- 
-\structure{Goal:} compute $\nabla_{\pvec}\, \loss(\pvec)$ for the full dataset
- 
-\vskip 1.5em
- 
-\structure{1) Sum rule} --- gradient of average = average of gradients:
-\[
-\nabla_{\pvec}\, \loss(\pvec)
-= \nabla_{\pvec} \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \ell(\vx^{(i)}, y^{(i)}, \pvec)
-= \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(\vx^{(i)}, y^{(i)}, \pvec)
-\]
- 
-\vskip 0.5em
-\alert{$\Rightarrow$ compute gradient for a single sample, then average}
- 
-\vskip 1.5em
- 
-\structure{2) Chain rule} --- THE rule for backprop:
-\[
-\frac{d}{dx} f(g(x)) = \frac{df}{dg}\frac{dg}{dx}
-\qquad
-\frac{d}{dx} f(g_1(x), \ldots, g_m(x)) = \sum_{i=1}^{m} \frac{\partial f}{\partial g_i}\frac{dg_i}{dx}
-\]
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Local vs Global Gradients}
- 
-\vskip 0.5em
- 
-\centering
-\input{\CommonPath/tikz/compgraph\_backprop\_local.tex}
- 
-\vskip 1em
- 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Local gradient} (easy --- per node):
-\[ \frac{\partial\, \text{out}}{\partial\, \text{in}} \]
-Each node computes its own derivative
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{Global gradient} (chain rule):
-\[ \frac{\partial \ell}{\partial\, \text{in}} = \frac{\partial \ell}{\partial\, \text{out}} \cdot \frac{\partial\, \text{out}}{\partial\, \text{in}} \]
-Multiply incoming global gradient by local gradient
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Backprop Example: Linear Regression (Symbolic)}
- 
-\vskip 0.5em
- 
-\begin{columns}[t]
-\begin{column}{0.32\textwidth}
-\structure{Forward pass}\\[0.3em]
-{\small
-(1) $h = \theta_1 x$\\
-(2) $\yhat = \theta_0 + h$\\
-(3) $z = \yhat - y$\\
-(4) $\ell = z^2$
-}
-\end{column}
-\begin{column}{0.32\textwidth}
-\structure{\color{thwspetrol}Local gradients}\\[0.3em]
-{\small
-(1) $\partial h/\partial \theta_1 = x$\\
-(2) $\partial \yhat/\partial \theta_0 = 1$\\
-\phantom{(2)} $\partial \yhat/\partial h = 1$\\
-(3) $\partial z/\partial \yhat = 1$\\
-(4) $\partial \ell/\partial z = 2z$
-}
-\end{column}
-\begin{column}{0.36\textwidth}
-\structure{\color{thwsorange}Global gradients}\\[0.3em]
-{\small
-(1) $\partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot x = 2zx$\\
-(3) $\partial \ell/\partial \theta_0 = \partial \ell/\partial \yhat \cdot 1 = 2z$\\
-\phantom{(3)} $\partial \ell/\partial h = \partial \ell/\partial \yhat \cdot 1 = 2z$\\
-(2) $\partial \ell/\partial \yhat = \partial \ell/\partial z \cdot 1 = 2z$\\
-(1) $\partial \ell/\partial z = 1 \cdot 2z = 2z$
-}
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Backprop Example: Linear Regression (Numerical)}
- 
-\vskip 0.5em
- 
-\structure{Concrete values:} $x=2,\ y=5,\ \theta_0=1,\ \theta_1=3$
- 
-\vskip 0.5em
- 
-\begin{columns}[t]
-\begin{column}{0.32\textwidth}
-\structure{Forward pass}\\[0.3em]
-{\small
-(1) $h = 3 \cdot 2 = 6$\\
-(2) $\yhat = 1 + 6 = 7$\\
-(3) $z = 7 - 5 = 2$\\
-(4) $\ell = 2^2 = 4$
-}
-\end{column}
-\begin{column}{0.32\textwidth}
-\structure{\color{thwspetrol}Local gradients}\\[0.3em]
-{\small
-(1) $\partial h/\partial \theta_1 = 2$\\
-(2) $\partial \yhat/\partial \theta_0 = 1$\\
-\phantom{(2)} $\partial \yhat/\partial h = 1$\\
-(3) $\partial z/\partial \yhat = 1$\\
-(4) $\partial \ell/\partial z = 4$
-}
-\end{column}
-\begin{column}{0.36\textwidth}
-\structure{\color{thwsorange}Global gradients}\\[0.3em]
-{\small
-(1) $\partial \ell/\partial \theta_1 = 4 \cdot 2 = 8$\\
-(3) $\partial \ell/\partial \theta_0 = 4 \cdot 1 = 4$\\
-\phantom{(3)} $\partial \ell/\partial h = 4 \cdot 1 = 4$\\
-(2) $\partial \ell/\partial \yhat = 4 \cdot 1 = 4$\\
-(1) $\partial \ell/\partial z = 1 \cdot 4 = 4$
-}
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Backprop Example: Logistic Regression}
- 
-\vskip 0.5em
- 
-\begin{columns}[t]
-\begin{column}{0.32\textwidth}
-\structure{Forward pass}\\[0.3em]
-{\small
-(1) $h = \theta_0 + \theta_1 x$\\
-(2) $\yhat = \act(h)$\\
-(3) $\ell = -y\log\yhat$\\
-\phantom{(3)} $\quad - (1-y)\log(1-\yhat)$
-}
-\end{column}
-\begin{column}{0.32\textwidth}
-\structure{\color{thwspetrol}Local gradients}\\[0.3em]
-{\small
-(1) $\partial h/\partial \theta_0 = 1$\\
-\phantom{(1)} $\partial h/\partial \theta_1 = x$\\
-(2) $\partial \yhat/\partial h = \act(h)(1-\act(h))$\\
-(3) $\partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}$
-}
-\end{column}
-\begin{column}{0.36\textwidth}
-\structure{\color{thwsorange}Global gradients}\\[0.3em]
-{\small
-(3) $\partial \ell/\partial \theta_0 = \partial \ell/\partial h \cdot 1$\\
-\phantom{(3)} $\partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot x$\\
-(2) $\partial \ell/\partial h = \partial \ell/\partial \yhat \cdot \partial \yhat/\partial h$\\
-(1) $\partial \ell/\partial \yhat = 1 \cdot \frac{\yhat-y}{\yhat(1-\yhat)}$
-}
-\end{column}
-\end{columns}
- 
-\vskip 0.5em
-\structure{Key insight:} same graph structure, only the node functions change
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Backprop: Multiple Neurons in a Layer}
- 
-\vskip 0.5em
- 
-\centering
-\input{\CommonPath/tikz/compgraph\_multinode.tex}
- 
-\vskip 0.5em
- 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Forward pass}\\[0.3em]
-{\small
-(1) $h = h(x, \theta_0)$\\
-(2) $u = u(h, \theta_1)$, $\quad v = v(h, \theta_2)$\\
-(3) $\yhat = \yhat(u, v)$\\
-(4) $\ell = \ell(\yhat, y)$
-}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{\color{thwsorange}Global gradients}\\[0.3em]
-{\small
-(3) $\partial \ell/\partial \theta_1 = \partial \ell/\partial u \cdot \partial u/\partial \theta_1$\\
-\phantom{(3)} $\partial \ell/\partial \theta_2 = \partial \ell/\partial v \cdot \partial v/\partial \theta_2$\\
-(2) $\partial \ell/\partial h = \partial \ell/\partial u \cdot \partial u/\partial h$\\
-\phantom{(2)} $\qquad\qquad + \partial \ell/\partial v \cdot \partial v/\partial h$\\
-}
-\end{column}
-\end{columns}
- 
-\vskip 0.3em
-\alert{When a node feeds multiple downstream nodes, gradients \textbf{accumulate} (sum).}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{Technical Implementation}
- 
-\vskip 0.5em
- 
-\begin{columns}[t]
-\begin{column}{0.35\textwidth}
-Each node stores:
-\begin{itemize}
-\item \texttt{\color{thwspetrol}.val} --- forward value
-\item \texttt{\color{thwsorange}.grad} --- accumulated gradient
-\end{itemize}
-\vskip 0.5em
-Each compute node implements:
-\begin{itemize}
-\item Forward function
-\item Local gradient function
-\end{itemize}
-\end{column}
-\begin{column}{0.30\textwidth}
-\structure{Forward pass}\\[0.3em]
-{\scriptsize\ttfamily
-x.val, y.val = data\\
-t0.val, t1.val = init\\
-h.val = t1.val * x.val\\
-yp.val = t0.val + h.val\\
-z.val = yp.val - y.val\\
-l.val = z.val ** 2
-}
-\end{column}
-\begin{column}{0.35\textwidth}
-\structure{Backward pass}\\[0.3em]
-{\scriptsize\ttfamily
-l.grad = 1\\
-z.grad = l.grad * 2*z.val\\
-yp.grad = z.grad * 1\\
-t0.grad = yp.grad * 1\\
-h.grad = yp.grad * 1\\
-t1.grad = h.grad * x.val
-}
-\end{column}
-\end{columns}
- 
-\end{frame}
- 
-% -------------------------------------------------------
- 
-\begin{frame}{From For Loops to Vectorization}
- 
-\vskip 0.5em
- 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Elementwise for loops}\\[0.3em]
-{\scriptsize\ttfamily
-\# Forward\\
-for i: z.val[i] = b.val[i]\\
-for i,j: z.val[j] += W.val[i,j] * x.val[i]\\
-for i: a.val[i] = act(z.val[i])\\[0.5em]
-\# Backward\\
-for i: z.grad[i] = a.grad[i] * dact(z.val[i])\\
-for i,j: W.grad[i,j] = z.grad[j] * x.val[i]\\
-for i: b.grad[i] = z.grad[i]
-}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{Vectorized}\\[0.3em]
-{\scriptsize\ttfamily
-\# Forward\\
-z.val = W.val @ x.val + b.val\\
-a.val = act(z.val)\\[0.5em]
-\# Backward\\
-z.grad = a.grad * dact(z.val)\\
-W.grad = z.grad[:,None] * x.val[None,:]\\
-b.grad = z.grad
-}
-\vskip 1em
-\alert{Same computation, $\sim$100$\times$ faster on GPU}
-\end{column}
-\end{columns}
- 
-\end{frame}
+% % -------------------------------------------------------
+% \section{Computation Graphs}
+% % -------------------------------------------------------
+ 
+ 
+% \begin{frame}{Computation Graphs --- Motivation}
+ 
+% \vskip 1em
+ 
+% \structure{Idea:} decompose complex functions into simple atomic operations
+ 
+% \vskip 1em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \structure{Why?}
+% \begin{itemize}
+% \item Make computation of gradients easier
+% \item Each node only needs to know its \textbf{local} derivative
+% \item \textbf{Reuse} intermediate values from forward pass in backward pass
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \structure{How?}
+% \begin{itemize}
+% \item \alert{Input nodes} --- data and parameters
+% \item \alert{Compute nodes} --- elementary operations
+% \item Edges --- data flow between nodes
+% \end{itemize}
+% \end{column}
+% \end{columns}
+ 
+% \vskip 1.5em
+ 
+% \structure{Example:} linear regression $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$
+ 
+% \vskip 0.5em
+% \centering
+% \input{\CommonPath/tikz/compgraph\_linreg.tex}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Computation Graphs --- Flexible Level of Detail}
+ 
+% \vskip 0.5em
+ 
+% \structure{Same function, different decompositions:}
+% \[ \ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2 \]
+ 
+% \vskip 0.5em
+% \centering
+% \input{\CommonPath/tikz/compgraph\_levels.tex}
+ 
+% \vskip 1em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.32\textwidth}
+% \centering
+% \structure{Fine-grained}\\[0.3em]
+% {\small
+% (1) $h = \theta_1 x$\\
+% (2) $\yhat = \theta_0 + h$\\
+% (3) $z = \yhat - y$\\
+% (4) $\ell = z^2$
+% }
+% \end{column}
+% \begin{column}{0.32\textwidth}
+% \centering
+% \structure{Coarser}\\[0.3em]
+% {\small
+% (1) $\yhat = \theta_0 + \theta_1 x$\\
+% (2) $\ell = (\yhat - y)^2$
+% }
+% \end{column}
+% \begin{column}{0.32\textwidth}
+% \centering
+% \structure{Vectorized}\\[0.3em]
+% {\small
+% (1) $\yhat = \pvec\T \vx$\\
+% (2) $\ell = (\yhat - y)^2$
+% }
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Computation Graphs --- Flexible Operations}
+ 
+% \vskip 0.5em
+ 
+% \structure{Same graph structure, different models:}
+ 
+% \vskip 1em
+% \centering
+% \input{\CommonPath/tikz/compgraph\_models.tex}
+ 
+% \vskip 1em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \centering
+% \structure{Linear regression + MSE}\\[0.5em]
+% {\small
+% (1) $\yhat = \theta_0 + \theta_1 x$\\
+% (2) $\ell = (\yhat - y)^2$
+% }
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \centering
+% \structure{Logistic regression + BCE}\\[0.5em]
+% {\small
+% (1) $\yhat = \act(\theta_0 + \theta_1 x)$\\
+% (2) $\ell = -y\log\yhat - (1-y)\log(1-\yhat)$
+% }
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Computation Graphs --- Scalar vs Vector}
+ 
+% \vskip 0.5em
+ 
+% \structure{Scalar notation} (one neuron at a time) vs \structure{vector notation} (whole layer at once):
+ 
+% \vskip 1em
+% \centering
+% \input{\CommonPath/tikz/compgraph\_scalar\_vector.tex}
+ 
+% \vskip 1em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \centering
+% \structure{Scalar}\\[0.5em]
+% {\small
+% (1) $h = h(x, \theta_0)$\\
+% (2) $u = u(h, \theta_1)$, $v = v(h, \theta_2)$\\
+% (3) $\yhat = \yhat(u, v)$\\
+% (4) $\ell = \ell(\yhat, y)$
+% }
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \centering
+% \structure{Vector}\\[0.5em]
+% {\small
+% (1) $\vh = \vh(\vx, \theta_0)$\\
+% (2) $\vz = \vz(\vh, \pvec)$\\
+% (3) $\yhat = \yhat(\vz)$\\
+% (4) $\ell = \ell(\yhat, y)$
+% }
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+% \section{Backpropagation}
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Forward and Backward Pass}
+ 
+% \vskip 2em
+ 
+% \structure{Forward pass} --- compute prediction and loss:
+ 
+% \vskip 0.5em
+% \centering
+% \input{\CommonPath/tikz/compgraph\_forward\_backward.tex}
+ 
+% \vskip 1.5em
+ 
+% \begin{columns}[c]
+% \begin{column}{0.48\textwidth}
+% \centering
+% \structure{Forward pass}\\[0.3em]
+% $\vx \longrightarrow \va^{(1)} \longrightarrow \cdots \longrightarrow \va^{(L)} \longrightarrow \ell$
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \centering
+% \structure{Backward pass}\\[0.3em]
+% $\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfrac{\partial \ell}{\partial \va^{(L)}} \longleftarrow \ell$
+% \end{column}
+% \end{columns}
+ 
+% \vskip 1em
+% \centering
+% \alert{\textbf{Backpropagation} = computing the backward pass efficiently}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Two Key Rules}
+ 
+% \vskip 1em
+ 
+% \structure{Goal:} compute $\nabla_{\pvec}\, \loss(\pvec)$ for the full dataset
+ 
+% \vskip 1.5em
+ 
+% \structure{1) Sum rule} --- gradient of average = average of gradients:
+% \[
+% \nabla_{\pvec}\, \loss(\pvec)
+% = \nabla_{\pvec} \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \ell(\vx^{(i)}, y^{(i)}, \pvec)
+% = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(\vx^{(i)}, y^{(i)}, \pvec)
+% \]
+ 
+% \vskip 0.5em
+% \alert{$\Rightarrow$ compute gradient for a single sample, then average}
+ 
+% \vskip 1.5em
+ 
+% \structure{2) Chain rule} --- THE rule for backprop:
+% \[
+% \frac{d}{dx} f(g(x)) = \frac{df}{dg}\frac{dg}{dx}
+% \qquad
+% \frac{d}{dx} f(g_1(x), \ldots, g_m(x)) = \sum_{i=1}^{m} \frac{\partial f}{\partial g_i}\frac{dg_i}{dx}
+% \]
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Local vs Global Gradients}
+ 
+% \vskip 0.5em
+ 
+% \centering
+% \input{\CommonPath/tikz/compgraph\_backprop\_local.tex}
+ 
+% \vskip 1em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \structure{Local gradient} (easy --- per node):
+% \[ \frac{\partial\, \text{out}}{\partial\, \text{in}} \]
+% Each node computes its own derivative
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \structure{Global gradient} (chain rule):
+% \[ \frac{\partial \ell}{\partial\, \text{in}} = \frac{\partial \ell}{\partial\, \text{out}} \cdot \frac{\partial\, \text{out}}{\partial\, \text{in}} \]
+% Multiply incoming global gradient by local gradient
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Backprop Example: Linear Regression (Symbolic)}
+ 
+% \vskip 0.5em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.32\textwidth}
+% \structure{Forward pass}\\[0.3em]
+% {\small
+% (1) $h = \theta_1 x$\\
+% (2) $\yhat = \theta_0 + h$\\
+% (3) $z = \yhat - y$\\
+% (4) $\ell = z^2$
+% }
+% \end{column}
+% \begin{column}{0.32\textwidth}
+% \structure{\color{thwspetrol}Local gradients}\\[0.3em]
+% {\small
+% (1) $\partial h/\partial \theta_1 = x$\\
+% (2) $\partial \yhat/\partial \theta_0 = 1$\\
+% \phantom{(2)} $\partial \yhat/\partial h = 1$\\
+% (3) $\partial z/\partial \yhat = 1$\\
+% (4) $\partial \ell/\partial z = 2z$
+% }
+% \end{column}
+% \begin{column}{0.36\textwidth}
+% \structure{\color{thwsorange}Global gradients}\\[0.3em]
+% {\small
+% (1) $\partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot x = 2zx$\\
+% (3) $\partial \ell/\partial \theta_0 = \partial \ell/\partial \yhat \cdot 1 = 2z$\\
+% \phantom{(3)} $\partial \ell/\partial h = \partial \ell/\partial \yhat \cdot 1 = 2z$\\
+% (2) $\partial \ell/\partial \yhat = \partial \ell/\partial z \cdot 1 = 2z$\\
+% (1) $\partial \ell/\partial z = 1 \cdot 2z = 2z$
+% }
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Backprop Example: Linear Regression (Numerical)}
+ 
+% \vskip 0.5em
+ 
+% \structure{Concrete values:} $x=2,\ y=5,\ \theta_0=1,\ \theta_1=3$
+ 
+% \vskip 0.5em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.32\textwidth}
+% \structure{Forward pass}\\[0.3em]
+% {\small
+% (1) $h = 3 \cdot 2 = 6$\\
+% (2) $\yhat = 1 + 6 = 7$\\
+% (3) $z = 7 - 5 = 2$\\
+% (4) $\ell = 2^2 = 4$
+% }
+% \end{column}
+% \begin{column}{0.32\textwidth}
+% \structure{\color{thwspetrol}Local gradients}\\[0.3em]
+% {\small
+% (1) $\partial h/\partial \theta_1 = 2$\\
+% (2) $\partial \yhat/\partial \theta_0 = 1$\\
+% \phantom{(2)} $\partial \yhat/\partial h = 1$\\
+% (3) $\partial z/\partial \yhat = 1$\\
+% (4) $\partial \ell/\partial z = 4$
+% }
+% \end{column}
+% \begin{column}{0.36\textwidth}
+% \structure{\color{thwsorange}Global gradients}\\[0.3em]
+% {\small
+% (1) $\partial \ell/\partial \theta_1 = 4 \cdot 2 = 8$\\
+% (3) $\partial \ell/\partial \theta_0 = 4 \cdot 1 = 4$\\
+% \phantom{(3)} $\partial \ell/\partial h = 4 \cdot 1 = 4$\\
+% (2) $\partial \ell/\partial \yhat = 4 \cdot 1 = 4$\\
+% (1) $\partial \ell/\partial z = 1 \cdot 4 = 4$
+% }
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Backprop Example: Logistic Regression}
+ 
+% \vskip 0.5em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.32\textwidth}
+% \structure{Forward pass}\\[0.3em]
+% {\small
+% (1) $h = \theta_0 + \theta_1 x$\\
+% (2) $\yhat = \act(h)$\\
+% (3) $\ell = -y\log\yhat$\\
+% \phantom{(3)} $\quad - (1-y)\log(1-\yhat)$
+% }
+% \end{column}
+% \begin{column}{0.32\textwidth}
+% \structure{\color{thwspetrol}Local gradients}\\[0.3em]
+% {\small
+% (1) $\partial h/\partial \theta_0 = 1$\\
+% \phantom{(1)} $\partial h/\partial \theta_1 = x$\\
+% (2) $\partial \yhat/\partial h = \act(h)(1-\act(h))$\\
+% (3) $\partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}$
+% }
+% \end{column}
+% \begin{column}{0.36\textwidth}
+% \structure{\color{thwsorange}Global gradients}\\[0.3em]
+% {\small
+% (3) $\partial \ell/\partial \theta_0 = \partial \ell/\partial h \cdot 1$\\
+% \phantom{(3)} $\partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot x$\\
+% (2) $\partial \ell/\partial h = \partial \ell/\partial \yhat \cdot \partial \yhat/\partial h$\\
+% (1) $\partial \ell/\partial \yhat = 1 \cdot \frac{\yhat-y}{\yhat(1-\yhat)}$
+% }
+% \end{column}
+% \end{columns}
+ 
+% \vskip 0.5em
+% \structure{Key insight:} same graph structure, only the node functions change
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Backprop: Multiple Neurons in a Layer}
+ 
+% \vskip 0.5em
+ 
+% \centering
+% \input{\CommonPath/tikz/compgraph\_multinode.tex}
+ 
+% \vskip 0.5em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \structure{Forward pass}\\[0.3em]
+% {\small
+% (1) $h = h(x, \theta_0)$\\
+% (2) $u = u(h, \theta_1)$, $\quad v = v(h, \theta_2)$\\
+% (3) $\yhat = \yhat(u, v)$\\
+% (4) $\ell = \ell(\yhat, y)$
+% }
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \structure{\color{thwsorange}Global gradients}\\[0.3em]
+% {\small
+% (3) $\partial \ell/\partial \theta_1 = \partial \ell/\partial u \cdot \partial u/\partial \theta_1$\\
+% \phantom{(3)} $\partial \ell/\partial \theta_2 = \partial \ell/\partial v \cdot \partial v/\partial \theta_2$\\
+% (2) $\partial \ell/\partial h = \partial \ell/\partial u \cdot \partial u/\partial h$\\
+% \phantom{(2)} $\qquad\qquad + \partial \ell/\partial v \cdot \partial v/\partial h$\\
+% }
+% \end{column}
+% \end{columns}
+ 
+% \vskip 0.3em
+% \alert{When a node feeds multiple downstream nodes, gradients \textbf{accumulate} (sum).}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{Technical Implementation}
+ 
+% \vskip 0.5em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.35\textwidth}
+% Each node stores:
+% \begin{itemize}
+% \item \texttt{\color{thwspetrol}.val} --- forward value
+% \item \texttt{\color{thwsorange}.grad} --- accumulated gradient
+% \end{itemize}
+% \vskip 0.5em
+% Each compute node implements:
+% \begin{itemize}
+% \item Forward function
+% \item Local gradient function
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.30\textwidth}
+% \structure{Forward pass}\\[0.3em]
+% {\scriptsize\ttfamily
+% x.val, y.val = data\\
+% t0.val, t1.val = init\\
+% h.val = t1.val * x.val\\
+% yp.val = t0.val + h.val\\
+% z.val = yp.val - y.val\\
+% l.val = z.val ** 2
+% }
+% \end{column}
+% \begin{column}{0.35\textwidth}
+% \structure{Backward pass}\\[0.3em]
+% {\scriptsize\ttfamily
+% l.grad = 1\\
+% z.grad = l.grad * 2*z.val\\
+% yp.grad = z.grad * 1\\
+% t0.grad = yp.grad * 1\\
+% h.grad = yp.grad * 1\\
+% t1.grad = h.grad * x.val
+% }
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
+ 
+% % -------------------------------------------------------
+ 
+% \begin{frame}{From For Loops to Vectorization}
+ 
+% \vskip 0.5em
+ 
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \structure{Elementwise for loops}\\[0.3em]
+% {\scriptsize\ttfamily
+% \# Forward\\
+% for i: z.val[i] = b.val[i]\\
+% for i,j: z.val[j] += W.val[i,j] * x.val[i]\\
+% for i: a.val[i] = act(z.val[i])\\[0.5em]
+% \# Backward\\
+% for i: z.grad[i] = a.grad[i] * dact(z.val[i])\\
+% for i,j: W.grad[i,j] = z.grad[j] * x.val[i]\\
+% for i: b.grad[i] = z.grad[i]
+% }
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \structure{Vectorized}\\[0.3em]
+% {\scriptsize\ttfamily
+% \# Forward\\
+% z.val = W.val @ x.val + b.val\\
+% a.val = act(z.val)\\[0.5em]
+% \# Backward\\
+% z.grad = a.grad * dact(z.val)\\
+% W.grad = z.grad[:,None] * x.val[None,:]\\
+% b.grad = z.grad
+% }
+% \vskip 1em
+% \alert{Same computation, $\sim$100$\times$ faster on GPU}
+% \end{column}
+% \end{columns}
+ 
+% \end{frame}
  
 \end{document}
