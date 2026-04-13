@@ -42,7 +42,7 @@ pdfkeywords={deep networks, loss functions, gradient descent, backpropagation}
 \begin{column}{0.48\textwidth}
 \structure{Recall:} 1-hidden-layer network
 \begin{align*}
-h_j &= \sigma\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
+h_j &= \act\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
 \yhat &= \theta_0 + \textstyle\sum_j \theta_j\, h_j
 \end{align*}
 \vskip 0.5em
@@ -55,7 +55,7 @@ h_j &= \sigma\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
 \centering
 \input{\CommonPath/tikz/mlp_deep.tex}
 \vskip 1em
-\structure{Pattern:} each layer = linear transform + nonlinearity\\[0.5em]
+\structure{Pattern:} each layer = linear transform + nonlinear activation\\[0.5em]
 \alert{We need cleaner notation to handle this.}
 \end{column}
 \end{columns}
@@ -75,14 +75,14 @@ h_j &= \sigma\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
 \begin{column}{0.27\textwidth}
 \structure{Scalar notation:}
 \begin{align*}
-h_j & = \sigma\!\left(\theta_{j0} + \textstyle\sum_{i=1}^{d} \theta_{ji}\, x_i\right) \\
+h_j & = \act\!\left(\theta_{j0} + \textstyle\sum_{i=1}^{d} \theta_{ji}\, x_i\right) \\
 j &= 1,\ldots,k
 \end{align*}
 
 \vskip 0.5em
 
 \structure{Matrix notation:}
-\[ \vh = \sigma\!\left(\pvec_0 + \boldsymbol{\Theta}\vx\right) \in \R^k \]
+\[ \vh = \act\!\left(\pvec_0 + \boldsymbol{\Theta}\vx\right) \in \R^k \]
 \end{column}
 \begin{column}{0.55\textwidth}
 \structure{Collect weights into matrix:}
@@ -99,7 +99,7 @@ j &= 1,\ldots,k
 \in \R^k
 \]
 \vskip 1.3em
-$\sigma$ applied \textbf{elementwise}
+activation $\act$ applied \textbf{elementwise}
 \end{column}
 \end{columns}
 
@@ -143,7 +143,7 @@ $\sigma$ applied \textbf{elementwise}
 
 \structure{Hidden layers} $l = 1, \ldots, L-1$:
 \[
-\vh^{(l)} = \sigma\!\left(\thetavec{l}_0 + \thetamat{l} \vh^{(l-1)}\right)
+\vh^{(l)} = \act\!\left(\thetavec{l}_0 + \thetamat{l} \vh^{(l-1)}\right)
 \]
 
 \vskip 1em
@@ -160,12 +160,56 @@ $\sigma$ applied \textbf{elementwise}
 \vskip 1em
 \structure{Forward pass:} evaluate layer by layer, $l = 1 \to L$
 \end{column}
-\begin{column}{0.04\textwidth}
+\begin{column}{0.1\textwidth}
 \end{column}
 \end{columns}
  
 \end{frame}
  
+% -------------------------------------------------------
+
+\begin{frame}{Deep Network as Function Composition}
+
+\vskip 1.5em
+
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\structure{Layer by layer:}
+\[
+\vx = \vh^{(0)} \xrightarrow{\thetamat{1}} \vh^{(1)} \xrightarrow{\thetamat{2}} \cdots \xrightarrow{\thetamat{L}} \vh^{(L)} = \yhat
+\]
+
+\vskip 1em
+
+\structure{As a composed function:}
+\[
+\yhat = f_\theta(\vx) = \left(h^{(L)}_\theta \circ \cdots \circ h^{(1)}_\theta\right)(\vx)
+\]
+
+\vskip 1em
+
+\structure{Written out:}
+\[
+\yhat = g\!\left(\thetavec{L}_0 + \thetamat{L}\,\act\!\left(\cdots\,\act\!\left(\thetavec{1}_0 + \thetamat{1}\vx\right)\cdots\right)\right)
+\]
+
+\end{column}
+\begin{column}{0.44\textwidth}
+\centering
+\input{\CommonPath/tikz/mlp_layer_notation.tex}
+\vskip 0.5em
+\structure{Total number of parameters:}
+\[
+|\pvec| = \sum_{l=1}^{L} k_l \cdot (k_{l-1} + 1)
+\]
+\alert{Real networks have millions - finding them is the challenge.}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
 % -------------------------------------------------------
  
 \begin{frame}{Dimensions}
@@ -197,6 +241,12 @@ cols = neurons in layer $l-1$
 \begin{column}{0.03\textwidth}
 \end{column}
 \end{columns}
+
+ 
+\vskip 1em
+\centering
+
+\alert{Total: $4 \cdot (3+1) + 4 \cdot (4+1) + 2 \cdot (4+1) = 16 + 20 + 10 = 46$ parameters}
  
 \end{frame}
  
@@ -209,7 +259,7 @@ cols = neurons in layer $l-1$
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Single sample} $\vx \in \R^d$:
-\[ \vh^{(l)} = \sigma\!\left(\thetavec{l}_0 + \thetamat{l} \vh^{(l-1)}\right) \in \R^{k_l} \]
+\[ \vh^{(l)} = \act\!\left(\thetavec{l}_0 + \thetamat{l} \vh^{(l-1)}\right) \in \R^{k_l} \]
  
 \vskip 0.5em
  
@@ -219,10 +269,8 @@ cols = neurons in layer $l-1$
 \vskip 0.5em
  
 \structure{Batch forward pass:}
-\[ \mathbf{H}^{(l)} = \sigma\!\left(\mathbf{1}\thetavec{l}_0{}\T + \mathbf{H}^{(l-1)} \left(\thetamat{l}\right)\T\right) \]
+\[ \mathbf{H}^{(l)} = \act\!\left(\mathbf{1}\thetavec{l}_0{}\T + \mathbf{H}^{(l-1)} \left(\thetamat{l}\right)\T\right) \]
  
-\vskip 0.5em
-\alert{This is what PyTorch computes.}
 \end{column}
 \begin{column}{0.44\textwidth}
 \structure{PyTorch convention: batch first}
@@ -235,6 +283,8 @@ cols = neurons in layer $l-1$
 \texttt{W.shape = (k, d)}\\
 \texttt{H = X @ W.T + b}
 }
+\vskip 0.5em
+\alert{This is what PyTorch computes.}
 \end{column}
 \begin{column}{0.04\textwidth}
 \end{column}
@@ -380,7 +430,7 @@ Multiclass & Cross-Entropy \\
 \vskip 0.8em
  
 \structure{Solution:} apply \textbf{sigmoid} as output activation
-\[ \yhat = \sigma(z^{(L)}) = \frac{1}{1 + e^{-z^{(L)}}} \in (0,1) \]
+\[ \yhat = \act(z^{(L)}) = \frac{1}{1 + e^{-z^{(L)}}} \in (0,1) \]
  
 \vskip 0.8em
  
@@ -726,7 +776,7 @@ With one-hot label: only the true class contributes
 \centering
 \structure{Logistic regression + BCE}\\[0.5em]
 {\small
-(1) $\yhat = \sigma(\theta_0 + \theta_1 x)$\\
+(1) $\yhat = \act(\theta_0 + \theta_1 x)$\\
 (2) $\ell = -y\log\yhat - (1-y)\log(1-\yhat)$
 }
 \end{column}
@@ -960,7 +1010,7 @@ Multiply incoming global gradient by local gradient
 \structure{Forward pass}\\[0.3em]
 {\small
 (1) $h = \theta_0 + \theta_1 x$\\
-(2) $\yhat = \sigma(h)$\\
+(2) $\yhat = \act(h)$\\
 (3) $\ell = -y\log\yhat$\\
 \phantom{(3)} $\quad - (1-y)\log(1-\yhat)$
 }
@@ -970,7 +1020,7 @@ Multiply incoming global gradient by local gradient
 {\small
 (1) $\partial h/\partial \theta_0 = 1$\\
 \phantom{(1)} $\partial h/\partial \theta_1 = x$\\
-(2) $\partial \yhat/\partial h = \sigma(h)(1-\sigma(h))$\\
+(2) $\partial \yhat/\partial h = \act(h)(1-\act(h))$\\
 (3) $\partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}$
 }
 \end{column}

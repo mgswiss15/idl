@@ -88,14 +88,14 @@ This observation motivates the central question of the lecture: how can we const
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
  \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu_neuron.tex}}
- \caption{A nonlinear neuron applies activation function $\sigma$ to the linear combination of its inputs.}
+ \caption{A nonlinear neuron applies activation function $\act$ to the linear combination of its inputs.}
  \label{fig:relu_neuron}
 \end{wrapfigure}
-The linear model introduced in the previous section has a fundamental limitation: it can only represent affine relationships between inputs and outputs. To move beyond this, we introduce a \textbf{nonlinear activation function} $\sigma: \R \to \R$ applied to the output of the linear computation. The neuron now computes:
+The linear model introduced in the previous section has a fundamental limitation: it can only represent affine relationships between inputs and outputs. To move beyond this, we introduce a \textbf{nonlinear activation function} $\act: \R \to \R$ applied to the output of the linear computation. The neuron now computes:
 \[
- \yhat = f_\theta(x) = \sigma(\theta_1 x + \theta_0).
+ \yhat = f_\theta(x) = \act(\theta_1 x + \theta_0).
 \]
-The activation function is what gives the neural network its expressive power -changing the mapping between inputs $\inspace$ and outputs $\outspace$ from linear to nonlinear. The graphical representation of this nonlinear neuron is shown in Figure~\ref{fig:relu_neuron}: it is identical to the linear neuron, but the node now carries the symbol $\sigma$ to indicate that a nonlinearity is applied before the output is produced.
+The activation function is what gives the neural network its expressive power -changing the mapping between inputs $\inspace$ and outputs $\outspace$ from linear to nonlinear. The graphical representation of this nonlinear neuron is shown in Figure~\ref{fig:relu_neuron}: it is identical to the linear neuron, but the node now carries the symbol $\act$ to indicate that a nonlinearity is applied before the output is produced.
 
 \begin{wrapfigure}{l}{0.3\textwidth}
  \centering
@@ -105,7 +105,7 @@ The activation function is what gives the neural network its expressive power -c
 \end{wrapfigure}
 The choice of activation function matters. The most widely used activation function in modern deep learning is the \textbf{Rectified Linear Unit}, or \textbf{ReLU} \parencite{nair2010relu, glorot2011relu}:
 \[
- \sigma(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \quad \text{(active)} \\ 0 & x \leq 0 \quad \text{(inactive).} \end{cases}
+ \act(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \quad \text{(active)} \\ 0 & x \leq 0 \quad \text{(inactive).} \end{cases}
 \]
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
@@ -122,7 +122,7 @@ Composing the ReLU with a linear function introduces exactly one breakpoint, at 
 
 A single ReLU neuron introduces one breakpoint and is therefore only marginally more expressive than a linear model. The power comes from combining multiple such neurons. Consider a weighted sum of $k$ ReLU-activated linear functions:
 \[
- \yhat = f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, \sigma(\theta_{j1} x + \theta_{j0}).
+ \yhat = f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, \act(\theta_{j1} x + \theta_{j0}).
 \]
 Each term contributes one breakpoint at $x = -\theta_{j0} / \theta_{j1}$. The resulting function is \textbf{piecewise linear} - linear within each interval between breakpoints, with up to $k$ bends in total. As $k$ increases, the function can capture increasingly complex shapes, as illustrated in Figure~\ref{fig:relu_combination}.
 
@@ -142,7 +142,7 @@ Each term contributes one breakpoint at $x = -\theta_{j0} / \theta_{j1}$. The re
 \end{figure}
 
 The graphical representation of this computation for $k = 2$ ReLU activations is shown in Figure~\ref{fig:relu_combination_diagram}. 
-Each \textbf{hidden neuron} $j$ - so called because its activations are internal to the network and not directly observed as inputs or outputs - receives the input $x$ and independently computes $h_j = \sigma(\theta_{j1} x + \theta_{j0})$. 
+Each \textbf{hidden neuron} $j$ - so called because its activations are internal to the network and not directly observed as inputs or outputs - receives the input $x$ and independently computes $h_j = \act(\theta_{j1} x + \theta_{j0})$. 
 Note that in the full representation (left), the input $x$ and bias constant $1$ are shown separately for each neuron --- this makes explicit that each neuron has its own independent set of parameters $(\theta_{j1}, \theta_{j0})$, even though they share the same input. The output neuron then forms the weighted sum $\yhat = \theta_0 + \theta_1 h_1 + \theta_2 h_2$. The centre diagram shows the same network with parameters omitted and the bias nodes drawn as dashed - a common convention indicating that bias inputs are always present but typically not drawn explicitly. The right diagram shows only the bare network topology. An important detail not visible in any of these diagrams: the output neuron $o$ applies no activation function - it computes a plain weighted sum. Nonlinearity is introduced only in the hidden layer; the output is linear in the hidden activations.
 
 \begin{figure}[h]
@@ -172,7 +172,7 @@ We now generalise from two hidden neurons to $k$ hidden neurons, and from a sing
 
 With a single input $x \in \R$ and $k$ hidden neurons, the network computes:
 \begin{align*}
- h_j &= \sigma(\theta_{j1} \, x + \theta_{j0}), \qquad j = 1, \ldots, k \\
+ h_j &= \act(\theta_{j1} \, x + \theta_{j0}), \qquad j = 1, \ldots, k \\
  \yhat &= f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, h_j.
 \end{align*}
 Each hidden neuron $j$ has its own parameters $\theta_{j1}$ (weight) and $\theta_{j0}$ (bias), and contributes one breakpoint to the piecewise linear output. The output neuron forms a weighted sum of all hidden activations with weights $\theta_j$ and a global bias $\theta_0$. The graphical representation is shown in Figure~\ref{fig:mlp}.
@@ -194,7 +194,7 @@ Each hidden neuron $j$ has its own parameters $\theta_{j1}$ (weight) and $\theta
 
 Extending to $d$ inputs $\vx = (x_1, \ldots, x_d) \in \R^d$ is straightforward. Each hidden neuron now computes a linear combination of all inputs:
 \begin{align*}
- h_j &= \sigma\!\left(\sum_{i=1}^{d} \theta_{ji} \, x_i + \theta_{j0}\right), \qquad j = 1, \ldots, k \\
+ h_j &= \act\!\left(\sum_{i=1}^{d} \theta_{ji} \, x_i + \theta_{j0}\right), \qquad j = 1, \ldots, k \\
  \yhat &= f_\theta(\vx) = \theta_0 + \sum_{j=1}^{k} \theta_j \, h_j.
 \end{align*}
 The weight $\theta_{ji}$ connects input $x_i$ to hidden neuron $j$, and $\theta_{j0}$ is the bias of neuron $j$. The output formula is unchanged --- the hidden activations $h_j$ are combined into a single prediction $\yhat$ regardless of the input dimensionality.
@@ -268,7 +268,7 @@ The same shallow network architecture used for regression - a linear combination
 
 Having built up the neural network entirely from mathematical and computational considerations, it is worth pausing to examine the biological analogy that motivates the terminology.
 
-A biological neuron illustrated in Figure~\ref{fig:biological_neuron} receives signals from other neurons via \textbf{dendrites}, integrates these signals in the \textbf{cell body} (soma), and fires an electrical pulse along its \textbf{axon} if the integrated signal exceeds a threshold. The artificial neuron in Figure~\ref{fig:artificial_neuron} mimics this schematically: inputs $\vx$ play the role of dendrites, the weighted sum $\sum_i \theta_i x_i + \theta_0$ plays the role of integration in the soma, and the activation function $\sigma$ plays the role of the firing threshold.
+A biological neuron illustrated in Figure~\ref{fig:biological_neuron} receives signals from other neurons via \textbf{dendrites}, integrates these signals in the \textbf{cell body} (soma), and fires an electrical pulse along its \textbf{axon} if the integrated signal exceeds a threshold. The artificial neuron in Figure~\ref{fig:artificial_neuron} mimics this schematically: inputs $\vx$ play the role of dendrites, the weighted sum $\sum_i \theta_i x_i + \theta_0$ plays the role of integration in the soma, and the activation function $\act$ plays the role of the firing threshold.
 
 The analogy is useful as a narrative device but should not be taken literally. Real neurons are vastly more complex than the linear-threshold model: they operate in continuous time, communicate via spike trains rather than real-valued signals, exhibit rich temporal dynamics, and are embedded in three-dimensional physical structures that constrain their connectivity. The artificial neuron strips all of this away, retaining only the most abstract essence of the computation.
 

@@ -171,8 +171,8 @@ too expensive to compute}
 \input{\CommonPath/tikz/linear_neuron.tex}
 \end{center}
 \vskip 1em
-\structure{Nonlinear:} $\yhat = f_ \theta(x) = \sigma(\theta_1 x + \theta_0)$\\[0.2em]
-$\sigma: \R \to \R$ - nonlinear \alert{activation} function
+\structure{Nonlinear:} $\yhat = f_ \theta(x) = \act(\theta_1 x + \theta_0)$\\[0.2em]
+$\act: \R \to \R$ - nonlinear \alert{activation} function
 \begin{center}
 \input{\CommonPath/tikz/relu_neuron.tex}
 \end{center}
@@ -199,7 +199,7 @@ $\sigma: \R \to \R$ - nonlinear \alert{activation} function
 \begin{columns}[c]
 \begin{column}{0.5\textwidth}
 \structure{Rectified Linear Unit}
-\[ \sigma(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \\ 0 & x \leq 0 \end{cases} \]
+\[ \act(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \\ 0 & x \leq 0 \end{cases} \]
 \end{column}
 \begin{column}{0.5\textwidth}
 \input{\CommonPath/tikz/relu.tex}
@@ -210,7 +210,7 @@ $\sigma: \R \to \R$ - nonlinear \alert{activation} function
 
 \begin{columns}[c]
 \begin{column}{0.5\textwidth}
-\structure{ReLU over linear:} $\yhat = f_ \theta(x) = \sigma(\theta_1 x + \theta_0)$
+\structure{ReLU over linear:} $\yhat = f_ \theta(x) = \act(\theta_1 x + \theta_0)$
 \vskip 0.8em
 \structure{Effect:} one bend at $x = -\theta_0 / \theta_1$
 \vskip 0.8em
@@ -231,15 +231,15 @@ $\sigma: \R \to \R$ - nonlinear \alert{activation} function
 
 \structure{Combine:} weighted sum of ReLU functions
 \[ \yhat = f_\theta(x) = \theta_0 + \theta_1 h_1 + \theta_2 h_2 \]
-\[h_1 = \sigma(\theta_{11} \, x + \theta_{10}) \quad h_2 = \sigma(\theta_{21} \, x + \theta_{20})\]
+\[h_1 = \act(\theta_{11} \, x + \theta_{10}) \quad h_2 = \act(\theta_{21} \, x + \theta_{20})\]
 
 \vskip 0.8em
 \structure{Effect:} one bend per ReLU term
 \[ \yhat = f_\theta(x) = \theta_0 + \theta_1 h_1 + \theta_2 h_2 + \theta_3 h_3\]
-\[h_3 = \sigma(\theta_{31} \, x + \theta_{30})\]
+\[h_3 = \act(\theta_{31} \, x + \theta_{30})\]
 \vskip 0.8em
 \structure{Key result:} more breakpoints $\Rightarrow$ more expressive $f_\theta$
-\[ \yhat = f_\theta(x) = \theta_0 + \sum_j \theta_j \, \sigma\!\left(\theta_{j1} \, x + \theta_{j0}\right) \]
+\[ \yhat = f_\theta(x) = \theta_0 + \sum_j \theta_j \, \act\!\left(\theta_{j1} \, x + \theta_{j0}\right) \]
 
 \end{column}
 \begin{column}{0.4\textwidth}
@@ -259,7 +259,7 @@ $\sigma: \R \to \R$ - nonlinear \alert{activation} function
 \begin{column}{0.5\textwidth}
 \structure{Mathematical representation :}
 \[ \yhat = f_\theta(x) = \theta_0 + \theta_1 h_1 + \theta_2 h_2 \]
-\[h_1 = \sigma(\theta_{11} \, x + \theta_{10}) \quad h_2 = \sigma(\theta_{21} \, x + \theta_{20})\]
+\[h_1 = \act(\theta_{11} \, x + \theta_{10}) \quad h_2 = \act(\theta_{21} \, x + \theta_{20})\]
 \vskip 0.5em
 \structure{Graphical representation:}
 \vskip 0.5em
@@ -298,7 +298,7 @@ $\sigma: \R \to \R$ - nonlinear \alert{activation} function
 \structure{Multiple neurons, single input}
 \begin{align*}
 \yhat = & f_\theta(x) = \theta_0 + \textstyle \sum_j^k \theta_j \, h_j \\
-h_j &= \sigma(\theta_{j1} \, x + \theta_{j0})
+h_j &= \act(\theta_{j1} \, x + \theta_{j0})
 \end{align*}
 \vskip 0.5em
 \centering
@@ -308,7 +308,7 @@ h_j &= \sigma(\theta_{j1} \, x + \theta_{j0})
 \structure{Multiple neurons, multiple inputs}
 \begin{align*}
 \yhat = & f_\theta(\vx) = \theta_0 + \textstyle \sum_j^k \theta_j \, h_j \\
-h_j &= \sigma(\textstyle \sum_i^d \theta_{ji} \, x_i + \theta_{j0})
+h_j &= \act(\textstyle \sum_i^d \theta_{ji} \, x_i + \theta_{j0})
 \end{align*}
 \vskip 0.5em
 \centering
@@ -403,7 +403,7 @@ Hyperplane $\theta_0 + \pvec\T\vx = 0$
 \structure{Artificial neuron $f: \R^d \to \R$}
 \begin{itemize}
 \item Inputs: $\vx \in \R^d$
-\item Activations: $\sigma(\pvec\T \vx + \theta_0)$
+\item Activations: $\act(\pvec\T \vx + \theta_0)$
 \item Output: $y = f_\theta(\vx)$
 \end{itemize}
 \vskip 1em
