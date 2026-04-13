@@ -1,5 +1,35 @@
-% PLACEHOLDER: batch_matrix_multiply
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {batch\_matrix\_multiply};
+% Common/tikz/batch_matrix_multiply.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{every node}=[font=\scriptsize]
+
+% Bias matrix 1*theta_0^T (N x k)
+\draw[fill=thwspetrol!15, draw=thwspetrol, thick] (0.5, 0) rectangle (1.5, 1.8);
+\node[align=center] at (1.0, 0.9) {$\mathbf{1}\thetavec{l}_0{}^\top$};
+\node[thwspetrol] at (1.0, -0.3) {$N \times k_l$};
+
+% plus symbol
+\node at (1.7, 0.9) {$+$};
+
+% H^(l-1) matrix (N x k_{l-1})
+\draw[fill=thwsblue!15, draw=thwsblue, thick] (1.9, 0) rectangle (3.2, 1.8);
+\node at (2.55, 0.9) {$\mathbf{H}^{(l-1)}$};
+\node[thwsblue] at (2.55, -0.3) {$N \times k_{l-1}$};
+
+% times symbol
+\node at (3.35, 0.9) {$\cdot$};
+
+% Theta^T matrix (k_{l-1} x k_l)
+\draw[fill=thwsorange!20, draw=thwsorange, thick] (3.5, 0.3) rectangle (4.5, 1.6);
+\node[align=center] at (4, 0.9) {$\left(\thetamat{l}\right)^\top$};
+\node[thwsorange] at (4, -0.3) {$k_{l-1} \times k_l$};
+
+% equals symbol
+\node at (0.2, 0.9) {$=$};
+
+% H^(l) matrix (N x k_l)
+\draw[fill=thwsorange!40, draw=thwsorange, thick] (-1, 0) rectangle (0, 1.8);
+\node at (-0.5, 0.9) {$\mathbf{H}^{(l)}$};
+\node[thwsorange] at (-0.5, -0.3) {$N \times k_l$};
+
+
 \end{tikzpicture}

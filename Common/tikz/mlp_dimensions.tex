@@ -1,5 +1,67 @@
-% PLACEHOLDER: mlp_dimensions
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {mlp\_dimensions};
+% Common/tikz/mlp_dimensions.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{every node}=[font=\scriptsize]
+\tikzstyle{neuron} = [circle, draw, fill=thwsorange!20, minimum size=0.55cm, outer sep=2pt]
+\tikzstyle{input}  = [circle, draw, fill=thwsblue!15, minimum size=0.55cm, outer sep=2pt]
+\tikzstyle{output} = [circle, draw, fill=thwspetrol!20, minimum size=0.55cm, outer sep=2pt]
+\tikzstyle{conn}   = [thick, -Stealth, color=thwsblue]
+
+% Input layer (d=3)
+\node[input] (x1) at (0,  1.0) {$x_1$};
+\node[input] (x2) at (0,  0.0) {$x_2$};
+\node[input] (x3) at (0, -1.0) {$x_3$};
+
+% Hidden layer 1 (k1=4)
+\node[neuron] (h11) at (2,  1.5) {};
+\node[neuron] (h12) at (2,  0.5) {};
+\node[neuron] (h13) at (2, -0.5) {};
+\node[neuron] (h14) at (2, -1.5) {};
+
+% Hidden layer 2 (k2=4)
+\node[neuron] (h21) at (4,  1.5) {};
+\node[neuron] (h22) at (4,  0.5) {};
+\node[neuron] (h23) at (4, -0.5) {};
+\node[neuron] (h24) at (4, -1.5) {};
+
+% Output layer (m=2)
+\node[output] (o1) at (6,  0.5) {$\hat{y}_1$};
+\node[output] (o2) at (6, -0.5) {$\hat{y}_2$};
+
+% Connections input -> hidden 1
+\foreach \x in {x1, x2, x3} {
+    \foreach \h in {h11, h12, h13, h14} {
+        \draw[conn] (\x) -- (\h);
+    }
+}
+
+% Connections hidden 1 -> hidden 2
+\foreach \a in {h11, h12, h13, h14} {
+    \foreach \b in {h21, h22, h23, h24} {
+        \draw[conn] (\a) -- (\b);
+    }
+}
+
+% Connections hidden 2 -> output
+\foreach \b in {h21, h22, h23, h24} {
+    \draw[conn] (\b) -- (o1);
+    \draw[conn] (\b) -- (o2);
+}
+
+% Layer labels
+\node[thwsblue]   at (0,  2.5) {input};
+\node[thwsorange] at (2,  2.5) {hidden 1};
+\node[thwsorange] at (4,  2.5) {hidden 2};
+\node[thwspetrol] at (6,  2.5) {output};
+
+% Dimension labels
+\node[thwsblue]   at (0,  -2.2) {$d = 3$};
+\node[thwsorange] at (2,  -2.2) {$k_1 = 4$};
+\node[thwsorange] at (4,  -2.2) {$k_2 = 4$};
+\node[thwspetrol] at (6,  -2.2) {$m = 2$};
+
+% Weight matrix labels
+\node[thwspetrol, font=\tiny] at (1,  2.0) {$\thetamat{1} \in \R^{4 \times 3}$};
+\node[thwspetrol, font=\tiny] at (3,  2.0) {$\thetamat{2} \in \R^{4 \times 4}$};
+\node[thwspetrol, font=\tiny] at (5,  2.0) {$\thetamat{3} \in \R^{2 \times 4}$};
+
 \end{tikzpicture}

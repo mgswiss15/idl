@@ -1,5 +1,34 @@
-% PLACEHOLDER: matrix_vector_multiply
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {matrix\_vector\_multiply};
+% Common/tikz/matrix_vector_multiply.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{every node}=[font=\scriptsize]
+
+% Bias vector theta_0 (k x 1)
+\draw[fill=thwspetrol!15, draw=thwspetrol, thick] (0.3, 0.0) rectangle (0.8, 1.8);
+\node at (0.55, 0.9) {$\pvec_0$};
+\node[thwspetrol] at (0.55, -0.3) {$k \times 1$};
+
+% plus symbol
+\node at (1.05, 0.9) {$+$};
+
+% Matrix Theta (k x d)
+\draw[fill=thwsorange!20, draw=thwsorange, thick] (1.3, 0) rectangle (2.6, 1.8);
+\node at (1.95, 0.9) {$\boldsymbol{\Theta}$};
+\node[thwsorange] at (1.95, -0.3) {$k \times d$};
+
+% times symbol
+\node at (2.75, 0.9) {$\cdot$};
+
+% Vector x (d x 1)
+\draw[fill=thwsblue!15, draw=thwsblue, thick] (2.95, 0.3) rectangle (3.4, 1.6);
+\node at (3.18, 0.9) {$\vx$};
+\node[thwsblue] at (3.2, -0.3) {$d \times 1$};
+
+% equals symbol
+\node at (0, 0.9) {$=$};
+
+% Output vector h (k x 1)
+\draw[fill=thwsorange!40, draw=thwsorange, thick] (-0.8, 0.0) rectangle (-0.3, 1.8);
+\node at (-0.55, 0.9) {$\vh$};
+\node[thwsorange] at (-0.5, -0.3) {$k \times 1$};
+
 \end{tikzpicture}

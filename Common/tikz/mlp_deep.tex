@@ -1,5 +1,54 @@
-% PLACEHOLDER: mlp_deep
-\begin{tikzpicture}
-  \draw[thick, thwsgrey, rounded corners=4pt] (0,0) rectangle (4,2.5);
-  \node[thwsgrey, font=\scriptsize\ttfamily] at (2,1.25) {mlp\_deep};
+% Common/tikz/mlp_deep.tex
+\begin{tikzpicture}[scale=0.85]
+\tikzstyle{every node}=[font=\scriptsize]
+\tikzstyle{neuron} = [circle, draw, fill=thwsorange!20, minimum size=0.6cm, outer sep=3pt]
+\tikzstyle{input}  = [circle, draw, fill=thwsblue!15, minimum size=0.6cm, outer sep=3pt]
+\tikzstyle{conn}   = [thick, -Stealth, color=thwsblue]
+
+% Input nodes
+\node[input] (x1) at (-3,  0.0) {$x_1$};
+\node[input] (x2) at (-3, -1.0) {$x_2$};
+\node[input] (xd) at (-3, -2.5) {$x_d$};
+\draw[dotted, thick] (x2) -- (xd);
+
+% Hidden layer 1
+\node[neuron] (h11) at (-1,  0.0) {};
+\node[neuron] (h12) at (-1, -1.0) {};
+\node[neuron] (h13) at (-1, -2.5) {};
+\draw[dotted, thick] (h12) -- (h13);
+
+% Hidden layer 2
+\node[neuron] (h21) at (1,  0.0) {};
+\node[neuron] (h22) at (1, -1.0) {};
+\node[neuron] (h23) at (1, -2.5) {};
+\draw[dotted, thick] (h22) -- (h23);
+
+% Output
+\node[neuron] (out) at (3, -1.0) {$\yhat$};
+
+% Connections input -> hidden 1
+\foreach \x in {x1, x2, xd} {
+    \draw[conn] (\x) -- (h11);
+    \draw[conn] (\x) -- (h12);
+    \draw[conn] (\x) -- (h13);
+}
+
+% Connections hidden 1 -> hidden 2
+\foreach \a in {h11, h12, h13} {
+    \draw[conn] (\a) -- (h21);
+    \draw[conn] (\a) -- (h22);
+    \draw[conn] (\a) -- (h23);
+}
+
+% Connections hidden 2 -> output
+\draw[conn] (h21) -- (out);
+\draw[conn] (h22) -- (out);
+\draw[conn] (h23) -- (out);
+
+% Layer labels
+\node[thwsblue]   at (-3,  0.8) {input};
+\node[thwsorange] at (-1,  0.8) {hidden 1};
+\node[thwsorange] at ( 1,  0.8) {hidden 2};
+\node[thwsblue]   at ( 3,  0.8) {output};
+
 \end{tikzpicture}

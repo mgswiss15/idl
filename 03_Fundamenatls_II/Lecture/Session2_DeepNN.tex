@@ -36,7 +36,7 @@ pdfkeywords={deep networks, loss functions, gradient descent, backpropagation}
 
 \begin{frame}{From Shallow to Deep}
 
-\vskip 1em
+\vskip 2em
 
 \begin{columns}[c]
 \begin{column}{0.48\textwidth}
@@ -47,9 +47,9 @@ h_j &= \sigma\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
 \end{align*}
 \vskip 0.5em
 \centering
-\input{\CommonPath/tikz/mlp_multi_input.tex}
+\input{\CommonPath/tikz/mlp_multi_input_y.tex}
 \end{column}
-\begin{column}{0.48\textwidth}
+\begin{column}{0.52\textwidth}
 \structure{Idea:} stack more layers
 \vskip 0.5em
 \centering
@@ -66,80 +66,95 @@ h_j &= \sigma\!\left(\theta_{j0} + \textstyle\sum_i \theta_{ji}\, x_i\right) \\
 
 \begin{frame}{Matrix Notation}
 
-\vskip 1em
+\vskip 1.5em
 
-\begin{columns}[c]
-\begin{column}{0.52\textwidth}
-\structure{Scalar notation (Session 2):}
-\[ h_j = \sigma\!\left(\textstyle\sum_{i=1}^{d} \theta_{ji}\, x_i + \theta_{j0}\right), \quad j = 1,\ldots,k \]
+\begin{columns}[T]
+\begin{column}{0.18\textwidth}
+\input{\CommonPath/tikz/mlp_multi_input_withouty.tex}
+\end{column}
+\begin{column}{0.27\textwidth}
+\structure{Scalar notation:}
+\begin{align*}
+h_j & = \sigma\!\left(\theta_{j0} + \textstyle\sum_{i=1}^{d} \theta_{ji}\, x_i\right) \\
+j &= 1,\ldots,k
+\end{align*}
 
-\vskip 1em
+\vskip 0.5em
 
-\structure{Collect weights into a matrix:}
+\structure{Matrix notation:}
+\[ \vh = \sigma\!\left(\pvec_0 + \boldsymbol{\Theta}\vx\right) \in \R^k \]
+\end{column}
+\begin{column}{0.55\textwidth}
+\structure{Collect weights into matrix:}
 \[
-\thetamat{} =
+\boldsymbol{\Theta} =
 \begin{pmatrix}
 \theta_{11} & \cdots & \theta_{1d} \\
 \vdots & \ddots & \vdots \\
 \theta_{k1} & \cdots & \theta_{kd}
 \end{pmatrix}
 \in \R^{k \times d}, \quad
-\boldsymbol{\theta}_0 =
+\pvec_0 =
 \begin{pmatrix} \theta_{10} \\ \vdots \\ \theta_{k0} \end{pmatrix}
 \in \R^k
 \]
-
-\vskip 1em
-
-\structure{Matrix notation:}
-\[ \vh = \sigma\!\left(\thetamat{}\vx + \boldsymbol{\theta}_0\right) \]
-$\sigma$ applied \textbf{elementwise} \quad $\vh \in \R^k$
+\vskip 1.3em
+$\sigma$ applied \textbf{elementwise}
 \end{column}
-\begin{column}{0.44\textwidth}
-\structure{Matrix-vector multiply:}
-\vskip 0.5em
-\centering
+\end{columns}
+
+\vskip 1.5em
+
+\begin{columns}[T]
+\begin{column}{0.15\textwidth}
+
+\end{column}
+\begin{column}{0.3\textwidth}
 \input{\CommonPath/tikz/matrix_vector_multiply.tex}
-\vskip 1em
-\structure{Each row of $\thetamat{}$} = weights of one neuron\\[0.5em]
-\structure{Each column of $\thetamat{}$} = weights from one input
 \end{column}
-\begin{column}{0.04\textwidth}
+\begin{column}{0.5\textwidth}
+\vskip 1em
+\structure{Each row of $\boldsymbol{\Theta}$} = weights of one neuron\\[0.5em]
+\structure{Each column of $\boldsymbol{\Theta}$} = weights from one input
 \end{column}
 \end{columns}
 
 \end{frame}
 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Layer Notation}
+ 
+\vskip 1em
+
+\centering
+\structure{Index layers} $l = 0, 1, \ldots, L$
+
+\begin{columns}[c]
+\begin{column}{0.05\textwidth}
+\end{column}
+\begin{column}{0.5\textwidth}
+\vskip 1em
+
+\structure{Input layer} $l=0$
+\[ \vh^{(0)} = \vx \]
+ 
+\vskip 1em
+
+\structure{Hidden layers} $l = 1, \ldots, L-1$:
+\[
+\vh^{(l)} = \sigma\!\left(\thetavec{l}_0 + \thetamat{l} \vh^{(l-1)}\right)
+\]
 
 \vskip 1em
 
-\begin{columns}[c]
-\begin{column}{0.52\textwidth}
-\structure{Index layers} $l = 0, 1, \ldots, L$
-
-\vskip 0.8em
-
-\structure{Layer 0:} input
-\[ \va^{(0)} = \vx \]
-
-\structure{Hidden layers} $l = 1, \ldots, L-1$:
-\begin{align*}
-\vz^{(l)} &= \thetamat{l} \va^{(l-1)} + \thetavec{l}_0 & &\text{pre-activation}\\
-\va^{(l)} &= \sigma\!\left(\vz^{(l)}\right) & &\text{activation}
-\end{align*}
-
 \structure{Output layer} $l = L$:
-\begin{align*}
-\vz^{(L)} &= \thetamat{L} \va^{(L-1)} + \thetavec{L}_0 \\
-\yhat &= g\!\left(\vz^{(L)}\right)
-\end{align*}
-$g$: output activation (task-dependent)
-
+\[
+\yhat = \thetavec{L}_0 + \thetamat{L} \vh^{(L-1)}
+\]
+ 
 \end{column}
-\begin{column}{0.44\textwidth}
+\begin{column}{0.4\textwidth}
 \centering
 \input{\CommonPath/tikz/mlp_layer_notation.tex}
 \vskip 1em
@@ -148,25 +163,25 @@ $g$: output activation (task-dependent)
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Dimensions}
-
-\vskip 1em
-
-\structure{Example:} input dim $d=3$, two hidden layers ($k_1=4$, $k_2=4$), output dim $m=2$
-
+ 
 \vskip 1.5em
-
+ 
+\structure{Example:} input dim $d=3$, two hidden layers ($k_1=4$, $k_2=4$), output dim $m=2$
+ 
+\vskip 1.5em
+ 
 \begin{columns}[c]
 \begin{column}{0.55\textwidth}
 \centering
 \input{\CommonPath/tikz/mlp_dimensions.tex}
 \end{column}
-\begin{column}{0.42\textwidth}
+\begin{column}{0.35\textwidth}
 \structure{Weight matrices:}
 \begin{align*}
 \thetamat{1} &\in \R^{k_1 \times d} = \R^{4 \times 3} \\[0.3em]
@@ -175,67 +190,66 @@ $g$: output activation (task-dependent)
 \end{align*}
 \vskip 0.5em
 \structure{General rule:}
-\[ \thetamat{l} \in \R^{k_l \times k_{l-1}} \]
+$ \thetamat{l} \in \R^{k_l \times k_{l-1}} $ \\[0.5em]
 rows = neurons in layer $l$\\
 cols = neurons in layer $l-1$
 \end{column}
 \begin{column}{0.03\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Batch Formulation}
-
-\vskip 1em
-
+ 
+\vskip 1.5em
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Single sample} $\vx \in \R^d$:
-\[ \vz^{(l)} = \thetamat{l} \va^{(l-1)} + \thetavec{l}_0 \]
-
-\vskip 1em
-
-\structure{Batch of $N$ samples} --- stack as rows:
-\[ \mathbf{X} \in \R^{N \times d}, \quad \mathbf{A}^{(l)} \in \R^{N \times k_l} \]
-
+\[ \vh^{(l)} = \sigma\!\left(\thetavec{l}_0 + \thetamat{l} \vh^{(l-1)}\right) \in \R^{k_l} \]
+ 
 \vskip 0.5em
-
+ 
+\structure{Batch of $N$ samples} - stack as rows:
+\[ \mathbf{X} \in \R^{N \times d}, \quad \mathbf{H}^{(l)} \in \R^{N \times k_l} \]
+ 
+\vskip 0.5em
+ 
 \structure{Batch forward pass:}
-\[ \mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)} \left(\thetamat{l}\right)\T + \mathbf{1}\thetavec{l}_0{}\T \]
-\[ \mathbf{A}^{(l)} = \sigma\!\left(\mathbf{Z}^{(l)}\right) \quad \text{(elementwise)} \]
-
+\[ \mathbf{H}^{(l)} = \sigma\!\left(\mathbf{1}\thetavec{l}_0{}\T + \mathbf{H}^{(l-1)} \left(\thetamat{l}\right)\T\right) \]
+ 
 \vskip 0.5em
 \alert{This is what PyTorch computes.}
 \end{column}
 \begin{column}{0.44\textwidth}
 \structure{PyTorch convention: batch first}
-\vskip 0.5em
+\vskip 1em
 \centering
 \input{\CommonPath/tikz/batch_matrix_multiply.tex}
 \vskip 1em
 {\small
 \texttt{X.shape = (N, d)}\\
 \texttt{W.shape = (k, d)}\\
-\texttt{Z = X @ W.T + b}
+\texttt{H = X @ W.T + b}
 }
 \end{column}
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
 \section{The Learning Problem}
 % -------------------------------------------------------
-
+ 
 \begin{frame}{The Learning Problem}
-
+ 
 \vskip 2em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.48\textwidth}
 \structure{What we have:}
@@ -243,16 +257,16 @@ cols = neurons in layer $l-1$
 \item Network $f_\theta$ with forward pass \checkmark
 \item Dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$ \checkmark
 \end{itemize}
-
+ 
 \vskip 1.5em
-
+ 
 \structure{What we want:}
 \begin{itemize}
 \item Parameters $\pvec$ such that $f_\theta(\vx) \approx y$ on \textbf{unseen} data
 \end{itemize}
-
+ 
 \vskip 1.5em
-
+ 
 \structure{Two open questions:}
 \begin{enumerate}
 \item How do we \textbf{measure} how wrong $f_\theta$ is? \\ \alert{$\Rightarrow$ loss function}
@@ -264,21 +278,21 @@ cols = neurons in layer $l-1$
 \input{\CommonPath/tikz/learning_problem.tex}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
 \section{Loss Functions}
 % -------------------------------------------------------
-
+ 
 \begin{frame}{What is a Loss Function?}
-
+ 
 \vskip 1em
-
+ 
 \structure{Goal:} measure how wrong $f_\theta$ is with a single scalar
-
+ 
 \vskip 1.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Per-sample loss} $\ell(\yhat, y)$:
@@ -287,18 +301,18 @@ cols = neurons in layer $l-1$
 \item $\ell(\yhat, y) > 0$ otherwise
 \item Larger when more wrong
 \end{itemize}
-
+ 
 \vskip 1em
-
+ 
 \structure{Dataset loss} $\loss(\pvec)$:
 \[ \loss(\pvec) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell\!\left(f_\theta(\vx^{(i)}), y^{(i)}\right) \]
 Average over all training samples
 \end{column}
 \begin{column}{0.48\textwidth}
 \structure{Choice of $\ell$ depends on the task:}
-
+ 
 \vskip 0.8em
-
+ 
 \begin{tabular}{ll}
 \structure{Task} & \structure{Loss} \\
 \hline\\[-0.8em]
@@ -306,32 +320,32 @@ Regression & Mean Squared Error \\[0.3em]
 Binary classification & Binary Cross-Entropy \\[0.3em]
 Multiclass & Cross-Entropy \\
 \end{tabular}
-
+ 
 \vskip 1.5em
 \alert{The loss is the compass --- it tells the model which direction is ``better''.}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Regression: Mean Squared Error}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Setting:} $y \in \R$, $\yhat = \vz^{(L)} \in \R$ (no output activation)
-
+ 
 \vskip 1em
-
+ 
 \structure{Mean Squared Error (MSE):}
 \[ \ell(\yhat, y) = (\yhat - y)^2 \]
 \[ \loss(\pvec) = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left(\yhat^{(i)} - y^{(i)}\right)^2 \]
-
+ 
 \vskip 1em
-
+ 
 \structure{Intuition:}
 \begin{itemize}
 \item Penalizes large errors quadratically
@@ -346,34 +360,34 @@ Multiclass & Cross-Entropy \\
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Classification: Probability Output}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Setting:} $y \in \{0, 1\}$, we want $f_\theta(\vx) \in (0,1)$
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Problem:} raw network output $z^{(L)} \in \R$ --- not a probability
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Solution:} apply \textbf{sigmoid} as output activation
 \[ \yhat = \sigma(z^{(L)}) = \frac{1}{1 + e^{-z^{(L)}}} \in (0,1) \]
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Interpretation:} $\yhat = P(y = 1 \mid \vx)$
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Decision:} predict class 1 if $\yhat \geq 0.5$, else class 0
 \end{column}
 \begin{column}{0.44\textwidth}
@@ -385,15 +399,15 @@ Multiclass & Cross-Entropy \\
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Binary Classification: Binary Cross-Entropy}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Binary Cross-Entropy (BCE):}
@@ -401,9 +415,9 @@ Multiclass & Cross-Entropy \\
 \ell(\yhat, y) = -y \log \yhat - (1-y)\log(1-\yhat)
 \]
 \[ \loss(\pvec) = -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left[y^{(i)}\log\yhat^{(i)} + (1-y^{(i)})\log(1-\yhat^{(i)})\right] \]
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Intuition:}
 \begin{itemize}
 \item When $y=1$: loss $= -\log\yhat$ --- penalizes low confidence in correct class
@@ -418,21 +432,21 @@ Multiclass & Cross-Entropy \\
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Multiclass Classification: Softmax + Cross-Entropy}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Setting:} $y \in \{1,\ldots,C\}$, output $\vz^{(L)} \in \R^C$
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Softmax} converts logits to probabilities:
 \[ \yhat_c = \frac{e^{z^{(L)}_c}}{\sum_{c'=1}^{C} e^{z^{(L)}_{c'}}}, \quad c = 1,\ldots,C \]
 \begin{itemize}
@@ -446,43 +460,43 @@ Multiclass & Cross-Entropy \\
 \vskip 0.3em
 With one-hot label: only the true class contributes
 \[ \ell(\yhat, y) = -\log \yhat_y \]
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Intuition:} maximize the predicted probability of the correct class
 \end{column}
 \end{columns}
-
+ 
 \vskip 1em
 \centering
 \input{\CommonPath/tikz/softmax.tex}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
 \section{Gradient Descent}
 % -------------------------------------------------------
-
+ 
 \begin{frame}{The Optimization Problem}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Goal:} find parameters that minimize the loss
 \[ \pvec^* = \arg\min_{\pvec}\ \loss(\pvec) \]
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Why not solve analytically?}
 \begin{itemize}
 \item $\loss(\pvec)$ is \textbf{nonlinear} in $\pvec$ --- no closed form
 \item $\pvec$ has millions of dimensions in practice
 \item $\loss(\pvec)$ is \textbf{non-convex} --- many local minima
 \end{itemize}
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Strategy:} iterative, gradient-based optimization
 \end{column}
 \begin{column}{0.44\textwidth}
@@ -492,15 +506,15 @@ With one-hot label: only the true class contributes
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Gradient Descent}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Gradient} $\nabla_{\pvec} \loss(\pvec)$:
@@ -508,9 +522,9 @@ With one-hot label: only the true class contributes
 \item Points in direction of \textbf{steepest ascent}
 \item One partial derivative per parameter: $\frac{\partial \loss}{\partial \theta_j}$
 \end{itemize}
-
+ 
 \vskip 1em
-
+ 
 \structure{Gradient descent update:}
 \[
 \pvec \leftarrow \pvec - \eta\, \nabla_{\pvec} \loss(\pvec)
@@ -520,9 +534,9 @@ With one-hot label: only the true class contributes
 \item $\eta > 0$: \textbf{learning rate} --- controls step size
 \item Repeat until convergence
 \end{itemize}
-
+ 
 \vskip 0.8em
-
+ 
 \structure{Key question:} how do we compute $\nabla_{\pvec} \loss(\pvec)$?
 \end{column}
 \begin{column}{0.44\textwidth}
@@ -532,15 +546,15 @@ With one-hot label: only the true class contributes
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Walking Down a Hill}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.52\textwidth}
 \structure{Intuition:} a hiker descending a mountain in fog
@@ -549,18 +563,18 @@ With one-hot label: only the true class contributes
 \item Step in the direction that goes downhill
 \item Repeat until no more descent
 \end{itemize}
-
+ 
 \vskip 1em
-
+ 
 \structure{Effect of learning rate $\eta$:}
 \begin{itemize}
 \item $\eta$ too large: \alert{overshoots}, may diverge
 \item $\eta$ too small: very slow convergence
 \item $\eta$ just right: steady descent
 \end{itemize}
-
+ 
 \vskip 1em
-
+ 
 \structure{Complication:} loss surface has many \textbf{valleys} (local minima) --- the hiker may get stuck
 \end{column}
 \begin{column}{0.44\textwidth}
@@ -570,46 +584,46 @@ With one-hot label: only the true class contributes
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{The Key Question}
-
+ 
 \vskip 3em
-
+ 
 \begin{center}
 \structure{Gradient descent needs:}
-
+ 
 \vskip 1em
-
+ 
 {\large $\nabla_{\pvec} \loss(\pvec) = \dfrac{\partial \loss}{\partial \pvec}$}
-
+ 
 \vskip 2em
-
+ 
 \structure{But $f_\theta$ is a composition of many layers --- how do we differentiate through it efficiently?}
-
+ 
 \vskip 2em
-
+ 
 \alert{$\Rightarrow$ Computation graphs + Backpropagation}
 \end{center}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
 \section{Computation Graphs}
 % -------------------------------------------------------
-
-
+ 
+ 
 \begin{frame}{Computation Graphs --- Motivation}
-
+ 
 \vskip 1em
-
+ 
 \structure{Idea:} decompose complex functions into simple atomic operations
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Why?}
@@ -628,32 +642,32 @@ With one-hot label: only the true class contributes
 \end{itemize}
 \end{column}
 \end{columns}
-
+ 
 \vskip 1.5em
-
+ 
 \structure{Example:} linear regression $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$
-
+ 
 \vskip 0.5em
 \centering
 \input{\CommonPath/tikz/compgraph\_linreg.tex}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Computation Graphs --- Flexible Level of Detail}
-
+ 
 \vskip 0.5em
-
+ 
 \structure{Same function, different decompositions:}
 \[ \ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2 \]
-
+ 
 \vskip 0.5em
 \centering
 \input{\CommonPath/tikz/compgraph\_levels.tex}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
 \centering
@@ -682,23 +696,23 @@ With one-hot label: only the true class contributes
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Computation Graphs --- Flexible Operations}
-
+ 
 \vskip 0.5em
-
+ 
 \structure{Same graph structure, different models:}
-
+ 
 \vskip 1em
 \centering
 \input{\CommonPath/tikz/compgraph\_models.tex}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \centering
@@ -717,23 +731,23 @@ With one-hot label: only the true class contributes
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Computation Graphs --- Scalar vs Vector}
-
+ 
 \vskip 0.5em
-
+ 
 \structure{Scalar notation} (one neuron at a time) vs \structure{vector notation} (whole layer at once):
-
+ 
 \vskip 1em
 \centering
 \input{\CommonPath/tikz/compgraph\_scalar\_vector.tex}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \centering
@@ -756,25 +770,25 @@ With one-hot label: only the true class contributes
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
 \section{Backpropagation}
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Forward and Backward Pass}
-
+ 
 \vskip 2em
-
+ 
 \structure{Forward pass} --- compute prediction and loss:
-
+ 
 \vskip 0.5em
 \centering
 \input{\CommonPath/tikz/compgraph\_forward\_backward.tex}
-
+ 
 \vskip 1.5em
-
+ 
 \begin{columns}[c]
 \begin{column}{0.48\textwidth}
 \centering
@@ -787,55 +801,55 @@ $\vx \longrightarrow \va^{(1)} \longrightarrow \cdots \longrightarrow \va^{(L)} 
 $\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfrac{\partial \ell}{\partial \va^{(L)}} \longleftarrow \ell$
 \end{column}
 \end{columns}
-
+ 
 \vskip 1em
 \centering
 \alert{\textbf{Backpropagation} = computing the backward pass efficiently}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Two Key Rules}
-
+ 
 \vskip 1em
-
+ 
 \structure{Goal:} compute $\nabla_{\pvec}\, \loss(\pvec)$ for the full dataset
-
+ 
 \vskip 1.5em
-
+ 
 \structure{1) Sum rule} --- gradient of average = average of gradients:
 \[
 \nabla_{\pvec}\, \loss(\pvec)
 = \nabla_{\pvec} \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \ell(\vx^{(i)}, y^{(i)}, \pvec)
 = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(\vx^{(i)}, y^{(i)}, \pvec)
 \]
-
+ 
 \vskip 0.5em
 \alert{$\Rightarrow$ compute gradient for a single sample, then average}
-
+ 
 \vskip 1.5em
-
+ 
 \structure{2) Chain rule} --- THE rule for backprop:
 \[
 \frac{d}{dx} f(g(x)) = \frac{df}{dg}\frac{dg}{dx}
 \qquad
 \frac{d}{dx} f(g_1(x), \ldots, g_m(x)) = \sum_{i=1}^{m} \frac{\partial f}{\partial g_i}\frac{dg_i}{dx}
 \]
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Local vs Global Gradients}
-
+ 
 \vskip 0.5em
-
+ 
 \centering
 \input{\CommonPath/tikz/compgraph\_backprop\_local.tex}
-
+ 
 \vskip 1em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Local gradient} (easy --- per node):
@@ -848,15 +862,15 @@ Each node computes its own derivative
 Multiply incoming global gradient by local gradient
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop Example: Linear Regression (Symbolic)}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
 \structure{Forward pass}\\[0.3em]
@@ -888,19 +902,19 @@ Multiply incoming global gradient by local gradient
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop Example: Linear Regression (Numerical)}
-
+ 
 \vskip 0.5em
-
+ 
 \structure{Concrete values:} $x=2,\ y=5,\ \theta_0=1,\ \theta_1=3$
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
 \structure{Forward pass}\\[0.3em]
@@ -932,15 +946,15 @@ Multiply incoming global gradient by local gradient
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop Example: Logistic Regression}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
 \structure{Forward pass}\\[0.3em]
@@ -970,23 +984,23 @@ Multiply incoming global gradient by local gradient
 }
 \end{column}
 \end{columns}
-
+ 
 \vskip 0.5em
 \structure{Key insight:} same graph structure, only the node functions change
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop: Multiple Neurons in a Layer}
-
+ 
 \vskip 0.5em
-
+ 
 \centering
 \input{\CommonPath/tikz/compgraph\_multinode.tex}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Forward pass}\\[0.3em]
@@ -1007,18 +1021,18 @@ Multiply incoming global gradient by local gradient
 }
 \end{column}
 \end{columns}
-
+ 
 \vskip 0.3em
 \alert{When a node feeds multiple downstream nodes, gradients \textbf{accumulate} (sum).}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Technical Implementation}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.35\textwidth}
 Each node stores:
@@ -1056,15 +1070,15 @@ t1.grad = h.grad * x.val
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{From For Loops to Vectorization}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Elementwise for loops}\\[0.3em]
@@ -1094,7 +1108,7 @@ b.grad = z.grad
 \alert{Same computation, $\sim$100$\times$ faster on GPU}
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 \end{document}
