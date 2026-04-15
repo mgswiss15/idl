@@ -2,9 +2,7 @@
 
 Magda Gregorová, April 2026
 
-Implement the functions and classes marked with TODO.
-Do not change function signatures or class interfaces.
-Use only PyTorch tensor operations — no numpy, no torch.nn.
+SOLUTION VERSION — do not distribute to students.
 """
 
 import torch
@@ -26,8 +24,7 @@ def linear_scalar(x, theta):
     Returns:
         float - scalar output
     """
-    # TODO: implement
-    pass
+    return theta[1] * x + theta[0]
 
 
 def squared_error(y_pred, y):
@@ -42,8 +39,7 @@ def squared_error(y_pred, y):
     Returns:
         float - squared error
     """
-    # TODO: implement
-    pass
+    return (y_pred - y) ** 2
 
 
 # ==============================================================================
@@ -63,8 +59,7 @@ def linear_forward(X, theta_1, theta_0):
     Returns:
         torch.tensor of shape (N, out_features) - output batch
     """
-    # TODO: implement
-    pass
+    return X @ theta_1.T + theta_0
 
 
 def mse_forward(y_pred, y):
@@ -79,8 +74,7 @@ def mse_forward(y_pred, y):
     Returns:
         torch.tensor of shape () - scalar MSE loss
     """
-    # TODO: implement
-    pass
+    return torch.mean((y_pred - y) ** 2)
 
 
 # ==============================================================================
@@ -98,28 +92,13 @@ class Linear:
     """
 
     def __init__(self, theta_1, theta_0):
-        """Initialise the layer with weight matrix and bias vector.
-
-        Args:
-            theta_1: torch.tensor of shape (out_features, in_features)
-            theta_0: torch.tensor of shape (1, out_features)
-        """
-        # TODO: store theta_1 and theta_0 as attributes
-        pass
+        self.theta_1 = theta_1
+        self.theta_0 = theta_0
 
     def forward(self, ins):
-        """Forward pass: compute and return the affine transformation.
-
-        Store the input in self.ins and the output in self.outs before returning.
-
-        Args:
-            ins: torch.tensor of shape (N, in_features)
-
-        Returns:
-            torch.tensor of shape (N, out_features)
-        """
-        # TODO: implement
-        pass
+        self.ins = ins
+        self.outs = ins @ self.theta_1.T + self.theta_0
+        return self.outs
 
 
 # ==============================================================================
@@ -135,18 +114,9 @@ class ReLU:
     """
 
     def forward(self, ins):
-        """Forward pass: apply ReLU element-wise.
-
-        Store the input in self.ins and the output in self.outs before returning.
-
-        Args:
-            ins: torch.tensor of any shape - pre-activations z
-
-        Returns:
-            torch.tensor of same shape - activations a = relu(z)
-        """
-        # TODO: implement
-        pass
+        self.ins = ins
+        self.outs = ins.clamp(0)
+        return self.outs
 
 
 # ==============================================================================
@@ -161,21 +131,10 @@ class Model:
     """
 
     def __init__(self, layers):
-        """Initialise with a list of layers.
-
-        Args:
-            layers: list of layer instances in the order of the forward pass
-        """
         self.layers = layers
 
     def forward(self, ins):
-        """Forward pass through all layers in order.
-
-        Args:
-            ins: torch.tensor of shape (N, in_features) - network input
-
-        Returns:
-            torch.tensor of shape (N, out_features) - network output
-        """
-        # TODO: implement — pass ins through each layer in self.layers in order
-        pass
+        out = ins
+        for layer in self.layers:
+            out = layer.forward(out)
+        return out
