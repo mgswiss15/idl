@@ -401,133 +401,168 @@ Goes backward: incoming {\color[HTML]{FF0000}global} $\times$ {\color[HTML]{0066
 \end{columns}
  
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop Example: Linear Regression (Numerical)}
-
-\vskip 0.5em
-
+ 
+\vskip 1em
+ 
+\centering
+\includegraphics[width=0.55\textwidth]{\PicsPath/CompGraph_locglob_2.pdf}
+ 
+\vskip 0.3em
+ 
 \structure{Concrete values:} $x=2,\ y=5,\ \theta_0=1,\ \theta_1=3$
-
-\vskip 0.5em
-
+ 
+\vskip 0.3em
+ 
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
-\structure{Forward pass} $\downarrow$\\[0.3em]
+\structure{Forward pass $\downarrow$}\\[-1em]
 {\small
 \begin{align*}
-(1)\ & h = \theta_1 x\\
-(2)\ & \yhat = \theta_0 + h\\
-(3)\ & z = \yhat - y\\
-(4)\ & \ell = z^2
+(1)\ & h = \theta_1 x = 3 \cdot 2 = 6\\
+(2)\ & \yhat = \theta_0 + h = 1 + 6 = 7\\
+(3)\ & z = \yhat - y = 7 - 5 = 2\\
+(4)\ & \ell = z^2 = 2^2 = 4
 \end{align*}
 }
 \end{column}
 \begin{column}{0.32\textwidth}
-\structure{\color[HTML]{0066FF}Local gradients} $\downarrow$\\[0.3em]
+\structure{\color[HTML]{0066FF}Local gradients $\downarrow$}\\[-1em]
 {\small\color[HTML]{0066FF}
 \begin{align*}
-(1)\ & \partial h/\partial \theta_1 = x\\
+(1)\ & \partial h/\partial \theta_1 = x = 2\\
 (2)\ & \partial \yhat/\partial \theta_0 = 1\\
      & \partial \yhat/\partial h = 1\\
 (3)\ & \partial z/\partial \yhat = 1\\
-(4)\ & \partial \ell/\partial z = 2z
+(4)\ & \partial \ell/\partial z = 2z = 4
 \end{align*}
 }
 \end{column}
-\begin{column}{0.36\textwidth}
-\structure{\color[HTML]{FF0000}Global gradients} $\uparrow$\\[0.3em]
+\begin{column}{0.32\textwidth}
+\structure{\color[HTML]{FF0000}Global gradients $\uparrow$}\\[-1em]
 {\small\color[HTML]{FF0000}
 \begin{align*}
-(4)\ & \partial \ell/\partial z = 1 \cdot {\color[HTML]{0066FF}2z} = 2z\\
-(3)\ & \partial \ell/\partial \yhat = 2z \cdot {\color[HTML]{0066FF}1} = 2z\\
-(2)\ & \partial \ell/\partial h = 2z \cdot {\color[HTML]{0066FF}1} = 2z\\
-     & \partial \ell/\partial \theta_0 = 2z \cdot {\color[HTML]{0066FF}1} = 2z\\
-(1)\ & \partial \ell/\partial \theta_1 = 2z \cdot {\color[HTML]{0066FF}x} = 2zx
+(4)\ & \partial \ell/\partial \theta_1 = \partial\ell/\partial h \cdot {\color[HTML]{0066FF}x} = 4 \cdot {\color[HTML]{0066FF}2} = 8\\
+     & \partial \ell/\partial \theta_0 = \partial\ell/\partial h \cdot {\color[HTML]{0066FF}1} = 4 \cdot {\color[HTML]{0066FF}1} = 4\\
+(3)\ & \partial \ell/\partial h = \partial\ell/\partial \yhat \cdot {\color[HTML]{0066FF}1} = 4 \cdot {\color[HTML]{0066FF}1} = 4\\
+(2)\ & \partial \ell/\partial \yhat = \partial\ell/\partial z \cdot {\color[HTML]{0066FF}1} = 4 \cdot {\color[HTML]{0066FF}1} = 4\\
+(1)\ & \partial \ell/\partial z = 1 \cdot {\color[HTML]{0066FF}2z} = 1 \cdot {\color[HTML]{0066FF}4} = 4
 \end{align*}
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
-
+ 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop Example: Logistic Regression}
-
-\vskip 0.5em
-
+ 
+\vskip 1em
+ 
+\centering
+\includegraphics[width=0.4\textwidth]{\PicsPath/CompGraph_5.pdf}
+ 
+\vskip 0.3em
+ 
 \begin{columns}[t]
-\begin{column}{0.32\textwidth}
-\structure{Forward pass}\\[0.3em]
+\begin{column}{0.4\textwidth}
+\structure{Forward pass $\downarrow$}\\[-1em]
 {\small
-(1) $h = \theta_0 + \theta_1 x$\\
-(2) $\yhat = \sigma(h)$\\
-(3) $\ell = -y\log\yhat$\\
-\phantom{(3)} $\quad - (1-y)\log(1-\yhat)$
+\begin{align*}
+(1)\ & h = \theta_0 + \theta_1 x\\
+(2)\ & \yhat = \sigma(h)\\
+(3)\ & \ell = -y\log\yhat - (1-y)\log(1-\yhat)
+\end{align*}
 }
 \end{column}
-\begin{column}{0.32\textwidth}
-\structure{\color{thwsblue}Local gradients}\\[0.3em]
-{\small
-(1) $\partial h/\partial \theta_0 = 1$\\
-\phantom{(1)} $\partial h/\partial \theta_1 = x$\\
-(2) $\partial \yhat/\partial h = \sigma(h)(1-\sigma(h))$\\
-(3) $\partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}$
+\begin{column}{0.3\textwidth}
+\structure{\color[HTML]{0066FF}Local gradients $\downarrow$}\\[-1em]
+{\small\color[HTML]{0066FF}
+\begin{align*}
+(1)\ & \partial h/\partial \theta_0 = 1\\
+     & \partial h/\partial \theta_1 = x\\
+(2)\ & \partial \yhat/\partial h = \sigma(h)(1-\sigma(h))\\
+(3)\ & \partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}
+\end{align*}
 }
 \end{column}
-\begin{column}{0.36\textwidth}
-\structure{\color{carnelian}Global gradients}\\[0.3em]
-{\small
-(3) $\partial \ell/\partial \theta_0 = \partial \ell/\partial h \cdot 1$\\
-\phantom{(3)} $\partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot x$\\
-(2) $\partial \ell/\partial h = \partial \ell/\partial \yhat \cdot \partial \yhat/\partial h$\\
-(1) $\partial \ell/\partial \yhat = 1 \cdot \frac{\yhat-y}{\yhat(1-\yhat)}$
+\begin{column}{0.3\textwidth}
+\structure{\color[HTML]{FF0000}Global gradients $\uparrow$}\\[-1em]
+{\small\color[HTML]{FF0000}
+\begin{align*}
+(3)\ & \partial \ell/\partial \theta_0 = \partial \ell/\partial h \cdot {\color[HTML]{0066FF}1}\\
+     & \partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot {\color[HTML]{0066FF}x}\\
+(2)\ & \partial \ell/\partial h = \partial \ell/\partial \yhat \cdot {\color[HTML]{0066FF}\partial \yhat/\partial h}\\
+(1)\ & \partial \ell/\partial \yhat = 1 \cdot {\color[HTML]{0066FF}\frac{\yhat-y}{\yhat(1-\yhat)}}
+\end{align*}
 }
 \end{column}
 \end{columns}
-
-\vskip 0.5em
+ 
+\vskip 0.3em
 \structure{Key insight:} same graph structure, only the node functions change
-
+ 
 \end{frame}
 
-% -------------------------------------------------------
-
+%% -------------------------------------------------------
+ 
 \begin{frame}{Backprop: Multiple Neurons in a Layer}
-
-\vskip 0.5em
-
+ 
+\vskip 1em
+ 
 \centering
 \includegraphics[width=0.5\textwidth]{\PicsPath/CompGraph_6.pdf}
-
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Forward pass}\\[0.3em]
+\begin{column}{0.32\textwidth}
+\structure{Forward pass $\downarrow$}\\[-1em]
 {\small
-(1) $h = h(x, \theta_0)$\\
-(2) $u = u(h, \theta_1)$, $\quad v = v(h, \theta_2)$\\
-(3) $\yhat = \yhat(u, v)$\\
-(4) $\ell = \ell(\yhat, y)$
+\begin{align*}
+(1)\ & h = h(x, \theta_0)\\
+(2)\ & u = u(h, \theta_1)\\
+     & v = v(h, \theta_2)\\
+(3)\ & \yhat = \yhat(u, v)\\
+(4)\ & \ell = \ell(\yhat, y)
+\end{align*}
 }
 \end{column}
-\begin{column}{0.48\textwidth}
-\structure{\color{carnelian}Global gradients}\\[0.3em]
-{\small
-(3) $\partial \ell/\partial \theta_1 = \partial \ell/\partial u \cdot \partial u/\partial \theta_1$\\
-\phantom{(3)} $\partial \ell/\partial \theta_2 = \partial \ell/\partial v \cdot \partial v/\partial \theta_2$\\
-(2) $\partial \ell/\partial h = \partial \ell/\partial u \cdot \partial u/\partial h$\\
-\phantom{(2)} $\qquad\qquad + \partial \ell/\partial v \cdot \partial v/\partial h$\\
+\begin{column}{0.32\textwidth}
+\structure{\color[HTML]{0066FF}Local gradients $\downarrow$}\\[-1em]
+{\small\color[HTML]{0066FF}
+\begin{align*}
+(1)\ & \partial h/\partial \theta_0\\
+(2)\ & \partial u/\partial \theta_1, \quad \partial u/\partial h\\
+     & \partial v/\partial \theta_2, \quad \partial v/\partial h\\
+(3)\ & \partial \yhat/\partial u, \quad \partial \yhat/\partial v\\
+(4)\ & \partial \ell/\partial \yhat
+\end{align*}
+}
+\end{column}
+\begin{column}{0.4\textwidth}
+\structure{\color[HTML]{FF0000}Global gradients $\uparrow$}\\[-1em]
+{\small\color[HTML]{FF0000}
+\begin{align*}
+(4)\ & \partial \ell/\partial \theta_0 = \partial \ell/\partial h \cdot {\color[HTML]{0066FF}\partial h/\partial \theta_0}\\
+(3)\ & \partial \ell/\partial h = \partial \ell/\partial u \cdot {\color[HTML]{0066FF}\partial u/\partial h}
+     + \partial \ell/\partial v \cdot {\color[HTML]{0066FF}\partial v/\partial h}\\
+     & \partial \ell/\partial \theta_1 = \partial \ell/\partial u \cdot {\color[HTML]{0066FF}\partial u/\partial \theta_1}\\
+     & \partial \ell/\partial \theta_2 = \partial \ell/\partial v \cdot {\color[HTML]{0066FF}\partial v/\partial \theta_2}\\
+(2)\ & \partial \ell/\partial u = \partial \ell/\partial \yhat \cdot {\color[HTML]{0066FF}\partial \yhat/\partial u}\\
+     & \partial \ell/\partial v = \partial \ell/\partial \yhat \cdot {\color[HTML]{0066FF}\partial \yhat/\partial v}\\
+(1)\ & \partial \ell/\partial \yhat = 1 \cdot {\color[HTML]{0066FF}\partial \ell/\partial \yhat}
+\end{align*}
 }
 \end{column}
 \end{columns}
-
-\vskip 0.3em
+\vskip -1.5em
 \alert{When a node feeds multiple downstream nodes, gradients \textbf{accumulate} (sum).}
-
+ 
 \end{frame}
 
 % -------------------------------------------------------
