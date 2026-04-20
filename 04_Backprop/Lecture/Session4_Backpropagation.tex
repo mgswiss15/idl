@@ -32,177 +32,245 @@ pdfkeywords={computation graphs, backpropagation, chain rule, gradients}
 \end{frame}
 
 % -------------------------------------------------------
-\section{Computation Graphs}
-% -------------------------------------------------------
 
-\begin{frame}{Computation Graphs --- Motivation}
-
-\vskip 1em
-
-\structure{Idea:} decompose complex functions into simple atomic operations
-
-\vskip 1em
-
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Why?}
-\begin{itemize}
-\item Make computation of gradients easier
-\item Each node only needs to know its \textbf{local} derivative
-\item \textbf{Reuse} intermediate values from forward pass in backward pass
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{How?}
-\begin{itemize}
-\item \alert{Input nodes} --- data and parameters
-\item \alert{Compute nodes} --- elementary operations
-\item Edges --- data flow between nodes
-\end{itemize}
-\end{column}
-\end{columns}
+\begin{frame}{Forward and Backward Pass}
 
 \vskip 1.5em
 
-\structure{Example:} linear regression $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$
+\structure{Forward pass} - evaluate network $\to$ get predictions $\yhat \, \to$ compute loss $\loss$
 
 \vskip 0.5em
-\centering
-\includegraphics[width=0.6\textwidth]{\PicsPath/CompGraph_1.pdf}
+
+\[
+\vx = \underbrace{\vh^{(0)} \xrightarrow{\thetamat{1}} \vh^{(1)} \xrightarrow{\thetamat{2}} \cdots \xrightarrow{\thetamat{L}} \vh^{(L)}}_{f_{\pvec}} = \yhat \xrightarrow{\ell} \loss
+\]
+
+\vskip 0.5em
+
+\structure{Backward pass} - propagate gradients from loss back to parameters: \alert{\textbf{Backpropagation}}
+
+\vskip 0.5em
+
+\[
+\nabla_{\pvec}\,\loss(\pvec) = \underbrace{\frac{\partial \loss}{\partial \pvec} \xleftarrow{\thetamat{1}} \frac{\partial \loss}{\partial \vh^{(1)}} \xleftarrow{\thetamat{2}} \cdots \xleftarrow{\thetamat{L}} \frac{\partial \loss}{\partial \vh^{(L)}}}_{\nabla_{\pvec}} \xleftarrow{\ell} \loss
+\]
+
+\vskip 0.8em
+\structure{Gradient:} $\nabla_{\pvec}\,\loss(\pvec) = \dfrac{\partial \loss}{\partial \pvec}$ - one partial derivative per parameter
 
 \end{frame}
 
 % -------------------------------------------------------
+\section{Computation Graphs}
+% -------------------------------------------------------
+ 
+\begin{frame}{Computation Graphs - Motivation}
+ 
+\vskip 2em
+ 
+\structure{Idea:} decompose complex functions into simple atomic operations
 
-\begin{frame}{Computation Graphs --- Flexible Level of Detail}
+\vskip 1.5em
 
-\vskip 0.5em
-
-\structure{Same function, different decompositions:}
-\[ \ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2 \]
-
-\vskip 0.5em
-\centering
-\includegraphics[width=0.65\textwidth]{\PicsPath/CompGraph_2.pdf}
+\structure{Why?}
+\begin{itemize}
+\item Gradients of complex functions are hard - gradients of atomic operations are easy
+\item Intermediate values from forward pass can be reused in backward pass
+\end{itemize}
 
 \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.32\textwidth}
+\structure{Graph structure:}
+\begin{itemize}
+\item \alert{Input nodes} - fixed data ($x$, $y$)
+\item \alert{Parameter nodes} - learnable parameters ($\pvec$)
+\item \alert{Compute nodes} - elementary operations, each with a simple local derivative
+\end{itemize}
+ 
+\end{frame}
+ 
+% -------------------------------------------------------
+ 
+\begin{frame}{Computation Graphs - Example}
+ 
+\vskip 2em
+ 
+\structure{Example:} linear regression with MSE loss: $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$
+ 
+\vskip 2em
+ 
+\begin{columns}[c]
+\begin{column}{0.7\textwidth}
 \centering
-\structure{Fine-grained}\\[0.3em]
+Each step - simple atomic operation with easy derivative.
+\vskip 1em
+
+\includegraphics[width=0.9\textwidth]{\PicsPath/CompGraph_1.pdf}
+\end{column}
+\begin{column}{0.3\textwidth}
+
+ 
+\vskip 1em
+ 
+\structure{Decomposition:}\\[0.5em]
 {\small
-(1) $h = \theta_1 x$\\
-(2) $\yhat = \theta_0 + h$\\
-(3) $z = \yhat - y$\\
+(1) $h = \theta_1 x$\\[0.3em]
+(2) $\yhat = \theta_0 + h$\\[0.3em]
+(3) $z = \yhat - y$\\[0.3em]
 (4) $\ell = z^2$
 }
+
 \end{column}
-\begin{column}{0.32\textwidth}
-\centering
-\structure{Coarser}\\[0.3em]
-{\small
-(1) $\yhat = \theta_0 + \theta_1 x$\\
-(2) $\ell = (\yhat - y)^2$
-}
-\end{column}
-\begin{column}{0.32\textwidth}
-\centering
-\structure{Vectorized}\\[0.3em]
-{\small
-(1) $\yhat = \pvec\T \vx$\\
-(2) $\ell = (\yhat - y)^2$
-}
+\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
+
 
 \end{frame}
 
 % -------------------------------------------------------
+ 
+\begin{frame}{Computation Graphs - Flexible Level of Detail}
+ 
+\vskip 2em
+ 
+\structure{Same function, different decompositions:} $ \ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2 $
+ 
+\vskip 2em
+ 
+\begin{columns}[t]
+\begin{column}{0.45\textwidth}
+\centering
+\structure{Fine-grained}\\[0.5em]
+\includegraphics[width=0.9\textwidth]{\PicsPath/CompGraph_2.pdf}\\[-1em]
+{\small
+\begin{align*}
+(1)\ & h = \theta_1 x \\
+(2)\ & \yhat = \theta_0 + h \\
+(3)\ & z = \yhat - y \\
+(4)\ & \ell = z^2
+\end{align*}
+}
+\end{column}
+\begin{column}{0.25\textwidth}
+\centering
+\structure{Coarser}\\[0.5em]
+\includegraphics[width=0.9\textwidth]{\PicsPath/CompGraph_3.pdf}\\[-1em]
+{\small
+\begin{align*}
+(1)\ & \yhat = \theta_0 + \theta_1 x \\
+(2)\ & \ell = (\yhat - y)^2
+\end{align*}
+}
+\end{column}
+\begin{column}{0.22\textwidth}
+\centering
+\structure{Vectorized}\\[1em]
+\includegraphics[width=0.9\textwidth]{\PicsPath/CompGraph_4.pdf}\\[-1em]
+{\small
+\begin{align*}
+(1)\ & \yhat = \pvec\T \vx \\
+(2)\ & \ell = (\yhat - y)^2
+\end{align*}
+}
+\end{column}
+\end{columns}
+ 
+\end{frame}
 
-\begin{frame}{Computation Graphs --- Flexible Operations}
-
-\vskip 0.5em
-
+% -------------------------------------------------------
+ 
+\begin{frame}{Computation Graphs - Flexible Operations}
+ 
+\vskip 2em
+ 
 \structure{Same graph structure, different models:}
-
-\vskip 1em
-\centering
-\includegraphics[width=0.5\textwidth]{\PicsPath/CompGraph_3.pdf}
-
-\vskip 1em
-
+ 
+\vskip 2em
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \centering
-\structure{Linear regression + MSE}\\[0.5em]
+\structure{Linear regression + MSE}\\[1em]
+\includegraphics[width=0.5\textwidth]{\PicsPath/CompGraph_3.pdf}\\[-1em]
 {\small
-(1) $\yhat = \theta_0 + \theta_1 x$\\
-(2) $\ell = (\yhat - y)^2$
+\begin{align*}
+(1)\ & \yhat = \theta_0 + \theta_1 x \\
+(2)\ & \ell = (\yhat - y)^2
+\end{align*}
 }
 \end{column}
 \begin{column}{0.48\textwidth}
 \centering
-\structure{Logistic regression + BCE}\\[0.5em]
+\structure{Logistic regression + BCE}\\[1em]
+\includegraphics[width=0.5\textwidth]{\PicsPath/CompGraph_3.pdf}\\[-1em]
 {\small
-(1) $\yhat = \sigma(\theta_0 + \theta_1 x)$\\
-(2) $\ell = -y\log\yhat - (1-y)\log(1-\yhat)$
+\begin{align*}
+(1)\ & \yhat = \sigma(\theta_0 + \theta_1 x) \\
+(2)\ & \ell = -y\log\yhat - (1-y)\log(1-\yhat)
+\end{align*}
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
 
 % -------------------------------------------------------
-
-\begin{frame}{Computation Graphs --- Scalar vs Vector}
-
-\vskip 0.5em
-
+ 
+\begin{frame}{Computation Graphs - Scalar vs Vector}
+ 
+\vskip 2em
+ 
 \structure{Scalar notation} (one neuron at a time) vs \structure{vector notation} (whole layer at once):
-
+ 
 \vskip 1em
+ 
+\begin{columns}[c]
+\begin{column}{0.6\textwidth}
 \centering
-\includegraphics[width=0.55\textwidth]{\PicsPath/CompGraph_7.pdf}
-
-\vskip 1em
-
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\centering
-\structure{Scalar}\\[0.5em]
-{\small
-(1) $h = h(x, \theta_0)$\\
-(2) $u = u(h, \theta_1)$, $v = v(h, \theta_2)$\\
-(3) $\yhat = \yhat(u, v)$\\
-(4) $\ell = \ell(\yhat, y)$
-}
+\includegraphics[width=\textwidth]{\PicsPath/CompGraph_7.pdf}
 \end{column}
-\begin{column}{0.48\textwidth}
+\begin{column}{0.07\textwidth}
 \centering
-\structure{Vector}\\[0.5em]
+\structure{Scalar}  
+\vskip 7em
+\structure{Vector}
+\end{column}
+\begin{column}{0.3\textwidth}
 {\small
-(1) $\vh = \vh(\vx, \theta_0)$\\
-(2) $\vz = \vz(\vh, \pvec)$\\
-(3) $\yhat = \yhat(\vz)$\\
-(4) $\ell = \ell(\yhat, y)$
+\begin{align*}
+(1)\ & h = h(x, \theta_0) \\
+(2)\ & u = u(h, \theta_1) \\
+     & v = v(h, \theta_2) \\
+(3)\ & \yhat = \yhat(u, v) \\
+(4)\ & \ell = \ell(\yhat, y)
+\end{align*}
+}
+{\small
+\begin{align*}
+(1)\ & h = h(x, \theta_0) \\
+(2)\ & \vz = \vz(h, \pvec) \\
+(3)\ & \yhat = \yhat(\vz) \\
+(4)\ & \ell = \ell(\yhat, y)
+\end{align*}
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
+ 
 
 % -------------------------------------------------------
 \section{Backpropagation}
 % -------------------------------------------------------
 
-\begin{frame}{Forward and Backward Pass}
+\begin{frame}{Forward and Backward Pass (Backpropagation)}
 
 \vskip 2em
 
-\structure{Forward pass} --- compute prediction and loss:
+\structure{Forward pass} - prediction and loss; \hskip 1cm \structure{Backward pass} - parameter gradients
 
-\vskip 0.5em
+\vskip 2em
 \centering
 \includegraphics[width=0.55\textwidth]{\PicsPath/CompGraph_1.pdf}
 
@@ -216,14 +284,12 @@ $\vx \longrightarrow \vh^{(1)} \longrightarrow \cdots \longrightarrow \vh^{(L)} 
 \end{column}
 \begin{column}{0.48\textwidth}
 \centering
-\structure{Backward pass}\\[0.3em]
+\structure{Backpropagation}\\[0.3em]
 $\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfrac{\partial \ell}{\partial \vh^{(L)}} \longleftarrow \ell$
 \end{column}
 \end{columns}
 
 \vskip 1em
-\centering
-\alert{\textbf{Backpropagation} = computing the backward pass efficiently}
 
 \end{frame}
 
@@ -231,13 +297,13 @@ $\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfr
 
 \begin{frame}{Two Key Rules}
 
-\vskip 1em
+\vskip 2em
 
 \structure{Goal:} compute $\nabla_{\pvec}\, \loss(\pvec)$ for the full dataset
 
 \vskip 1.5em
 
-\structure{1) Sum rule} --- gradient of average = average of gradients:
+\structure{1) Sum rule} - gradient of average = average of gradients:
 \[
 \nabla_{\pvec}\, \loss(\pvec)
 = \nabla_{\pvec} \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \ell(\vx^{(i)}, y^{(i)}, \pvec)
@@ -249,7 +315,7 @@ $\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfr
 
 \vskip 1.5em
 
-\structure{2) Chain rule} --- THE rule for backprop:
+\structure{2) Chain rule} - THE rule for backprop:
 \[
 \frac{d}{dx} f(g(x)) = \frac{df}{dg}\frac{dg}{dx}
 \qquad
@@ -259,69 +325,81 @@ $\dfrac{\partial \ell}{\partial \pvec} \longleftarrow \cdots \longleftarrow \dfr
 \end{frame}
 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Local vs Global Gradients}
-
-\vskip 0.5em
-
+ 
+\vskip 2em
+ 
 \centering
-\includegraphics[width=0.65\textwidth]{\PicsPath/CompGraph_locglob_1.pdf}
-
+\includegraphics[width=0.55\textwidth]{\PicsPath/CompGraph_locglob_1.pdf}
+ 
 \vskip 1em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
-\structure{Local gradient} (easy --- per node):
-\[ \frac{\partial\, \text{out}}{\partial\, \text{in}} \]
-Each node computes its own derivative
+\structure{\color[HTML]{0066FF}Local gradient} (easy --- per node):
+\[ {\color[HTML]{0066FF}\frac{\partial\, \text{out}}{\partial\, \text{in}}} \]
+Can compute during forward pass
 \end{column}
 \begin{column}{0.48\textwidth}
-\structure{Global gradient} (chain rule):
-\[ \frac{\partial \ell}{\partial\, \text{in}} = \frac{\partial \ell}{\partial\, \text{out}} \cdot \frac{\partial\, \text{out}}{\partial\, \text{in}} \]
-Multiply incoming global gradient by local gradient
+\structure{\color[HTML]{FF0000}Global gradient} (chain rule):
+\[ {\color[HTML]{FF0000}\frac{\partial \ell}{\partial\, \text{in}}} = {\color[HTML]{FF0000}\frac{\partial \ell}{\partial\, \text{out}}} \cdot {\color[HTML]{0066FF}\frac{\partial\, \text{out}}{\partial\, \text{in}}} \]
+Goes backward: incoming {\color[HTML]{FF0000}global} $\times$ {\color[HTML]{0066FF}local} $=$ new {\color[HTML]{FF0000}global} for the left
 \end{column}
 \end{columns}
+
 
 \end{frame}
 
 % -------------------------------------------------------
-
+ 
 \begin{frame}{Backprop Example: Linear Regression (Symbolic)}
-
+ 
+\vskip 1em
+ 
+\centering
+\includegraphics[width=0.55\textwidth]{\PicsPath/CompGraph_locglob_1.pdf}
+ 
 \vskip 0.5em
-
+ 
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
-\structure{Forward pass}\\[0.3em]
+\structure{Forward pass}\\[-1em]
 {\small
-(1) $h = \theta_1 x$\\
-(2) $\yhat = \theta_0 + h$\\
-(3) $z = \yhat - y$\\
-(4) $\ell = z^2$
+\begin{align*}
+(1)\ & h = \theta_1 x\\
+(2)\ & \yhat = \theta_0 + h\\
+(3)\ & z = \yhat - y\\
+(4)\ & \ell = z^2
+\end{align*}
 }
 \end{column}
 \begin{column}{0.32\textwidth}
-\structure{\color{thwsblue}Local gradients}\\[0.3em]
-{\small
-(1) $\partial h/\partial \theta_1 = x$\\
-(2) $\partial \yhat/\partial \theta_0 = 1$\\
-\phantom{(2)} $\partial \yhat/\partial h = 1$\\
-(3) $\partial z/\partial \yhat = 1$\\
-(4) $\partial \ell/\partial z = 2z$
+\structure{\color[HTML]{0066FF}Local gradients}\\[-1em]
+{\small\color[HTML]{0066FF}
+\begin{align*}
+(1)\ & \partial h/\partial \theta_1 = x\\
+(2)\ & \partial \yhat/\partial \theta_0 = 1\\
+     & \partial \yhat/\partial h = 1\\
+(3)\ & \partial z/\partial \yhat = 1\\
+(4)\ & \partial \ell/\partial z = 2z
+\end{align*}
 }
 \end{column}
 \begin{column}{0.36\textwidth}
-\structure{\color{carnelian}Global gradients}\\[0.3em]
-{\small
-(1) $\partial \ell/\partial \theta_1 = \partial \ell/\partial h \cdot x = 2zx$\\
-(3) $\partial \ell/\partial \theta_0 = \partial \ell/\partial \yhat \cdot 1 = 2z$\\
-\phantom{(3)} $\partial \ell/\partial h = \partial \ell/\partial \yhat \cdot 1 = 2z$\\
-(2) $\partial \ell/\partial \yhat = \partial \ell/\partial z \cdot 1 = 2z$\\
-(1) $\partial \ell/\partial z = 1 \cdot 2z = 2z$
+\structure{\color[HTML]{FF0000}Global gradients}\\[-1em]
+{\small\color[HTML]{FF0000}
+\begin{align*}
+(4)\ & \partial \ell/\partial z = 1 \cdot {\color[HTML]{0066FF}2z} = 2z\\
+(3)\ & \partial \ell/\partial \yhat = 2z \cdot {\color[HTML]{0066FF}1} = 2z\\
+(2)\ & \partial \ell/\partial h = 2z \cdot {\color[HTML]{0066FF}1} = 2z\\
+     & \partial \ell/\partial \theta_0 = 2z \cdot {\color[HTML]{0066FF}1} = 2z\\
+(1)\ & \partial \ell/\partial \theta_1 = 2z \cdot {\color[HTML]{0066FF}x} = 2zx
+\end{align*}
 }
 \end{column}
 \end{columns}
-
+ 
 \end{frame}
 
 % -------------------------------------------------------
@@ -456,8 +534,8 @@ Multiply incoming global gradient by local gradient
 \begin{column}{0.35\textwidth}
 Each node stores:
 \begin{itemize}
-\item \texttt{\color{thwspetrol}.val} --- forward value
-\item \texttt{\color{thwsorange}.grad} --- accumulated gradient
+\item \texttt{\color{thwspetrol}.val} - forward value
+\item \texttt{\color{thwsorange}.grad} - accumulated gradient
 \end{itemize}
 \vskip 0.5em
 Each compute node implements:
@@ -544,8 +622,8 @@ b.grad = z.grad
 \structure{Computation graphs}
 \begin{itemize}
 \item Decompose complex functions into atomic operations
-\item Forward pass --- function evaluation
-\item Backward pass --- gradient computation
+\item Forward pass - function evaluation
+\item Backward pass - gradient computation
 \item Flexible level of detail and definition of operations
 \end{itemize}
 
@@ -553,7 +631,7 @@ b.grad = z.grad
 
 \structure{Backpropagation}
 \begin{itemize}
-\item Computes gradients --- does \textbf{not} optimize
+\item Computes gradients - does \textbf{not} optimize
 \item Two rules: sum rule + chain rule
 \item {\color{thwsblue}Local gradients} easy per node
 \item {\color{carnelian}Global gradients} via chain rule
