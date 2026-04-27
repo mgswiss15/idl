@@ -1,4 +1,52 @@
 \begin{tikzpicture}
-  \draw[thwsgrey, thick] (0,0) rectangle (4,3);
-  \node[text=thwsgrey, font=\small] at (2,1.5) {momentum\_vs\_sgd};
+\begin{axis}[
+    width=6.5cm, height=5.5cm,
+    xmin=-3, xmax=3, ymin=-2, ymax=2,
+    xtick=\empty, ytick=\empty,
+    axis lines=center,
+    axis line style={thwsgrey!60},
+    xlabel={$\theta_1$},
+    ylabel={$\theta_2$},
+    xlabel style={anchor=north east},
+    ylabel style={anchor=north east},
+    /pgf/number format/1000 sep={},
+    legend style={
+        at={(0.98,0.98)},
+        anchor=north east,
+        font=\small,
+        draw=none,
+        fill=none,
+    },
+    legend cell align=left,
+    clip=false,
+]
+
+% Contour ellipses (narrow valley along theta1)
+\addplot[thwsgrey, domain=0:360, samples=100] ({2.7*cos(x)},   {0.6*sin(x)});
+\addplot[thwsgrey, domain=0:360, samples=100] ({2.0*cos(x)},   {0.45*sin(x)});
+\addplot[thwsgrey, domain=0:360, samples=100] ({1.2*cos(x)},   {0.27*sin(x)});
+\addplot[thwsgrey, domain=0:360, samples=100] ({0.5*cos(x)},   {0.11*sin(x)});
+
+% SGD trajectory - zigzags across valley
+\addplot[carnelian, thick, mark=*, mark size=1.5pt,
+    mark options={carnelian}]
+    coordinates {
+        (-2.5, 0.5) (-2.0,-0.45) (-1.5, 0.38) (-1.0,-0.32)
+        (-0.6, 0.22) (-0.2,-0.14) (0,0)
+    };
+\addlegendentry{SGD}
+
+% Momentum trajectory - smooth path along valley
+\addplot[thwspetrol, thick, mark=*, mark size=1.5pt,
+    mark options={thwspetrol}]
+    coordinates {
+        (-2.5, 0.5) (-2.0, 0.28) (-1.4, 0.12)
+        (-0.8, 0.04) (-0.2, 0.01) (0,0)
+    };
+\addlegendentry{momentum}
+
+% Start point
+\node[font=\small, anchor=south] at (axis cs:-2.5, 0.52) {start};
+
+\end{axis}
 \end{tikzpicture}

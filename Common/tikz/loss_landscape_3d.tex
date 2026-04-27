@@ -1,4 +1,27 @@
 \begin{tikzpicture}
-  \draw[thwsgrey, thick] (0,0) rectangle (4,3);
-  \node[text=thwsgrey, font=\small] at (2,1.5) {loss\_landscape\_3d};
+\begin{axis}[
+    width=6.5cm, height=5.5cm,
+    view={45}{30},
+    axis lines=none,
+    ztick=\empty, xtick=\empty, ytick=\empty,
+    colormap={thwsmap}{
+        color(0)=(thwsgrey)
+        color(1)=(lightblue)
+        color(2)=(thwspetrol)
+    },
+    /pgf/number format/1000 sep={},
+    samples=30,
+    domain=-2:2,
+]
+\addplot3[
+    surf,
+    opacity=0.85,
+    shader=interp,
+] {
+    0.4*(x^2 + y^2)
+    - 0.8*exp(-((x-0.8)^2 + (y-0.8)^2)*3)
+    - 0.6*exp(-((x+0.9)^2 + (y-0.3)^2)*4)
+    + 0.3*sin(deg(2*x))*cos(deg(2*y))
+};
+\end{axis}
 \end{tikzpicture}

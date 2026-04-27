@@ -1,4 +1,49 @@
 \begin{tikzpicture}
-  \draw[thwsgrey, thick] (0,0) rectangle (4,3);
-  \node[text=thwsgrey, font=\small] at (2,1.5) {normalization\_landscape};
+\begin{axis}[
+    name=ax1,
+    width=3.2cm, height=3.2cm,
+    xmin=-3, xmax=3, ymin=-3, ymax=3,
+    xtick=\empty, ytick=\empty,
+    axis lines=center,
+    axis line style={thwsgrey},
+    title={\small unnormalized},
+    title style={color=thwspetrol},
+    /pgf/number format/1000 sep={},
+]
+% Elongated ellipses (ill-conditioned)
+\addplot[thwspetrol, thick, domain=0:360, samples=100]
+    ({2.6*cos(x)}, {0.5*sin(x)});
+\addplot[thwspetrol, domain=0:360, samples=100]
+    ({1.8*cos(x)}, {0.35*sin(x)});
+\addplot[thwspetrol, domain=0:360, samples=100]
+    ({1.0*cos(x)}, {0.2*sin(x)});
+% GD trajectory - zigzag
+\addplot[carnelian, thick, ->, samples=6]
+    coordinates {(-2.4,0.0) (-1.6,0.28) (-1.0,-0.18) (-0.5,0.1) (-0.1,-0.04) (0,0)};
+\end{axis}
+
+\begin{axis}[
+    name=ax2,
+    at={(ax1.right of south east)}, anchor=left of south west,
+    xshift=0.6cm,
+    width=3.2cm, height=3.2cm,
+    xmin=-3, xmax=3, ymin=-3, ymax=3,
+    xtick=\empty, ytick=\empty,
+    axis lines=center,
+    axis line style={thwsgrey},
+    title={\small normalized},
+    title style={color=thwspetrol},
+    /pgf/number format/1000 sep={},
+]
+% Circular contours (well-conditioned)
+\addplot[thwspetrol, thick, domain=0:360, samples=100]
+    ({2.2*cos(x)}, {2.2*sin(x)});
+\addplot[thwspetrol, domain=0:360, samples=100]
+    ({1.5*cos(x)}, {1.5*sin(x)});
+\addplot[thwspetrol, domain=0:360, samples=100]
+    ({0.7*cos(x)}, {0.7*sin(x)});
+% GD trajectory - smooth
+\addplot[carnelian, thick, ->, samples=5]
+    coordinates {(-1.8,-1.8) (-1.0,-1.0) (-0.5,-0.5) (-0.1,-0.1) (0,0)};
+\end{axis}
 \end{tikzpicture}

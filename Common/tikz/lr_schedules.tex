@@ -1,4 +1,42 @@
 \begin{tikzpicture}
-  \draw[thwsgrey, thick] (0,0) rectangle (4,3);
-  \node[text=thwsgrey, font=\small] at (2,1.5) {lr\_schedules};
+\begin{axis}[
+    width=6.5cm, height=5cm,
+    xlabel={training step $t$},
+    ylabel={learning rate $\eta_t$},
+    xmin=0, xmax=100,
+    ymin=0, ymax=1.15,
+    xtick=\empty,
+    ytick=\empty,
+    axis lines=left,
+    tick style={draw=none},
+    legend style={
+        at={(0.98,0.95)},
+        anchor=north east,
+        font=\small,
+        draw=none,
+        fill=none,
+    },
+    legend cell align=left,
+    /pgf/number format/1000 sep={},
+    clip=false,
+]
+
+% Step decay: eta_0=1, gamma=0.5, k=25
+\addplot[thick, color=thwspetrol, domain=0:100, samples=200]
+    {0.5^(floor(x/25))};
+\addlegendentry{step decay}
+
+% Cosine annealing: eta_min=0.05, eta_0=1, T=100
+\addplot[thick, color=thwsorange, domain=0:100, samples=200]
+    {0.05 + 0.5*(1 - 0.05)*(1 + cos(deg(pi*x/100)))};
+\addlegendentry{cosine annealing}
+
+% Warmup t=0..20 linear, then cosine t=20..100
+\addplot[thick, color=carnelian, domain=0:20, samples=50]
+    {x/20};
+\addplot[thick, color=carnelian, domain=20:100, samples=100, forget plot]
+    {0.05 + 0.5*(1 - 0.05)*(1 + cos(deg(pi*(x-20)/80)))};
+\addlegendentry{warmup + cosine}
+
+\end{axis}
 \end{tikzpicture}
