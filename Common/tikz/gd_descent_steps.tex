@@ -14,56 +14,67 @@
     clip=false,
 ]
 
-% Explored part of curve - light gray
-\addplot[thick, color=thwsgrey, domain=-4.3:0.35, samples=200] {
+% Full curve in light gray
+\addplot[thick, color=thwsgrey, domain=-4.3:4.0, samples=300] {
     0.3*tanh(x - 0.5) + 1.5
     - 0.7*exp(-2.0*(x+1.8)^2)
     - 1.4*exp(-2.0*(x-2.2)^2)
     + 0.15*exp(-3.0*(x+0.5)^2)
 };
 
-% Local minimum marker
+% Local min
 \addplot[carnelian, mark=*, mark size=2pt, mark options={carnelian}]
     coordinates {(-1.807, 0.507)};
 \node[font=\small, text=carnelian, anchor=north, yshift=-3pt]
     at (axis cs:-1.807, 0.507) {local min};
 
-% Gradient descent steps - dots
-\addplot[thwsorange, mark=*, mark size=2.5pt, mark options={thwsorange},
-    only marks]
+% Global min
+\addplot[thwsblue, mark=*, mark size=2pt, mark options={thwsblue}]
+    coordinates {(2.192, 0.380)};
+\node[font=\small, text=thwsblue, anchor=north, yshift=-3pt]
+    at (axis cs:2.192, 0.380) {global min};
+
+% ---- Trajectory A: left of local max -> cross bump -> descend ->
+%      cross valley -> descend to local min ----
+\addplot[carnelian, mark=*, mark size=2pt, mark options={carnelian}, only marks]
     coordinates {
-        (-3.8, 1.200)
-        (-3.0, 1.161)
-        (-2.2, 0.694)
-        (-0.8, 1.261)
-        ( 0.3, 1.462)
-        (-1.2, 0.913)
+        ( 0.600, 1.526)
+        ( 0.200, 1.446)
+        (-0.300, 1.426)
+        (-0.800, 1.261)
+        (-2.200, 0.694)
+        (-1.600, 0.567)
         (-1.807, 0.507)
     };
+% solid steps
+\draw[->, carnelian, thin] (axis cs: 0.600,1.526) -- (axis cs: 0.212,1.448);
+\draw[->, carnelian, thin] (axis cs: 0.200,1.446) -- (axis cs:-0.288,1.427);
+% dashed: jump across bump plateau
+\draw[->, carnelian, thin, dashed] (axis cs:-0.300,1.426) -- (axis cs:-0.788,1.264);
+% solid descent on left side
+\draw[->, carnelian, thin] (axis cs:-0.800,1.261) -- (axis cs:-2.188,0.697);
+% dashed: jump across local min valley
+\draw[->, carnelian, thin, dashed] (axis cs:-2.200,0.694) -- (axis cs:-1.612,0.570);
+% solid: final descent to local min
+\draw[->, carnelian, thin] (axis cs:-1.600,0.567) -- (axis cs:-1.795,0.510);
+\node[font=\small, text=carnelian, anchor=south east]
+    at (axis cs:0.600, 1.526) {$\pvec_0$};
 
-% Step labels
-\node[font=\scriptsize, anchor=south west] at (axis cs:-3.8,  1.200) {$\pvec_0$};
-\node[font=\scriptsize, anchor=south west] at (axis cs:-3.0,  1.161) {$\pvec_1$};
-\node[font=\scriptsize, anchor=south west] at (axis cs:-2.2,  0.694) {$\pvec_2$};
-\node[font=\scriptsize, anchor=north east] at (axis cs:-0.8,  1.261) {$\pvec_3$};
-\node[font=\scriptsize, anchor=south]      at (axis cs: 0.3,  1.462) {$\pvec_4$};
-\node[font=\scriptsize, anchor=west]       at (axis cs:-1.2,  0.913) {$\pvec_5$};
-\node[font=\scriptsize, anchor=north west] at (axis cs:-1.807,0.507) {$\pvec_6$};
-
-% Arrows between steps (drawn in TikZ axis cs)
-\draw[->, thwsorange, thick]
-    (axis cs:-3.8, 1.200) -- (axis cs:-3.02, 1.162);
-\draw[->, thwsorange, thick]
-    (axis cs:-3.0, 1.161) -- (axis cs:-2.22, 0.698);
-\draw[->, thwsorange, thick]
-    (axis cs:-2.2, 0.694) -- (axis cs:-0.82, 1.258);
-% jump over bump - dashed
-\draw[->, thwsorange, thick, dashed]
-    (axis cs:-0.8, 1.261) -- (axis cs:0.28, 1.458);
-\draw[->, thwsorange, thick, dashed]
-    (axis cs:0.3, 1.462) -- (axis cs:-1.18, 0.917);
-\draw[->, thwsorange, thick]
-    (axis cs:-1.2, 0.913) -- (axis cs:-1.787, 0.510);
+% ---- Trajectory B: right of local max -> global min ----
+\addplot[thwsblue, mark=*, mark size=2pt, mark options={thwsblue}, only marks]
+    coordinates {
+        (1.100, 1.537)
+        (1.400, 1.326)
+        (1.700, 0.901)
+        (2.000, 0.479)
+        (2.192, 0.380)
+    };
+\draw[->, thwsblue, thin] (axis cs:1.100,1.537) -- (axis cs:1.388,1.329);
+\draw[->, thwsblue, thin] (axis cs:1.400,1.326) -- (axis cs:1.688,0.905);
+\draw[->, thwsblue, thin] (axis cs:1.700,0.901) -- (axis cs:1.988,0.482);
+\draw[->, thwsblue, thin] (axis cs:2.000,0.479) -- (axis cs:2.180,0.381);
+\node[font=\small, text=thwsblue, anchor=south west]
+    at (axis cs:1.100, 1.537) {$\pvec_0'$};
 
 \end{axis}
 \end{tikzpicture}

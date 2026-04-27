@@ -47,44 +47,44 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \vskip 1.5em
 
 \structure{Open question:}
- 
+
 \vskip 0.5em
- 
+
 \begin{center}
-{\large How do we \textbf{use} gradients to find good parameters $\pvec$?}
+{\large How do we \textbf{use} those gradients to find good parameters $\pvec$?}
 \end{center}
- 
+
 \vskip 1.5em
 
-\large 
-\alert{\textbf{This lecture:}} \textbf{algorithms for minimizing $\loss(\pvec)$}
- 
+\structure{This lecture:} algorithms for minimizing $\loss(\pvec)$
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{The Optimization Problem}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[c]
 \begin{column}{0.54\textwidth}
-\structure{Goal:} find $\pvec$ minimizing empirical loss $\loss(\pvec)$
- 
+
+\structure{Goal:} find parameters minimizing empirical loss
+
 \[
     \pvec^* = \arg\min_{\pvec}\; \loss(\pvec)
     = \arg\min_{\pvec}\; \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
 \]
- 
+
 \vskip 1em
- 
+
 \structure{Why is this hard?}
 \begin{itemize}
     \item $\pvec$ can have millions of dimensions
     \item $\loss$ is \textbf{non-convex} - no closed-form solution
     \item Computing $\loss(\pvec)$ over all data - expensive
 \end{itemize}
- 
+
 \end{column}
 \begin{column}{0.42\textwidth}
 \centering
@@ -93,57 +93,71 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
 \section{Gradient Descent}
 % -------------------------------------------------------
- 
+
 \begin{frame}{Gradient Descent}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[c]
-\begin{column}{0.6\textwidth}
- 
+\begin{column}{0.52\textwidth}
+
 \structure{Recall from L3:} gradient points uphill
 \[
     \pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec)
 \]
- 
+
 \vskip 0.5em
- 
+
+% \begin{algorithm}[H]
+% \DontPrintSemicolon
+% \For{epoch $= 1, \ldots, T$}{
+%     \For{each mini-batch $\mathcal{B} \subset \dataset$}{
+%         forward: $f_{\pvec}(\vx^{(i)})$ for $i \in \mathcal{B}$ \;
+%         loss: $\hat{\loss} = \frac{1}{|\mathcal{B}|}\sum_{i\in\mathcal{B}} \ell_i$ \;
+%         backward: $\nabla_{\pvec} \hat{\loss}$ \;
+%         update: $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \hat{\loss}$ \;
+%     }
+% }
+% \end{algorithm}
+
+
 \begin{algorithm}[H]
 \DontPrintSemicolon
-\KwIn{dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$, learning rate $\eta$, init $\pvec_0$}
+\KwIn{dataset $\dataset$, learning rate $\eta$, init $\pvec_0$}
 \For{$t = 1, 2, \ldots$ \textnormal{until convergence}}{
-    compute $\nabla_{\pvec} \loss(\pvec; \dataset)$ via backprop \;
-    $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec; \dataset)$ \;
+    \structure{forward:} $f_{\pvec}(\vx^{(i)})$ for $i = 1, \ldots, \nsamples$ \;
+    loss: $\loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})$ \;
+    backprop: $\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
+    $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
 }
 \end{algorithm}
- 
+
 \end{column}
-\begin{column}{0.35\textwidth}
-
-\vskip 2em
-
+\begin{column}{0.44\textwidth}
 \centering
 \input{\CommonPath/tikz/gradient_descent_2d.tex}
 \end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
 \end{columns}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{The Loss Landscape}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[c]
 \begin{column}{0.45\textwidth}
- 
+
 \structure{Loss landscape is non-convex:}
 \begin{itemize}
     \item \textbf{Local minima} - gradient zero
@@ -151,65 +165,86 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
     \item \textbf{Flat regions} - gradient zero (tiny)
     \item \textbf{Cliffs} - sudden sharp changes
 \end{itemize}
- 
-\vskip 1em
- 
-% \structure{In practice:}
-% \begin{itemize}
-%     \item Many local minima exist - but most are \alert{good enough}
-%     \item Saddle points - bigger problem in high dimensions
-%     \item Shape depends on initialization and data scaling
-% \end{itemize}
- 
+
 \end{column}
 \begin{column}{0.45\textwidth}
 \centering
 \input{\CommonPath/tikz/loss_landscape_features.tex}
 \end{column}
 \begin{column}{0.05\textwidth}
-  
 \end{column}
 \end{columns}
- 
+
 \end{frame}
- 
+
+% -------------------------------------------------------
+
+\begin{frame}{Gradient Descent on Loss Landscape}
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.45\textwidth}
+
+\structure{GD follows gradient downhill:}
+\begin{itemize}
+    \item Steps proportional to gradient magnitude
+    \item Curve revealed only where explored
+    \item Converges to \textbf{local} minimum - not necessarily global
+\end{itemize}
+
+\vskip 1em
+
+\alert{Problem:} which minimum we find depends on initialization
+
+\end{column}
+\begin{column}{0.45\textwidth}
+\centering
+\input{\CommonPath/tikz/gd_descent_steps.tex}
+\end{column}
+\begin{column}{0.05\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
 % -------------------------------------------------------
 \section{Stochastic and Mini-Batch Gradient Descent}
 % -------------------------------------------------------
- 
+
 \begin{frame}{The Cost of Full-Batch GD}
- 
+
 \vskip 2em
- 
+
 \structure{Full-batch gradient descent computes:}
 \[
-    \nabla_{\pvec} \loss(\pvec; \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
+    \nabla_{\pvec} \loss(\pvec) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
 \]
- 
+
 \vskip 0.5em
- 
+
 \structure{Problem:} $\nsamples$ can be millions - one update requires full pass through data
- 
+
 \vskip 1.5em
- 
+
 \structure{Key insight:} exact gradient not needed - \textbf{unbiased estimate is enough}
- 
+
 \vskip 0.5em
- 
+
 Random subset $\mathcal{B} \subset \{1,\ldots,\nsamples\}$ (\textbf{mini-batch}):
 \[
     \hat{g} = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
     \qquad \Rightarrow \qquad \mathbb{E}[\hat{g}] = \nabla_{\pvec} \loss(\pvec)
 \]
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{Batch, Mini-Batch, and SGD}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[t]
 \begin{column}{0.32\textwidth}
 \structure{Batch GD} \\[0.5em]
@@ -242,23 +277,23 @@ $|\mathcal{B}| = 1$
 \end{itemize}
 \end{column}
 \end{columns}
- 
+
 \vskip 1.5em
- 
+
 \structure{Noise as feature:} stochastic updates help escape sharp minima and saddle points
- 
+
 \vskip 0.5em
- 
+
 \structure{In PyTorch:} \texttt{torch.utils.data.DataLoader(dataset, batch\_size=B, shuffle=True)}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
-\begin{frame}{Training Loop}
- 
+
+\begin{frame}{The Training Loop}
+
 \vskip 2em
- 
+
 \begin{columns}[t]
 \begin{column}{0.56\textwidth}
 \begin{algorithm}[H]
@@ -284,35 +319,35 @@ $|\mathcal{B}| = 1$
 \end{itemize}
 \end{column}
 \end{columns}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
 \section{Input Normalization and Weight Initialization}
 % -------------------------------------------------------
- 
+
 \begin{frame}{Input Normalization}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[c]
 \begin{column}{0.54\textwidth}
- 
+
 \structure{Problem:} features on different scales $\Rightarrow$ ill-conditioned landscape
- 
+
 \vskip 0.5em
- 
+
 \begin{itemize}
     \item Narrow valleys - $\eta$ too large in one direction, too small in another
     \item GD oscillates or diverges
 \end{itemize}
- 
+
 \vskip 1em
- 
+
 \structure{Solution:} normalize inputs before training
- 
+
 \vskip 0.5em
- 
+
 \structure{Z-score normalization:}
 \[
     \tilde{x}_j = \frac{x_j - \mu_j}{\sigma_j}
@@ -321,7 +356,7 @@ $|\mathcal{B}| = 1$
     \item $\mu_j, \sigma_j$ - computed on \textbf{training set only}
     \item Same transform applied to val and test sets
 \end{itemize}
- 
+
 \end{column}
 \begin{column}{0.42\textwidth}
 \centering
@@ -330,28 +365,28 @@ $|\mathcal{B}| = 1$
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{Weight Initialization}
- 
+
 \vskip 2em
- 
+
 \structure{Why initialization matters:}
 \begin{itemize}
     \item All-zero weights $\Rightarrow$ all neurons compute same thing - \textbf{symmetry breaking} needed
     \item Weights too large $\Rightarrow$ activations saturate - gradients vanish
     \item Weights too small $\Rightarrow$ signal shrinks layer by layer - gradients vanish
 \end{itemize}
- 
+
 \vskip 1em
- 
+
 \structure{Key idea:} variance of activations preserved across layers
- 
+
 \vskip 0.5em
- 
+
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Xavier / Glorot initialization} \\
@@ -368,74 +403,74 @@ For \textbf{ReLU} activations:
 \]
 \end{column}
 \end{columns}
- 
+
 \vskip 1em
- 
+
 \structure{In PyTorch:} \texttt{nn.init.xavier\_uniform\_()}, \texttt{nn.init.kaiming\_normal\_()}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
 \section{Momentum and Adaptive Methods}
 % -------------------------------------------------------
- 
+
 \begin{frame}{Limitations of Vanilla GD}
- 
+
 \vskip 2em
- 
+
 \structure{Even with good initialization and normalization - vanilla SGD struggles:}
- 
+
 \vskip 0.5em
- 
+
 \begin{itemize}
     \item \textbf{Same $\eta$ for all parameters} - not all directions need same step size
     \item \textbf{Oscillations in narrow valleys} - gradients point across valley, not toward minimum
     \item \textbf{Slow progress along flat directions}
     \item \textbf{Noisy mini-batch gradients} - updates jump around
 \end{itemize}
- 
+
 \vskip 1.5em
- 
+
 \structure{Three ideas to fix this:}
 \begin{enumerate}
     \item \textbf{Momentum} - smooth out noisy gradients
     \item \textbf{RMSProp} - adapt step size per parameter
     \item \textbf{Adam} - combine both
 \end{enumerate}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{Momentum}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[c]
 \begin{column}{0.54\textwidth}
- 
+
 \structure{Idea:} accumulate velocity in direction of consistent gradients
- 
+
 \vskip 0.5em
- 
+
 \[
     \vm_t = \beta\, \vm_{t-1} + (1-\beta)\, \nabla_{\pvec} \loss_t
 \]
 \[
     \pvec \leftarrow \pvec - \eta\, \vm_t
 \]
- 
+
 \begin{itemize}
     \item $\beta \in [0,1)$: momentum coefficient, typically 0.9
     \item $\vm_t$: \textbf{exponential moving average} of gradients
     \item Consistent directions $\Rightarrow$ accumulate, accelerate
     \item Inconsistent directions $\Rightarrow$ cancel, dampen oscillations
 \end{itemize}
- 
+
 \vskip 0.5em
- 
+
 \structure{In PyTorch:} \texttt{torch.optim.SGD(params, lr=$\eta$, momentum=0.9)}
- 
+
 \end{column}
 \begin{column}{0.42\textwidth}
 \centering
@@ -444,51 +479,51 @@ For \textbf{ReLU} activations:
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{RMSProp}
- 
+
 \vskip 2em
- 
+
 \structure{Idea:} adapt learning rate \textbf{per parameter} based on recent gradient magnitudes
- 
+
 \[
     \vv_t = \gamma\, \vv_{t-1} + (1-\gamma)\, \bigl(\nabla_{\pvec} \loss_t\bigr)^2
 \]
 \[
     \pvec \leftarrow \pvec - \frac{\eta}{\sqrt{\vv_t + \epsilon}}\, \nabla_{\pvec} \loss_t
 \]
- 
+
 \begin{itemize}
     \item $\vv_t$: exp.\ moving average of \textbf{squared} gradients, per parameter
     \item Large gradients $\Rightarrow$ \textbf{smaller} step
     \item Small gradients $\Rightarrow$ \textbf{larger} step
     \item $\epsilon > 0$ (e.g.\ $10^{-8}$) for numerical stability
 \end{itemize}
- 
+
 \vskip 1em
- 
+
 \structure{Effect:} automatically rescales each dimension - good for ill-conditioned landscapes
- 
+
 \vskip 0.5em
- 
+
 \structure{In PyTorch:} \texttt{torch.optim.RMSprop(params, lr=$\eta$, alpha=0.99)}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{Adam}
- 
+
 \vskip 2em
- 
+
 \structure{Adam (Adaptive Moment Estimation):} combines momentum + RMSProp
- 
+
 \vskip 0.5em
- 
+
 \[
     \vm_t = \beta_1\, \vm_{t-1} + (1-\beta_1)\, \nabla_{\pvec} \loss_t
     \qquad \text{(first moment - mean)}
@@ -497,87 +532,87 @@ For \textbf{ReLU} activations:
     \vv_t = \beta_2\, \vv_{t-1} + (1-\beta_2)\, \bigl(\nabla_{\pvec} \loss_t\bigr)^2
     \qquad \text{(second moment - variance)}
 \]
- 
+
 \structure{Bias correction} (important early in training when $\vm_0 = \vv_0 = 0$):
 \[
     \hat{\vm}_t = \frac{\vm_t}{1-\beta_1^t}, \qquad \hat{\vv}_t = \frac{\vv_t}{1-\beta_2^t}
 \]
- 
+
 \structure{Update:}
 \[
     \pvec \leftarrow \pvec - \frac{\eta}{\sqrt{\hat{\vv}_t}+\epsilon}\,\hat{\vm}_t
 \]
- 
+
 \structure{Defaults:} $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$
- 
+
 \vskip 0.5em
- 
+
 \structure{In PyTorch:} \texttt{torch.optim.Adam(params, lr=$\eta$)} \quad \alert{practical default}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
 \section{Learning Rate Schedules}
 % -------------------------------------------------------
- 
+
 \begin{frame}{Why Schedule the Learning Rate?}
- 
+
 \vskip 2em
- 
+
 \structure{Fixed learning rate - compromise:}
 \begin{itemize}
     \item Large $\eta$ early - fast progress toward good region
     \item Small $\eta$ late - fine-grained convergence near minimum
     \item Single fixed $\eta$ cannot do both well
 \end{itemize}
- 
+
 \vskip 1.5em
- 
+
 \structure{Solution:} vary $\eta$ over course of training
- 
+
 \vskip 1em
- 
+
 \structure{Three common schedules:}
 \begin{enumerate}
     \item \textbf{Step decay} - reduce by factor every $k$ epochs
     \item \textbf{Cosine annealing} - smooth decay following cosine curve
     \item \textbf{Warmup} - start small, increase, then decay
 \end{enumerate}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
- 
+
 \begin{frame}{Learning Rate Schedules}
- 
+
 \vskip 2em
- 
+
 \begin{columns}[t]
 \begin{column}{0.54\textwidth}
- 
+
 \structure{Step decay:}
 \[
     \eta_t = \eta_0 \cdot \gamma^{\lfloor t / k \rfloor}
 \]
 Simple, interpretable. Abrupt drops - can be suboptimal.
- 
+
 \vskip 1em
- 
+
 \structure{Cosine annealing:}
 \[
     \eta_t = \eta_{\min} + \tfrac{1}{2}(\eta_0 - \eta_{\min})\Bigl(1 + \cos\tfrac{\pi t}{T}\Bigr)
 \]
 Smooth - widely used.
- 
+
 \vskip 1em
- 
+
 \structure{Linear warmup + cosine decay:}
 \begin{itemize}
     \item Ramp $\eta$ linearly for first $t_w$ steps
     \item Then cosine decay to $\eta_{\min}$
     \item Standard for Transformers and large-scale training
 \end{itemize}
- 
+
 \end{column}
 \begin{column}{0.42\textwidth}
 \centering
@@ -586,25 +621,25 @@ Smooth - widely used.
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
- 
+
 \vskip 0.5em
- 
+
 \structure{In PyTorch:} \texttt{torch.optim.lr\_scheduler.CosineAnnealingLR}, \texttt{LinearLR}
- 
+
 \end{frame}
- 
+
 % -------------------------------------------------------
 \section{Summary}
 % -------------------------------------------------------
- 
+
 \begin{frame}{Summary}
- 
+
 \vskip 2em
- 
+
 \structure{Optimization toolkit:}
- 
+
 \vskip 0.5em
- 
+
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
 \structure{Before training:}
@@ -612,9 +647,9 @@ Smooth - widely used.
     \item Normalize inputs - z-score on training set
     \item Initialize weights - Xavier for tanh, He for ReLU
 \end{itemize}
- 
+
 \vskip 1em
- 
+
 \structure{Algorithm:}
 \begin{itemize}
     \item Mini-batch SGD - default for large data
@@ -629,9 +664,9 @@ Smooth - widely used.
     \item Momentum - smooths noisy gradients
     \item Adaptive rates - handle ill-conditioning
 \end{itemize}
- 
+
 \vskip 1em
- 
+
 \structure{Schedule:}
 \begin{itemize}
     \item Warmup + cosine decay - large models
@@ -639,17 +674,11 @@ Smooth - widely used.
 \end{itemize}
 \end{column}
 \end{columns}
- 
+
 \vskip 1.5em
- 
+
 \structure{Next:} L6 - Regularization \& Generalization
- 
+
 \end{frame}
- 
+
 \end{document}
- 
-
-
-
-
-
