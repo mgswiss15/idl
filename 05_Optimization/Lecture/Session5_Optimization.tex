@@ -105,7 +105,7 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \vskip 2em
  
 \begin{columns}[c]
-\begin{column}{0.52\textwidth}
+\begin{column}{0.6\textwidth}
  
 \structure{Recall from L3:} gradient points uphill
 \[
@@ -116,19 +116,20 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
  
 \begin{algorithm}[H]
 \DontPrintSemicolon
-\KwIn{dataset $\dataset$, learning rate $\eta$, init $\pvec_0$}
+\KwIn{dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$, learning rate $\eta$, init $\pvec_0$}
 \For{$t = 1, 2, \ldots$ \textnormal{until convergence}}{
-    compute $\nabla_{\pvec} \loss(\pvec)$ over all $\dataset$ \;
-    $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec)$ \;
+    compute $\nabla_{\pvec} \loss(\pvec; \dataset)$ via backprop \;
+    $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec; \dataset)$ \;
 }
 \end{algorithm}
  
 \end{column}
-\begin{column}{0.44\textwidth}
+\begin{column}{0.35\textwidth}
+
+\vskip 2em
+
 \centering
 \input{\CommonPath/tikz/gradient_descent_2d.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
  
@@ -141,31 +142,32 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \vskip 2em
  
 \begin{columns}[c]
-\begin{column}{0.52\textwidth}
+\begin{column}{0.45\textwidth}
  
 \structure{Loss landscape is non-convex:}
 \begin{itemize}
-    \item \textbf{Local minima} - gradient zero, not global minimum
-    \item \textbf{Saddle points} - gradient zero, descent in some directions
-    \item \textbf{Flat regions} - tiny gradients, slow progress
+    \item \textbf{Local minima} - gradient zero
+    \item \textbf{Saddle points} - gradient zero
+    \item \textbf{Flat regions} - gradient zero (tiny)
     \item \textbf{Cliffs} - sudden sharp changes
 \end{itemize}
  
 \vskip 1em
  
-\structure{In practice:}
-\begin{itemize}
-    \item Many local minima exist - but most are \alert{good enough}
-    \item Saddle points - bigger problem in high dimensions
-    \item Shape depends on initialization and data scaling
-\end{itemize}
+% \structure{In practice:}
+% \begin{itemize}
+%     \item Many local minima exist - but most are \alert{good enough}
+%     \item Saddle points - bigger problem in high dimensions
+%     \item Shape depends on initialization and data scaling
+% \end{itemize}
  
 \end{column}
-\begin{column}{0.44\textwidth}
+\begin{column}{0.45\textwidth}
 \centering
 \input{\CommonPath/tikz/loss_landscape_features.tex}
 \end{column}
-\begin{column}{0.04\textwidth}
+\begin{column}{0.05\textwidth}
+  
 \end{column}
 \end{columns}
  
@@ -181,7 +183,7 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
  
 \structure{Full-batch gradient descent computes:}
 \[
-    \nabla_{\pvec} \loss(\pvec) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
+    \nabla_{\pvec} \loss(\pvec; \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
 \]
  
 \vskip 0.5em
@@ -253,7 +255,7 @@ $|\mathcal{B}| = 1$
  
 % -------------------------------------------------------
  
-\begin{frame}{The Training Loop}
+\begin{frame}{Training Loop}
  
 \vskip 2em
  

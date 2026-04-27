@@ -1,40 +1,57 @@
 \begin{tikzpicture}
 \begin{axis}[
-    width=7cm, height=5cm,
-    xmin=-3.2, xmax=3.5,
-    ymin=-0.4, ymax=2.8,
+    width=7.5cm, height=5.5cm,
+    xmin=-4.3, xmax=4.2,
+    ymin=0.0, ymax=2.2,
     xtick=\empty, ytick=\empty,
     axis lines=left,
     axis line style={-},
     xlabel={$\pvec$},
     ylabel={$\loss(\pvec)$},
+    xlabel style={at={(axis cs:4.2,0.0)}, anchor=north},
+    ylabel style={at={(axis cs:-4.3,2.2)}, anchor=south east, rotate=0},
     /pgf/number format/1000 sep={},
     clip=false,
 ]
 
 % Main landscape curve
-\addplot[thick, color=thwspetrol, domain=-3.1:3.3, samples=200] {
-    0.18*(x+2.5)*(x+1.0)*(x-0.5)*(x-2.2) + 0.35
+% base + small bump at x~-0.5 to create saddle-like plateau between local min and local max
+\addplot[thick, color=thwspetrol, domain=-4.3:4.0, samples=300] {
+    0.3*tanh(x - 0.5) + 1.5
+    - 0.7*exp(-2.0*(x+1.8)^2)
+    - 1.4*exp(-2.0*(x-2.2)^2)
+    + 0.15*exp(-3.0*(x+0.5)^2)
 };
 
-% Local minimum annotation
-\addplot[carnelian, mark=*, mark size=2pt] coordinates {(-1.88, 0.12)};
-\node[font=\small, text=carnelian, anchor=north] at (axis cs:-1.88, 0.08)
-    {local min};
+% Local minimum: x=-1.807, y=0.507
+\addplot[carnelian, mark=*, mark size=2pt, mark options={carnelian}]
+    coordinates {(-1.807, 0.507)};
+\node[font=\small, text=carnelian, anchor=north, yshift=-3pt]
+    at (axis cs:-1.807, 0.507) {local min};
 
-% Global minimum annotation
-\addplot[thwsorange, mark=*, mark size=2pt] coordinates {(1.55, 0.07)};
-\node[font=\small, text=thwsorange, anchor=north] at (axis cs:1.55, 0.03)
-    {global min};
+% Saddle-like inflection/plateau: x=-0.135, y=1.429
+\addplot[thwsorange, mark=*, mark size=2pt, mark options={thwsorange}]
+    coordinates {(-0.135, 1.429)};
+\node[font=\small, text=thwsorange, anchor=south, yshift=3pt]
+    at (axis cs:-0.135, 1.429) {saddle};
 
-% Saddle-like flat region annotation
-\addplot[thwsblue, mark=*, mark size=2pt] coordinates {(-0.15, 1.18)};
-\node[font=\small, text=thwsblue, anchor=south west] at (axis cs:-0.15, 1.22)
-    {saddle};
+% Local maximum: x=0.902, y=1.567
+\addplot[thwsorange!60!black, mark=triangle*, mark size=2.5pt,
+    mark options={thwsorange!60!black}]
+    coordinates {(0.902, 1.567)};
+\node[font=\small, text=thwsorange!60!black, anchor=south, yshift=3pt]
+    at (axis cs:0.902, 1.567) {local max};
 
-% Flat region arrow
-\draw[thwsgrey!70!black, thick, <->] (axis cs:-3.1,2.55) -- (axis cs:-2.2,2.55);
-\node[font=\small, anchor=south] at (axis cs:-2.65, 2.58) {flat};
+% Global minimum: x=2.192, y=0.380
+\addplot[thwsblue, mark=*, mark size=2pt, mark options={thwsblue}]
+    coordinates {(2.192, 0.380)};
+\node[font=\small, text=thwsblue, anchor=north, yshift=-3pt]
+    at (axis cs:2.192, 0.380) {global min};
+
+% Flat region annotation (far left)
+\draw[thwsgrey!80!black, <->, thick]
+    (axis cs:-4.3, 1.5) -- (axis cs:-3.0, 1.5);
+\node[font=\small, anchor=south] at (axis cs:-3.6, 1.52) {flat};
 
 \end{axis}
 \end{tikzpicture}
