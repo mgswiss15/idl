@@ -39,9 +39,9 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 
 \structure{So far we have:}
 \begin{itemize}
-    \item Network $f_{\pvec} : \inspace \to \outspace$ - parameterized function
-    \item Loss $\loss(\pvec; \dataset)$ - measures how wrong $f_{\pvec}$ is
-    \item Backpropagation to compute $\nabla_{\pvec} \loss(\pvec)$ exactly and efficiently
+    \item \alert{Network} $f_{\pvec} : \inspace \to \outspace$ - parameterized function
+    \item \alert{Loss} $\loss(\pvec; \dataset)$ - measures how wrong $f_{\pvec}$ is
+    \item \alert{Backpropagation} to compute $\nabla_{\pvec} \loss(\pvec)$ exactly and efficiently
 \end{itemize}
 
 \vskip 1.5em
@@ -62,12 +62,12 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 
 % -------------------------------------------------------
 
-\begin{frame}{The Optimization Problem}
+\begin{frame}{Optimization Problem}
 
 \vskip 2em
 
 \begin{columns}[c]
-\begin{column}{0.54\textwidth}
+\begin{column}{0.6\textwidth}
 
 \structure{Goal:} find parameters minimizing empirical loss
 
@@ -86,7 +86,7 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \end{itemize}
 
 \end{column}
-\begin{column}{0.42\textwidth}
+\begin{column}{0.40\textwidth}
 \centering
 \input{\CommonPath/tikz/loss_landscape_3d.tex}
 \end{column}
@@ -105,45 +105,41 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \vskip 2em
 
 \begin{columns}[c]
-\begin{column}{0.52\textwidth}
+\begin{column}{0.6\textwidth}
 
 \structure{Recall from L3:} gradient points uphill
 \[
     \pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec)
 \]
 
-\vskip 0.5em
 
 % \begin{algorithm}[H]
 % \DontPrintSemicolon
-% \For{epoch $= 1, \ldots, T$}{
-%     \For{each mini-batch $\mathcal{B} \subset \dataset$}{
-%         forward: $f_{\pvec}(\vx^{(i)})$ for $i \in \mathcal{B}$ \;
-%         loss: $\hat{\loss} = \frac{1}{|\mathcal{B}|}\sum_{i\in\mathcal{B}} \ell_i$ \;
-%         backward: $\nabla_{\pvec} \hat{\loss}$ \;
-%         update: $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \hat{\loss}$ \;
-%     }
+% \KwIn{dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$, learning rate $\eta$, init $\pvec_0$}
+% \For{$t = 1, 2, \ldots$ \textnormal{until convergence}}{
+%     \alert{forward:} $f_{\pvec}(\vx^{(i)})$ for $i = 1, \ldots, \nsamples$ \;
+%     \alert{loss:} $\loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})$ \;
+%     \alert{backprop:} $\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
+%     \alert{update:} $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
 % }
 % \end{algorithm}
 
-
 \begin{algorithm}[H]
 \DontPrintSemicolon
-\KwIn{dataset $\dataset$, learning rate $\eta$, init $\pvec_0$}
+\KwIn{dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$, learning rate $\eta$, init $\pvec_0$}
 \For{$t = 1, 2, \ldots$ \textnormal{until convergence}}{
-    \structure{forward:} $f_{\pvec}(\vx^{(i)})$ for $i = 1, \ldots, \nsamples$ \;
-    loss: $\loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})$ \;
-    backprop: $\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
-    $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
+    \alert{forward:} $f_{\pvec}(\vx^{(i)})$ for $i = 1, \ldots, \nsamples$ \vspace{4pt}\;
+    \alert{loss:} $\loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})$ \vspace{4pt}\;
+    \alert{backprop:} $\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \vspace{4pt}\;
+    \alert{update:} $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec;\, \dataset)$ \;
 }
 \end{algorithm}
-
 \end{column}
-\begin{column}{0.44\textwidth}
+\begin{column}{0.4\textwidth}
+
+\vskip 2em
 \centering
 \input{\CommonPath/tikz/gradient_descent_2d.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
@@ -151,7 +147,7 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 
 % -------------------------------------------------------
 
-\begin{frame}{The Loss Landscape}
+\begin{frame}{Loss Landscape}
 
 \vskip 2em
 

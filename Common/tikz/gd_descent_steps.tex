@@ -14,13 +14,43 @@
     clip=false,
 ]
 
-% Full curve in light gray
-\addplot[thick, color=thwsgrey, domain=-4.3:4.0, samples=300] {
+% Unknown / unexplored segments - very faint dotted
+\addplot[thin, color=thwsgrey!50, dotted, domain=-4.3:-2.2, samples=80] {
     0.3*tanh(x - 0.5) + 1.5
     - 0.7*exp(-2.0*(x+1.8)^2)
     - 1.4*exp(-2.0*(x-2.2)^2)
     + 0.15*exp(-3.0*(x+0.5)^2)
 };
+\addplot[thin, color=thwsgrey!50, dotted, domain=0.6:1.1, samples=40] {
+    0.3*tanh(x - 0.5) + 1.5
+    - 0.7*exp(-2.0*(x+1.8)^2)
+    - 1.4*exp(-2.0*(x-2.2)^2)
+    + 0.15*exp(-3.0*(x+0.5)^2)
+};
+\addplot[thin, color=thwsgrey!50, dotted, domain=2.192:4.0, samples=80] {
+    0.3*tanh(x - 0.5) + 1.5
+    - 0.7*exp(-2.0*(x+1.8)^2)
+    - 1.4*exp(-2.0*(x-2.2)^2)
+    + 0.15*exp(-3.0*(x+0.5)^2)
+};
+
+% Explored segments - solid gray
+\addplot[thick, color=thwsgrey, dotted, domain=-2.2:0.6, samples=150] {
+    0.3*tanh(x - 0.5) + 1.5
+    - 0.7*exp(-2.0*(x+1.8)^2)
+    - 1.4*exp(-2.0*(x-2.2)^2)
+    + 0.15*exp(-3.0*(x+0.5)^2)
+};
+\addplot[thick, color=thwsgrey, dotted, domain=1.1:2.192, samples=100] {
+    0.3*tanh(x - 0.5) + 1.5
+    - 0.7*exp(-2.0*(x+1.8)^2)
+    - 1.4*exp(-2.0*(x-2.2)^2)
+    + 0.15*exp(-3.0*(x+0.5)^2)
+};
+
+% ? annotations on unknown regions
+\node[font=\large, text=thwsgrey] at (axis cs:-3.2, 1.6) {?};
+\node[font=\large, text=thwsgrey] at (axis cs: 3.2, 1.6) {?};
 
 % Local min
 \addplot[carnelian, mark=*, mark size=2pt, mark options={carnelian}]
@@ -34,8 +64,7 @@
 \node[font=\small, text=thwsblue, anchor=north, yshift=-3pt]
     at (axis cs:2.192, 0.380) {global min};
 
-% ---- Trajectory A: left of local max -> cross bump -> descend ->
-%      cross valley -> descend to local min ----
+% ---- Trajectory A ----
 \addplot[carnelian, mark=*, mark size=2pt, mark options={carnelian}, only marks]
     coordinates {
         ( 0.600, 1.526)
@@ -46,21 +75,16 @@
         (-1.600, 0.567)
         (-1.807, 0.507)
     };
-% solid steps
 \draw[->, carnelian, thin] (axis cs: 0.600,1.526) -- (axis cs: 0.212,1.448);
 \draw[->, carnelian, thin] (axis cs: 0.200,1.446) -- (axis cs:-0.288,1.427);
-% dashed: jump across bump plateau
 \draw[->, carnelian, thin, dashed] (axis cs:-0.300,1.426) -- (axis cs:-0.788,1.264);
-% solid descent on left side
 \draw[->, carnelian, thin] (axis cs:-0.800,1.261) -- (axis cs:-2.188,0.697);
-% dashed: jump across local min valley
 \draw[->, carnelian, thin, dashed] (axis cs:-2.200,0.694) -- (axis cs:-1.612,0.570);
-% solid: final descent to local min
 \draw[->, carnelian, thin] (axis cs:-1.600,0.567) -- (axis cs:-1.795,0.510);
 \node[font=\small, text=carnelian, anchor=south east]
     at (axis cs:0.600, 1.526) {$\pvec_0$};
 
-% ---- Trajectory B: right of local max -> global min ----
+% ---- Trajectory B ----
 \addplot[thwsblue, mark=*, mark size=2pt, mark options={thwsblue}, only marks]
     coordinates {
         (1.100, 1.537)
