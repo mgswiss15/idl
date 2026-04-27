@@ -212,31 +212,30 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \section{Stochastic and Mini-Batch Gradient Descent}
 % -------------------------------------------------------
 
-\begin{frame}{The Cost of Full-Batch GD}
-
+\begin{frame}{Cost of Full-Batch GD}
+ 
 \vskip 2em
-
-\structure{Full-batch gradient descent computes:}
+ 
+\structure{Full loss is an average over all samples:}
 \[
-    \nabla_{\pvec} \loss(\pvec) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
+    \loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
 \]
-
-\vskip 0.5em
-
-\structure{Problem:} $\nsamples$ can be millions - one update requires full pass through data
-
-\vskip 1.5em
-
-\structure{Key insight:} exact gradient not needed - \textbf{unbiased estimate is enough}
-
-\vskip 0.5em
-
-Random subset $\mathcal{B} \subset \{1,\ldots,\nsamples\}$ (\textbf{mini-batch}):
+ 
+\structure{Problem:} $\nsamples$ can be millions - one evaluation requires full pass through data
+ 
+\vskip 1em
+ 
+\structure{Key insight:} random subset $\mathcal{B} \subset \{1,\ldots,\nsamples\}$ (\textbf{mini-batch}) gives unbiased loss estimate:
 \[
-    \hat{g} = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \nabla_{\pvec}\, \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
-    \qquad \Rightarrow \qquad \mathbb{E}[\hat{g}] = \nabla_{\pvec} \loss(\pvec)
+    \hat{\loss}(\pvec;\, \mathcal{B}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})
+    \qquad \Rightarrow \qquad \mathbb{E}_{\mathcal{B}}\bigl[\hat{\loss}(\pvec;\,\mathcal{B})\bigr] = \loss(\pvec;\,\dataset)
 \]
-
+ 
+\structure{Gradient follows for free} (gradient is linear):
+\[
+    \mathbb{E}_{\mathcal{B}}\bigl[\nabla_{\pvec}\, \hat{\loss}(\pvec;\,\mathcal{B})\bigr] = \nabla_{\pvec}\, \loss(\pvec;\,\dataset)
+\]
+ 
 \end{frame}
 
 % -------------------------------------------------------
@@ -257,12 +256,12 @@ $|\mathcal{B}| = \nsamples$
 \end{itemize}
 \end{column}
 \begin{column}{0.32\textwidth}
-\structure{Mini-Batch GD} \\[0.5em]
+\alert{\textbf{Mini-Batch GD (SGD)}} \\[0.5em]
 $|\mathcal{B}| = B$ (e.g.\ 32--256)
 \begin{itemize}
     \item Noisy estimate
     \item Fast updates
-    \item \alert{Default in practice}
+    \item Can escape minima
     \item GPU-friendly
 \end{itemize}
 \end{column}
@@ -273,37 +272,33 @@ $|\mathcal{B}| = 1$
     \item Very noisy
     \item Cheapest per step
     \item High variance
-    \item Can escape minima
+    \item Theoretically solid
 \end{itemize}
 \end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 3em
 
-\structure{Noise as feature:} stochastic updates help escape sharp minima and saddle points
-
-\vskip 0.5em
-
-\structure{In PyTorch:} \texttt{torch.utils.data.DataLoader(dataset, batch\_size=B, shuffle=True)}
+\structure{Noise as feature:} stochastic updates help jump over sharp minima and saddle points 
 
 \end{frame}
 
 % -------------------------------------------------------
 
-\begin{frame}{The Training Loop}
+\begin{frame}{Training Loop}
 
 \vskip 2em
 
-\begin{columns}[t]
+\begin{columns}[c]
 \begin{column}{0.56\textwidth}
 \begin{algorithm}[H]
 \DontPrintSemicolon
 \For{epoch $= 1, \ldots, T$}{
     \For{each mini-batch $\mathcal{B} \subset \dataset$}{
-        forward: $f_{\pvec}(\vx^{(i)})$ for $i \in \mathcal{B}$ \;
-        loss: $\hat{\loss} = \frac{1}{|\mathcal{B}|}\sum_{i\in\mathcal{B}} \ell_i$ \;
-        backward: $\nabla_{\pvec} \hat{\loss}$ \;
-        update: $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \hat{\loss}$ \;
+        \alert{forward}: $f_{\pvec}(\vx^{(i)})$ for $i \in \mathcal{B}$ \;
+        \alert{loss}: $\hat{\loss} = \frac{1}{|\mathcal{B}|}\sum_{i\in\mathcal{B}} \ell_i$ \;
+        \alert{backprop}: $\nabla_{\pvec} \hat{\loss}$ \;
+        \alert{update}: $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \hat{\loss}$ \;
     }
 }
 \end{algorithm}
@@ -314,8 +309,7 @@ $|\mathcal{B}| = 1$
 \begin{itemize}
     \item \textbf{Epoch:} full pass through $\dataset$
     \item \textbf{Iteration:} mini-batch update
-    \item Shuffle each epoch - break correlations
-    \item Monitor on \textbf{validation set}
+    \item \textbf{Shuffle} each epoch - break correlations
 \end{itemize}
 \end{column}
 \end{columns}
@@ -326,88 +320,194 @@ $|\mathcal{B}| = 1$
 \section{Input Normalization and Weight Initialization}
 % -------------------------------------------------------
 
-\begin{frame}{Input Normalization}
-
-\vskip 2em
-
-\begin{columns}[c]
-\begin{column}{0.54\textwidth}
-
-\structure{Problem:} features on different scales $\Rightarrow$ ill-conditioned landscape
-
-\vskip 0.5em
-
-\begin{itemize}
-    \item Narrow valleys - $\eta$ too large in one direction, too small in another
-    \item GD oscillates or diverges
-\end{itemize}
-
+\begin{frame}{Why Feature Scale Matters}
+ 
+% \vskip 1em
+\[
+    \loss(\theta_1, \theta_2; \dataset) = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples}
+    \bigl(\theta_1 x_1^{(i)} + \theta_2 x_2^{(i)} - y^{(i)}\bigr)^2
+\]
+ 
+Say $x_1 \in [1, 4]$ (avg final MAI grade), $x_2 \in [0, 1500]$ (total days in MAI), $y$ income
+ 
 \vskip 1em
 
-\structure{Solution:} normalize inputs before training
-
-\vskip 0.5em
-
-\structure{Z-score normalization:}
+\begin{columns}[c]
+\begin{column}{0.65\textwidth}
+ 
+\structure{Gradients:}
 \[
-    \tilde{x}_j = \frac{x_j - \mu_j}{\sigma_j}
+    \frac{\partial \loss}{\partial \theta_1} = \frac{2}{\nsamples}\sum_i r^{(i)}\, x_1^{(i)}, \qquad
+    \frac{\partial \loss}{\partial \theta_2} = \frac{2}{\nsamples}\sum_i r^{(i)}\, x_2^{(i)}
 \]
-\begin{itemize}
-    \item $\mu_j, \sigma_j$ - computed on \textbf{training set only}
-    \item Same transform applied to val and test sets
-\end{itemize}
+ 
+where $r^{(i)} = \theta_1 x_1^{(i)} + \theta_2 x_2^{(i)} - y^{(i)}$
 
+\[x_2 \gg x_1 \;\Rightarrow\; \dfrac{\partial \loss}{\partial \theta_2} \gg \dfrac{\partial \loss}{\partial \theta_1}\]
+ 
 \end{column}
-\begin{column}{0.42\textwidth}
+\begin{column}{0.25\textwidth}
 \centering
-\input{\CommonPath/tikz/normalization_landscape.tex}
+\input{\CommonPath/tikz/normalization_ellipse.tex}
 \end{column}
-\begin{column}{0.04\textwidth}
+\begin{column}{0.02\textwidth}
 \end{column}
 \end{columns}
 
+\vskip 1em
+
+\centering
+\alert{GD oscillates in $\theta_2$ direction, crawls in $\theta_1$ direction}
+
+\end{frame}
+ 
+% -------------------------------------------------------
+ 
+\begin{frame}{Input Normalization}
+ 
+\vskip 2em
+
+\centering 
+\structure{Solution:} rescale features so all dimensions have similar influence on loss
+ 
+\vskip 1em
+
+\begin{columns}[c]
+\begin{column}{0.65\textwidth}
+ 
+\structure{Z-score normalization (feature-wise):}
+\[
+    \tilde{x}_j = \frac{x_j - \mu_j}{\sigma_j}, \quad
+    \mu_j = \frac{1}{\nsamples}\sum_i x_j^{(i)}, \quad
+    \sigma_j = \sqrt{\frac{1}{\nsamples}\sum_i (x_j^{(i)} - \mu_j)^2}
+\]
+ 
+\vskip 1em
+ 
+\begin{itemize}
+    \item $\mu_j,\, \sigma_j$ computed on \textbf{training set only}
+    \item Same transform applied to validation and test sets
+    \item Elongated contours $\to$ circular $\Rightarrow$ GD converges faster
+\end{itemize}
+ 
+\end{column}
+\begin{column}{0.25\textwidth}
+\centering
+\input{\CommonPath/tikz/normalization_circle.tex}
+\end{column}
+\end{columns}
+ 
 \end{frame}
 
 % -------------------------------------------------------
-
-\begin{frame}{Weight Initialization}
-
+ 
+\begin{frame}{Initialization: The Symmetry Problem}
+ 
 \vskip 2em
-
-\structure{Why initialization matters:}
-\begin{itemize}
-    \item All-zero weights $\Rightarrow$ all neurons compute same thing - \textbf{symmetry breaking} needed
-    \item Weights too large $\Rightarrow$ activations saturate - gradients vanish
-    \item Weights too small $\Rightarrow$ signal shrinks layer by layer - gradients vanish
-\end{itemize}
-
-\vskip 1em
-
-\structure{Key idea:} variance of activations preserved across layers
-
+ 
+\structure{What if we fix weights, e.g. start at zero?}
+ 
 \vskip 0.5em
-
+ 
+All neurons in a layer compute identical pre-activations:
+\[
+    z_j^{(l)} = \sum_i \theta_{ji}^{(l)}\, h_i^{(l-1)} + \theta_{j0}^{(l)} = c
+    \quad \forall\, j
+\]
+ 
+\vskip 0.5em
+ 
+\begin{itemize}
+    \item All neurons produce same output $\Rightarrow$ same gradient $\Rightarrow$ same update
+    \item Symmetry never broken - network equivalent to single neuron per layer
+    \item Width is wasted
+\end{itemize}
+ 
+\vskip 1em
+ 
+\structure{Fix:} initialize weights \textbf{randomly} to break symmetry
+ 
+\vskip 0.5em
+ 
+But random from where? Scale matters enormously.
+ 
+\end{frame}
+ 
+% -------------------------------------------------------
+ 
+\begin{frame}{Initialization: Vanishing and Exploding Signals}
+ 
+\vskip 1.5em
+ 
+\structure{Simple model:} $L$-layer network, linear activations, weights drawn i.i.d.\ with $\mathbb{E}[\theta]=0$, $\mathrm{Var}[\theta] = \sigma^2$, $n_{\text{in}}$ inputs per layer
+ 
+\vskip 0.5em
+ 
+Variance of pre-activation after one layer (assuming independent inputs):
+\[
+    \mathrm{Var}[z^{(l)}] = n_{\text{in}}\,\sigma^2\cdot \mathrm{Var}[h^{(l-1)}]
+\]
+ 
+After $L$ layers:
+\[
+    \mathrm{Var}[z^{(L)}] = (n_{\text{in}}\,\sigma^2)^L \cdot \mathrm{Var}[x]
+\]
+ 
+\vskip 0.8em
+ 
 \begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Xavier / Glorot initialization} \\
-For \textbf{tanh / sigmoid} activations:
-\[
-    \theta^{(l)}_{ji} \sim \mathcal{U}\!\left[-\frac{\sqrt{6}}{\sqrt{n_{\text{in}}+n_{\text{out}}}},\, \frac{\sqrt{6}}{\sqrt{n_{\text{in}}+n_{\text{out}}}}\right]
-\]
+\begin{column}{0.45\textwidth}
+\structure{$n_{\text{in}}\,\sigma^2 < 1$:} signal \alert{vanishes}
+\begin{itemize}
+    \item Activations $\to 0$
+    \item Gradients $\to 0$, early layers stop learning
+\end{itemize}
 \end{column}
-\begin{column}{0.48\textwidth}
-\structure{He / Kaiming initialization} \\
-For \textbf{ReLU} activations:
-\[
-    \theta^{(l)}_{ji} \sim \mathcal{N}\!\left(0,\, \frac{2}{n_{\text{in}}}\right)
-\]
+\begin{column}{0.45\textwidth}
+\structure{$n_{\text{in}}\,\sigma^2 > 1$:} signal \alert{explodes}
+\begin{itemize}
+    \item Activations $\to \infty$
+    \item Gradients $\to \infty$, training diverges
+\end{itemize}
 \end{column}
 \end{columns}
+ 
+\vskip 0.8em
 
+\centering
+\structure{Key idea:} want $n_{\text{in}}\,\sigma^2 = 1$ $\Rightarrow$ set $\sigma^2 = 1/n_{\text{in}}$
+ 
+\end{frame}
+ 
+% -------------------------------------------------------
+ 
+\begin{frame}{Xavier and He Initialization}
+ 
+\vskip 2em
+ 
+\structure{Xavier / Glorot} (Glorot \& Bengio, 2010) --- for \textbf{tanh / sigmoid}:
+ 
+\vskip 0.3em
+ 
+Balance variance preservation in both forward and backward pass $\Rightarrow$ compromise:
+\[
+    \sigma^2 = \frac{2}{n_{\text{in}} + n_{\text{out}}}, \qquad
+    \theta^{(l)}_{ji} \sim \mathcal{U}\!\left[-\frac{\sqrt{6}}{\sqrt{n_{\text{in}}+n_{\text{out}}}},\, \frac{\sqrt{6}}{\sqrt{n_{\text{in}}+n_{\text{out}}}}\right]
+\]
+ 
 \vskip 1em
-
-\structure{In PyTorch:} \texttt{nn.init.xavier\_uniform\_()}, \texttt{nn.init.kaiming\_normal\_()}
-
+ 
+\structure{He / Kaiming} (He et al., 2015) --- for \textbf{ReLU}:
+ 
+\vskip 0.3em
+ 
+ReLU zeroes half the neurons $\Rightarrow$ effective variance halved $\Rightarrow$ need factor of 2:
+\[
+    \sigma^2 = \frac{2}{n_{\text{in}}}, \qquad
+    \theta^{(l)}_{ji} \sim \mathcal{N}\!\left(0,\, \frac{2}{n_{\text{in}}}\right)
+\]
+ 
+ 
 \end{frame}
 
 % -------------------------------------------------------
@@ -446,12 +546,13 @@ For \textbf{ReLU} activations:
 
 \vskip 2em
 
-\begin{columns}[c]
-\begin{column}{0.54\textwidth}
-
+\centering
 \structure{Idea:} accumulate velocity in direction of consistent gradients
 
 \vskip 0.5em
+
+\begin{columns}[c]
+\begin{column}{0.6\textwidth}
 
 \[
     \vm_t = \beta\, \vm_{t-1} + (1-\beta)\, \nabla_{\pvec} \loss_t
@@ -461,22 +562,17 @@ For \textbf{ReLU} activations:
 \]
 
 \begin{itemize}
-    \item $\beta \in [0,1)$: momentum coefficient, typically 0.9
-    \item $\vm_t$: \textbf{exponential moving average} of gradients
+    \item $\beta \in [0,1)$: momentum coeff, typically 0.9
+    \item $\vm_t$: \textbf{exponential moving avg} of gradients
     \item Consistent directions $\Rightarrow$ accumulate, accelerate
     \item Inconsistent directions $\Rightarrow$ cancel, dampen oscillations
 \end{itemize}
 
-\vskip 0.5em
-
-\structure{In PyTorch:} \texttt{torch.optim.SGD(params, lr=$\eta$, momentum=0.9)}
 
 \end{column}
-\begin{column}{0.42\textwidth}
+\begin{column}{0.35\textwidth}
 \centering
 \input{\CommonPath/tikz/momentum_vs_sgd.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
@@ -507,10 +603,6 @@ For \textbf{ReLU} activations:
 \vskip 1em
 
 \structure{Effect:} automatically rescales each dimension - good for ill-conditioned landscapes
-
-\vskip 0.5em
-
-\structure{In PyTorch:} \texttt{torch.optim.RMSprop(params, lr=$\eta$, alpha=0.99)}
 
 \end{frame}
 
@@ -545,9 +637,6 @@ For \textbf{ReLU} activations:
 
 \structure{Defaults:} $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$
 
-\vskip 0.5em
-
-\structure{In PyTorch:} \texttt{torch.optim.Adam(params, lr=$\eta$)} \quad \alert{practical default}
 
 \end{frame}
 
@@ -587,7 +676,7 @@ For \textbf{ReLU} activations:
 
 \vskip 2em
 
-\begin{columns}[t]
+\begin{columns}[c]
 \begin{column}{0.54\textwidth}
 
 \structure{Step decay:}
@@ -617,8 +706,6 @@ Smooth - widely used.
 \begin{column}{0.42\textwidth}
 \centering
 \input{\CommonPath/tikz/lr_schedules.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 

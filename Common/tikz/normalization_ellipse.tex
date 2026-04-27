@@ -1,0 +1,26 @@
+\begin{tikzpicture}
+\begin{axis}[
+    width=4.2cm, height=4.2cm,
+    xmin=-3, xmax=3, ymin=-3, ymax=3,
+    xtick=\empty, ytick=\empty,
+    axis lines=center,
+    axis line style={thwsgrey},
+    xlabel={$\theta_1$}, ylabel={$\theta_2$},
+    xlabel style={font=\small, at={(axis cs:3,0)}, anchor=north},
+    ylabel style={font=\small, at={(axis cs:0,3)}, anchor=east, rotate=0},
+    title={\small unnormalized},
+    title style={color=thwspetrol, font=\small\bfseries},
+    /pgf/number format/1000 sep={},
+]
+% Elongated ellipses
+\addplot[thwspetrol, thick, domain=0:360, samples=100]
+    ({2.7*cos(x)}, {0.7*sin(x)});
+\addplot[thwspetrol, domain=0:360, samples=100]
+    ({2.0*cos(x)}, {0.52*sin(x)});
+\addplot[thwspetrol, domain=0:360, samples=100]
+    ({1.2*cos(x)}, {0.31*sin(x)});
+% GD trajectory - zigzag
+\addplot[carnelian, thick, ->, line join=round]
+    coordinates {(-2.5, 0.6) (-1.8,-0.55) (-1.1, 0.42) (-0.5,-0.28) (-0.1, 0.08) (0,0)};
+\end{axis}
+\end{tikzpicture}
