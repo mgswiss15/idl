@@ -184,14 +184,14 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 
 \structure{GD follows gradient downhill:}
 \begin{itemize}
-    \item Steps proportional to gradient magnitude
-    \item Curve revealed only where explored
-    \item Converges to \textbf{local} minimum - not necessarily global
+    \item Start from random param init
+    \item Loss curve not known - probing
+    \item Steps proportinal to gradient value
+    \begin{itemize}
+      \item small: slow / expensive
+      \item large: jumping / diverging
+    \end{itemize}
 \end{itemize}
-
-\vskip 1em
-
-\alert{Problem:} which minimum we find depends on initialization
 
 \end{column}
 \begin{column}{0.45\textwidth}
@@ -201,6 +201,10 @@ pdfkeywords={optimization, gradient descent, SGD, Adam, learning rate, initializ
 \begin{column}{0.05\textwidth}
 \end{column}
 \end{columns}
+
+\centering
+\large
+\alert{not clear which minimum we find (and how quick)}
 
 \end{frame}
 
