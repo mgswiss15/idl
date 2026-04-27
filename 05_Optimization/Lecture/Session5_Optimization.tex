@@ -677,7 +677,7 @@ ReLU zeroes half the neurons $\Rightarrow$ effective variance halved $\Rightarro
 \vskip 2em
 
 \begin{columns}[c]
-\begin{column}{0.54\textwidth}
+\begin{column}{0.6\textwidth}
 
 \structure{Step decay:}
 \[
@@ -685,7 +685,7 @@ ReLU zeroes half the neurons $\Rightarrow$ effective variance halved $\Rightarro
 \]
 Simple, interpretable. Abrupt drops - can be suboptimal.
 
-\vskip 1em
+\vskip 0.5em
 
 \structure{Cosine annealing:}
 \[
@@ -693,7 +693,7 @@ Simple, interpretable. Abrupt drops - can be suboptimal.
 \]
 Smooth - widely used.
 
-\vskip 1em
+\vskip 0.5em
 
 \structure{Linear warmup + cosine decay:}
 \begin{itemize}
@@ -703,15 +703,12 @@ Smooth - widely used.
 \end{itemize}
 
 \end{column}
-\begin{column}{0.42\textwidth}
+\begin{column}{0.4\textwidth}
 \centering
 \input{\CommonPath/tikz/lr_schedules.tex}
 \end{column}
 \end{columns}
 
-\vskip 0.5em
-
-\structure{In PyTorch:} \texttt{torch.optim.lr\_scheduler.CosineAnnealingLR}, \texttt{LinearLR}
 
 \end{frame}
 
