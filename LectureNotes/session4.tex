@@ -1,7 +1,7 @@
 \section{Computation Graphs \& Backpropagation}
 \slideref{Session 4}
 
-These notes accompany the fourth lecture. The central question left open at the end of Session~3 was: how do we compute $\nabla_{\pvec} \loss(\pvec)$ efficiently for a deep network? The answer --- backpropagation --- is the algorithmic backbone of all modern deep learning. We develop it here through the framework of computation graphs.
+These notes accompany the fourth lecture. The central question left open at the end of Session~3 was: how do we compute $\nabla_{\pvec} \loss(\pvec)$ efficiently for a deep network? The answer - backpropagation - is the algorithmic backbone of all modern deep learning. We develop it here through the framework of computation graphs.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Forward and Backward Pass}
@@ -15,48 +15,84 @@ The \textbf{backward pass} propagates gradients in the reverse direction, from t
 \begin{equation}
 \frac{\partial \loss}{\partial \pvec} \xleftarrow{\thetamat{1}} \frac{\partial \loss}{\partial \vh^{(1)}} \xleftarrow{\thetamat{2}} \cdots \xleftarrow{\thetamat{L}} \frac{\partial \loss}{\partial \vh^{(L)}} \xleftarrow{\ell} \loss.
 \end{equation}
-The \textbf{gradient} $\nabla_{\pvec}\,\loss(\pvec) = \frac{\partial \loss}{\partial \pvec}$ collects one partial derivative per parameter. Backpropagation is the algorithm that computes this backward pass efficiently. It is important to note that backpropagation \emph{computes gradients} --- it does not perform any optimisation. The gradient descent update step is separate.
+The \textbf{gradient} $\nabla_{\pvec}\,\loss(\pvec) = \frac{\partial \loss}{\partial \pvec}$ collects one partial derivative per parameter. Backpropagation is the algorithm that computes this backward pass efficiently. It is important to note that backpropagation \emph{computes gradients} - it does not perform any optimisation. The gradient descent update step is separate.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Computation Graphs}
-\slideref{Session 4: Computation Graphs --- Motivation, Example, Flexible Level of Detail, Flexible Operations, Scalar vs Vector}
+\slideref{Session 4: Computation Graphs - Motivation, Example, Flexible Level of Detail, Flexible Operations, Scalar vs Vector}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+\centering
+\includegraphics[width=0.48\textwidth]{\PicsPath/CompGraph_1.pdf}
+\caption{Computation graph.}
+\label{fig:compgraph_linreg}
+\end{wrapfigure}
 
 A \textbf{computation graph} is a directed acyclic graph in which each node represents an elementary operation and each edge represents the flow of data between operations. Decomposing a complex function into a computation graph makes gradient computation tractable for two reasons. First, each atomic operation has a simple, easy-to-compute local derivative. Second, intermediate values computed during the forward pass can be stored and reused during the backward pass, avoiding redundant computation.
 
 A computation graph has three types of nodes:
 \begin{itemize}
-    \item \textbf{Input nodes} --- hold fixed data values ($x$, $y$). They store a value but have no gradient.
-    \item \textbf{Parameter nodes} --- hold learnable parameters ($\pvec$). They store a value and accumulate a gradient.
-    \item \textbf{Compute nodes} --- implement elementary operations. They store a value, accumulate a gradient, and know how to compute both their forward function and their local gradient.
+    \item \textbf{Input nodes} - hold fixed data values ($x$, $y$). They store a value but have no gradient.
+    \item \textbf{Parameter nodes} - hold learnable parameters ($\pvec$). They store a value and accumulate a gradient.
+    \item \textbf{Compute nodes} - implement elementary operations. They store a value, accumulate a gradient, and know how to compute both their forward function and their local gradient.
 \end{itemize}
 
 \subsubsection{Example: Linear Regression}
 
-Consider linear regression with MSE loss: $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$. We decompose this into four atomic steps:
-\begin{align}
-(1)\ & h = \theta_1 x \\
-(2)\ & \yhat = \theta_0 + h \\
-(3)\ & z = \yhat - y \\
-(4)\ & \ell = z^2.
-\end{align}
-Each step is a simple operation --- multiplication, addition, subtraction, squaring --- with a derivative that can be written down immediately.
+Consider linear regression with MSE loss: $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$. Figure~\ref{fig:compgraph_linreg} shows the computation graph. We decompose this into four atomic steps:
+(1) $h = \theta_1 x$, \quad
+(2) $\yhat = \theta_0 + h$, \quad
+(3) $z = \yhat - y$, \quad
+(4) $\ell = z^2$.
+Each step is a simple operation - multiplication, addition, subtraction, squaring - with a derivative that can be written down immediately.
 
 \subsubsection{Flexible Level of Detail}
 
-The same function can be decomposed at different levels of granularity. The four-step decomposition above is fine-grained; we could also use a coarser two-step decomposition:
-\begin{align}
-(1)\ & \yhat = \theta_0 + \theta_1 x \\
-(2)\ & \ell = (\yhat - y)^2,
-\end{align}
-or a vectorised one-step version $\yhat = \pvec^\top \vx$. The choice of granularity is a design decision: finer decompositions make each local gradient simpler, while coarser ones reduce the number of nodes and may be more efficient if the compound derivative is known analytically.
+The same function can be decomposed at different levels of granularity, as illustrated in Figure~\ref{fig:compgraph_levels}. The four-step decomposition above is fine-grained; we could also use a coarser two-step decomposition:
+(1) $\yhat = \theta_0 + \theta_1 x$, \quad (2) $\ell = (\yhat - y)^2$,
+or a vectorised version with $\yhat = \pvec^\top \vx$. The choice of granularity is a design decision: finer decompositions make each local gradient simpler, while coarser ones reduce the number of nodes and may be more efficient if the compound derivative is known analytically.
+
+\begin{figure}[h]
+\centering
+\includegraphics[height=3cm]{\PicsPath/CompGraph_2.pdf}\hfill
+\includegraphics[height=3cm]{\PicsPath/CompGraph_3.pdf}\hfill
+\includegraphics[height=3cm]{\PicsPath/CompGraph_4.pdf}
+\caption{Three levels of decomposition for the same function $\ell = (\theta_0 + \theta_1 x - y)^2$. Left: fine-grained (4 nodes). Centre: coarser (2 nodes). Right: vectorised.}
+\label{fig:compgraph_levels}
+\end{figure}
 
 \subsubsection{Flexible Operations}
 
-The same graph structure can represent different models by changing the node functions. A two-node graph with an intermediate prediction node $\yhat$ and a loss node $\ell$ covers both linear regression with MSE and logistic regression with binary cross-entropy --- only the functions at each node differ. This modularity is the foundation of modern deep learning frameworks, which implement a library of differentiable operations that can be composed freely.
+\begin{wrapfigure}{l}{0.35\textwidth}
+\centering
+\includegraphics[height=3cm]{\PicsPath/CompGraph_3.pdf}
+\caption{Same graph, different node functions.}
+\label{fig:compgraph_models}
+\end{wrapfigure}
+
+The same graph structure can represent different models by changing the node functions. As shown in Figure~\ref{fig:compgraph_models}, a two-node graph covers both linear regression with MSE and logistic regression with BCE - only the functions at each node differ.
+
+\medskip
+\noindent\textbf{Linear regression + MSE:}
+(1) $\yhat = \theta_0 + \theta_1 x$, \quad (2) $\ell = (\yhat - y)^2$
+
+\medskip
+\noindent\textbf{Logistic regression + BCE:}
+(1) $\yhat = \sigma(\theta_0 + \theta_1 x)$, \quad (2) $\ell = -y\log\yhat - (1-y)\log(1-\yhat)$
+
+\medskip
+This modularity is the foundation of modern deep learning frameworks, which implement a library of differentiable operations that can be composed freely.
 
 \subsubsection{Scalar vs Vector Notation}
 
-Computation graphs can be drawn at the level of scalar operations --- one node per neuron, one edge per weight --- or at the level of vector operations --- one node per layer. Scalar graphs make the gradient flow explicit; vector graphs are more compact and correspond directly to the matrix operations implemented in practice. The two representations compute the same quantities; the vector form simply groups many scalar operations into a single matrix node.
+\begin{wrapfigure}{r}{0.6\textwidth}
+\centering
+\includegraphics[width=0.58\textwidth]{\PicsPath/CompGraph_7.pdf}
+\caption{Scalar (top) and vector (bottom) computation graphs.}
+\label{fig:compgraph_scalar_vector}
+\end{wrapfigure}
+
+Computation graphs can be drawn at the level of scalar operations - one node per neuron, one edge per weight - or at the level of vector operations - one node per layer, as shown in Figure~\ref{fig:compgraph_scalar_vector}. Scalar graphs make the gradient flow explicit; vector graphs are more compact and correspond directly to the matrix operations implemented in practice. The two representations compute the same quantities; the vector form simply groups many scalar operations into a single matrix node.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Backpropagation}
@@ -64,13 +100,17 @@ Computation graphs can be drawn at the level of scalar operations --- one node p
 
 Backpropagation relies on two rules from calculus.
 
+\begin{remark}[Leibniz notation]
+We use \textbf{Leibniz notation}: $\frac{df}{dx}$ denotes the derivative of $f$ with respect to $x$, and $\frac{\partial f}{\partial x}$ the partial derivative when $f$ depends on multiple variables. This is equivalent to the prime notation $f'(x)$ but makes the variable of differentiation explicit, which is essential when tracking gradients through multiple composed functions.
+\end{remark}
+
 \textbf{Sum rule.} The gradient of an average is the average of the gradients:
 \begin{equation}
 \nabla_{\pvec}\, \loss(\pvec)
 = \nabla_{\pvec} \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \ell(\vx^{(i)}, y^{(i)}, \pvec)
 = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(\vx^{(i)}, y^{(i)}, \pvec).
 \end{equation}
-This means we can compute the gradient for a single training sample and average the results --- we never need to differentiate through the sum directly.
+This has an important practical consequence: we only need to work out how to compute the gradient for a \emph{single} training example $(\vx^{(i)}, y^{(i)})$. Once we know $\nabla_{\pvec}\, \ell(\vx^{(i)}, y^{(i)}, \pvec)$ for one example, the gradient for the full dataset is simply the average of these individual gradients. This means the entire complexity of backpropagation reduces to differentiating through the network for a single sample.
 
 \textbf{Chain rule.} For a composed function $f(g(x))$:
 \begin{equation}
@@ -82,102 +122,172 @@ When a variable $x$ feeds into multiple downstream nodes $g_1(x), \ldots, g_m(x)
 \end{equation}
 The sum arises because $x$ influences $f$ through multiple paths; the total effect is the sum of contributions from each path.
 
+The chain rule is the engine of backpropagation: it tells us that to differentiate through a composition of functions, we multiply local derivatives layer by layer. This multiplication of many terms has a crucial consequence for deep networks - gradients can grow or shrink exponentially as they are propagated backwards through many layers. When they shrink towards zero, parameters in early layers receive negligible gradient signal and fail to learn (\textbf{vanishing gradients}); when they grow without bound, training becomes unstable (\textbf{exploding gradients}). These phenomena and the techniques used to address them are developed in a later session.
+
 \subsubsection{Local and Global Gradients}
 
 At each node in the computation graph we distinguish two quantities:
 
 \begin{itemize}
-    \item The \textbf{local gradient} $\frac{\partial\, \text{out}}{\partial\, \text{in}}$ is the derivative of the node's output with respect to its input. It depends only on the local computation at that node, and can be computed during the forward pass from the stored input values.
-    \item The \textbf{global gradient} $\frac{\partial \ell}{\partial\, \text{in}}$ is the derivative of the loss with respect to that node's input. It accumulates contributions from all paths leading from that node to the loss.
+    \item The {\color[HTML]{0066FF}\textbf{local gradient}} ${\color[HTML]{0066FF}\frac{\partial\, \text{out}}{\partial\, \text{in}}}$ is the derivative of the node's output with respect to its input. It depends only on the local computation at that node, and can be computed during the forward pass from the stored input values.
+    \item The {\color[HTML]{FF0000}\textbf{global gradient}} ${\color[HTML]{FF0000}\frac{\partial \ell}{\partial\, \text{in}}}$ is the derivative of the loss with respect to that node's input. It accumulates contributions from all paths leading from that node to the loss.
 \end{itemize}
 
 The backpropagation update at each node is:
 \begin{equation}
-\frac{\partial \ell}{\partial\, \text{in}} = \frac{\partial \ell}{\partial\, \text{out}} \cdot \frac{\partial\, \text{out}}{\partial\, \text{in}}.
+{\color[HTML]{FF0000}\frac{\partial \ell}{\partial\, \text{in}}} = {\color[HTML]{FF0000}\frac{\partial \ell}{\partial\, \text{out}}} \cdot {\color[HTML]{0066FF}\frac{\partial\, \text{out}}{\partial\, \text{in}}}.
 \end{equation}
-In words: multiply the incoming global gradient (flowing in from the right) by the local gradient to obtain the outgoing global gradient (flowing to the left). This is applied at every node, proceeding right to left through the graph.
+In words: multiply the incoming {\color[HTML]{FF0000}global gradient} (flowing in from the right) by the {\color[HTML]{0066FF}local gradient} to obtain the outgoing {\color[HTML]{FF0000}global gradient} (flowing to the left). This is applied at every node, proceeding right to left through the graph.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Worked Examples}
 \slideref{Session 4: Backprop Example: Linear Regression (Symbolic), (Numerical), Logistic Regression}
 
-\subsubsection{Linear Regression --- Symbolic}
+\subsubsection{Linear Regression - Symbolic}
 
-We work through the backpropagation pass for linear regression using the four-step decomposition. The forward pass evaluates:
-\begin{align}
-(1)\ & h = \theta_1 x, \quad (2)\ \yhat = \theta_0 + h, \quad (3)\ z = \yhat - y, \quad (4)\ \ell = z^2.
-\end{align}
-The local gradients are computed from these stored values:
-\begin{align}
-(1)\ & \partial h/\partial \theta_1 = x, \quad
-(2)\ \partial \yhat/\partial \theta_0 = 1,\ \partial \yhat/\partial h = 1, \quad
-(3)\ \partial z/\partial \yhat = 1, \quad
-(4)\ \partial \ell/\partial z = 2z.
-\end{align}
-The backward pass proceeds from right to left, accumulating global gradients:
-\begin{align}
-(1)\ & \partial \ell/\partial z = 1 \cdot 2z = 2z \\
-(2)\ & \partial \ell/\partial \yhat = 2z \cdot 1 = 2z \\
-(3)\ & \partial \ell/\partial h = 2z \cdot 1 = 2z, \qquad \partial \ell/\partial \theta_0 = 2z \cdot 1 = 2z \\
-(4)\ & \partial \ell/\partial \theta_1 = 2z \cdot x = 2zx.
-\end{align}
+We work through the backpropagation pass for linear regression using the four-step decomposition, illustrated in Figure~\ref{fig:compgraph_symbolic}. The three columns below correspond to the three passes through the graph: forward pass and {\color[HTML]{0066FF}local gradients} are evaluated left to right through the graph, reading top to bottom; {\color[HTML]{FF0000}global gradients} are accumulated right to left, reading bottom to top.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{\PicsPath/CompGraph_locglob_1.pdf}
+\caption{Symbolic local (blue) and global (red) gradients on the linear regression graph.}
+\label{fig:compgraph_symbolic}
+\end{figure}
+
+\begin{multicols}{3}
+\noindent\textbf{Forward pass $\downarrow$}
+\begin{align*}
+(1)\ & h = \theta_1 x\\
+(2)\ & \yhat = \theta_0 + h\\
+(3)\ & z = \yhat - y\\
+(4)\ & \ell = z^2
+\end{align*}
+
+\columnbreak
+\noindent{\color[HTML]{0066FF}\textbf{Local gradients $\downarrow$}}
+\begin{align*}
+\color[HTML]{0066FF}(1)\ & \color[HTML]{0066FF}\partial h/\partial \theta_1 = x\\
+\color[HTML]{0066FF}(2)\ & \color[HTML]{0066FF}\partial \yhat/\partial \theta_0 = 1\\
+\color[HTML]{0066FF}     & \color[HTML]{0066FF}\partial \yhat/\partial h = 1\\
+\color[HTML]{0066FF}(3)\ & \color[HTML]{0066FF}\partial z/\partial \yhat = 1\\
+\color[HTML]{0066FF}(4)\ & \color[HTML]{0066FF}\partial \ell/\partial z = 2z
+\end{align*}
+
+\columnbreak
+\noindent{\color[HTML]{FF0000}\textbf{Global gradients $\uparrow$}}
+\begin{align*}
+\color[HTML]{FF0000}(4)\ & \color[HTML]{FF0000}\partial \ell/\partial \theta_1 = {\color[HTML]{FF0000}\partial \ell/\partial h} \cdot {\color[HTML]{0066FF}x}\\
+\color[HTML]{FF0000}     & \color[HTML]{FF0000}\partial \ell/\partial \theta_0 = {\color[HTML]{FF0000}\partial \ell/\partial h} \cdot {\color[HTML]{0066FF}1}\\
+\color[HTML]{FF0000}(3)\ & \color[HTML]{FF0000}\partial \ell/\partial h = {\color[HTML]{FF0000}\partial \ell/\partial \yhat} \cdot {\color[HTML]{0066FF}1}\\
+\color[HTML]{FF0000}(2)\ & \color[HTML]{FF0000}\partial \ell/\partial \yhat = {\color[HTML]{FF0000}\partial \ell/\partial z} \cdot {\color[HTML]{0066FF}1}\\
+\color[HTML]{FF0000}(1)\ & \color[HTML]{FF0000}\partial \ell/\partial z = 1 \cdot {\color[HTML]{0066FF}2z}
+\end{align*}
+\end{multicols}
 The gradients with respect to the parameters $\theta_0$ and $\theta_1$ are what gradient descent requires.
 
-\subsubsection{Linear Regression --- Numerical}
+\subsubsection{Linear Regression - Numerical}
 
-With concrete values $x=2$, $y=5$, $\theta_0=1$, $\theta_1=3$, the forward pass gives:
-\begin{equation}
-h = 6, \quad \yhat = 7, \quad z = 2, \quad \ell = 4.
-\end{equation}
-The local gradients evaluate to:
-\begin{equation}
-\partial h/\partial \theta_1 = 2, \quad \partial \yhat/\partial \theta_0 = \partial \yhat/\partial h = 1, \quad \partial z/\partial \yhat = 1, \quad \partial \ell/\partial z = 4.
-\end{equation}
+With concrete values $x=2$, $y=5$, $\theta_0=1$, $\theta_1=3$, Figure~\ref{fig:compgraph_numerical} shows the forward values and gradients on the graph.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{\PicsPath/CompGraph_locglob_2.pdf}
+\caption{Numerical values on the computation graph for $x=2$, $y=5$, $\theta_0=1$, $\theta_1=3$.}
+\label{fig:compgraph_numerical}
+\end{figure}
+
+\begin{multicols}{3}
+\noindent\textbf{Forward pass $\downarrow$}
+\begin{align*}
+(1)\ & h = 3 \cdot 2 = 6\\
+(2)\ & \yhat = 1 + 6 = 7\\
+(3)\ & z = 7 - 5 = 2\\
+(4)\ & \ell = 2^2 = 4
+\end{align*}
+
+\columnbreak
+\noindent{\color[HTML]{0066FF}\textbf{Local gradients $\downarrow$}}
+\begin{align*}
+\color[HTML]{0066FF}(1)\ & \color[HTML]{0066FF}\partial h/\partial \theta_1 = 2\\
+\color[HTML]{0066FF}(2)\ & \color[HTML]{0066FF}\partial \yhat/\partial \theta_0 = 1\\
+\color[HTML]{0066FF}     & \color[HTML]{0066FF}\partial \yhat/\partial h = 1\\
+\color[HTML]{0066FF}(3)\ & \color[HTML]{0066FF}\partial z/\partial \yhat = 1\\
+\color[HTML]{0066FF}(4)\ & \color[HTML]{0066FF}\partial \ell/\partial z = 4
+\end{align*}
+
+\columnbreak
+\noindent{\color[HTML]{FF0000}\textbf{Global gradients $\uparrow$}}
+\begin{align*}
+\color[HTML]{FF0000}(4)\ & \color[HTML]{FF0000}\partial \ell/\partial \theta_1 = {\color[HTML]{FF0000}4} \cdot {\color[HTML]{0066FF}2} = 8\\
+\color[HTML]{FF0000}     & \color[HTML]{FF0000}\partial \ell/\partial \theta_0 = {\color[HTML]{FF0000}4} \cdot {\color[HTML]{0066FF}1} = 4\\
+\color[HTML]{FF0000}(3)\ & \color[HTML]{FF0000}\partial \ell/\partial h = {\color[HTML]{FF0000}4} \cdot {\color[HTML]{0066FF}1} = 4\\
+\color[HTML]{FF0000}(2)\ & \color[HTML]{FF0000}\partial \ell/\partial \yhat = {\color[HTML]{FF0000}4} \cdot {\color[HTML]{0066FF}1} = 4\\
+\color[HTML]{FF0000}(1)\ & \color[HTML]{FF0000}\partial \ell/\partial z = 1 \cdot {\color[HTML]{0066FF}4} = 4
+\end{align*}
+\end{multicols}
 The backward pass gives $\partial\ell/\partial\theta_0 = 4$ and $\partial\ell/\partial\theta_1 = 8$, which are the gradients used to update the parameters.
 
 \subsubsection{Logistic Regression}
 
-The same graph structure applies to logistic regression with sigmoid activation and binary cross-entropy loss:
-\begin{align}
-(1)\ & h = \theta_0 + \theta_1 x, \quad
-(2)\ \yhat = \sigma(h) = \frac{e^h}{1+e^h}, \quad
-(3)\ \ell = -y\log\yhat - (1-y)\log(1-\yhat).
-\end{align}
-The local gradients are:
-\begin{equation}
-\partial h/\partial \theta_0 = 1, \quad \partial h/\partial \theta_1 = x, \quad
-\partial \yhat/\partial h = \sigma(h)(1-\sigma(h)), \quad
-\partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}.
-\end{equation}
-Backpropagation proceeds identically: right to left, multiplying incoming global by local at each node. The graph structure is unchanged; only the node functions differ. This is the key insight: backpropagation is a general algorithm that operates on the graph, independent of what functions the nodes implement.
+The same graph structure as in Figure~\ref{fig:compgraph_symbolic} applies to logistic regression with sigmoid activation and binary cross-entropy loss --- only the node functions differ. This is the key insight: backpropagation is a general algorithm that operates on the graph, independent of what functions the nodes implement.
+
+\begin{multicols}{3}
+\noindent\textbf{Forward pass $\downarrow$}
+\begin{align*}
+(1)\ & h = \theta_0 + \theta_1 x\\
+(2)\ & \yhat = \sigma(h)\\
+(3)\ & \ell = -y\log\yhat\\
+     & \quad - (1-y)\log(1-\yhat)
+\end{align*}
+
+\columnbreak
+\noindent{\color[HTML]{0066FF}\textbf{Local gradients $\downarrow$}}
+\begin{align*}
+\color[HTML]{0066FF}(1)\ & \color[HTML]{0066FF}\partial h/\partial \theta_0 = 1\\
+\color[HTML]{0066FF}     & \color[HTML]{0066FF}\partial h/\partial \theta_1 = x\\
+\color[HTML]{0066FF}(2)\ & \color[HTML]{0066FF}\partial \yhat/\partial h = \sigma(h)(1{-}\sigma(h))\\
+\color[HTML]{0066FF}(3)\ & \color[HTML]{0066FF}\partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}
+\end{align*}
+
+\columnbreak
+\noindent{\color[HTML]{FF0000}\textbf{Global gradients $\uparrow$}}
+\begin{align*}
+\color[HTML]{FF0000}(3)\ & \color[HTML]{FF0000}\partial \ell/\partial \theta_0 = {\color[HTML]{FF0000}\partial\ell/\partial h} \cdot {\color[HTML]{0066FF}1}\\
+\color[HTML]{FF0000}     & \color[HTML]{FF0000}\partial \ell/\partial \theta_1 = {\color[HTML]{FF0000}\partial\ell/\partial h} \cdot {\color[HTML]{0066FF}x}\\
+\color[HTML]{FF0000}(2)\ & \color[HTML]{FF0000}\partial \ell/\partial h = {\color[HTML]{FF0000}\partial\ell/\partial\yhat} \cdot {\color[HTML]{0066FF}\partial\yhat/\partial h}\\
+\color[HTML]{FF0000}(1)\ & \color[HTML]{FF0000}\partial \ell/\partial \yhat = 1 \cdot {\color[HTML]{0066FF}\frac{\yhat-y}{\yhat(1-\yhat)}}
+\end{align*}
+\end{multicols}
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Multiple Neurons and Gradient Accumulation}
 \slideref{Session 4: Backprop: Multiple Neurons in a Layer}
 
-When a node's output feeds into multiple downstream nodes, the chain rule generalisation applies: the global gradient at that node is the \emph{sum} of contributions from each downstream path. Concretely, if node $h$ feeds into nodes $u$ and $v$:
+\begin{wrapfigure}{r}{0.48\textwidth}
+\centering
+\includegraphics[width=0.46\textwidth]{\PicsPath/CompGraph_6.pdf}
+\caption{A node $h$ feeding into two downstream nodes $u$ and $v$. Gradients accumulate from both paths.}
+\label{fig:compgraph_multinode}
+\end{wrapfigure}
+
+When a node's output feeds into multiple downstream nodes, as in Figure~\ref{fig:compgraph_multinode}, the chain rule generalisation applies: the global gradient at that node is the \emph{sum} of contributions from each downstream path. Concretely, if node $h$ feeds into nodes $u$ and $v$:
 \begin{equation}
 \frac{\partial \ell}{\partial h} = \frac{\partial \ell}{\partial u} \cdot \frac{\partial u}{\partial h} + \frac{\partial \ell}{\partial v} \cdot \frac{\partial v}{\partial h}.
 \end{equation}
-In implementation, this is handled by initialising gradients to zero and accumulating with \texttt{+=}: each downstream node adds its contribution to the gradient of the shared upstream node. This is why the pseudocode uses \texttt{h.grad += ...} rather than \texttt{h.grad = ...}.
+In implementation, gradients from all downstream paths are simply summed: each downstream node contributes its share, and the total gradient at the shared upstream node is their sum.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Technical Implementation and Vectorisation}
 \slideref{Session 4: Technical Implementation, From For Loops to Vectorization}
 
-Each node in the computation graph stores two quantities: \texttt{*.val} (the forward value) and \texttt{*.grad} (the accumulated gradient). Node types differ in what they store and compute:
-
-\begin{itemize}
-    \item \textbf{Input nodes} store \texttt{*.val} only --- they have no gradient.
-    \item \textbf{Parameter nodes} store both \texttt{*.val} and \texttt{*.grad} --- these gradients are used to update the parameters.
-    \item \textbf{Compute nodes} store both \texttt{*.val} and \texttt{*.grad}, and implement both a forward function and a local gradient function.
-\end{itemize}
-
-The forward pass initialises all \texttt{*.val} by evaluating nodes from left to right. The backward pass initialises all \texttt{*.grad} to zero, sets \texttt{l.grad = 1} (the seed), and then accumulates gradients from right to left using \texttt{grad += incoming\_global * local\_grad}.
+Each node stores two quantities: \texttt{*.val} (the forward value) and \texttt{*.grad} (the accumulated gradient), with input nodes storing only \texttt{*.val}. The forward pass initialises all \texttt{*.val} by evaluating nodes from left to right. The backward pass initialises all \texttt{*.grad} to zero, sets \texttt{l.grad = 1} (the seed), and then accumulates gradients from right to left using \texttt{grad += incoming\_global * local\_grad}.
 
 In practice, the scalar for-loop implementation is far too slow for large networks. The key optimisation is \textbf{vectorisation}: replace loops over individual neurons with matrix operations. For a single layer:
 \begin{align}
-&\text{Forward:} \quad \texttt{z.val = W.val @ x.val + b.val}, \quad \texttt{a.val = act(z.val)} \\
-&\text{Backward:} \quad \texttt{z.grad = a.grad * dact(z.val)}, \quad \texttt{W.grad = z.grad[:, None] * x.val[None, :]}.
+&\text{Forward:} \quad \texttt{z.val = W.val @ x.val + b.val} \nonumber\\
+&\phantom{\text{Forward:} \quad} \texttt{a.val = act(z.val)} \nonumber\\
+&\text{Backward:} \quad \texttt{z.grad = a.grad * dact(z.val)} \nonumber\\
+&\phantom{\text{Backward:} \quad} \texttt{W.grad = z.grad[:, None] * x.val[None, :]}.
 \end{align}
-The vectorised version computes the same quantities as the for-loop, but exploits the parallelism of modern hardware. On a GPU, this can be $\sim\!100\times$ faster. This is precisely the computation that \texttt{loss.backward()} performs in PyTorch --- automatically, for any computation graph constructed from differentiable operations.
+The vectorised version computes the same quantities as the for-loop, but exploits the parallelism of modern hardware. On a GPU, this can be $\sim\!100\times$ faster. 
+%This is precisely the computation that \texttt{loss.backward()} performs in PyTorch - automatically, for any computation graph constructed from differentiable operations.

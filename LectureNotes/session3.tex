@@ -44,9 +44,9 @@ To handle multiple layers cleanly, scalar notation becomes cumbersome. We start 
 \end{equation}
 The matrix $\boldsymbol{\Theta}$ has $k$ rows and $d$ columns. Each row $j$ contains the weights $(\theta_{j1}, \ldots, \theta_{jd})$ connecting all $d$ input neurons to output neuron $j$ - so there is one row per output neuron. Each column $i$ contains the weights $(\theta_{1i}, \ldots, \theta_{ki})$ connecting input neuron $x_i$ to all $k$ output neurons - so there is one column per input neuron. The bias vector $\pvec_0 \in \R^k$ has one entry per output neuron.
 
-\begin{wrapfigure}{r}{0.42\textwidth}
+\begin{wrapfigure}{r}{0.35\textwidth}
 \centering
-\resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/matrix_vector_multiply.tex}}
+\resizebox{0.33\textwidth}{!}{\input{\CommonPath/tikz/matrix_vector_multiply.tex}}
 \caption{Hidden layer computation as matrix-vector operation.}
 \label{fig:matrix_vector_multiply}
 \end{wrapfigure}
@@ -71,13 +71,14 @@ with output
 \yhat = \thetavec{L}_0 + \thetamat{L}\, \vh^{(L-1)}.
 \end{equation}
 
-\begin{wrapfigure}{r}{0.50\textwidth}
+
+
+\begin{wrapfigure}{r}{0.5\textwidth}
 \centering
 \resizebox{0.48\textwidth}{!}{\input{\CommonPath/tikz/mlp_layer_notation.tex}}
-\caption{Layer notation for a deep network. Each layer $l$ transforms $\vh^{(l-1)}$ into $\vh^{(l)}$ via $\thetamat{l}$ and $\act$.}
+\caption{Layer notation.}
 \label{fig:layer_notation}
 \end{wrapfigure}
-
 The output layer applies no activation function - the raw linear output $\yhat$ is passed directly as the network's output. This is the general convention for all network types: for regression, $\yhat$ is used directly as the prediction; for classification, $\yhat$ contains the raw logits to which a task-specific transformation (sigmoid, softmax) is applied afterwards, outside the network. The layer structure is illustrated in Figure~\ref{fig:layer_notation}.
 
 At layer $l$, the weight matrix has shape $\thetamat{l} \in \R^{k_l \times k_{l-1}}$ and the bias vector $\thetavec{l}_0 \in \R^{k_l}$, with $k_0 = d$. The matrix-vector product $\thetamat{l}\vh^{(l-1)} \in \R^{k_l \times k_{l-1}} \cdot \R^{k_{l-1}} = \R^{k_l}$ produces one pre-activation value per output neuron in layer $l$.
@@ -113,10 +114,10 @@ This is a toy example. In practice, networks are much wider and deeper - paramet
 
 In practice, we process multiple training samples simultaneously in a \textbf{batch}. Given $N$ samples, we stack the inputs as rows of a matrix $\mathbf{X} \in \R^{N \times d}$, and the hidden activations of layer $l$ form a matrix $\mathbf{H}^{(l)} \in \R^{N \times k_l}$.
 
-\begin{wrapfigure}{l}{0.52\textwidth}
+\begin{wrapfigure}{l}{0.4\textwidth}
 \centering
-\resizebox{0.50\textwidth}{!}{\input{\CommonPath/tikz/batch_matrix_multiply.tex}}
-\caption{Batch forward pass: bias broadcast plus batched matrix multiply, batch dim first, following PyTorch convention.}
+\resizebox{0.38\textwidth}{!}{\input{\CommonPath/tikz/batch_matrix_multiply.tex}}
+\caption{Batch forward pass.}
 \label{fig:batch_matrix_multiply}
 \end{wrapfigure}
 

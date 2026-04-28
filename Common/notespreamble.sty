@@ -25,6 +25,10 @@
 \RequirePackage{multirow}
 \RequirePackage{multicol}
 
+% tighter itemize
+\RequirePackage{enumitem}
+\setlist[itemize]{nosep, noitemsep}
+
 % graphics
 \RequirePackage{graphicx}
 \graphicspath{{Pics/}{../Pics/}{\CommonPath/Pics/}}
@@ -99,8 +103,32 @@
 ]{remarkstyle}
 \declaretheorem[style=defstyle, name=Definition]{definition}
 \declaretheorem[style=examplestyle, name=Example]{example}
-\declaretheorem[style=remarkstyle, name=Remark]{remark}
+% \declaretheorem[style=remarkstyle, name=Remark]{remark}
 \declaretheorem[style=plain, name=Theorem]{theorem}
+
+\RequirePackage{mdframed}
+\mdfdefinestyle{remarkframe}{
+    linecolor=thwsblue,
+    linewidth=0.4pt,
+    topline=true,
+    bottomline=true,
+    leftline=false,
+    rightline=false,
+    innertopmargin=6pt,
+    innerbottommargin=6pt,
+    skipabove=6pt,
+    skipbelow=6pt,
+}
+\declaretheoremstyle[
+ headfont=\bfseries\color{thwsblue},
+ bodyfont=\normalfont,
+ headpunct={.},
+ postheadspace=0.5em,
+ spaceabove=6pt,
+ spacebelow=6pt,
+ mdframed={style=remarkframe},
+]{remarkstyle}
+\declaretheorem[style=remarkstyle, name=Remark]{remark}
 
 % slide reference command
 \newcommand{\slideref}[1]{%
