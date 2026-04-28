@@ -1,0 +1,160 @@
+\section{Deep Neural Networks \& Training}
+\slideref{Session 3}
+
+These notes accompany the third lecture. In Session~2 we established that a one-hidden-layer network with ReLU activations can approximate any continuous function --- but we stopped short of asking how to actually \emph{find} good parameters. This session addresses that question. We first generalise the architecture to arbitrary depth, then introduce the machinery needed to train it: a loss function to measure error, and gradient descent to minimise it.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{From Shallow to Deep Networks}
+\slideref{Session 3: From Shallow to Deep, Matrix Notation}
+
+The one-hidden-layer network from Session~2 computes, for input $\vx \in \R^d$:
+\begin{align*}
+h_j &= \act\!\left(\theta_{j0} + \sum_{i=1}^{d} \theta_{ji}\, x_i\right), \qquad j = 1, \ldots, k \\
+\yhat &= \theta_0 + \sum_{j=1}^{k} \theta_j\, h_j.
+\end{align*}
+The natural extension is to stack additional layers: the output of one layer becomes the input of the next. Each layer applies a linear transformation followed by a nonlinear activation. Stacking layers allows the network to learn increasingly abstract representations --- the first layer might detect simple patterns in the input, the second layer combinations of those patterns, and so on.
+
+To handle multiple layers cleanly, scalar notation becomes cumbersome. We instead collect the weights of layer $l$ into a matrix $\thetamat{l}$ and the biases into a vector $\thetavec{l}_0$. For a single hidden layer with $k$ neurons and $d$-dimensional input:
+\[
+\boldsymbol{\Theta} =
+\begin{pmatrix}
+\theta_{11} & \cdots & \theta_{1d} \\
+\vdots & \ddots & \vdots \\
+\theta_{k1} & \cdots & \theta_{kd}
+\end{pmatrix}
+\in \R^{k \times d}, \qquad
+\thetavec{}_0 =
+\begin{pmatrix} \theta_{10} \\ \vdots \\ \theta_{k0} \end{pmatrix}
+\in \R^k.
+\]
+The hidden layer computation then becomes:
+\[
+\vh = \act\!\left(\thetavec{}_0 + \boldsymbol{\Theta}\vx\right) \in \R^k,
+\]
+where $\act$ is applied elementwise. Each row of $\boldsymbol{\Theta}$ contains the weights of one neuron; each column contains the weights from one input dimension.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Layer Notation and Function Composition}
+\slideref{Session 3: Layer Notation, Deep Network as Function Composition, Dimensions}
+
+We index layers $l = 0, 1, \ldots, L$, where $l=0$ denotes the input and $l=L$ the output. The forward pass is defined recursively:
+\[
+\vh^{(0)} = \vx, \qquad \vh^{(l)} = \act\!\left(\thetavec{l}_0 + \thetamat{l}\, \vh^{(l-1)}\right), \quad l = 1, \ldots, L-1,
+\]
+with output
+\[
+\yhat = \thetavec{L}_0 + \thetamat{L}\, \vh^{(L-1)}.
+\]
+Note that the output layer applies no activation function --- the raw linear output is passed directly as the prediction. This is the standard convention for regression; we revisit output activations when we discuss classification.
+
+The weight matrix at layer $l$ has shape $\thetamat{l} \in \R^{k_l \times k_{l-1}}$, where $k_l$ is the width of layer $l$ and $k_0 = d$ is the input dimension. The rows correspond to neurons in layer $l$; the columns correspond to neurons (or inputs) in layer $l-1$.
+
+Viewed as a whole, the deep network is a composition of functions:
+\[
+\yhat = f_\theta(\vx) = \left(h^{(L)}_\theta \circ \cdots \circ h^{(1)}_\theta\right)(\vx) = \thetavec{L}_0 + \thetamat{L}\,\act\!\left(\cdots\,\act\!\left(\thetavec{1}_0 + \thetamat{1}\vx\right)\cdots\right).
+\]
+The total number of parameters is the sum over all layers of the number of weights plus biases:
+\[
+|\pvec| = \sum_{l=1}^{L} k_l \cdot (k_{l-1} + 1).
+\]
+For example, a network with $d=3$ inputs, two hidden layers of width $k_1 = k_2 = 4$, and $m=2$ outputs has:
+\[
+4 \cdot (3+1) + 4 \cdot (4+1) + 2 \cdot (4+1) = 16 + 20 + 10 = 46 \text{ parameters.}
+\]
+Real networks used in practice have millions or billions of parameters. Finding good values for all of them jointly from data is the central challenge of deep learning.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Batch Formulation}
+\slideref{Session 3: Batch Formulation}
+
+In practice, we process multiple training samples simultaneously in a \textbf{batch}. Given $N$ samples, we stack the inputs as rows of a matrix $\mathbf{X} \in \R^{N \times d}$, and the hidden activations of layer $l$ form a matrix $\mathbf{H}^{(l)} \in \R^{N \times k_l}$.
+
+The batch forward pass for layer $l$ is:
+\[
+\mathbf{H}^{(l)} = \act\!\left(\mathbf{1}\thetavec{l}_0{}^\top + \mathbf{H}^{(l-1)} \left(\thetamat{l}\right)^\top\right),
+\]
+where $\mathbf{1} \in \R^N$ is a vector of ones that broadcasts the bias across all samples. This is precisely what PyTorch computes when we write \texttt{H = X @ W.T + b}: the batch dimension comes first, and the matrix multiply operates across the feature dimension.
+
+Processing data in batches has two benefits. First, it is computationally efficient: modern hardware (GPUs, TPUs) is designed for large parallel matrix operations, and a single batched matrix multiply is far faster than $N$ sequential vector operations. Second, it provides more stable gradient estimates than processing one sample at a time.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{The Learning Problem}
+\slideref{Session 3: The Learning Problem}
+
+We now have a network $f_\theta$ and a dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$. The goal is to find parameters $\pvec$ such that $f_\theta(\vx) \approx y$ on unseen data. Two questions immediately arise:
+
+\begin{enumerate}
+    \item How do we \textbf{measure} how wrong $f_\theta$ is? $\Rightarrow$ \emph{loss function}
+    \item How do we \textbf{find} good $\pvec$ systematically? $\Rightarrow$ \emph{optimisation}
+\end{enumerate}
+
+As illustrated in Figure~\ref{fig:learning_problem}, many different functions could plausibly fit the data. We need a principled criterion to distinguish better from worse.
+
+\begin{figure}[h]
+    \centering
+    \resizebox{0.5\textwidth}{!}{\input{\CommonPath/tikz/learning_problem.tex}}
+    \caption{Multiple piecewise linear functions fit the training data to varying degrees. A loss function provides a scalar measure of fit quality.}
+    \label{fig:learning_problem}
+\end{figure}
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Loss Functions}
+\slideref{Session 3: What is a Loss Function?, Regression: Mean Squared Error}
+
+A \textbf{loss function} $\ell(\yhat, y)$ measures the discrepancy between a prediction $\yhat$ and a true label $y$ for a single sample. It satisfies $\ell(\yhat, y) = 0$ when $\yhat = y$ and $\ell(\yhat, y) > 0$ otherwise, increasing as the prediction worsens. The \textbf{dataset loss} averages the per-sample loss over all training examples:
+\[
+\loss(\pvec) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell\!\left(f_\theta(\vx^{(i)}), y^{(i)}\right).
+\]
+The choice of loss function depends on the task. For regression we use Mean Squared Error; for binary classification, Binary Cross-Entropy; for multiclass classification, Cross-Entropy with a softmax output.
+
+\subsubsection{Mean Squared Error}
+
+For regression with scalar output $y \in \R$ and prediction $\yhat \in \R$, the per-sample loss is:
+\[
+\ell(\yhat, y) = (\yhat - y)^2.
+\]
+The dataset loss is accordingly:
+\[
+\loss(\pvec) = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\!\left(\yhat^{(i)} - y^{(i)}\right)^2.
+\]
+Three properties make squaring the natural choice. First, prediction errors can be positive or negative and would cancel if averaged directly --- squaring removes the sign. Second, squaring penalises large errors more heavily than small ones, which is usually desirable. Third, the squared function is differentiable everywhere, which is essential for gradient-based optimisation.
+
+The output layer for regression has no activation function: $\yhat = \thetavec{L}_0 + \thetamat{L}\vh^{(L-1)} \in \R$. The raw linear output is used directly as the prediction.
+
+\begin{figure}[h]
+    \centering
+    \resizebox{0.5\textwidth}{!}{\input{\CommonPath/tikz/mse_loss.tex}}
+    \caption{Mean squared error illustrated geometrically. Vertical lines show the residuals $\yhat^{(i)} - y^{(i)}$ between the predicted function and the data points. MSE averages the squares of these residuals.}
+    \label{fig:mse_loss}
+\end{figure}
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Gradient Descent}
+\slideref{Session 3: The Optimization Problem, Gradient Descent, The Key Question}
+
+Training the network means finding parameters that minimise the dataset loss:
+\[
+\pvec^* = \arg\min_{\pvec}\ \loss(\pvec).
+\]
+Unlike linear regression, there is no closed-form solution: $\loss(\pvec)$ is nonlinear in $\pvec$, the parameter space has millions of dimensions, and the loss surface is non-convex with many local minima. We therefore resort to iterative, gradient-based optimisation.
+
+The \textbf{gradient} $\nabla_{\pvec} \loss(\pvec)$ is the vector of partial derivatives of $\loss$ with respect to each parameter:
+\[
+\nabla_{\pvec} \loss(\pvec) = \frac{\partial \loss}{\partial \pvec} = \left(\frac{\partial \loss}{\partial \theta_1}, \frac{\partial \loss}{\partial \theta_2}, \ldots\right).
+\]
+It points in the direction of steepest ascent of the loss surface. To minimise the loss we step in the opposite direction. This gives the \textbf{gradient descent} update rule:
+\[
+\pvec \leftarrow \pvec - \eta\, \nabla_{\pvec} \loss(\pvec),
+\]
+where $\eta > 0$ is the \textbf{learning rate}, controlling the step size. We repeat this update until convergence.
+
+\begin{figure}[h]
+    \centering
+    \resizebox{0.5\textwidth}{!}{\input{\CommonPath/tikz/gradient_descent_2d.tex}}
+    \caption{Gradient descent on a quadratic loss. Starting from $\theta_0$, successive steps approach the minimum $\theta^*$. The step size is proportional to the learning rate $\eta$.}
+    \label{fig:gradient_descent}
+\end{figure}
+
+The learning rate is a critical hyperparameter. Too large and the updates overshoot, potentially diverging. Too small and convergence is impractically slow. Choosing a good learning rate --- and adapting it during training --- is a topic we return to in the dedicated optimisation session.
+
+The central computational challenge is evaluating $\nabla_{\pvec} \loss(\pvec)$ efficiently. The loss $\loss(\pvec)$ is a composition of many nested functions --- one per layer of the network. Differentiating through this composition na\"{i}vely would be prohibitively expensive. The answer is \textbf{backpropagation}, which we develop in the next session.
