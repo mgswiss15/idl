@@ -1,0 +1,335 @@
+\section{Optimization}
+\slideref{Session 5}
+
+These notes accompany the fifth lecture. Sessions~3 and~4 established the two ingredients needed for training: a loss function $\loss(\pvec)$ that measures how wrong the network is, and backpropagation to compute its gradient $\nabla_{\pvec}\loss(\pvec)$ efficiently. What we have not yet addressed is how to \emph{use} those gradients to find good parameters. That is the subject of this session. We develop the theory of gradient-based optimisation for deep networks: starting from vanilla gradient descent, motivating the need for stochastic approximations, then building up to the adaptive methods that are standard in practice. We also discuss two practical prerequisites that are often underemphasised: input normalisation and weight initialisation, both of which have a direct and significant effect on whether optimisation succeeds at all.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Optimisation Problem}
+\slideref{Session 5: Where We Are, Optimization Problem}
+
+Training a network means solving:
+\begin{equation}
+    \pvec^* = \arg\min_{\pvec}\; \loss(\pvec;\, \dataset)
+    = \arg\min_{\pvec}\; \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell\!\left(f_{\pvec}(\vx^{(i)}),\, y^{(i)}\right).
+\end{equation}
+
+\begin{wrapfigure}{r}{0.38\textwidth}
+\centering
+\vspace{-0.5em}
+\resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/loss_landscape_3d.tex}}
+\caption{A non-convex loss surface over two parameters. Two distinct basins are visible, each with its own minimum. The contours projected on the base plane reveal their shape.}
+\label{fig:loss_landscape_3d}
+\end{wrapfigure}
+
+\begin{remark}
+    It is worth distinguishing $\min$ from $\arg\min$. The expression $\min_{\pvec} \loss(\pvec)$ denotes the smallest value the loss attains — a scalar. The expression $\arg\min_{\pvec} \loss(\pvec)$ denotes the parameter vector at which that value is attained — an element of the parameter space. As a simple example, $\min_{\theta}(\theta - 3)^2 = 0$, whereas $\arg\min_{\theta}(\theta - 3)^2 = 3$. In training we want $\pvec^*$ itself, since it is the parameters we will deploy at test time, not the loss value they achieve.
+\end{remark}
+
+This is a high-dimensional, non-convex optimisation problem. The parameter vector $\pvec$ may have millions of components; the loss surface has no closed-form minimum; and the landscape is riddled with local minima, saddle points, and flat regions. Figure~\ref{fig:loss_landscape_3d} illustrates a simple two-parameter loss surface with two distinct basins. Unlike linear regression, no analytical solution exists — we must resort to iterative methods.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Gradient Descent}
+\slideref{Session 5: Gradient Descent}
+
+The fundamental algorithm is \textbf{gradient descent}. Starting from an initial parameter vector $\pvec_0$, we repeatedly apply the update:
+\begin{equation}
+    \pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec;\, \dataset),
+    \label{eq:gd_update}
+\end{equation}
+where $\eta > 0$ is the \textbf{learning rate}. Since the gradient points in the direction of steepest ascent of the loss, stepping opposite to it moves us downhill. As illustrated in Figure~\ref{fig:gradient_descent} from Session~3, the iterates move toward the minimum with steps that naturally decrease as the gradient shrinks near the optimum. Algorithm~\ref{alg:gd} states this formally.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoSkip{medskip}
+\KwIn{Dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$, learning rate $\eta$, initial parameters $\pvec_0$}
+\For{$t = 1, 2, \ldots$ until convergence}{
+    forward: $f_{\pvec}(\vx^{(i)})$ for $i = 1, \ldots, \nsamples$\;
+    loss: $\loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)})$\;
+    backprop: $\nabla_{\pvec} \loss(\pvec;\, \dataset)$\;
+    update: $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \loss(\pvec;\, \dataset)$\;
+}
+\caption{Gradient Descent}
+\label{alg:gd}
+\end{algorithm}
+
+\subsubsection{Loss Landscape}
+
+The loss surface of a deep network is a function from the parameter space — potentially millions of dimensions — to a scalar. Understanding its geometry is essential for understanding why gradient descent behaves the way it does. Figure~\ref{fig:loss_landscape_features} shows a one-dimensional cross-section illustrating the four main features encountered in practice.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+\centering
+\resizebox{0.43\textwidth}{!}{\input{\CommonPath/tikz/loss_landscape_features.tex}}
+\caption{A non-convex loss landscape: local minimum, local maximum, saddle point (inflection), and flat region.}
+\label{fig:loss_landscape_features}
+\end{wrapfigure}
+
+\textbf{Local minima} are points where the gradient is zero and the loss curves upward in every direction — gradient descent cannot escape them by following the gradient. A common concern is that deep networks have many local minima and training will get stuck in a bad one. In practice this turns out to be less of a problem than feared: empirical evidence suggests that local minima in deep networks tend to have loss values close to the global minimum, and the network performs well regardless of which one is found.
+
+\textbf{Saddle points} are zero-gradient points where the loss curves upward in some directions and downward in others. In a one-dimensional cross-section they appear as inflection points — where the curvature changes sign — with a near-zero gradient. In high dimensions, saddle points are far more common than local minima: a random critical point in a high-dimensional landscape is overwhelmingly likely to be a saddle rather than a true minimum. They are the more serious obstacle for gradient descent, because the gradient can be very small without the iterate being near a good solution.
+
+\textbf{Flat regions} are extended areas where the gradient is very small but not exactly zero. Gradient descent makes negligible progress here — steps are tiny and many iterations are wasted. Flat regions often appear early in training when the network has not yet learned anything useful, or late in training when the network is near but not at a minimum.
+
+\textbf{Cliffs} are sharp changes in the loss surface where the gradient is very large. A single gradient step in a cliff region can move the parameters by a huge amount, potentially undoing many previous steps. This is particularly common in recurrent networks and very deep architectures, and is the motivation for gradient clipping, which we will revisit in a later session.
+
+The overarching message is that the loss landscape of a deep network is highly non-convex and has complex geometry. This means there is no guarantee that gradient descent will find the global minimum — or even a good local minimum — from an arbitrary starting point. The choice of initialisation, learning rate, and optimiser all affect which part of the landscape is explored and what solution is ultimately found.
+
+\subsubsection{Gradient Descent on Loss Landscape}
+\label{sec:gd_landscape}
+\slideref{Session 5: Gradient Descent on Loss Landscape}
+
+An important practical point is that the loss surface is not known in advance — gradient descent probes it one point at a time. The algorithm starts from a random initialisation and uses local gradient information to decide where to step next. It has no global view of the landscape.
+
+\begin{wrapfigure}{r}{0.42\textwidth}
+\centering
+\resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/gd_descent_steps.tex}}
+\caption{Two gradient descent trajectories starting from nearby initialisations on either side of a local maximum.}
+\label{fig:gd_descent_steps}
+\end{wrapfigure}
+
+The step size — determined by the learning rate $\eta$ — creates a fundamental tension. A small $\eta$ leads to slow, expensive progress; a large $\eta$ causes the iterates to jump erratically, potentially missing minima or diverging altogether. The choice of $\eta$ is therefore critical and will be revisited when we discuss learning rate schedules.
+
+Crucially, which minimum is found depends on the initialisation. Figure~\ref{fig:gd_descent_steps} illustrates this: two trajectories starting from nearby points on either side of a local maximum end up in completely different minima. This sensitivity to initialisation is not merely a theoretical curiosity — it has direct practical consequences, which is why weight initialisation deserves careful attention.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Stochastic and Mini-Batch Gradient Descent}
+\slideref{Session 5: The Cost of Full-Batch GD, Batch Mini-Batch and SGD, The Training Loop}
+
+\subsubsection{Cost of Full-Batch Gradient Descent}
+
+Full-batch gradient descent as stated in Algorithm~\ref{alg:gd} computes the gradient over the entire dataset at each step. For datasets with millions of examples this is prohibitively expensive: one gradient evaluation requires one forward and one backward pass over all $\nsamples$ samples.
+
+The key observation is that the full loss is an average over individual sample losses:
+\begin{equation}
+    \loss(\pvec;\, \dataset) = \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)}).
+\end{equation}
+A random subset $\mathcal{B} \subset \{1,\ldots,\nsamples\}$, called a \textbf{mini-batch}, gives an unbiased estimate of the full loss:
+\begin{equation}
+    \hat{\loss}(\pvec;\, \mathcal{B}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \ell(f_{\pvec}(\vx^{(i)}),\, y^{(i)}),
+    \qquad \mathbb{E}_{\mathcal{B}}\!\left[\hat{\loss}(\pvec;\,\mathcal{B})\right] = \loss(\pvec;\,\dataset).
+\end{equation}
+Since the gradient is a linear operator, an unbiased estimate of the loss immediately gives an unbiased estimate of the gradient:
+\begin{equation}
+    \mathbb{E}_{\mathcal{B}}\!\left[\nabla_{\pvec}\,\hat{\loss}(\pvec;\,\mathcal{B})\right] = \nabla_{\pvec}\,\loss(\pvec;\,\dataset).
+\end{equation}
+This justifies replacing the exact gradient with its mini-batch estimate in the update rule~\eqref{eq:gd_update}. In expectation, the update moves in the same direction as full-batch gradient descent; in practice, each step introduces some noise from the random batch selection.
+
+\begin{remark}
+The notation $\mathbb{E}_{\mathcal{B}}[\,\cdot\,]$ denotes the \textbf{expected value} over all possible mini-batches $\mathcal{B}$ drawn uniformly at random from $\dataset$. Concretely, if every subset of size $B$ is equally likely, then $\mathbb{E}_{\mathcal{B}}[\hat{\loss}]$ is the average of $\hat{\loss}(\pvec;\,\mathcal{B})$ over all such subsets.
+
+An estimator $\hat{\loss}$ is called \textbf{unbiased} for $\loss$ if $\mathbb{E}_{\mathcal{B}}[\hat{\loss}] = \loss$ — that is, averaged over all possible randomly drawn batches, the mini-batch loss equals the full dataset loss. Any individual batch estimate will typically differ from the true loss: depending on which samples happen to be selected, $\hat{\loss}$ may be higher or lower than $\loss$. What unbiasedness guarantees is that these fluctuations are symmetric and cancel out on average — there is no systematic tendency to over- or under-estimate the true loss.
+
+This connects directly to the iterative nature of training. Over many gradient steps, each using a freshly drawn mini-batch, we are effectively computing many independent estimates of the gradient and acting on each in turn. Even though each individual step is noisy, the cumulative effect of many unbiased steps approximates what many steps with the exact gradient would achieve. The algorithm never computes the average explicitly — it simply takes many steps, and the averaging happens implicitly across iterations.
+\end{remark}
+
+\subsubsection{Batch Size and SGD Spectrum}
+
+The batch size $|\mathcal{B}| = B$ interpolates between two extremes. When $B = \nsamples$ we recover full-batch gradient descent: each update uses the exact gradient, convergence is smooth, but each step requires a full pass through the data — prohibitively expensive for large datasets. When $B = 1$ we obtain \textbf{stochastic gradient descent} (SGD): each step uses the gradient of a single sample, making updates maximally cheap but also maximally noisy. Despite the noise, SGD has solid theoretical convergence guarantees and was the method of choice before GPU computing made larger batches practical.
+
+Between these extremes lies \textbf{mini-batch SGD}, which introduces a controlled amount of noise into the gradient estimates. This noise turns out to have a beneficial effect on how the optimiser navigates the loss landscape. Because each mini-batch is a different random subset of the data, consecutive gradient steps are computed on slightly different loss surfaces. A sharp, narrow minimum that looks like a minimum on one batch may not look like one on the next — the iterate gets perturbed away from it. A wide, flat minimum, by contrast, looks like a minimum for essentially every batch, so the iterate settles there and stays. Over the course of training, this stochastic perturbation acts as a kind of implicit regularisation: the optimiser tends to drift away from sharp minima and toward flat ones. This matters because flat minima generalise better — the loss does not change much when the parameters shift slightly, which is exactly what happens when moving from training data to unseen test data.
+
+The same mechanism helps with saddle points. At a saddle point, the full-batch gradient is near zero — the optimiser would stall. But the mini-batch gradient is not zero: the random selection of samples breaks the cancellation that produces the near-zero full-batch gradient, providing a noisy push that can carry the iterate out of the saddle region.
+
+The practical default is mini-batch SGD with $B$ typically between 32 and 512. The choice of batch size involves several competing considerations. Larger batches give more accurate gradient estimates, leading to more stable updates and smoother convergence — but each step is more expensive and fewer steps can be taken per unit of compute, and the landscape-navigation benefits of noise are reduced. Smaller batches are cheaper per step and explore the landscape more aggressively, but the high variance means individual steps are less informative and the optimiser can struggle to make steady progress. There is also a hardware dimension: modern GPUs are designed for large parallel matrix operations and are underutilised by very small batches, so batch sizes are typically chosen as powers of two (32, 64, 128, 256) to align with GPU memory layouts. In practice, batch size is treated as a hyperparameter and tuned alongside the learning rate — the two are closely coupled, since a larger batch typically calls for a proportionally larger learning rate to make comparable progress per epoch.
+
+\subsubsection{Training Loop}
+
+A complete training run iterates over the dataset multiple times. One full pass through the dataset is called an \textbf{epoch}; one mini-batch update is called an \textbf{iteration}. Algorithm~\ref{alg:minibatch_gd} states the full training loop.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoSkip{medskip}
+\KwIn{Dataset $\dataset$, learning rate $\eta$, initial parameters $\pvec_0$, number of epochs $T$}
+\For{epoch $= 1, \ldots, T$}{
+    shuffle $\dataset$ into random mini-batches $\mathcal{B}_1, \mathcal{B}_2, \ldots$\;
+    \For{each mini-batch $\mathcal{B}$}{
+        forward: compute $f_{\pvec}(\vx^{(i)})$ for $i \in \mathcal{B}$\;
+        loss: $\hat{\loss} = \frac{1}{|\mathcal{B}|}\sum_{i\in\mathcal{B}} \ell_i$\;
+        backward: compute $\nabla_{\pvec} \hat{\loss}$ via backpropagation\;
+        update: $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec} \hat{\loss}$\;
+    }
+}
+\caption{Mini-Batch Gradient Descent}
+\label{alg:minibatch_gd}
+\end{algorithm}
+
+Shuffling the dataset at the start of each epoch ensures that mini-batches are formed differently across epochs, preventing the network from overfitting to a fixed batch ordering. The loss on a held-out \textbf{validation set} is monitored throughout training to assess generalisation — a topic developed in the next session.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Setting Up for Optimisation}
+\slideref{Session 5: Why Feature Scale Matters, Input Normalization, Initialization: The Symmetry Problem, Initialization: Vanishing and Exploding Signals, Xavier and He Initialization}
+
+Before running any optimisation algorithm, two practical steps have a large effect on whether training succeeds: normalising the inputs and initialising the weights carefully. Both affect the geometry of the loss landscape and the behaviour of gradients from the very first step.
+
+\subsubsection{Input Normalisation}
+\label{sec:input_norm}
+
+The shape of the loss surface as a function of the parameters depends on the scale of the input features. To see why, consider a concrete example close to home. Suppose we want to predict the future income of MAI graduates based on two features: $x_1$, their average final grade in the programme (ranging from 1 to 4), and $x_2$, the total number of days they spent in the programme (ranging from 0 to roughly 1500). We fit a linear regression model with MSE loss:
+\begin{equation}
+    \loss(\theta_1, \theta_2;\, \dataset) = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples}
+    \bigl(\theta_1 x_1^{(i)} + \theta_2 x_2^{(i)} - y^{(i)}\bigr)^2,
+\end{equation}
+where $\theta_1$ is the weight on the grade feature and $\theta_2$ is the weight on the duration feature. The partial derivatives with respect to the two parameters are:
+\begin{equation}
+    \frac{\partial \loss}{\partial \theta_1} = \frac{2}{\nsamples}\sum_i r^{(i)}\, x_1^{(i)},
+    \qquad
+    \frac{\partial \loss}{\partial \theta_2} = \frac{2}{\nsamples}\sum_i r^{(i)}\, x_2^{(i)},
+\end{equation}
+where $r^{(i)} = \theta_1 x_1^{(i)} + \theta_2 x_2^{(i)} - y^{(i)}$ is the residual. The gradient with respect to each parameter is scaled by the corresponding feature values. Since $x_2$ takes values up to 1500 while $x_1$ ranges only over $[1, 4]$, we have $x_2 \gg x_1$, and therefore $\partial\loss/\partial\theta_2 \gg \partial\loss/\partial\theta_1$ for the same residual. A tiny change in $\theta_2$ causes a large change in the loss, while a large change in $\theta_1$ barely moves it at all.
+
+\begin{wrapfigure}{r}{0.28\textwidth}
+\centering
+\vspace{-1em}
+\resizebox{0.26\textwidth}{!}{\input{\CommonPath/tikz/normalization_ellipse.tex}}
+\resizebox{0.26\textwidth}{!}{\input{\CommonPath/tikz/normalization_circle.tex}}
+\caption{Unnormalised (top) vs normalised (bottom) loss contours.}
+\label{fig:normalization}
+\end{wrapfigure}
+
+The consequence is that the loss contours are highly elongated ellipses, as shown in Figure~\ref{fig:normalization} (top): the loss is very sensitive in the $\theta_2$ direction and nearly flat in the $\theta_1$ direction. Gradient descent oscillates violently across the steep direction while making negligible progress along the flat one — a classic symptom of an ill-conditioned optimisation problem.
+
+To see what this means in practice, consider what happens during training without normalisation. The gradient with respect to $\theta_2$ is large, so the update $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec}\loss$ makes a large step in the $\theta_2$ direction. If $\eta$ is chosen to make reasonable progress along $\theta_2$, the step in the $\theta_1$ direction is tiny — because the gradient there is small. The optimiser effectively ignores $\theta_1$ for many iterations. Conversely, if $\eta$ is increased to make progress on $\theta_1$, the step in $\theta_2$ overshoots, causing the iterates to bounce back and forth across the valley without descending into it. There is no single learning rate that works well for both parameters simultaneously. In the worst case, training diverges: the overshoot in the $\theta_2$ direction grows with each step, and the loss increases rather than decreasing. In the best case, training is simply very slow — the optimiser creeps along in the flat $\theta_1$ direction while wasting most of its steps oscillating across $\theta_2$. Both pathologies become dramatically worse as the number of features grows and their scales become more varied.
+
+The root cause is not the model or the data, but the mismatch in scales between the two features. A student's grade and the number of days they spent studying are both meaningful predictors of income, but they happen to be measured in very different units. The optimiser has no way to know this — it sees only numbers, and large numbers produce large gradients.
+
+The standard fix is \textbf{z-score normalisation}, applied feature-wise before training:
+\begin{equation}
+    \tilde{x}_j = \frac{x_j - \mu_j}{\sigma_j},
+    \qquad
+    \mu_j = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} x_j^{(i)},
+    \quad
+    \sigma_j = \sqrt{\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} (x_j^{(i)} - \mu_j)^2}.
+\end{equation}
+After normalisation, the grade and duration features both have zero mean and unit variance. The optimiser now sees both on equal footing: a unit change in $\tilde{x}_1$ has the same scale as a unit change in $\tilde{x}_2$, and both gradients are of similar magnitude. The loss contours become approximately circular (Figure~\ref{fig:normalization}, bottom), and gradient descent converges much faster.
+
+A critical implementation detail: $\mu_j$ and $\sigma_j$ must be computed on the \textbf{training set only} and then applied identically to validation and test sets. Computing statistics on the full dataset would leak information about the test distribution into preprocessing — a subtle but consequential data leakage error.
+
+\subsubsection{Weight Initialisation}
+
+The choice of initial weights affects optimisation just as much as the loss landscape geometry. We already saw in Section~\ref{sec:gd_landscape} and Figure~\ref{fig:gd_descent_steps} that two trajectories starting from nearby but distinct points can converge to entirely different minima. The initialisation therefore determines not only how fast training proceeds, but which region of the loss landscape is explored and what solution is ultimately found. There are two distinct failure modes to avoid.
+
+\paragraph{The symmetry problem.}
+If all weights are initialised to the same value — for instance, all zeros, or any other fixed constant — then all neurons in a layer combine the same inputs with the same weights, and therefore compute identical pre-activations:
+\begin{equation}
+    z_j^{(l)} = \sum_i \theta_{ji}^{(l)}\, h_i^{(l-1)} + \theta_{j0}^{(l)} = c \quad \forall\, j.
+\end{equation}
+Every neuron in the layer produces the same output, and since all outputs are identical, every neuron in the \emph{next} layer also receives the same inputs — propagating the symmetry forward through the entire network.
+
+The problem compounds during the backward pass. Because every neuron in a layer has the same output, the loss is equally sensitive to each of them, and their gradients are identical. This means every neuron receives the same gradient signal and makes the same parameter update. After the update, the weights are still all equal — just shifted by the same amount. The symmetry is never broken, no matter how many gradient steps are taken.
+
+The practical consequence is that the network has the width of a single neuron per layer, regardless of its architecture. All the neurons in a layer learn the same function, and the expressive capacity that width is supposed to provide is completely wasted. Weights must therefore be initialised \textbf{randomly} to break this symmetry — ensuring that different neurons start from different points and specialise in different directions during training.
+
+\paragraph{Vanishing and exploding signals.}
+Random initialisation is necessary but not sufficient — the scale of the random weights matters critically. To see why, consider an $L$-layer network with linear activations and weights drawn independently with $\mathbb{E}[\theta] = 0$ and $\mathrm{Var}[\theta] = \sigma^2$, with $n_{\text{in}}$ inputs per layer. Under these assumptions, the variance of the pre-activation propagates as:
+\begin{equation}
+    \mathrm{Var}[z^{(l)}] = n_{\text{in}}\,\sigma^2 \cdot \mathrm{Var}[h^{(l-1)}],
+\end{equation}
+because the $n_{\text{in}}$ independent terms in the sum each contribute $\sigma^2 \cdot \mathrm{Var}[h]$, and their variances add. Applied recursively over $L$ layers:
+\begin{equation}
+    \mathrm{Var}[z^{(L)}] = (n_{\text{in}}\,\sigma^2)^L \cdot \mathrm{Var}[x].
+    \label{eq:variance_propagation}
+\end{equation}
+The factor $n_{\text{in}}\,\sigma^2$ is applied at each layer, so the signal variance grows or shrinks geometrically with depth. If $n_{\text{in}}\,\sigma^2 < 1$, the variance collapses to zero exponentially — activations vanish, gradients vanish, and early layers stop learning. If $n_{\text{in}}\,\sigma^2 > 1$, the variance grows exponentially — activations and gradients explode, and training diverges. The only stable regime is $n_{\text{in}}\,\sigma^2 = 1$, giving the target variance $\sigma^2 = 1/n_{\text{in}}$.
+
+\begin{remark}
+    The derivation above assumes linear activations and is exact under independence. With nonlinear activations the argument is approximate, but the qualitative conclusion — that $n_{\text{in}}\,\sigma^2$ controls stability — remains valid.
+\end{remark}
+
+\paragraph{Xavier and He initialisation.}
+The condition $\sigma^2 = 1/n_{\text{in}}$ ensures variance is preserved in the forward pass. A symmetric argument applied to the backward pass yields the condition $\sigma^2 = 1/n_{\text{out}}$. These two conditions cannot generally be satisfied simultaneously. \textcite{glorot2010understanding} proposed taking their harmonic mean:
+\begin{equation}
+    \sigma^2 = \frac{2}{n_{\text{in}} + n_{\text{out}}},
+    \qquad
+    \theta^{(l)}_{ji} \sim \mathcal{U}\!\left[-\frac{\sqrt{6}}{\sqrt{n_{\text{in}}+n_{\text{out}}}},\, \frac{\sqrt{6}}{\sqrt{n_{\text{in}}+n_{\text{out}}}}\right].
+\end{equation}
+This is \textbf{Xavier} (or Glorot) initialisation, designed for symmetric activations such as tanh or sigmoid.
+
+For ReLU activations, approximately half the neurons are zeroed at any given forward pass, which halves the effective variance relative to the linear case. \textcite{he2015delving} showed that this requires compensating with an extra factor of two:
+\begin{equation}
+    \sigma^2 = \frac{2}{n_{\text{in}}},
+    \qquad
+    \theta^{(l)}_{ji} \sim \mathcal{N}\!\left(0,\, \frac{2}{n_{\text{in}}}\right).
+\end{equation}
+This is \textbf{He} (or Kaiming) initialisation. In PyTorch: \texttt{nn.init.xavier\_uniform\_()}, \texttt{nn.init.xavier\_normal\_()}, and \texttt{nn.init.kaiming\_normal\_()}.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Momentum and Adaptive Methods}
+\slideref{Session 5: Limitations of Vanilla GD, Momentum, RMSProp, Adam}
+
+Even with good initialisation and normalised inputs, vanilla mini-batch gradient descent can be slow or unstable. Three failure modes motivate progressively more sophisticated update rules.
+
+\subsubsection{Momentum}
+
+Mini-batch gradients are noisy: each batch produces a slightly different gradient estimate, causing the parameter updates to fluctuate. In a narrow valley — where the loss is steep across the valley and flat along it — this noise produces oscillations across the valley while progress along the valley is slow. \textbf{Momentum} addresses this by accumulating a velocity vector $\vm_t$, defined as an exponential moving average of past gradients:
+\begin{align}
+    \vm_t &= \beta\, \vm_{t-1} + (1-\beta)\, \nabla_{\pvec} \hat{\loss}_t, \label{eq:momentum_m}\\
+    \pvec &\leftarrow \pvec - \eta\, \vm_t. \label{eq:momentum_update}
+\end{align}
+The coefficient $\beta \in [0,1)$ — typically 0.9 — controls how much history is retained. Gradients in directions that are consistent across many steps accumulate in $\vm_t$, amplifying progress along those directions. Gradients in directions that alternate sign (oscillations across a valley) cancel out, damping the oscillations. The net effect is faster, smoother progress along the loss landscape.
+
+\begin{wrapfigure}{r}{0.42\textwidth}
+\centering
+\resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/momentum_vs_sgd.tex}}
+\caption{SGD (carnelian) oscillates across a narrow valley. Momentum (petrol) follows a smoother path.}
+\label{fig:momentum}
+\end{wrapfigure}
+
+Figure~\ref{fig:momentum} contrasts SGD and momentum on an elongated loss landscape. SGD zigzags across the narrow direction; momentum dampens the oscillations and converges more directly.
+
+\subsubsection{RMSProp}
+
+Momentum smooths the update direction but uses the same effective learning rate for every parameter. In practice, different parameters may have very different gradient magnitudes: some are sensitive (large gradients) and others are nearly flat (small gradients). A single $\eta$ is simultaneously too large for the former and too small for the latter.
+
+\textbf{RMSProp} addresses this by maintaining, per parameter, an exponential moving average of the squared gradient:
+\begin{equation}
+    \vv_t = \gamma\, \vv_{t-1} + (1-\gamma)\, \bigl(\nabla_{\pvec} \hat{\loss}_t\bigr)^2,
+\end{equation}
+where squaring is applied elementwise and $\gamma \approx 0.99$. The quantity $\vv_t$ tracks the recent magnitude of each parameter's gradient, regardless of sign. The update then divides by $\sqrt{\vv_t}$:
+\begin{equation}
+    \pvec \leftarrow \pvec - \frac{\eta}{\sqrt{\vv_t + \epsilon}}\, \nabla_{\pvec} \hat{\loss}_t,
+\end{equation}
+with $\epsilon \approx 10^{-8}$ for numerical stability. Parameters with large recent gradients receive a smaller effective step; parameters with small recent gradients receive a larger one. This automatic per-parameter rescaling is equivalent to approximately equalising the loss landscape curvature across dimensions, making gradient descent better conditioned.
+
+The crucial difference from momentum is that RMSProp accumulates squared gradients (always positive, no directional information) rather than the gradients themselves. Momentum is about smoothing the \emph{direction} of updates; RMSProp is about adapting the \emph{magnitude}.
+
+\subsubsection{Adam}
+
+\textbf{Adam} \parencite{kingma2015adam} (Adaptive Moment Estimation) combines both ideas. It maintains two moving averages simultaneously — a first moment estimate (momentum) and a second moment estimate (RMSProp):
+\begin{align}
+    \vm_t &= \beta_1\, \vm_{t-1} + (1-\beta_1)\, \nabla_{\pvec} \hat{\loss}_t, \label{eq:adam_m}\\
+    \vv_t &= \beta_2\, \vv_{t-1} + (1-\beta_2)\, \bigl(\nabla_{\pvec} \hat{\loss}_t\bigr)^2. \label{eq:adam_v}
+\end{align}
+Both moving averages are initialised at zero, which biases them toward zero early in training when few gradient estimates have been accumulated. Adam corrects for this with:
+\begin{equation}
+    \hat{\vm}_t = \frac{\vm_t}{1-\beta_1^t}, \qquad \hat{\vv}_t = \frac{\vv_t}{1-\beta_2^t}.
+    \label{eq:adam_bias_correction}
+\end{equation}
+As $t$ grows, $\beta^t \to 0$ and the corrections approach 1, so the bias correction is only active at the very start of training. The parameter update is then:
+\begin{equation}
+    \pvec \leftarrow \pvec - \frac{\eta}{\sqrt{\hat{\vv}_t} + \epsilon}\, \hat{\vm}_t.
+    \label{eq:adam_update}
+\end{equation}
+The default hyperparameters $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$ work well across a wide range of architectures and tasks, making Adam the standard default optimizer in deep learning. In PyTorch: \texttt{torch.optim.Adam(params, lr=}$\eta$\texttt{)}.
+
+% - - - - - - - - - - - - - - - - - --
+\subsection{Learning Rate Schedules}
+\slideref{Session 5: Why Schedule the Learning Rate?, Learning Rate Schedules}
+
+A fixed learning rate is a compromise: a large $\eta$ enables fast initial progress but overshoots near a minimum; a small $\eta$ allows fine-grained convergence but is impractically slow early on. \textbf{Learning rate schedules} vary $\eta$ over the course of training to get the best of both regimes.
+
+\paragraph{Step decay.} The simplest schedule reduces $\eta$ by a multiplicative factor $\gamma < 1$ every $k$ epochs:
+\begin{equation}
+    \eta_t = \eta_0 \cdot \gamma^{\lfloor t/k \rfloor}.
+\end{equation}
+Step decay is simple and interpretable but the abrupt drops can be suboptimal.
+
+\paragraph{Cosine annealing.} A smooth alternative follows a cosine curve from $\eta_0$ down to a minimum $\eta_{\min}$:
+\begin{equation}
+    \eta_t = \eta_{\min} + \tfrac{1}{2}(\eta_0 - \eta_{\min})\Bigl(1 + \cos\tfrac{\pi t}{T}\Bigr),
+\end{equation}
+where $T$ is the total number of training steps. This is widely used in modern training recipes.
+
+\paragraph{Linear warmup with cosine decay.} Large-scale training — particularly for Transformers — uses a warmup phase in which $\eta$ is ramped up linearly from zero over the first $t_w$ steps, followed by cosine decay:
+\begin{equation}
+    \eta_t = \begin{cases} \eta_0 \cdot t/t_w & t \leq t_w \\ \eta_{\min} + \tfrac{1}{2}(\eta_0 - \eta_{\min})\bigl(1 + \cos\tfrac{\pi(t-t_w)}{T-t_w}\bigr) & t > t_w. \end{cases}
+\end{equation}
+Warmup prevents large, destabilising updates early in training when the parameters are far from any reasonable region and gradients can be very large.
