@@ -8,13 +8,13 @@ These notes accompany the fourth lecture. The central question left open at the 
 \slideref{Session 4: Forward and Backward Pass}
 
 Training a deep network requires two passes through the network for each update step. The \textbf{forward pass} evaluates the network layer by layer from input to output, computing the prediction $\yhat$ and then the loss $\loss$:
-\[
+\begin{equation}
 \vx = \vh^{(0)} \xrightarrow{\thetamat{1}} \vh^{(1)} \xrightarrow{\thetamat{2}} \cdots \xrightarrow{\thetamat{L}} \vh^{(L)} = \yhat \xrightarrow{\ell} \loss.
-\]
+\end{equation}
 The \textbf{backward pass} propagates gradients in the reverse direction, from the loss back through each layer to the parameters:
-\[
+\begin{equation}
 \frac{\partial \loss}{\partial \pvec} \xleftarrow{\thetamat{1}} \frac{\partial \loss}{\partial \vh^{(1)}} \xleftarrow{\thetamat{2}} \cdots \xleftarrow{\thetamat{L}} \frac{\partial \loss}{\partial \vh^{(L)}} \xleftarrow{\ell} \loss.
-\]
+\end{equation}
 The \textbf{gradient} $\nabla_{\pvec}\,\loss(\pvec) = \frac{\partial \loss}{\partial \pvec}$ collects one partial derivative per parameter. Backpropagation is the algorithm that computes this backward pass efficiently. It is important to note that backpropagation \emph{computes gradients} --- it does not perform any optimisation. The gradient descent update step is separate.
 
 % - - - - - - - - - - - - - - - - - --
@@ -33,21 +33,21 @@ A computation graph has three types of nodes:
 \subsubsection{Example: Linear Regression}
 
 Consider linear regression with MSE loss: $\ell(x, y, \pvec) = (\theta_0 + \theta_1 x - y)^2$. We decompose this into four atomic steps:
-\begin{align*}
+\begin{align}
 (1)\ & h = \theta_1 x \\
 (2)\ & \yhat = \theta_0 + h \\
 (3)\ & z = \yhat - y \\
 (4)\ & \ell = z^2.
-\end{align*}
+\end{align}
 Each step is a simple operation --- multiplication, addition, subtraction, squaring --- with a derivative that can be written down immediately.
 
 \subsubsection{Flexible Level of Detail}
 
 The same function can be decomposed at different levels of granularity. The four-step decomposition above is fine-grained; we could also use a coarser two-step decomposition:
-\begin{align*}
+\begin{align}
 (1)\ & \yhat = \theta_0 + \theta_1 x \\
 (2)\ & \ell = (\yhat - y)^2,
-\end{align*}
+\end{align}
 or a vectorised one-step version $\yhat = \pvec^\top \vx$. The choice of granularity is a design decision: finer decompositions make each local gradient simpler, while coarser ones reduce the number of nodes and may be more efficient if the compound derivative is known analytically.
 
 \subsubsection{Flexible Operations}
@@ -65,21 +65,21 @@ Computation graphs can be drawn at the level of scalar operations --- one node p
 Backpropagation relies on two rules from calculus.
 
 \textbf{Sum rule.} The gradient of an average is the average of the gradients:
-\[
+\begin{equation}
 \nabla_{\pvec}\, \loss(\pvec)
 = \nabla_{\pvec} \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \ell(\vx^{(i)}, y^{(i)}, \pvec)
 = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \nabla_{\pvec}\, \ell(\vx^{(i)}, y^{(i)}, \pvec).
-\]
+\end{equation}
 This means we can compute the gradient for a single training sample and average the results --- we never need to differentiate through the sum directly.
 
 \textbf{Chain rule.} For a composed function $f(g(x))$:
-\[
+\begin{equation}
 \frac{d}{dx} f(g(x)) = \frac{df}{dg}\frac{dg}{dx}.
-\]
+\end{equation}
 When a variable $x$ feeds into multiple downstream nodes $g_1(x), \ldots, g_m(x)$, the chain rule generalises to:
-\[
+\begin{equation}
 \frac{d}{dx} f(g_1(x), \ldots, g_m(x)) = \sum_{i=1}^{m} \frac{\partial f}{\partial g_i}\frac{dg_i}{dx}.
-\]
+\end{equation}
 The sum arises because $x$ influences $f$ through multiple paths; the total effect is the sum of contributions from each path.
 
 \subsubsection{Local and Global Gradients}
@@ -92,9 +92,9 @@ At each node in the computation graph we distinguish two quantities:
 \end{itemize}
 
 The backpropagation update at each node is:
-\[
+\begin{equation}
 \frac{\partial \ell}{\partial\, \text{in}} = \frac{\partial \ell}{\partial\, \text{out}} \cdot \frac{\partial\, \text{out}}{\partial\, \text{in}}.
-\]
+\end{equation}
 In words: multiply the incoming global gradient (flowing in from the right) by the local gradient to obtain the outgoing global gradient (flowing to the left). This is applied at every node, proceeding right to left through the graph.
 
 % - - - - - - - - - - - - - - - - - --
@@ -104,51 +104,51 @@ In words: multiply the incoming global gradient (flowing in from the right) by t
 \subsubsection{Linear Regression --- Symbolic}
 
 We work through the backpropagation pass for linear regression using the four-step decomposition. The forward pass evaluates:
-\begin{align*}
+\begin{align}
 (1)\ & h = \theta_1 x, \quad (2)\ \yhat = \theta_0 + h, \quad (3)\ z = \yhat - y, \quad (4)\ \ell = z^2.
-\end{align*}
+\end{align}
 The local gradients are computed from these stored values:
-\begin{align*}
+\begin{align}
 (1)\ & \partial h/\partial \theta_1 = x, \quad
 (2)\ \partial \yhat/\partial \theta_0 = 1,\ \partial \yhat/\partial h = 1, \quad
 (3)\ \partial z/\partial \yhat = 1, \quad
 (4)\ \partial \ell/\partial z = 2z.
-\end{align*}
+\end{align}
 The backward pass proceeds from right to left, accumulating global gradients:
-\begin{align*}
+\begin{align}
 (1)\ & \partial \ell/\partial z = 1 \cdot 2z = 2z \\
 (2)\ & \partial \ell/\partial \yhat = 2z \cdot 1 = 2z \\
 (3)\ & \partial \ell/\partial h = 2z \cdot 1 = 2z, \qquad \partial \ell/\partial \theta_0 = 2z \cdot 1 = 2z \\
 (4)\ & \partial \ell/\partial \theta_1 = 2z \cdot x = 2zx.
-\end{align*}
+\end{align}
 The gradients with respect to the parameters $\theta_0$ and $\theta_1$ are what gradient descent requires.
 
 \subsubsection{Linear Regression --- Numerical}
 
 With concrete values $x=2$, $y=5$, $\theta_0=1$, $\theta_1=3$, the forward pass gives:
-\[
+\begin{equation}
 h = 6, \quad \yhat = 7, \quad z = 2, \quad \ell = 4.
-\]
+\end{equation}
 The local gradients evaluate to:
-\[
+\begin{equation}
 \partial h/\partial \theta_1 = 2, \quad \partial \yhat/\partial \theta_0 = \partial \yhat/\partial h = 1, \quad \partial z/\partial \yhat = 1, \quad \partial \ell/\partial z = 4.
-\]
+\end{equation}
 The backward pass gives $\partial\ell/\partial\theta_0 = 4$ and $\partial\ell/\partial\theta_1 = 8$, which are the gradients used to update the parameters.
 
 \subsubsection{Logistic Regression}
 
 The same graph structure applies to logistic regression with sigmoid activation and binary cross-entropy loss:
-\begin{align*}
+\begin{align}
 (1)\ & h = \theta_0 + \theta_1 x, \quad
 (2)\ \yhat = \sigma(h) = \frac{e^h}{1+e^h}, \quad
 (3)\ \ell = -y\log\yhat - (1-y)\log(1-\yhat).
-\end{align*}
+\end{align}
 The local gradients are:
-\[
+\begin{equation}
 \partial h/\partial \theta_0 = 1, \quad \partial h/\partial \theta_1 = x, \quad
 \partial \yhat/\partial h = \sigma(h)(1-\sigma(h)), \quad
 \partial \ell/\partial \yhat = \frac{\yhat - y}{\yhat(1-\yhat)}.
-\]
+\end{equation}
 Backpropagation proceeds identically: right to left, multiplying incoming global by local at each node. The graph structure is unchanged; only the node functions differ. This is the key insight: backpropagation is a general algorithm that operates on the graph, independent of what functions the nodes implement.
 
 % - - - - - - - - - - - - - - - - - --
@@ -156,9 +156,9 @@ Backpropagation proceeds identically: right to left, multiplying incoming global
 \slideref{Session 4: Backprop: Multiple Neurons in a Layer}
 
 When a node's output feeds into multiple downstream nodes, the chain rule generalisation applies: the global gradient at that node is the \emph{sum} of contributions from each downstream path. Concretely, if node $h$ feeds into nodes $u$ and $v$:
-\[
+\begin{equation}
 \frac{\partial \ell}{\partial h} = \frac{\partial \ell}{\partial u} \cdot \frac{\partial u}{\partial h} + \frac{\partial \ell}{\partial v} \cdot \frac{\partial v}{\partial h}.
-\]
+\end{equation}
 In implementation, this is handled by initialising gradients to zero and accumulating with \texttt{+=}: each downstream node adds its contribution to the gradient of the shared upstream node. This is why the pseudocode uses \texttt{h.grad += ...} rather than \texttt{h.grad = ...}.
 
 % - - - - - - - - - - - - - - - - - --
@@ -176,8 +176,8 @@ Each node in the computation graph stores two quantities: \texttt{*.val} (the fo
 The forward pass initialises all \texttt{*.val} by evaluating nodes from left to right. The backward pass initialises all \texttt{*.grad} to zero, sets \texttt{l.grad = 1} (the seed), and then accumulates gradients from right to left using \texttt{grad += incoming\_global * local\_grad}.
 
 In practice, the scalar for-loop implementation is far too slow for large networks. The key optimisation is \textbf{vectorisation}: replace loops over individual neurons with matrix operations. For a single layer:
-\begin{align*}
+\begin{align}
 &\text{Forward:} \quad \texttt{z.val = W.val @ x.val + b.val}, \quad \texttt{a.val = act(z.val)} \\
 &\text{Backward:} \quad \texttt{z.grad = a.grad * dact(z.val)}, \quad \texttt{W.grad = z.grad[:, None] * x.val[None, :]}.
-\end{align*}
+\end{align}
 The vectorised version computes the same quantities as the for-loop, but exploits the parallelism of modern hardware. On a GPU, this can be $\sim\!100\times$ faster. This is precisely the computation that \texttt{loss.backward()} performs in PyTorch --- automatically, for any computation graph constructed from differentiable operations.

@@ -8,9 +8,9 @@ These notes accompany the second lecture of the course. The goal of this session
 \slideref{Session 2: Supervised Learning}
 
 We begin with the general framework that motivates everything that follows. In \textbf{supervised learning} we are given a dataset of input-output pairs
-\[
+\begin{equation}
  \dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}
-\]
+\end{equation}
 where each input $\vx^{(i)} \in \inspace$ belongs to some input space $\inspace$ and each output $y^{(i)} \in \outspace$ belongs to some output space $\outspace$. We assume that there exists a true underlying relationship - a mapping $f^*: \inspace \to \outspace$ such that $y = f^*(\vx)$, but we never have direct access to $f^*$. We only have access to the finitely many observations in the dataset $\dataset$.
 
 The goal is to learn a parameterised function $f_\theta: \inspace \to \outspace$ from $\dataset$ such that it approximates the true unkonwn mapping $f_\theta \approx f^*$. The notation $f_\theta(\vx) = f(\vx; \theta) = \yhat$ will be used throughout the course: $\yhat$ denotes the model's prediction for input $\vx$ given parameters $\theta$. The goal is not merely to fit the training data, but to predict accurately on \textit{\textbf{unseen}} inputs - this is the \textbf{generalisation} requirement, which we will revisit in depth in later sessions.
@@ -48,9 +48,9 @@ Supervised learning encompasses two fundamental task types. In \textbf{regressio
 We focus first on the regression setting with a single input $x \in \R$ and a single output $y \in \R$.
 
 The simplest parameterised function we will work with is an affine function - often called simply \textbf{linear model} in the machine learning literature:
-\[
+\begin{equation}
  \yhat = f_\theta(x) = \theta_1 x + \theta_0, \qquad \pvec = (\theta_0, \theta_1) \in \R^2.
-\]
+\end{equation}
 
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
@@ -92,9 +92,9 @@ This observation motivates the central question of the lecture: how can we const
  \label{fig:relu_neuron}
 \end{wrapfigure}
 The linear model introduced in the previous section has a fundamental limitation: it can only represent affine relationships between inputs and outputs. To move beyond this, we introduce a \textbf{nonlinear activation function} $\act: \R \to \R$ applied to the output of the linear computation. The neuron now computes:
-\[
+\begin{equation}
  \yhat = f_\theta(x) = \act(\theta_1 x + \theta_0).
-\]
+\end{equation}
 The activation function is what gives the neural network its expressive power -changing the mapping between inputs $\inspace$ and outputs $\outspace$ from linear to nonlinear. The graphical representation of this nonlinear neuron is shown in Figure~\ref{fig:relu_neuron}: it is identical to the linear neuron, but the node now carries the symbol $\act$ to indicate that a nonlinearity is applied before the output is produced.
 
 \begin{wrapfigure}{l}{0.3\textwidth}
@@ -104,9 +104,9 @@ The activation function is what gives the neural network its expressive power -c
  \label{fig:relu}
 \end{wrapfigure}
 The choice of activation function matters. The most widely used activation function in modern deep learning is the \textbf{Rectified Linear Unit}, or \textbf{ReLU} \parencite{nair2010relu, glorot2011relu}:
-\[
+\begin{equation}
  \act(x) = \text{ReLU}(x) = \max(0, x) = \begin{cases} x & x > 0 \quad \text{(active)} \\ 0 & x \leq 0 \quad \text{(inactive).} \end{cases}
-\]
+\end{equation}
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
  \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_relu_simple.tex}}
@@ -121,9 +121,9 @@ Composing the ReLU with a linear function introduces exactly one breakpoint, at 
 \slideref{Session 2: Combining Multiple ReLUs}
 
 A single ReLU neuron introduces one breakpoint and is therefore only marginally more expressive than a linear model. The power comes from combining multiple such neurons. Consider a weighted sum of $k$ ReLU-activated linear functions:
-\[
+\begin{equation}
  \yhat = f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, \act(\theta_{j1} x + \theta_{j0}).
-\]
+\end{equation}
 Each term contributes one breakpoint at $x = -\theta_{j0} / \theta_{j1}$. The resulting function is \textbf{piecewise linear} - linear within each interval between breakpoints, with up to $k$ bends in total. As $k$ increases, the function can capture increasingly complex shapes, as illustrated in Figure~\ref{fig:relu_combination}.
 
 \begin{figure}[h]
@@ -171,10 +171,10 @@ Note that in the full representation (left), the input $x$ and bias constant $1$
 We now generalise from two hidden neurons to $k$ hidden neurons, and from a single input to multiple inputs. The resulting architecture is a \textbf{one-hidden-layer neural network}, also called a \textbf{shallow neural network}.
 
 With a single input $x \in \R$ and $k$ hidden neurons, the network computes:
-\begin{align*}
+\begin{align}
  h_j &= \act(\theta_{j1} \, x + \theta_{j0}), \qquad j = 1, \ldots, k \\
  \yhat &= f_\theta(x) = \theta_0 + \sum_{j=1}^{k} \theta_j \, h_j.
-\end{align*}
+\end{align}
 Each hidden neuron $j$ has its own parameters $\theta_{j1}$ (weight) and $\theta_{j0}$ (bias), and contributes one breakpoint to the piecewise linear output. The output neuron forms a weighted sum of all hidden activations with weights $\theta_j$ and a global bias $\theta_0$. The graphical representation is shown in Figure~\ref{fig:mlp}.
 
 \begin{figure}[h]
@@ -193,10 +193,10 @@ Each hidden neuron $j$ has its own parameters $\theta_{j1}$ (weight) and $\theta
 \end{figure}
 
 Extending to $d$ inputs $\vx = (x_1, \ldots, x_d) \in \R^d$ is straightforward. Each hidden neuron now computes a linear combination of all inputs:
-\begin{align*}
+\begin{align}
  h_j &= \act\!\left(\sum_{i=1}^{d} \theta_{ji} \, x_i + \theta_{j0}\right), \qquad j = 1, \ldots, k \\
  \yhat &= f_\theta(\vx) = \theta_0 + \sum_{j=1}^{k} \theta_j \, h_j.
-\end{align*}
+\end{align}
 The weight $\theta_{ji}$ connects input $x_i$ to hidden neuron $j$, and $\theta_{j0}$ is the bias of neuron $j$. The output formula is unchanged --- the hidden activations $h_j$ are combined into a single prediction $\yhat$ regardless of the input dimensionality.
 
 The collection of all parameters --- the weights $\theta_{ji}$, biases $\theta_{j0}$, output weights $\theta_j$, and output bias $\theta_0$ --- is denoted collectively as $\pvec$. Learning this network means finding the values of $\pvec$ that make $f_\theta(\vx) \approx f^*(\vx)$ on the training data. 
@@ -215,9 +215,9 @@ The piecewise linear intuition suggests that a shallow network with enough neuro
 \end{wrapfigure}
 \begin{theorem}[Universal Approximation \parencite{cybenko1989approximation, hornik1991approximation}]
 For any continuous function $g: \inspace \to \R$ defined on a compact set $\inspace \subseteq \R^d$ and any $\varepsilon > 0$, there exists a one-hidden-layer neural network $f_\theta$ such that
-\[
+\begin{equation}
 \sup_{\vx \in \inspace} |f_\theta(\vx) - g(\vx)| < \varepsilon.
-\]
+\end{equation}
 \end{theorem}
 This result was first proved by \cite{cybenko1989approximation} for sigmoid activations and later extended by \cite{hornik1991approximation} to a broad class of activation functions. 
 We do not prove this result here as it relies on advanced math concepts from measure theory and the Stone-Weierstrass theorem. The piecewise linear intuition developed in the previous section - more neurons, more breakpoints, better approximation - provides the geometric essence of why the theorem holds.
@@ -232,17 +232,17 @@ However, the theorem has important limitations that are easily overlooked. It gu
 We now turn to the classification setting. In \textbf{binary classification}, the output space is $\outspace = \{0, 1\}$, and the goal is to assign each input $\vx \in \inspace$ to one of two classes.
 
 The simplest approach is a \textbf{linear classifier}: predict class 1 if a linear function of the input exceeds zero, and class 0 otherwise:
-\[
+\begin{equation}
 \yhat = \mathbf{1}\!\left[\theta_0 + \sum_{i=1}^{d} \theta_i x_i \geq 0\right].
-\]
+\end{equation}
 The set of points satisfying $\theta_0 + \sum_i \theta_i x_i = 0$ is a hyperplane in $\R^d$ - the \textbf{decision boundary}. The weight vector $(\theta_1, \ldots, \theta_d)$ is normal to this hyperplane, and $\theta_0$ controls its offset from the origin. In two dimensions, the decision boundary is a line; in three dimensions, a plane; in general, a $(d-1)$-dimensional hyperplane.
 
 A linear classifier can only represent \textbf{linearly separable} problems - those in which the two classes can be separated by a single hyperplane. Many real problems are not linearly separable. A simple example: consider two clusters of one class located at the top-left and bottom-right of the input space, with a cluster of the other class in the middle. No straight line can separate them.
 
 The solution is exactly analogous to the regression case: replace the linear function with a neural network. The decision boundary $f_\theta(\vx) = 0$ becomes a nonlinear surface, capable of carving out arbitrarily complex regions of the input space:
-\[
+\begin{equation}
 \yhat = \mathbf{1}\!\left[f_\theta(\vx) \geq 0\right].
-\]
+\end{equation}
 The same shallow network architecture used for regression - a linear combination of ReLU-activated linear functions - can serve as $f_\theta$ here. The universal approximation theorem applies equally to classification.
 
 \begin{figure}[h]
