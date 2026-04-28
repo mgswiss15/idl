@@ -1,11 +1,19 @@
 \section{Optimization}
 \slideref{Session 5}
 
+\begin{wrapfigure}{r}{0.45\textwidth}
+\centering
+\vspace{-0.5em}
+\resizebox{0.43\textwidth}{!}{\input{\CommonPath/tikz/loss_landscape_3d.tex}}
+\caption{A non-convex loss surface over two parameters. Two distinct basins are visible, each with its own minimum. The contours projected on the base plane reveal their shape.}
+\label{fig:loss_landscape_3d}
+\end{wrapfigure}
 These notes accompany the fifth lecture. Sessions~3 and~4 established the two ingredients needed for training: a loss function $\loss(\pvec)$ that measures how wrong the network is, and backpropagation to compute its gradient $\nabla_{\pvec}\loss(\pvec)$ efficiently. What we have not yet addressed is how to \emph{use} those gradients to find good parameters. That is the subject of this session. We develop the theory of gradient-based optimisation for deep networks: starting from vanilla gradient descent, motivating the need for stochastic approximations, then building up to the adaptive methods that are standard in practice. We also discuss two practical prerequisites that are often underemphasised: input normalisation and weight initialisation, both of which have a direct and significant effect on whether optimisation succeeds at all.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Optimisation Problem}
 \slideref{Session 5: Where We Are, Optimization Problem}
+
 
 Training a network means solving:
 \begin{equation}
@@ -13,19 +21,12 @@ Training a network means solving:
     = \arg\min_{\pvec}\; \frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \ell\!\left(f_{\pvec}(\vx^{(i)}),\, y^{(i)}\right).
 \end{equation}
 
-\begin{wrapfigure}{r}{0.38\textwidth}
-\centering
-\vspace{-0.5em}
-\resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/loss_landscape_3d.tex}}
-\caption{A non-convex loss surface over two parameters. Two distinct basins are visible, each with its own minimum. The contours projected on the base plane reveal their shape.}
-\label{fig:loss_landscape_3d}
-\end{wrapfigure}
-
 \begin{remark}
     It is worth distinguishing $\min$ from $\arg\min$. The expression $\min_{\pvec} \loss(\pvec)$ denotes the smallest value the loss attains — a scalar. The expression $\arg\min_{\pvec} \loss(\pvec)$ denotes the parameter vector at which that value is attained — an element of the parameter space. As a simple example, $\min_{\theta}(\theta - 3)^2 = 0$, whereas $\arg\min_{\theta}(\theta - 3)^2 = 3$. In training we want $\pvec^*$ itself, since it is the parameters we will deploy at test time, not the loss value they achieve.
 \end{remark}
 
 This is a high-dimensional, non-convex optimisation problem. The parameter vector $\pvec$ may have millions of components; the loss surface has no closed-form minimum; and the landscape is riddled with local minima, saddle points, and flat regions. Figure~\ref{fig:loss_landscape_3d} illustrates a simple two-parameter loss surface with two distinct basins. Unlike linear regression, no analytical solution exists — we must resort to iterative methods.
+
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Gradient Descent}
@@ -219,16 +220,26 @@ The problem compounds during the backward pass. Because every neuron in a layer 
 The practical consequence is that the network has the width of a single neuron per layer, regardless of its architecture. All the neurons in a layer learn the same function, and the expressive capacity that width is supposed to provide is completely wasted. Weights must therefore be initialised \textbf{randomly} to break this symmetry — ensuring that different neurons start from different points and specialise in different directions during training.
 
 \paragraph{Vanishing and exploding signals.}
-Random initialisation is necessary but not sufficient — the scale of the random weights matters critically. To see why, consider an $L$-layer network with linear activations and weights drawn independently with $\mathbb{E}[\theta] = 0$ and $\mathrm{Var}[\theta] = \sigma^2$, with $n_{\text{in}}$ inputs per layer. Under these assumptions, the variance of the pre-activation propagates as:
+Random initialisation is necessary but not sufficient — the scale of the random weights matters critically. To see why, consider an $L$-layer network with linear activations and weights drawn independently with $\mathbb{E}[\theta] = 0$ and $\mathrm{Var}[\theta] = \sigma^2$, with $n_{\text{in}}$ inputs per layer. The pre-activation at each layer is a weighted sum of $n_{\text{in}}$ independent inputs:
 \begin{equation}
-    \mathrm{Var}[z^{(l)}] = n_{\text{in}}\,\sigma^2 \cdot \mathrm{Var}[h^{(l-1)}],
+    z_j^{(l)} = \sum_{i=1}^{n_{\text{in}}} \theta_{ji}^{(l)}\, h_i^{(l-1)}.
 \end{equation}
-because the $n_{\text{in}}$ independent terms in the sum each contribute $\sigma^2 \cdot \mathrm{Var}[h]$, and their variances add. Applied recursively over $L$ layers:
+Since the weights and inputs are independent and zero-mean, the variance of this sum is the sum of the variances of the individual terms. Each term $\theta_{ji} h_i$ has variance $\mathrm{Var}[\theta]\cdot\mathrm{Var}[h] = \sigma^2\cdot\mathrm{Var}[h]$, and there are $n_{\text{in}}$ such terms, giving:
+\begin{equation}
+    \mathrm{Var}[z^{(l)}] = n_{\text{in}}\,\sigma^2 \cdot \mathrm{Var}[h^{(l-1)}].
+\end{equation}
+With linear activations, $h^{(l)} = z^{(l)}$, so this relation applies recursively. After $L$ layers:
 \begin{equation}
     \mathrm{Var}[z^{(L)}] = (n_{\text{in}}\,\sigma^2)^L \cdot \mathrm{Var}[x].
     \label{eq:variance_propagation}
 \end{equation}
-The factor $n_{\text{in}}\,\sigma^2$ is applied at each layer, so the signal variance grows or shrinks geometrically with depth. If $n_{\text{in}}\,\sigma^2 < 1$, the variance collapses to zero exponentially — activations vanish, gradients vanish, and early layers stop learning. If $n_{\text{in}}\,\sigma^2 > 1$, the variance grows exponentially — activations and gradients explode, and training diverges. The only stable regime is $n_{\text{in}}\,\sigma^2 = 1$, giving the target variance $\sigma^2 = 1/n_{\text{in}}$.
+The factor $n_{\text{in}}\,\sigma^2$ is multiplied once per layer, so the signal variance grows or shrinks geometrically with depth. This has severe practical consequences.
+
+If $n_{\text{in}}\,\sigma^2 < 1$, the variance shrinks at every layer. By the time the signal reaches the output in a deep network, it is effectively zero — activations are all near zero, and the network cannot distinguish between different inputs. More critically, backpropagation propagates gradients \emph{backward} through the same weights, so the gradient variance shrinks by the same factor at each layer. The gradients reaching the early layers are vanishingly small: those layers receive almost no learning signal and their weights barely move during training, regardless of how many gradient steps are taken. The network learns only from its final layers, and its early feature detectors remain random.
+
+If $n_{\text{in}}\,\sigma^2 > 1$, the variance grows at every layer. Activations become very large, and gradients blow up exponentially as they propagate backward. A single gradient step moves the parameters by an enormous amount, completely undoing any progress made in previous steps. In practice this manifests as loss values that spike to infinity or NaN within the first few iterations of training.
+
+Both failure modes become dramatically worse with depth — a factor of $0.9$ per layer is barely noticeable in a three-layer network but reduces the gradient to $0.9^{50} \approx 0.005$ in a fifty-layer one. The only stable regime is $n_{\text{in}}\,\sigma^2 = 1$, which keeps the signal variance constant across all layers and gives the target initialisation variance $\sigma^2 = 1/n_{\text{in}}$.
 
 \begin{remark}
     The derivation above assumes linear activations and is exact under independence. With nonlinear activations the argument is approximate, but the qualitative conclusion — that $n_{\text{in}}\,\sigma^2$ controls stability — remains valid.
@@ -249,7 +260,7 @@ For ReLU activations, approximately half the neurons are zeroed at any given for
     \qquad
     \theta^{(l)}_{ji} \sim \mathcal{N}\!\left(0,\, \frac{2}{n_{\text{in}}}\right).
 \end{equation}
-This is \textbf{He} (or Kaiming) initialisation. In PyTorch: \texttt{nn.init.xavier\_uniform\_()}, \texttt{nn.init.xavier\_normal\_()}, and \texttt{nn.init.kaiming\_normal\_()}.
+This is \textbf{He} (or Kaiming) initialisation.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Momentum and Adaptive Methods}
@@ -259,77 +270,88 @@ Even with good initialisation and normalised inputs, vanilla mini-batch gradient
 
 \subsubsection{Momentum}
 
-Mini-batch gradients are noisy: each batch produces a slightly different gradient estimate, causing the parameter updates to fluctuate. In a narrow valley — where the loss is steep across the valley and flat along it — this noise produces oscillations across the valley while progress along the valley is slow. \textbf{Momentum} addresses this by accumulating a velocity vector $\vm_t$, defined as an exponential moving average of past gradients:
+Mini-batch gradients are noisy: each batch produces a slightly different gradient estimate, causing the parameter updates to fluctuate. In a narrow valley — where the loss is steep across the valley and flat along it — this noise produces rapid oscillations across the valley while progress along the valley is slow. \textbf{Momentum} addresses this by accumulating a velocity vector $\vm_t$, defined as an exponential moving average of past gradients:
 \begin{align}
     \vm_t &= \beta\, \vm_{t-1} + (1-\beta)\, \nabla_{\pvec} \hat{\loss}_t, \label{eq:momentum_m}\\
     \pvec &\leftarrow \pvec - \eta\, \vm_t. \label{eq:momentum_update}
 \end{align}
-The coefficient $\beta \in [0,1)$ — typically 0.9 — controls how much history is retained. Gradients in directions that are consistent across many steps accumulate in $\vm_t$, amplifying progress along those directions. Gradients in directions that alternate sign (oscillations across a valley) cancel out, damping the oscillations. The net effect is faster, smoother progress along the loss landscape.
+The coefficient $\beta \in [0,1)$ — typically 0.9 — controls how much history is retained. Gradients in directions that are consistent across many steps accumulate in $\vm_t$, amplifying progress along those directions. Gradients in directions that alternate sign (oscillations across a narrow valley) cancel out, damping the oscillations. The net effect is faster, smoother progress along the loss landscape.
 
 \begin{wrapfigure}{r}{0.42\textwidth}
 \centering
 \resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/momentum_vs_sgd.tex}}
-\caption{SGD (carnelian) oscillates across a narrow valley. Momentum (petrol) follows a smoother path.}
+\caption{SGD oscillates across a narrow valley. Momentum follows a smoother path.}
 \label{fig:momentum}
 \end{wrapfigure}
+This raises an apparent tension with our earlier argument that mini-batch noise is beneficial for landscape exploration. The resolution is that momentum does not remove the stochasticity — it smooths the gradient \emph{direction} across recent batch updates, but each update still uses a different random batch. The randomness that drives landscape exploration comes from sampling different data points each time; that remains intact. What momentum removes is the erratic variation in step direction caused by the high variance of individual batch gradients — the kind of oscillation that makes the optimiser zigzag across a valley without making progress. The two ideas are therefore complementary: stochastic batching provides the exploratory randomness, and momentum channels that into more directed, efficient steps.
 
 Figure~\ref{fig:momentum} contrasts SGD and momentum on an elongated loss landscape. SGD zigzags across the narrow direction; momentum dampens the oscillations and converges more directly.
 
 \subsubsection{RMSProp}
 
-Momentum smooths the update direction but uses the same effective learning rate for every parameter. In practice, different parameters may have very different gradient magnitudes: some are sensitive (large gradients) and others are nearly flat (small gradients). A single $\eta$ is simultaneously too large for the former and too small for the latter.
+Momentum smooths the update direction but uses the same effective learning rate for every parameter. In practice, different parameters may have very different gradient magnitudes — some are sensitive (large gradients) and others are nearly flat (small gradients) — and a single $\eta$ is simultaneously too large for the former and too small for the latter. This problem persists even after input normalisation: normalisation fixes the scale mismatch at the input, but does not control what happens inside the network. As weights evolve during training, different parameters in different layers develop very different gradient magnitudes, and this imbalance changes continuously.
 
-\textbf{RMSProp} addresses this by maintaining, per parameter, an exponential moving average of the squared gradient:
+\textbf{RMSProp} addresses this by tracking, for each parameter separately, how large its gradients have been recently. The natural measure is the squared gradient, which removes the sign so that both positive and negative gradients contribute equally to the magnitude estimate. RMSProp maintains an exponential moving average of these squared gradients:
 \begin{equation}
     \vv_t = \gamma\, \vv_{t-1} + (1-\gamma)\, \bigl(\nabla_{\pvec} \hat{\loss}_t\bigr)^2,
 \end{equation}
-where squaring is applied elementwise and $\gamma \approx 0.99$. The quantity $\vv_t$ tracks the recent magnitude of each parameter's gradient, regardless of sign. The update then divides by $\sqrt{\vv_t}$:
+with $\gamma \approx 0.99$. A parameter with consistently large gradients accumulates a large $\vv_t$; one with small gradients accumulates a small $\vv_t$. The update divides by $\sqrt{\vv_t}$ to normalise the gradient by its recent typical magnitude:
 \begin{equation}
     \pvec \leftarrow \pvec - \frac{\eta}{\sqrt{\vv_t + \epsilon}}\, \nabla_{\pvec} \hat{\loss}_t,
 \end{equation}
-with $\epsilon \approx 10^{-8}$ for numerical stability. Parameters with large recent gradients receive a smaller effective step; parameters with small recent gradients receive a larger one. This automatic per-parameter rescaling is equivalent to approximately equalising the loss landscape curvature across dimensions, making gradient descent better conditioned.
+with $\epsilon \approx 10^{-8}$ for numerical stability. Parameters with large recent gradients receive a smaller effective step; those with small gradients receive a larger one — automatically equalising the effective learning rate across all dimensions.
 
-The crucial difference from momentum is that RMSProp accumulates squared gradients (always positive, no directional information) rather than the gradients themselves. Momentum is about smoothing the \emph{direction} of updates; RMSProp is about adapting the \emph{magnitude}.
+The key distinction from momentum is that RMSProp accumulates squared gradients and carries no directional information. Momentum is about smoothing the \emph{direction} of updates; RMSProp is about adapting their \emph{magnitude}. The two are complementary, which motivates combining them.
 
 \subsubsection{Adam}
 
-\textbf{Adam} \parencite{kingma2015adam} (Adaptive Moment Estimation) combines both ideas. It maintains two moving averages simultaneously — a first moment estimate (momentum) and a second moment estimate (RMSProp):
+\textbf{Adam} \parencite{kingma2015adam} (Adaptive Moment Estimation) combines momentum and RMSProp into a single update rule, maintaining both a smoothed gradient direction and a per-parameter magnitude estimate simultaneously:
 \begin{align}
     \vm_t &= \beta_1\, \vm_{t-1} + (1-\beta_1)\, \nabla_{\pvec} \hat{\loss}_t, \label{eq:adam_m}\\
     \vv_t &= \beta_2\, \vv_{t-1} + (1-\beta_2)\, \bigl(\nabla_{\pvec} \hat{\loss}_t\bigr)^2. \label{eq:adam_v}
 \end{align}
-Both moving averages are initialised at zero, which biases them toward zero early in training when few gradient estimates have been accumulated. Adam corrects for this with:
+
+Both moving averages are initialised at zero, which biases them toward zero early in training when few gradient estimates have been accumulated. Adam corrects for this by rescaling both estimates:
 \begin{equation}
     \hat{\vm}_t = \frac{\vm_t}{1-\beta_1^t}, \qquad \hat{\vv}_t = \frac{\vv_t}{1-\beta_2^t}.
     \label{eq:adam_bias_correction}
 \end{equation}
-As $t$ grows, $\beta^t \to 0$ and the corrections approach 1, so the bias correction is only active at the very start of training. The parameter update is then:
+When $t$ is small, $\beta^t$ is close to 1 and the correction is large, inflating the early underestimates back to a reasonable scale. As $t$ grows, $\beta^t \to 0$, the corrections approach 1, and the bias correction quietly switches off. The parameter update is then:
 \begin{equation}
     \pvec \leftarrow \pvec - \frac{\eta}{\sqrt{\hat{\vv}_t} + \epsilon}\, \hat{\vm}_t.
     \label{eq:adam_update}
 \end{equation}
-The default hyperparameters $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$ work well across a wide range of architectures and tasks, making Adam the standard default optimizer in deep learning. In PyTorch: \texttt{torch.optim.Adam(params, lr=}$\eta$\texttt{)}.
+
+The default hyperparameters $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$ work well across a wide range of architectures and tasks, which is why Adam has become the standard default optimiser in deep learning — it requires little tuning and handles the varied gradient scales that arise naturally in deep networks.
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Learning Rate Schedules}
 \slideref{Session 5: Why Schedule the Learning Rate?, Learning Rate Schedules}
 
-A fixed learning rate is a compromise: a large $\eta$ enables fast initial progress but overshoots near a minimum; a small $\eta$ allows fine-grained convergence but is impractically slow early on. \textbf{Learning rate schedules} vary $\eta$ over the course of training to get the best of both regimes.
+A fixed learning rate is a compromise: a large $\eta$ enables fast initial progress but overshoots near a minimum; a small $\eta$ allows fine-grained convergence but is impractically slow early on. \textbf{Learning rate schedules} vary $\eta$ over the course of training to get the best of both regimes. Figure~\ref{fig:lr_schedules} illustrates the three schedules discussed below.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+\centering
+\vspace{-0.5em}
+\resizebox{0.43\textwidth}{!}{\input{\CommonPath/tikz/lr_schedules.tex}}
+\caption{Three learning rate schedules.}
+\label{fig:lr_schedules}
+\end{wrapfigure}
 
 \paragraph{Step decay.} The simplest schedule reduces $\eta$ by a multiplicative factor $\gamma < 1$ every $k$ epochs:
 \begin{equation}
     \eta_t = \eta_0 \cdot \gamma^{\lfloor t/k \rfloor}.
 \end{equation}
-Step decay is simple and interpretable but the abrupt drops can be suboptimal.
+The staircase pattern visible in Figure~\ref{fig:lr_schedules} is characteristic: $\eta$ is held constant for $k$ steps then drops abruptly. This is simple and interpretable, but the sudden drops can cause instability and the flat regions between drops waste the opportunity for finer progress as the optimiser approaches a minimum.
 
 \paragraph{Cosine annealing.} A smooth alternative follows a cosine curve from $\eta_0$ down to a minimum $\eta_{\min}$:
 \begin{equation}
     \eta_t = \eta_{\min} + \tfrac{1}{2}(\eta_0 - \eta_{\min})\Bigl(1 + \cos\tfrac{\pi t}{T}\Bigr),
 \end{equation}
-where $T$ is the total number of training steps. This is widely used in modern training recipes.
+where $T$ is the total number of training steps. The decay is fast at first — when the optimiser is still far from a minimum and large steps are useful — and slows gradually as training progresses. This smooth profile avoids the instabilities of step decay and is widely used in modern training recipes.
 
 \paragraph{Linear warmup with cosine decay.} Large-scale training — particularly for Transformers — uses a warmup phase in which $\eta$ is ramped up linearly from zero over the first $t_w$ steps, followed by cosine decay:
 \begin{equation}
     \eta_t = \begin{cases} \eta_0 \cdot t/t_w & t \leq t_w \\ \eta_{\min} + \tfrac{1}{2}(\eta_0 - \eta_{\min})\bigl(1 + \cos\tfrac{\pi(t-t_w)}{T-t_w}\bigr) & t > t_w. \end{cases}
 \end{equation}
-Warmup prevents large, destabilising updates early in training when the parameters are far from any reasonable region and gradients can be very large.
+The warmup is motivated by the state of the network at the very start of training: parameters are randomly initialised and far from any good solution, so gradients can be large and unreliable. Starting with a small $\eta$ and ramping it up gradually prevents these early noisy gradients from causing large destabilising updates before the optimiser has settled into a reasonable region of the loss landscape.
