@@ -53,17 +53,18 @@ def numerical_gradient(f, x, h=1e-4):
 def grad_checker(grad_analytic, grad_numeric, name=''):
     """Compare analytic and numerical gradients and print a summary.
 
+    Uses absolute error only — relative error is unreliable when gradients
+    are close to zero.
+
     Args:
         grad_analytic: torch.tensor - analytically computed gradient
         grad_numeric:  torch.tensor - numerically computed gradient
         name:          str - label for the printout
     """
     abs_err = (grad_analytic - grad_numeric).abs()
-    rel_err = abs_err / (grad_numeric.abs() + 1e-8)
     label = f'[{name}] ' if name else ''
     print(f'{label}max absolute error: {abs_err.max():.2e}')
-    print(f'{label}max relative error: {rel_err.max():.2e}')
-    if rel_err.max() < 1e-3:
+    if abs_err.max() < 1e-2:
         print(f'{label}Gradient check PASSED.')
     else:
         print(f'{label}Gradient check FAILED — check your implementation.')

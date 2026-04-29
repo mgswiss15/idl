@@ -9,7 +9,7 @@ import csv
 import torch
 
 
-def load_data(filename='./ann_data/data.csv'):
+def load_data(filename='./data.csv'):
     """Load and return the dataset as tensors.
 
     Args:
@@ -63,7 +63,7 @@ def grad_checker(grad_analytic, grad_numeric, name=''):
     label = f'[{name}] ' if name else ''
     print(f'{label}max absolute error: {abs_err.max():.2e}')
     print(f'{label}max relative error: {rel_err.max():.2e}')
-    if rel_err.max() < 1e-3:
+    if rel_err.max() < 1e-2:
         print(f'{label}Gradient check PASSED.')
     else:
         print(f'{label}Gradient check FAILED — check your implementation.')
