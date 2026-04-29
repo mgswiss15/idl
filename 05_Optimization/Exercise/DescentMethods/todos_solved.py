@@ -27,8 +27,29 @@ def mse(y, y_predict):
   """
   return torch.mean((y - y_predict)**2)
 
+# TODO 2: closed form solution for linear regression
+def linreg_closed(x, y):
+  """Closed form solution for parameters of linear model.
+  y = theta.T x
+  
+  Args:
+    x: (n, 1) torch.tensor with inputs
+    y: (n, 1) torch.tensor with linear predictions
 
-# TODO 2: complete the code below
+  Output:
+    theta: (2, 1) torch.tensor with parameters
+  """
+  
+  x0 = torch.ones_like(x)
+  x = torch.cat((x0,x), dim=1)
+  
+  th = torch.pinverse(x.T @ x) 
+  th = th @ x.T @ y
+  
+  # Return output
+  return th
+
+# TODO 3: complete the code below
 def lin_grads(x, y, theta):
   """Gradient for parameters of linear model.
   
@@ -84,7 +105,7 @@ def grad_descent(x,y, theta, lr, grad_func, model, n_epochs=1):
   return thetas, losses
 
 
-# TODO 3: complete the code below
+# TODO 4: complete the code below
 def stochastic_grad_descent(x,y, theta, lr, bs, grad_func, model, n_epochs=1):
   """Stochastic gradient descent for theta parameters.
   
@@ -138,7 +159,7 @@ def stochastic_grad_descent(x,y, theta, lr, bs, grad_func, model, n_epochs=1):
   return thetas, losses
 
 
-# TODO 4: complete the code below
+# TODO 5: complete the code below
 def sgd_momentum(x,y, theta, lr, beta, bs, grad_func, model, n_epochs=1):
   """SGD with momentum for theta parameters.
   
@@ -195,7 +216,7 @@ def sgd_momentum(x,y, theta, lr, beta, bs, grad_func, model, n_epochs=1):
   return thetas, losses
 
 
-# TODO 5: complete the code below
+# TODO 6: complete the code below
 def sgd_nestorov(x,y, theta, lr, beta, bs, grad_func, model, n_epochs=1):
   """SGD with accelerated momentum for theta parameters.
   
@@ -252,7 +273,7 @@ def sgd_nestorov(x,y, theta, lr, beta, bs, grad_func, model, n_epochs=1):
   return thetas, losses
 
 
-# TODO 6: complete the code below
+# TODO 7: complete the code below
 def ADAM(x,y, theta, lr, beta, gamma, bs, grad_func, model, n_epochs=1):
   """ADAM for theta parameters.
   
