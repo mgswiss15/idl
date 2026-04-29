@@ -64,6 +64,7 @@ def linreg_gd(data, lr, n_epochs=1000):
 
   x0 = torch.ones_like(x)
   x = torch.cat((x0,x), dim=1)
+  n = x.shape[0]
 
   # initialize theta
   th = torch.randn(2,1)
@@ -79,7 +80,7 @@ def linreg_gd(data, lr, n_epochs=1000):
   
   # grad descent
   for epoch in list(range(n_epochs)):
-    grad = 2*x.T@(x@th - y)
+    grad = 2/n*x.T@(x@th - y)
     th = th - lr*grad
 
     # monitor losses
@@ -139,7 +140,7 @@ def linreg_sgd(data, bs, lr, n_epochs=1000):
       batch_idx = idx[i:batch_end]
       bx = x[batch_idx,:]
       by = y[batch_idx,:]
-      grad = 2*bx.T@(bx@th - by)        
+      grad = 2/bs*bx.T@(bx@th - by)        
       th = th - lr*grad
 
       # monitor losses
