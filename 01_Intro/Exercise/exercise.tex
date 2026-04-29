@@ -196,6 +196,33 @@ Compute
     Compute $\nabla_W L$ and $\nabla_\mathbf{b} L$. What
     are their shapes? How do they relate to the shapes of $W$ and $\mathbf{b}$?
 
+    \item Consider a linear layer with a single output, weight vector $\mathbf{w}
+    \in \mathbb{R}^{1 \times d}$ and bias $b \in \mathbb{R}$. Let $X \in
+    \mathbb{R}^{n \times d}$ be the data matrix and $\mathbf{y} \in \mathbb{R}^{n}$
+    the target vector. The MSE loss over the full batch is:
+    \[
+        L(\mathbf{w}, b) = \frac{1}{n}\|X\mathbf{w}^\top + b\mathbf{1}_n - \mathbf{y}\|_2^2
+    \]
+    where $b$ is broadcast across all $n$ samples. Define the residual vector
+    $\mathbf{r} = X\mathbf{w}^\top + b\mathbf{1}_n - \mathbf{y} \in
+    \mathbb{R}^{n}$. Compute $\nabla_\mathbf{w} L$ and $\dfrac{\partial
+    L}{\partial b}$. What are their shapes?
+
+    \item Let $X \in \mathbb{R}^{n \times d}$ be the data matrix (samples as
+    rows), $Y \in \mathbb{R}^{n \times m}$ the target matrix, $W \in
+    \mathbb{R}^{m \times d}$ the weight matrix, and $\mathbf{b} \in \mathbb{R}^m$
+    the bias vector. Following the PyTorch convention, the MSE loss over the
+    full batch is:
+    \[
+        L(W, \mathbf{b}) = \frac{1}{n}\|XW^\top + \mathbf{b} - Y\|_F^2
+    \]
+    where the Frobenius norm of a matrix $A \in \mathbb{R}^{p \times q}$ is
+    $\|A\|_F^2 = \sum_{i=1}^{p}\sum_{j=1}^{q} A_{ij}^2$, and $\mathbf{b}$ is
+    broadcast across the $n$ rows of $XW^\top$ (one bias vector added to each
+    sample's output). Define the residual matrix $R = XW^\top + \mathbf{b} - Y
+    \in \mathbb{R}^{n \times m}$. Compute $\nabla_W L$ and $\nabla_\mathbf{b}
+    L$. What are their shapes?
+
 \end{enumerate}
 
 
@@ -249,7 +276,7 @@ E = A.sum(dim=0)   # shape?
     PyTorch loss functions.
 \end{enumerate}
 
-\item Using your symbolic result from Section~3.3, implement $\nabla_W L$ and
+\item Using your symbolic result from Section~3.8, implement $\nabla_W L$ and
 $\nabla_\mathbf{b} L$ manually for the following setup, with $W \in
 \mathbb{R}^{2 \times 3}$, $\mathbf{b} \in \mathbb{R}^2$, $n = 4$ samples:
 

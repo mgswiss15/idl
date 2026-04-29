@@ -1,7 +1,6 @@
 \documentclass[12pt, a4paper]{scrartcl}
 \newcommand{\CommonPath}{../../Common}
 \newcommand{\coursename}{Intro to Deep Learning}
-\newcommand{\notestype}{Solutions} % to be used in header of document
 \usepackage{\CommonPath/notespreamble}
 
 % Title
@@ -150,6 +149,28 @@ Shape of $\nabla_\mathbf{w} L$: $(d,)$ --- same as $\mathbf{w}$.
 \]
 Shape of $\nabla_W L$: $(m, d)$ --- same as $W$. Shape of $\nabla_\mathbf{b} L$: $(m,)$ --- same as $\mathbf{b}$.\\
 Gradients always have the same shape as the parameter they differentiate with respect to.
+
+\item Define $\mathbf{r} = X\mathbf{w}^\top + b\mathbf{1}_n - \mathbf{y} \in \mathbb{R}^n$. Then:
+\[
+\nabla_\mathbf{w} L = \frac{2}{n}\, X^\top \mathbf{r} \in \mathbb{R}^d, \qquad
+\frac{\partial L}{\partial b} = \frac{2}{n}\, \mathbf{1}_n^\top \mathbf{r} \in \mathbb{R}.
+\]
+Shape of $\nabla_\mathbf{w} L$: $(d,)$ --- same as $\mathbf{w}^\top$. Shape of $\partial L/\partial b$: scalar.\\
+This is the same result as Ex.~3.6 but expressed in matrix form: $X^\top \mathbf{r}$ is the vectorised form of $\sum_i r_i \mathbf{x}^{(i)}$, and $\mathbf{1}_n^\top \mathbf{r} = \sum_i r_i$.
+
+\item Define $R = XW^\top + \mathbf{b} - Y \in \mathbb{R}^{n \times m}$. The
+Frobenius norm expands as $\|R\|_F^2 = \sum_{i,j} R_{ij}^2$, equivalent to
+the sample-wise sum in Ex.~3.6. Differentiating:
+\[
+\nabla_W L = \frac{2}{n}\, R^\top X \in \mathbb{R}^{m \times d}, \qquad
+\nabla_\mathbf{b} L = \frac{2}{n}\, R^\top \mathbf{1}_n \in \mathbb{R}^{m}
+\]
+where $\mathbf{1}_n \in \mathbb{R}^n$ is the all-ones vector (summing
+contributions over all samples). Shapes match $W$ and $\mathbf{b}$
+respectively. Note that $R^\top X$ is the fully vectorised form of
+$\sum_i \mathbf{r}^{(i)}(\mathbf{x}^{(i)})^\top$ from Ex.~3.7, and
+$R^\top \mathbf{1}_n$ is the vectorised form of $\sum_i \mathbf{r}^{(i)}$ ---
+this is exactly what \texttt{R.T @ X} and \texttt{R.sum(dim=0)} compute in PyTorch.
 
 \end{enumerate}
 
