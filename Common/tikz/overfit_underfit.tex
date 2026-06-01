@@ -1,19 +1,35 @@
-% Placeholder: train/val loss vs epochs showing overfitting
+% Overfitting: train/val loss curves with generalisation gap annotation
 \begin{tikzpicture}
 \begin{axis}[
-    width=6cm, height=4.5cm,
+    width=7cm, height=5.5cm,
     xlabel={Epoch},
     ylabel={Loss},
-    xmin=0, xmax=10, ymin=0, ymax=5,
-    xtick=\empty, ytick=\empty,
+    xmin=0, xmax=10,
+    ymin=0, ymax=5,
+    xtick=\empty,
+    ytick=\empty,
     legend pos=north east,
-    legend style={font=\small},
+    legend style={font=\small, draw=none},
+    clip=false,
 ]
-\addplot[thick, thwspetrol] coordinates
-    {(0,4.5)(2,2.5)(5,1.0)(10,0.3)};
+
+% train loss — monotonically decreasing, levels off
+\addplot[thick, thwspetrol, solid, domain=0:10, samples=100]
+    {0.3 + 4.2*exp(-0.6*x)};
 \addlegendentry{Train}
-\addplot[thick, thwsorange, dashed] coordinates
-    {(0,4.5)(2,2.6)(5,1.8)(7,2.2)(10,3.0)};
+
+% val loss — decreasing then diverging
+\addplot[thick, thwsorange, dashed, domain=0:10, samples=100]
+    {0.9 + 3.5*exp(-0.7*x) + 0.08*x^1.8};
 \addlegendentry{Val}
+
+% generalisation gap annotation — double arrow at x=8.5
+\draw[<->, thwsgrey, thick]
+    (axis cs:8.5, {0.3 + 4.2*exp(-0.6*8.5)})
+    -- (axis cs:8.5, {0.9 + 3.5*exp(-0.7*8.5) + 0.08*8.5^1.8});
+
+\node[font=\small, thwsgrey, anchor=west] at (axis cs:8.6, 1.5)
+    {gap};
+
 \end{axis}
 \end{tikzpicture}

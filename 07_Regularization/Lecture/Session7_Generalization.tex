@@ -352,7 +352,7 @@ Many equivalent solutions exist - which one we find not so critical
 \end{column}
 \begin{column}{0.38\textwidth}
 \centering
-\input{\CommonPath/tikz/flat_sharp_minima.tex}
+% \input{\CommonPath/tikz/flat_sharp_minima.tex}
 \end{column}
 \begin{column}{0.04\textwidth}
 \end{column}
@@ -381,7 +381,7 @@ Many equivalent solutions exist - which one we find not so critical
 \begin{columns}[c]
 \begin{column}{0.5\textwidth}
 \centering
-\input{\CommonPath/tikz/double_descent.tex}
+% \input{\CommonPath/tikz/double_descent.tex}
 \end{column}
 \begin{column}{0.46\textwidth}
 \begin{itemize}
@@ -418,531 +418,226 @@ Many equivalent solutions exist - which one we find not so critical
 
 % -
 
-\begin{frame}{Weight Decay}
+% \begin{frame}{Weight Decay}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Explicit regularisation:} add penalty term to the loss
+% \structure{Explicit regularisation:} add penalty term to the loss
 
-\[
-    \tilde{\loss}(\pvec) = \loss(\pvec) + \frac{\lambda}{2}\|\pvec\|^2
-\]
+% \[
+%     \tilde{\loss}(\pvec) = \loss(\pvec) + \frac{\lambda}{2}\|\pvec\|^2
+% \]
 
-Large weights $\Rightarrow$ model relies heavily on specific features $\Rightarrow$ high variance
+% Large weights $\Rightarrow$ model relies heavily on specific features $\Rightarrow$ high variance
 
-\vskip 1em
+% \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{L2 regularisation} (weight decay)
-\begin{itemize}
-    \item Penalises $\|\pvec\|^2$ - shrinks all weights
-    \item Smooth, differentiable
-    \item \alert{\texttt{weight\_decay} in \texttt{torch.optim}}
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{L1 regularisation}
-\begin{itemize}
-    \item Penalises $\|\pvec\|_1$ - promotes sparsity
-    \item Some weights go exactly to zero
-    \item Useful for feature selection
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \begin{columns}[t]
+% \begin{column}{0.46\textwidth}
+% \structure{L2 regularisation} (weight decay)
+% \begin{itemize}
+%     \item Penalises $\|\pvec\|^2$ - shrinks all weights
+%     \item Smooth, differentiable
+%     \item \alert{\texttt{weight\_decay} in \texttt{torch.optim}}
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.46\textwidth}
+% \structure{L1 regularisation}
+% \begin{itemize}
+%     \item Penalises $\|\pvec\|_1$ - promotes sparsity
+%     \item Some weights go exactly to zero
+%     \item Useful for feature selection
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Hyperparameter:} $\lambda > 0$ controls strength - tuned on validation set
+% \structure{Hyperparameter:} $\lambda > 0$ controls strength - tuned on validation set
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Deep NNs:} baseline, combined with other techniques - less central than in classical ML
+% \structure{Deep NNs:} baseline, combined with other techniques - less central than in classical ML
 
-\end{frame}
+% \end{frame}
 
-% -
+% % -
 
-\begin{frame}{Dropout - Training}
+% \begin{frame}{Dropout - Training}
 
-\vskip 2em
+% \vskip 2em
 
-\begin{columns}[c]
-\begin{column}{0.5\textwidth}
+% \begin{columns}[c]
+% \begin{column}{0.5\textwidth}
 
-\structure{During training:} randomly zero each activation with probability $p$
+% \structure{During training:} randomly zero each activation with probability $p$
 
-\vskip 1em
+% \vskip 1em
 
-\begin{itemize}
-    \item Each forward pass uses a different subnetwork
-    \item Neurons cannot rely on specific others always being present
-    \item Prevents co-adaptation of neurons
-\end{itemize}
+% \begin{itemize}
+%     \item Each forward pass uses a different subnetwork
+%     \item Neurons cannot rely on specific others always being present
+%     \item Prevents co-adaptation of neurons
+% \end{itemize}
 
 
-\end{column}
-\begin{column}{0.45\textwidth}
-\centering
-\input{\CommonPath/tikz/dropout.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \end{column}
+% \begin{column}{0.45\textwidth}
+% \centering
+% \input{\CommonPath/tikz/dropout.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Typical values:} $p = 0.1$--$0.5$ - tuned on validation set
+% \structure{Typical values:} $p = 0.1$--$0.5$ - tuned on validation set
 
-\end{frame}
+% \end{frame}
 
-\begin{frame}{Dropout - Evaluation}
+% \begin{frame}{Dropout - Evaluation}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{During evaluation:} all neurons active - outputs scaled by $(1-p)$ to compensate
+% \structure{During evaluation:} all neurons active - outputs scaled by $(1-p)$ to compensate
 
-\vskip 1em
+% \vskip 1em
 
-\structure{\texttt{model.train()} vs \texttt{model.eval()}:}
-\begin{itemize}
-    \item \texttt{nn.Dropout} - zeroing active in train mode, disabled in eval mode
-    \item Most layers (\texttt{nn.Linear}, \texttt{nn.ReLU}, \ldots) - unaffected
-    \item Some other layers also have dual behaviour - covered later
-\end{itemize}
+% \structure{\texttt{model.train()} vs \texttt{model.eval()}:}
+% \begin{itemize}
+%     \item \texttt{nn.Dropout} - zeroing active in train mode, disabled in eval mode
+%     \item Most layers (\texttt{nn.Linear}, \texttt{nn.ReLU}, \ldots) - unaffected
+%     \item Some other layers also have dual behaviour - covered later
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\begin{columns}
-\begin{column}{0.1\textwidth}
+% \begin{columns}
+% \begin{column}{0.1\textwidth}
 
-\end{column}  
-\begin{column}{0.4\textwidth}
-\structure{Correct pattern:}\\[0.3em]
-{\scriptsize\ttfamily
-model.train()\\
-for X\_batch, y\_batch in train\_loader:\\
-\hspace{1.5em}...\ \# training step\\[0.5em]
-model.eval()\\
-with torch.no\_grad():\\
-\hspace{1.5em}...\ \# validation
-}
-\end{column}  
-\begin{column}{0.3\textwidth}
+% \end{column}  
+% \begin{column}{0.4\textwidth}
+% \structure{Correct pattern:}\\[0.3em]
+% {\scriptsize\ttfamily
+% model.train()\\
+% for X\_batch, y\_batch in train\_loader:\\
+% \hspace{1.5em}...\ \# training step\\[0.5em]
+% model.eval()\\
+% with torch.no\_grad():\\
+% \hspace{1.5em}...\ \# validation
+% }
+% \end{column}  
+% \begin{column}{0.3\textwidth}
 
-\vskip 1em
+% \vskip 1em
 
-\alert{Forgetting \texttt{model.eval()} is a silent bug - no error, wrong predictions}
-\end{column}  
-\begin{column}{0.1\textwidth}
+% \alert{Forgetting \texttt{model.eval()} is a silent bug - no error, wrong predictions}
+% \end{column}  
+% \begin{column}{0.1\textwidth}
 
-\end{column}  
+% \end{column}  
 
-\end{columns}
-\end{frame}
+% \end{columns}
+% \end{frame}
 
-% -
+% % -
 
-\begin{frame}{Dropout - Ensemble Interpretation}
+% \begin{frame}{Dropout - Ensemble Interpretation}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Why does dropout work?}
+% \structure{Why does dropout work?}
 
-\vskip 1em
+% \vskip 1em
 
-With $n$ neurons, dropout implicitly trains $2^n$ different subnetworks - one per possible dropout mask
+% With $n$ neurons, dropout implicitly trains $2^n$ different subnetworks - one per possible dropout mask
 
-\vskip 1em
+% \vskip 1em
 
-\begin{itemize}
-    \item Each mini-batch trains different subnetwork
-    \item Subnetworks share weights - efficient training
-    \item At test time: full network approximates \textbf{averaging} over all subnetworks
-\end{itemize}
+% \begin{itemize}
+%     \item Each mini-batch trains different subnetwork
+%     \item Subnetworks share weights - efficient training
+%     \item At test time: full network approximates \textbf{averaging} over all subnetworks
+% \end{itemize}
 
-\vskip 1.5em
+% \vskip 1.5em
 
-\structure{Ensembles generalise better} than single models - averaging reduces variance
+% \structure{Ensembles generalise better} than single models - averaging reduces variance
 
-\vskip 1em
+% \vskip 1em
 
-\begin{center}
-Dropout achieves ensemble-like generalisation at the cost of a single model
-\end{center}
+% \begin{center}
+% Dropout achieves ensemble-like generalisation at the cost of a single model
+% \end{center}
 
-\end{frame}
+% \end{frame}
 
-\begin{frame}{Data Augmentation}
+% \begin{frame}{Data Augmentation}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Idea:} apply label-preserving transformations to training examples to create new ones
+% \structure{Idea:} apply label-preserving transformations to training examples to create new ones
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Key principle - invariance:} the transformation must not change the label
-\begin{itemize}
-    \item Rotate image of cat $\Rightarrow$ still cat
-    \item Add small noise to patient measurements $\Rightarrow$ same diagnosis
-    \item Model should be invariant to these transformations - augmentation enforces it
-\end{itemize}
+% \structure{Key principle - invariance:} the transformation must not change the label
+% \begin{itemize}
+%     \item Rotate image of cat $\Rightarrow$ still cat
+%     \item Add small noise to patient measurements $\Rightarrow$ same diagnosis
+%     \item Model should be invariant to these transformations - augmentation enforces it
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Examples:}
-\begin{itemize}
-    \item \structure{Images:} random flips, rotations, crops, colour jitter
-    \item \structure{Tabular data:} Gaussian noise on features, random feature masking
-\end{itemize}
+% \structure{Examples:}
+% \begin{itemize}
+%     \item \structure{Images:} random flips, rotations, crops, colour jitter
+%     \item \structure{Tabular data:} Gaussian noise on features, random feature masking
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\alert{\textbf{Domain knowledge required - only you know which transformations preserve the label}}
+% \alert{\textbf{Domain knowledge required - only you know which transformations preserve the label}}
 
-\end{frame}
+% \end{frame}
 
 
-\begin{frame}{Early Stopping}
+% \begin{frame}{Early Stopping}
 
-\vskip 2em
+% \vskip 2em
 
-Training longer always reduces train loss - point beyond which generalisation gap grows
+% Training longer always reduces train loss - point beyond which generalisation gap grows
 
-\vskip 2em
+% \vskip 2em
 
-\begin{columns}[c]
-\begin{column}{0.55\textwidth}
+% \begin{columns}[c]
+% \begin{column}{0.55\textwidth}
 
 
-\begin{itemize}
-    \item Monitor validation loss each epoch
-    \item Save model weights at best validation loss
-    \item Stop when validation loss has not improved for $k$ epochs - \textbf{patience}
-    \item Deploy the saved model, not the final one
-\end{itemize}
+% \begin{itemize}
+%     \item Monitor validation loss each epoch
+%     \item Save model weights at best validation loss
+%     \item Stop when validation loss has not improved for $k$ epochs - \textbf{patience}
+%     \item Deploy the saved model, not the final one
+% \end{itemize}
 
 
-\end{column}
-\begin{column}{0.4\textwidth}
-\centering
-\input{\CommonPath/tikz/early_stopping.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \end{column}
+% \begin{column}{0.4\textwidth}
+% \centering
+% % \input{\CommonPath/tikz/early_stopping.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\vskip 2em
+% \vskip 2em
 
-No change to model or loss function - all ingredients already in the training loop
+% No change to model or loss function - all ingredients already in the training loop
 
-\end{frame}
-
-
-% -
-\section{Training Stability}
-% -
-
-\begin{frame}{}
-
-\vskip 8em
-
-\begin{center}
-{\Large \structure{Training Stability}}
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Training Stability}
-
-\vskip 2em
-
-\structure{Regularisation:} can use large, overparameterised networks without overfitting :)
-
-\vskip 1em
-
-\structure{New problem:} deep NNs training instabilities - more layers amplify small issues :(
-
-\vskip 1em
-
-\begin{itemize}
-    \item \structure{Internal covariate shift} - activation distributions shift as parameters update
-    \item \structure{Vanishing/exploding grads} - signals decay or amplify exponentially through layers
-    \item \structure{Dying ReLU} - neurons get stuck outputting zero permanently
-\end{itemize}
-
-\vskip 2em
-
-\alert{Not overfitting problems - regularisation does not help here}
-
-\end{frame}
-
-\begin{frame}{Internal Covariate Shift}
-
-\vskip 2em
-
-\structure{Problem:} as weights update, the input distribution to each layer changes continuously
-
-\vskip 1em
-
-\begin{itemize}
-    \item Layer $l$ learns to process inputs with a certain distribution
-    \item Layer $l-1$ updates its weights - distribution shifts
-    \item Layer $l$ must constantly re-adapt - a moving target
-    \item Effect amplifies with depth - later layers more instability
-\end{itemize}
-
-\vskip 1em
-
-\structure{Consequences:}
-\begin{itemize}
-    \item Slower convergence
-    \item Need for lower learning rates
-    \item High sensitivity to initialisation
-\end{itemize}
-
-\vskip 1em
-
-\structure{Solution:} explicitly normalise activations at each layer - \structure{Batch Normalisation}
-
-\end{frame}
-
-\begin{frame}{Batch Normalisation}
-
-\vskip 2em
-
-\structure{Idea:} normalise activations within each mini-batch -> distributions stable across layers
-
-\vskip 0.5em
-
-\[
-    \hat{h}_j = \frac{h_j - \mu_{\mathcal{B}}}{\sqrt{\sigma^2_{\mathcal{B}} + \epsilon}}
-    \qquad
-    \tilde{h}_j = \gamma \hat{h}_j + \beta
-\]
-
-$\mu_{\mathcal{B}}, \sigma^2_{\mathcal{B}}$ - mini-batch mean and variance \quad $\gamma, \beta$ - learnable scale and shift
-
-\vskip 1em
-
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{\texttt{model.train():}}
-\begin{itemize}
-    \item Normalise using mini-batch stats
-    \item Accumulate running mean and var
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{\texttt{model.eval():}}
-\begin{itemize}
-    \item Normalise using running stats
-    \item Deterministic - no batch dependence
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
-
-\vskip 1em
-
-\structure{Benefits:} stable training, allows higher learning rates, less sensitive to initialisation
-
-\vskip 0.5em
-
-\structure{Side effect:} mini-batch noise introduces mild regularisation - but not main motivation
-
-\end{frame}
-
-\begin{frame}{Vanishing and Exploding Gradients}
-
-\vskip 2em
-
-\structure{Backprop multiplies Jacobians backwards} - effect compounds, earliest layers affected most
-
-\[
-    \frac{\partial \loss}{\partial \pvec^{(1)}} =
-    \frac{\partial \loss}{\partial \vh^{(L)}}
-    \cdot \frac{\partial \vh^{(L)}}{\partial \vh^{(L-1)}}
-    \cdots
-    \frac{\partial \vh^{(2)}}{\partial \vh^{(1)}}
-    \cdot \frac{\partial \vh^{(1)}}{\partial \pvec^{(1)}}
-\]
-
-
-\vskip 2em
-
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Vanishing} (factors $< 1$)
-\begin{itemize}
-    \item Gradient $\to 0$ at earliest layers
-    \item Early layers stop learning
-    \item Deep NNs effectively shallow
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{Exploding} (factors $> 1$)
-\begin{itemize}
-    \item Gradient $\to \infty$ at earliest layers
-    \item Single large step destroys weights
-    \item Training diverges
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
-
-\vskip 2em
-
-\structure{Solutions:} Xavier/He init (Session 5); batch norm; gradient clipping (RNN, Transformers)
-
-\end{frame}
-
-\begin{frame}{Dying ReLU}
-
-\vskip 2em
-
-\alert{\textbf{Alarm:}} ReLU has zero gradient for all negative pre-activations - \alert{\textbf{half the input space}}
-
-\[
-    \frac{\partial \, \text{ReLU}(z)}{\partial z} = \begin{cases} 1 & z > 0 \\ 0 & z \leq 0 \end{cases}
-\]
-
-
-\vskip 2em
-
-\structure{Relief:} neuron dies if pre-activation negative for \alert{\textbf{all}} training examples \alert{\textbf{simultaneously}}
-\begin{itemize}
-    \item Pre-activations vary across examples - some positive, some negative
-    \item Average gradient is nonzero - diversity in data saves us
-    \item \textbf{ReLU remains solid baseline}
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Activation Functions}
-
-\vskip 2em
-
-\structure{Active research area:} many alternatives handle the negative region differently
-
-\vskip 1em
-
-\begin{columns}[c]
-\begin{column}{0.5\textwidth}
-\centering
-\input{\CommonPath/tikz/activation_functions.tex}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{itemize}
-    \item \textbf{LeakyReLU} - small negative slope $\alpha$
-    \item \textbf{ELU} - smooth exponential region
-    \item \textbf{GELU, Swish, Mish} - smooth, used in modern architectures
-\end{itemize}
-
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
-
-\centering
-\vskip 2em
-
-No universal winner - \textbf{ReLU and LeakyReLU} cover most practical needs
-
-\end{frame}
-
-% -
-\section{Summary}
-% -
-
-\begin{frame}{}
-
-\vskip 8em
-
-\begin{center}
-{\Large \structure{Summary}}
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Embracing Randomness}
-
-\vskip 2em
-
-\structure{Randomness pervasive in deep learning training - not a nuisance but a feature}
-
-\vskip 1em
-
-\begin{center}
-\begin{tabular}{lll}
-\toprule
-\textbf{Source} & \textbf{Where} & \textbf{Effect} \\
-\midrule
-Weight initialisation & start of training & which minimum is found \\
-Data shuffling & each epoch & different batches, prevents order memorisation \\
-Mini-batch SGD & every update step & implicit regularisation, flat minima \\
-Dropout & forward pass & ensemble effect, prevents co-adaptation \\
-Data augmentation & data loading & invariance, population coverage \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\vskip 1.5em
-
-\begin{center}
-Embracing randomness rather than eliminating it is part of what makes deep networks generalise well
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Summary}
-
-\vskip 2em
-
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Generalisation:}
-\begin{itemize}
-    \item True goal - low loss on population
-    \item Generalisation gap - monitor via validation loss
-    \item Deep NNs generalise surprisingly well - flat minima, double descent
-\end{itemize}
-
-\vskip 1em
-
-\structure{Regularisation:}
-\begin{itemize}
-    \item Weight decay - explicit penalty
-    \item Dropout - random subnetworks
-    \item Early stopping - cut training time
-    \item Data augmentation - most powerful
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{Training stability:}
-\begin{itemize}
-    \item Batch norm - stable activation distribs
-    \item Gradient clipping - stop exploding grads
-    \item LeakyReLU / ELU - avoid dying ReLU
-\end{itemize}
-
-\vskip 1em
-
-\structure{In PyTorch:}
-\begin{itemize}
-    \item \texttt{nn.Dropout(p)}
-    \item \texttt{nn.BatchNorm1d}
-    \item \texttt{weight\_decay} in \texttt{torch.optim}
-    \item \texttt{model.train()} / \texttt{model.eval()}
-\end{itemize}
-\end{column}
-\end{columns}
-
-
-\end{frame}
+% \end{frame}
 
 \end{document}

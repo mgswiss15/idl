@@ -1,21 +1,32 @@
-% Placeholder: flat vs sharp minima
+% Flat vs sharp minima
 \begin{tikzpicture}
 \begin{axis}[
-    width=6cm, height=4.5cm,
-    xlabel={$\pvec$},
-    ylabel={$\loss$},
-    xmin=-4, xmax=4, ymin=0, ymax=3,
-    xtick=\empty, ytick=\empty,
-    legend pos=north east,
-    legend style={font=\small},
+    width=7cm, height=5.5cm,
+    xlabel={$\theta$},
+    ylabel={$\mathcal{L}$},
+    xmin=-4, xmax=6,
+    ymin=-0.5, ymax=4,
+    xtick=\empty,
+    ytick=\empty,
+    tick label style={font=\small},
+    clip=false,
 ]
-\addplot[thick, carnelian, domain=-2:-0.5, samples=60]
-    {0.3 + 2.5*(x+1.2)^2};
-\addplot[thick, carnelian, domain=-0.5:0.5, samples=60]
-    {0.05 + 8*(x)^2};
-\addlegendentry{sharp}
-\addplot[thick, thwspetrol, domain=1.0:4.0, samples=60]
-    {0.15 + 0.18*(x-2.5)^2};
-\addlegendentry{flat}
+
+% single curve with sharp minimum (left) and flat minimum (right)
+\addplot[thick, thwspetrol, solid, domain=-4:6, samples=200]
+    {0.15 + 0.5*(x+1.5)^2/(1 + 5*exp(-2*(x+1.5)^2))
+     + 2.5*exp(-8*(x+1.5)^2)
+     + 0.12*(x-3.5)^2};
+
+% sharp minimum label
+\node[carnelian, font=\small, anchor=north] at (axis cs:-1.5, -0.3)
+    {sharp};
+\draw[carnelian, <->] (axis cs:-2.1, 0.15) -- (axis cs:-0.9, 0.15);
+
+% flat minimum label
+\node[thwspetrol, font=\small, anchor=north] at (axis cs:3.5, -0.3)
+    {flat};
+\draw[thwspetrol, <->] (axis cs:1.5, 0.15) -- (axis cs:5.5, 0.15);
+
 \end{axis}
 \end{tikzpicture}
