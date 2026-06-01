@@ -1,34 +1,36 @@
-% Overfitting: train/val loss curves with generalisation gap annotation
+% Overfit underfit
 \begin{tikzpicture}
 \begin{axis}[
-    width=7cm, height=5.5cm,
+    width=6.5cm, height=5cm,
     xlabel={Epoch},
     ylabel={Loss},
-    xmin=0, xmax=10,
+    xmin=0, xmax=15,
     ymin=0, ymax=5,
     xtick=\empty,
     ytick=\empty,
     legend pos=north east,
     legend style={font=\small, draw=none},
+    label style={font=\small},
+    axis lines=left,
     clip=false,
 ]
 
-% train loss — monotonically decreasing, levels off
-\addplot[thick, thwspetrol, solid, domain=0:10, samples=100]
-    {0.3 + 4.2*exp(-0.6*x)};
+% train loss — monotonically decreasing
+\addplot[thick, thwspetrol, solid, domain=0:15, samples=100]
+    {0.3 + 3.2*exp(-0.5*x)};
 \addlegendentry{Train}
 
-% val loss — decreasing then diverging
-\addplot[thick, thwsorange, dashed, domain=0:10, samples=100]
-    {0.9 + 3.5*exp(-0.7*x) + 0.08*x^1.8};
+% val loss — decreasing then gently increasing
+\addplot[thick, thwsorange, dashed, domain=0:15, samples=100]
+    {1.1 + 2.5*exp(-0.6*x) + 0.025*(x-4)^2};
 \addlegendentry{Val}
 
-% generalisation gap annotation — double arrow at x=8.5
-\draw[<->, thwsgrey, thick]
-    (axis cs:8.5, {0.3 + 4.2*exp(-0.6*8.5)})
-    -- (axis cs:8.5, {0.9 + 3.5*exp(-0.7*8.5) + 0.08*8.5^1.8});
+% generalisation gap annotation — double arrow at x=13
+\draw[<->, carnelian, thick]
+    (axis cs:13, {0.3 + 4.2*exp(-0.6*13)})
+    -- (axis cs:13, {1.1 + 2.5*exp(-0.6*13) + 0.025*(13-4)^2});
 
-\node[font=\small, thwsgrey, anchor=west] at (axis cs:8.6, 1.5)
+\node[font=\small, carnelian, anchor=west] at (axis cs:11, 1.5)
     {gap};
 
 \end{axis}

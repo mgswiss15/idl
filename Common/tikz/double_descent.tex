@@ -1,40 +1,45 @@
-% Double descent curve
+% Double descent: train and test loss vs model complexity
 \begin{tikzpicture}
 \begin{axis}[
-    width=7cm, height=5.5cm,
+    width=6.5cm, height=5cm,
     xlabel={Model complexity},
-    ylabel={Test error},
-    xmin=0, xmax=10,
-    ymin=0, ymax=5.5,
+    ylabel={Loss},
+    xmin=0, xmax=20,
+    ymin=0, ymax=5,
     xtick=\empty,
     ytick=\empty,
-    tick label style={font=\small},
-    clip=false,
+    legend pos=north west,
+    legend style={font=\scriptsize, draw=none},
+    label style={font=\small},
+    axis lines=left,
+    clip=true,
 ]
 
-% classical U-shape (left of threshold)
-\addplot[thick, thwspetrol, solid, domain=0.3:4.5, samples=100]
-    {0.4 + 1.6/x + 0.1*x^2};
+% train loss — monotonically decreasing
+\addplot[thick, thwspetrol, solid, domain=0:20, samples=100]
+    {0.2 + 3.5*exp(-0.5*x)};
+\addlegendentry{Train}
 
-% spike at interpolation threshold
-\addplot[thick, thwspetrol, solid, domain=4.5:5.0, samples=50]
-    {0.4 + 1.6/x + 0.1*x^2 + 12*(x-4.5)};
-\addplot[thick, thwspetrol, solid, domain=5.0:5.5, samples=50]
-    {0.4 + 1.6/x + 0.1*x^2 + 12*(5.5-x)};
+% val loss — decreasing then gently increasing
+\addplot[thick, thwsorange, dashed, domain=0:12, samples=100]
+    {1.1 + 2.5*exp(-0.6*x) + 0.025*(x-4)^2};
+\addlegendentry{Test}
 
-% second descent (right of threshold)
-\addplot[thick, thwspetrol, solid, domain=5.5:9.5, samples=100]
-    {0.35 + 3.2/x};
+% test loss right — second descent starting at x=5, value 2.5
+% at x=5: 2.5 + 0 = 2.5 — continuous
+\addplot[thick, thwsorange, dashed, domain=12:20, samples=100, forget plot]
+    {0.5 + 3.5*exp(-0.5*(x-11))};
+  % {2.5 + 2.5*(5.0/x - 1) + 0.3};
 
-% vertical dashed line at threshold
-\addplot[thick, thwsgrey, dashed] coordinates {(5.0, 0) (5.0, 5.5)};
+% vertical dashed line at interpolation threshold
+\addplot[thick, thwsgrey, dashed] coordinates {(12.0, 0) (12.0, 5)};
 
 % region annotations
-\node[font=\small, thwsblue] at (axis cs:2.2, 5.2) {underfitting};
-\node[font=\small, thwsblue, align=center] at (axis cs:5.0, -0.7)
+\node[font=\small, thwsblue] at (axis cs:5.5, 2.6) {underfit};
+\node[font=\scriptsize, thwsblue, align=center] at (axis cs:12.0, 0.65)
     {interpolation\\threshold};
-\node[font=\small, thwsblue, align=center] at (axis cs:7.8, 5.2)
-    {overparameterised};
+\node[font=\small, thwsblue, align=center] at (axis cs:16, 2.6)
+    {over-param};
 
 \end{axis}
 \end{tikzpicture}

@@ -1,32 +1,35 @@
 % Flat vs sharp minima
 \begin{tikzpicture}
 \begin{axis}[
-    width=7cm, height=5.5cm,
+    width=6.5cm, height=5cm,
     xlabel={$\theta$},
     ylabel={$\mathcal{L}$},
-    xmin=-4, xmax=6,
-    ymin=-0.5, ymax=4,
+    xmin=-5, xmax=8,
+    ymin=0, ymax=4,
     xtick=\empty,
     ytick=\empty,
-    tick label style={font=\small},
-    clip=false,
+    label style={font=\small},
+    axis lines=left,
+    clip=true,
 ]
 
-% single curve with sharp minimum (left) and flat minimum (right)
-\addplot[thick, thwspetrol, solid, domain=-4:6, samples=200]
-    {0.15 + 0.5*(x+1.5)^2/(1 + 5*exp(-2*(x+1.5)^2))
-     + 2.5*exp(-8*(x+1.5)^2)
-     + 0.12*(x-3.5)^2};
+% sharp minimum at x=-1.5 — narrow deep parabola
+\addplot[thick, carnelian, solid, domain=-5:1.5, samples=150]
+    {0.15 + 3.0*(x+1.5)^2};
 
-% sharp minimum label
-\node[carnelian, font=\small, anchor=north] at (axis cs:-1.5, -0.3)
+% flat minimum at x=5 — very gentle wide parabola
+\addplot[thick, thwspetrol, solid, domain=0:8, samples=150]
+    {0.15 + 0.08*(x-5)^2};
+
+% sharp label — above minimum
+\node[font=\scriptsize, carnelian, anchor=south] at (axis cs:-1.5, 3.6)
     {sharp};
-\draw[carnelian, <->] (axis cs:-2.1, 0.15) -- (axis cs:-0.9, 0.15);
+\draw[->, carnelian, thin] (axis cs:-1.5, 3.5) -- (axis cs:-1.5, 0.4);
 
-% flat minimum label
-\node[thwspetrol, font=\small, anchor=north] at (axis cs:3.5, -0.3)
+% flat label — above minimum
+\node[font=\scriptsize, thwspetrol, anchor=south] at (axis cs:5.0, 3.6)
     {flat};
-\draw[thwspetrol, <->] (axis cs:1.5, 0.15) -- (axis cs:5.5, 0.15);
+\draw[->, thwspetrol, thin] (axis cs:5.0, 3.5) -- (axis cs:5.0, 0.4);
 
 \end{axis}
 \end{tikzpicture}
