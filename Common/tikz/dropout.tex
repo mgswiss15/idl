@@ -1,0 +1,34 @@
+% Placeholder: network with one neuron dropped out
+\begin{tikzpicture}[scale=0.8,
+    neuron/.style={circle, draw, minimum size=0.55cm, thick},
+    dropped/.style={circle, draw, dashed, minimum size=0.55cm, thick, thwsgrey},
+]
+% input layer
+\foreach \i/\y in {1/3, 2/2, 3/1} {
+    \node[neuron, thwspetrol] (i\i) at (0, \y) {};
+}
+% hidden layer — middle neuron dropped
+\node[neuron, thwspetrol]  (h1) at (2, 3) {};
+\node[dropped]              (h2) at (2, 2) {\small$\times$};
+\node[neuron, thwspetrol]  (h3) at (2, 1) {};
+% output
+\node[neuron, thwsorange]  (o)  at (4, 2) {};
+% connections — active
+\foreach \i in {1,2,3} {
+    \foreach \j in {1,3} {
+        \draw[thwspetrol!60] (i\i) -- (h\j);
+    }
+}
+% connections — dropped
+\foreach \i in {1,2,3} {
+    \draw[thwsgrey, dashed] (i\i) -- (h2);
+}
+\foreach \j in {1,3} {
+    \draw[thwspetrol!60] (h\j) -- (o);
+}
+\draw[thwsgrey, dashed] (h2) -- (o);
+% labels
+\node[font=\tiny] at (0, 3.7) {input};
+\node[font=\tiny] at (2, 3.7) {hidden};
+\node[font=\tiny] at (4, 3.7) {output};
+\end{tikzpicture}

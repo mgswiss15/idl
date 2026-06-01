@@ -19,12 +19,12 @@
 | L4 | Backpropagation | Fundamentals & MLPs |
 | L5 | PyTorch: tensors, autograd, training loop & evaluation | Practical Training & Optimization |
 | L6 | Optimizers, schedules & initialization | Practical Training & Optimization |
-| L7 | Regularization & generalization | Practical Training & Optimization |
-| L8 | CNN architecture & convolution | CNNs & Computer Vision |
-| L9 | Modern CNNs & vision tasks | CNNs & Computer Vision |
-| L10 | RNNs, LSTMs & attention | Sequence Models |
-| L11 | Transformers & language models | Sequence Models |
-| L12 | VAEs & GANs | Deep Generative Modeling |
+| L7 - 1.6. | Regularization & generalization | Practical Training & Optimization |
+| L8 - 8.6. | CNN architecture & convolution | CNNs & Computer Vision |
+| L9 - 15.6. | Modern CNNs & vision tasks | CNNs & Computer Vision |
+| L10 - 22.6. | RNNs, LSTMs & attention | Sequence Models |
+| L11 - 29.6. | Transformers & language models | Sequence Models |
+| L12 - 6.7. | VAEs & GANs | Deep Generative Modeling |
 | L13 | Diffusion models, survey & outlook | — |
 
 ---
