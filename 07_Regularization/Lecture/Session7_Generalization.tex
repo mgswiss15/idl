@@ -29,9 +29,20 @@ pdfkeywords={generalization, regularization, overfitting, dropout, batch normali
 \tableofcontents
 \end{frame}
 
-% -------------------------------------------------------
+% -
 \section{Generalization}
-% -------------------------------------------------------
+% -
+
+% \begin{frame}{}
+
+% \vskip 8em
+
+% \begin{center}
+% {\Large \structure{Generalization}}
+% \end{center}
+
+% \end{frame}
+
 
 \begin{frame}{Where We Are}
 
@@ -60,7 +71,7 @@ pdfkeywords={generalization, regularization, overfitting, dropout, batch normali
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{True Goal}
 
@@ -87,11 +98,11 @@ pdfkeywords={generalization, regularization, overfitting, dropout, batch normali
 
 \vskip 0.5em
 
-The \textbf{test set} is a finite sample we create to \textit{estimate} $\loss_{\text{pop}}$ --- it is a measurement tool, not the objective itself
+\alert{\textbf{Test set:}} finite sample we create to \textit{estimate} $\loss_{\text{pop}}$ - \textbf{measurement tool, not the goal}!
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{Train / Validation / Test Split}
 
@@ -119,13 +130,13 @@ Final honest evaluation
 \[
     \loss(\pvec;\, \dataset_{\text{test}})
 \]
-\alert{Touched once, at the end}
+\alert{\textbf{Touched once, at the end}}
 \end{column}
 \end{columns}
 
 \vskip 2em
 
-\structure{Common mistake:} tuning on the test set - reported performance is optimistic
+\structure{Common mistake:} tuning on test set - reported performance is optimistic
 
 \vskip 0.5em
 
@@ -133,7 +144,7 @@ Final honest evaluation
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{Overfitting and Underfitting}
 
@@ -156,10 +167,6 @@ Final honest evaluation
     \item \alert{Large generalisation gap}
 \end{itemize}
 
-\vskip 1em
-
-\structure{Signal:} monitor the generalisation gap --- train loss alone tells us nothing about generalisation
-
 \end{column}
 \begin{column}{0.4\textwidth}
 \centering
@@ -169,13 +176,16 @@ Final honest evaluation
 \end{column}
 \end{columns}
 
+\vskip 2em
+
+\structure{Signal:} monitor generalisation gap - \textbf{train loss not enough for generalisation}
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{What To Do}
 
-\vskip 2em
+\vskip 3em
 
 \begin{columns}[t]
 \begin{column}{0.46\textwidth}
@@ -190,8 +200,8 @@ Final honest evaluation
 \begin{column}{0.46\textwidth}
 \structure{Overfitting} {\small (low train loss, large gap)}
 \begin{itemize}
-    \item More data --- always most effective
-    \item \alert{Regularisation} --- subject of this lecture
+    \item More data - always most effective
+    \item \alert{Regularisation} - this lecture
     \item Reduce model capacity
 \end{itemize}
 \end{column}
@@ -199,16 +209,9 @@ Final honest evaluation
 \end{column}
 \end{columns}
 
-\vskip 2em
-
-\centering
-\structure{This lecture:} deep networks have enormous capacity yet often generalise well --- we study why, and how to ensure it
 
 \end{frame}
 
-% -------------------------------------------------------
-\section{The Generalization Paradox}
-% -------------------------------------------------------
 
 \begin{frame}{Bias-Variance Tradeoff}
 
@@ -216,11 +219,11 @@ Final honest evaluation
 
 \structure{Classical view:} test error decomposes into two competing terms
 
-\vskip 1em
+\vskip 1.5em
 
 \begin{columns}[t]
 \begin{column}{0.46\textwidth}
-\structure{Bias} --- error from wrong assumptions
+\structure{Bias} - error from wrong assumptions
 \begin{itemize}
     \item Model too simple to capture the data
     \item High train loss, high test loss
@@ -228,7 +231,7 @@ Final honest evaluation
 \end{itemize}
 \end{column}
 \begin{column}{0.46\textwidth}
-\structure{Variance} --- sensitivity to training set
+\structure{Variance} - sensitivity to training set
 \begin{itemize}
     \item Model fits noise in training data
     \item Low train loss, high test loss
@@ -239,80 +242,94 @@ Final honest evaluation
 \end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 2em
 
 \structure{Classical prescription:} choose model complexity to balance the two
 
-\vskip 0.5em
+\vskip 1em
 
 \begin{center}
-More parameters $\Rightarrow$ lower bias, higher variance $\Rightarrow$ \alert{overfitting}
+\structure{More parameters} $\Rightarrow$ lower bias, higher variance $\Rightarrow$ \alert{overfitting}
 \end{center}
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{Limits of Classical View}
 
 \vskip 2em
 
-\structure{Classical prediction:} more parameters than training examples $\Rightarrow$ catastrophic overfitting
+\structure{Classical prediction:} more parameters than training examples $\Rightarrow$ \alert{catastrophic overfitting}
 
 \vskip 1em
 
 \structure{Reality in deep learning:}
 \begin{itemize}
-    \item Deep networks have huge numbers of parameters --- far more than needed to memorise training data
-    \item They routinely drive training loss close to zero
-    \item Classical theory: a model that nearly memorises training data cannot generalise
-    \item In practice: deep networks still generalise well
+    \item Deep NNs: huge numbers of params - can memorise training data
+    \item Deep NNs: routinely drive train loss close to zero
+    \item Classical theory: model that nearly memorises train data \emph{\textbf{cannot generalise}}
+    \item Deep NNs: \emph{\textbf{generalise well in practice}} ... hmm ... 
 \end{itemize}
 
 \vskip 1.5em
 
 \begin{center}
-{\large Why do deep networks generalise despite being massively overparameterised?}
+{\large Why do deep NNs generalise despite being massively overparameterised?}
 \end{center}
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
+\section{Generalization Paradox}
+% -
+
+\begin{frame}{}
+
+\vskip 8em
+
+\begin{center}
+{\Large \structure{Generalization Paradox}}
+\end{center}
+
+\end{frame}
+
+
+% -
 
 \begin{frame}{Many Good Minima}
 
 \vskip 2em
 
-\structure{Classical concern:} gradient descent finds a local minimum --- but which one?
+\structure{Classical concern:} gradient descent finds a local minimum - but which one?
 
 \vskip 1em
 
 \structure{Empirical observation in deep networks:}
 \begin{itemize}
-    \item Overparameterised networks have a vast number of local minima
+    \item Overparameterised networks - vast number of local minima
     \item Most local minima have very similar loss values
-    \item Networks trained from different initialisations reach different minima --- yet generalise similarly
+    \item Different intialisation -> different minima ->  \emph{\textbf{yet generalise similarly}}
 \end{itemize}
 
-\vskip 1.5em
+\centering
+\vskip 2em
 
-\structure{Why:} the network has far more parameters than needed to fit the data --- many equivalent solutions exist
+\structure{Why:} NNs far more params than needed to fit the data.
 
 \vskip 1em
 
-\begin{center}
-Which minimum we find matters much less than classical theory suggests
-\end{center}
+Many equivalent solutions exist - which one we find not so critical
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{Flat vs Sharp Minima}
 
 \vskip 2em
 
-Not all minima generalise equally well
+\structure{Not all minima generalise equally well}
 
 \vskip 1em
 
@@ -343,17 +360,17 @@ Not all minima generalise equally well
 
 \vskip 1.5em
 
-\structure{SGD noise naturally favours flat minima} - implicit regularisation from mini-batching (Session 5)
+\structure{SGD:} mini-batching stochastic noise - favours flat minima -> \alert{implicit regularisation}
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{Double Descent}
 
 \vskip 2em
 
-\structure{Classical bias-variance curve:} test error has one optimal complexity --- U-shaped curve
+\structure{Classical bias-variance curve:} test error has one optimal complexity - U-shaped curve
 
 \vskip 0.5em
 
@@ -369,36 +386,37 @@ Not all minima generalise equally well
 \begin{column}{0.46\textwidth}
 \begin{itemize}
     \item \structure{Underfitting:} too little capacity
-    \item \structure{Interpolation threshold:} maximally rigid --- worst generalisation
-    \item \structure{Overparameterised:} smoother interpolation --- generalisation recovers
+    \item \structure{Interpolation threshold:} maximally rigid - worst generalisation
+    \item \structure{Overparameterised:} smoother interpolation - generalisation recovers
 \end{itemize}
 
-\vskip 1em
-
-\alert{Deep networks operate in the overparameterised regime}
 \end{column}
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
+\centering
+\vskip 2em
+
+\alert{Deep networks operate in overparameterised regime}
+
 \end{frame}
 
-% -------------------------------------------------------
+% -
 \section{Regularisation Techniques}
-% -------------------------------------------------------
+% -
 
 \begin{frame}{}
 
-\vskip 4em
+\vskip 8em
 
 \begin{center}
-{\Large \structure{Section 4}}\\[1em]
-{\large Regularisation Techniques}
+{\Large \structure{Regularisation Techniques}}
 \end{center}
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
 \begin{frame}{Weight Decay}
 
@@ -418,15 +436,15 @@ Large weights $\Rightarrow$ model relies heavily on specific features $\Rightarr
 \begin{column}{0.46\textwidth}
 \structure{L2 regularisation} (weight decay)
 \begin{itemize}
-    \item Penalises $\|\pvec\|^2$ --- shrinks all weights
+    \item Penalises $\|\pvec\|^2$ - shrinks all weights
     \item Smooth, differentiable
-    \item \texttt{weight\_decay} in \texttt{torch.optim}
+    \item \alert{\texttt{weight\_decay} in \texttt{torch.optim}}
 \end{itemize}
 \end{column}
 \begin{column}{0.46\textwidth}
 \structure{L1 regularisation}
 \begin{itemize}
-    \item Penalises $\|\pvec\|_1$ --- promotes sparsity
+    \item Penalises $\|\pvec\|_1$ - promotes sparsity
     \item Some weights go exactly to zero
     \item Useful for feature selection
 \end{itemize}
@@ -437,44 +455,36 @@ Large weights $\Rightarrow$ model relies heavily on specific features $\Rightarr
 
 \vskip 1em
 
-\structure{Hyperparameter:} $\lambda > 0$ controls strength --- tuned on validation set
+\structure{Hyperparameter:} $\lambda > 0$ controls strength - tuned on validation set
 
 \vskip 0.5em
 
-\structure{In deep learning:} useful baseline, freely combined with other techniques --- but less central than in classical ML
+\structure{Deep NNs:} baseline, combined with other techniques - less central than in classical ML
 
 \end{frame}
 
-% -------------------------------------------------------
+% -
 
-\begin{frame}{Dropout}
+\begin{frame}{Dropout - Training}
 
 \vskip 2em
 
 \begin{columns}[c]
-\begin{column}{0.55\textwidth}
+\begin{column}{0.5\textwidth}
 
 \structure{During training:} randomly zero each activation with probability $p$
+
+\vskip 1em
+
 \begin{itemize}
     \item Each forward pass uses a different subnetwork
     \item Neurons cannot rely on specific others always being present
     \item Prevents co-adaptation of neurons
 \end{itemize}
 
-\vskip 1em
-
-\structure{During evaluation:} all neurons active
-\begin{itemize}
-    \item Outputs scaled by $(1-p)$ to compensate
-    \item Equivalently: weights multiplied by $(1-p)$ at test time
-\end{itemize}
-
-\vskip 1em
-
-\structure{Typical values:} $p = 0.1$--$0.5$ --- tuned on validation set
 
 \end{column}
-\begin{column}{0.4\textwidth}
+\begin{column}{0.45\textwidth}
 \centering
 \input{\CommonPath/tikz/dropout.tex}
 \end{column}
@@ -482,11 +492,60 @@ Large weights $\Rightarrow$ model relies heavily on specific features $\Rightarr
 \end{column}
 \end{columns}
 
+\vskip 2em
+
+\structure{Typical values:} $p = 0.1$--$0.5$ - tuned on validation set
+
 \end{frame}
 
-% -------------------------------------------------------
+\begin{frame}{Dropout - Evaluation}
 
-\begin{frame}{Dropout --- Ensemble Interpretation}
+\vskip 2em
+
+\structure{During evaluation:} all neurons active - outputs scaled by $(1-p)$ to compensate
+
+\vskip 1em
+
+\structure{\texttt{model.train()} vs \texttt{model.eval()}:}
+\begin{itemize}
+    \item \texttt{nn.Dropout} - zeroing active in train mode, disabled in eval mode
+    \item Most layers (\texttt{nn.Linear}, \texttt{nn.ReLU}, \ldots) - unaffected
+    \item Some other layers also have dual behaviour - covered later
+\end{itemize}
+
+\vskip 1em
+
+\begin{columns}
+\begin{column}{0.1\textwidth}
+
+\end{column}  
+\begin{column}{0.4\textwidth}
+\structure{Correct pattern:}\\[0.3em]
+{\scriptsize\ttfamily
+model.train()\\
+for X\_batch, y\_batch in train\_loader:\\
+\hspace{1.5em}...\ \# training step\\[0.5em]
+model.eval()\\
+with torch.no\_grad():\\
+\hspace{1.5em}...\ \# validation
+}
+\end{column}  
+\begin{column}{0.3\textwidth}
+
+\vskip 1em
+
+\alert{Forgetting \texttt{model.eval()} is a silent bug - no error, wrong predictions}
+\end{column}  
+\begin{column}{0.1\textwidth}
+
+\end{column}  
+
+\end{columns}
+\end{frame}
+
+% -
+
+\begin{frame}{Dropout - Ensemble Interpretation}
 
 \vskip 2em
 
@@ -494,19 +553,19 @@ Large weights $\Rightarrow$ model relies heavily on specific features $\Rightarr
 
 \vskip 1em
 
-With $n$ neurons, dropout implicitly trains $2^n$ different subnetworks --- one per possible dropout mask
+With $n$ neurons, dropout implicitly trains $2^n$ different subnetworks - one per possible dropout mask
 
 \vskip 1em
 
 \begin{itemize}
-    \item Each mini-batch trains a different subnetwork
-    \item Subnetworks share weights --- efficient training
+    \item Each mini-batch trains different subnetwork
+    \item Subnetworks share weights - efficient training
     \item At test time: full network approximates \textbf{averaging} over all subnetworks
 \end{itemize}
 
 \vskip 1.5em
 
-\structure{Ensembles generalise better} than single models --- averaging reduces variance
+\structure{Ensembles generalise better} than single models - averaging reduces variance
 
 \vskip 1em
 
@@ -516,49 +575,73 @@ Dropout achieves ensemble-like generalisation at the cost of a single model
 
 \end{frame}
 
-% -------------------------------------------------------
-
-\begin{frame}{\texttt{model.train()} and \texttt{model.eval()}}
+\begin{frame}{Data Augmentation}
 
 \vskip 2em
 
-\structure{Some layers behave differently during training and evaluation:}
+\structure{Idea:} apply label-preserving transformations to training examples to create new ones
 
 \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Dropout}
+\structure{Key principle - invariance:} the transformation must not change the label
 \begin{itemize}
-    \item \textbf{Train:} randomly zero activations with prob $p$
-    \item \textbf{Eval:} all neurons active, outputs scaled by $(1-p)$
+    \item Rotate image of cat $\Rightarrow$ still cat
+    \item Add small noise to patient measurements $\Rightarrow$ same diagnosis
+    \item Model should be invariant to these transformations - augmentation enforces it
 \end{itemize}
+
+\vskip 1em
+
+\structure{Examples:}
+\begin{itemize}
+    \item \structure{Images:} random flips, rotations, crops, colour jitter
+    \item \structure{Tabular data:} Gaussian noise on features, random feature masking
+\end{itemize}
+
+\vskip 1em
+
+\alert{\textbf{Domain knowledge required - only you know which transformations preserve the label}}
+
+\end{frame}
+
+
+\begin{frame}{Early Stopping}
+
+\vskip 2em
+
+Training longer always reduces train loss - point beyond which generalisation gap grows
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
+
+
+\begin{itemize}
+    \item Monitor validation loss each epoch
+    \item Save model weights at best validation loss
+    \item Stop when validation loss has not improved for $k$ epochs - \textbf{patience}
+    \item Deploy the saved model, not the final one
+\end{itemize}
+
+
 \end{column}
-\begin{column}{0.46\textwidth}
-\structure{Batch Normalisation}
-\begin{itemize}
-    \item \textbf{Train:} normalise using mini-batch statistics
-    \item \textbf{Eval:} normalise using running statistics accumulated during training
-\end{itemize}
+\begin{column}{0.4\textwidth}
+\centering
+\input{\CommonPath/tikz/early_stopping.tex}
 \end{column}
 \begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 2em
 
-\structure{All other layers} --- \texttt{nn.Linear}, \texttt{nn.ReLU}, etc.\ --- are unaffected by the mode
-
-\vskip 1em
-
-\begin{center}
-\alert{Always call \texttt{model.eval()} before validation and inference}\\[0.5em]
-\alert{Always call \texttt{model.train()} before resuming training}
-\end{center}
+No change to model or loss function - all ingredients already in the training loop
 
 \end{frame}
 
-% -------------------------------------------------------
+
+% -
 
 \begin{frame}{Randomness as Regularisation}
 
@@ -573,7 +656,7 @@ Dropout achieves ensemble-like generalisation at the cost of a single model
 \toprule
 \textbf{Technique} & \textbf{Source of randomness} & \textbf{Type} \\
 \midrule
-Weight decay & --- & explicit, deterministic \\
+Weight decay & - & explicit, deterministic \\
 Mini-batch SGD & random batch selection & implicit \\
 Dropout & random neuron masking & explicit \\
 Data augmentation & random transformations & explicit \\
@@ -587,9 +670,203 @@ Data augmentation & random transformations & explicit \\
 \begin{itemize}
     \item No change to the loss function
     \item Gradient noise prevents convergence to sharp minima
-    \item Flat minima found for free --- at no extra cost
+    \item Flat minima found for free - at no extra cost
 \end{itemize}
 
 \end{frame}
+
+% -
+\section{Training Stability}
+% -
+
+\begin{frame}{}
+
+\vskip 8em
+
+\begin{center}
+{\Large \structure{Training Stability}}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Training Stability}
+
+\vskip 2em
+
+\structure{Regularisation:} can use large, overparameterised networks without overfitting :)
+
+\vskip 1em
+
+\structure{New problem:} deep NNs training instabilities - more layers amplify small issues :(
+
+\vskip 1em
+
+\begin{itemize}
+    \item \structure{Internal covariate shift} - activation distributions shift as parameters update
+    \item \structure{Dying ReLU} - neurons get stuck outputting zero permanently
+    \item \structure{Vanishing/exploding grads} - signals decay or amplify exponentially through layers
+\end{itemize}
+
+\vskip 2em
+
+\alert{Not overfitting problems - regularisation does not help here}
+
+\end{frame}
+
+\begin{frame}{Internal Covariate Shift}
+
+\vskip 2em
+
+\structure{Problem:} as weights update, the input distribution to each layer changes continuously
+
+\vskip 1em
+
+\begin{itemize}
+    \item Layer $l$ learns to process inputs with a certain distribution
+    \item Layer $l-1$ updates its weights - distribution shifts
+    \item Layer $l$ must constantly re-adapt - a moving target
+    \item Effect amplifies with depth - later layers more instability
+\end{itemize}
+
+\vskip 1em
+
+\structure{Consequences:}
+\begin{itemize}
+    \item Slower convergence
+    \item Need for lower learning rates
+    \item High sensitivity to initialisation
+\end{itemize}
+
+\vskip 1em
+
+\structure{Solution:} explicitly normalise activations at each layer - \structure{Batch Normalisation}
+
+\end{frame}
+
+\begin{frame}{Batch Normalisation}
+
+\vskip 2em
+
+\structure{Idea:} normalise activations within each mini-batch -> distributions stable across layers
+
+\vskip 0.5em
+
+\[
+    \hat{h}_j = \frac{h_j - \mu_{\mathcal{B}}}{\sqrt{\sigma^2_{\mathcal{B}} + \epsilon}}
+    \qquad
+    \tilde{h}_j = \gamma \hat{h}_j + \beta
+\]
+
+$\mu_{\mathcal{B}}, \sigma^2_{\mathcal{B}}$ - mini-batch mean and variance \quad $\gamma, \beta$ - learnable scale and shift
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{\texttt{model.train():}}
+\begin{itemize}
+    \item Normalise using mini-batch statistics
+    \item Accumulate running mean and variance
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{\texttt{model.eval():}}
+\begin{itemize}
+    \item Normalise using running statistics
+    \item Deterministic - no batch dependence
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\structure{Benefits:} stable training, allows higher learning rates, less sensitive to initialisation
+
+\vskip 0.5em
+
+\structure{Side effect:} mini-batch noise introduces mild regularisation - but this is not the main motivation
+
+\end{frame}
+
+\begin{frame}{Dying ReLU}
+
+\vskip 2em
+
+\structure{Problem:} ReLU outputs zero for all negative pre-activations
+
+\vskip 0.5em
+
+If pre-activation $z < 0$ for all inputs $\Rightarrow$ output always zero $\Rightarrow$ gradient always zero $\Rightarrow$ weights never update - neuron permanently dead
+
+\vskip 1em
+
+\structure{In practice - less catastrophic than it sounds:}
+\begin{itemize}
+    \item He initialisation keeps pre-activations in a healthy range initially
+    \item Network compensates - surviving neurons carry the load
+    \item ReLU remains the \textbf{recommended baseline} - simple, cheap, works well
+\end{itemize}
+
+\vskip 1em
+
+\structure{Fixes when it is a problem:}
+\begin{itemize}
+    \item \textbf{LeakyReLU} - small negative slope $\alpha$: $a = \max(\alpha z,\, z)$, $\alpha \ll 1$
+    \item \textbf{ELU} - smooth exponential negative region, avoids hard zero
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Vanishing and Exploding Gradients}
+
+\vskip 2em
+
+\structure{Problem:} backprop multiplies Jacobians across layers - products grow or shrink exponentially
+
+\[
+    \frac{\partial \loss}{\partial \pvec^{(1)}} =
+    \frac{\partial \loss}{\partial \vh^{(L)}}
+    \cdot \frac{\partial \vh^{(L)}}{\partial \vh^{(L-1)}}
+    \cdots
+    \frac{\partial \vh^{(2)}}{\partial \vh^{(1)}}
+    \cdot \frac{\partial \vh^{(1)}}{\partial \pvec^{(1)}}
+\]
+
+\vskip 0.5em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Vanishing} (factors $< 1$)
+\begin{itemize}
+    \item Gradient $\to 0$ in early layers
+    \item Early layers stop learning
+    \item Deep network effectively becomes shallow
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Exploding} (factors $> 1$)
+\begin{itemize}
+    \item Gradient $\to \infty$ in early layers
+    \item Single large step destroys weights
+    \item Training diverges
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\structure{Solutions:}
+\begin{itemize}
+    \item Xavier/He initialisation - covered in Session 5
+    \item Batch normalisation - stabilises forward pass, helps backward pass
+    \item Gradient clipping - cap gradient norm at threshold $\tau$ before update
+\end{itemize}
+
+\end{frame}
+
 
 \end{document}

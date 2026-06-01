@@ -1,0 +1,30 @@
+% early_stopping.tex — placeholder
+\begin{tikzpicture}
+\begin{axis}[
+    width=6.5cm, height=4.5cm,
+    xlabel={Epoch},
+    ylabel={Loss},
+    xmin=0, xmax=10, ymin=0, ymax=5,
+    xtick=\empty, ytick=\empty,
+    legend pos=north east,
+    legend style={font=\small},
+    clip=false,
+]
+% train loss
+\addplot[thick, thwspetrol] coordinates
+    {(0,4.5)(2,2.5)(5,1.0)(10,0.3)};
+\addlegendentry{Train}
+% val loss
+\addplot[thick, thwsorange, dashed] coordinates
+    {(0,4.5)(2,2.6)(4,1.6)(6,1.8)(8,2.4)(10,3.0)};
+\addlegendentry{Val}
+% vertical line at best val loss
+\addplot[thick, carnelian, dashed] coordinates {(4,0)(4,5)};
+% dot at minimum
+\addplot[only marks, mark=*, carnelian, mark size=2.5pt]
+    coordinates {(4,1.6)};
+% annotation
+\node[carnelian, font=\small, anchor=west] at (axis cs:4.2,4.2)
+    {best model};
+\end{axis}
+\end{tikzpicture}

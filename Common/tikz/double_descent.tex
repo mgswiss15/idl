@@ -10,16 +10,16 @@
 ]
 \addplot[thick, thwspetrol, samples=80, domain=0.4:4.2]
     {0.4 + 1.8/x + 0.12*x^2};
-\addplot[thick, thwspetrol, samples=80, domain=4.2:5.8]
-    {0.4 + 1.8/x + 0.12*x^2 + 7*exp(-2.5*(x-5)^2)};
-\addplot[thick, thwspetrol, samples=80, domain=5.8:9.5]
-    {0.35 + 3.5/x};
-\addplot[dashed, thwsgrey] coordinates {(5,0)(5,4.8)};
-\node[font=\tiny, align=center] at (axis cs:2.5,4.8)
-    {classical\\regime};
-\node[font=\tiny, align=center, thwsgrey] at (axis cs:5,-0.6)
-    {interpolation\\threshold};
-\node[font=\tiny, align=center] at (axis cs:7.8,4.8)
-    {overparameterised\\regime};
+% \addplot[thick, thwspetrol, samples=80, domain=4.2:5.8]
+%     {0.4 + 1.8/x + 0.12*x^2 + 7*exp(-2.5*(x-5)^2)};
+% \addplot[thick, thwspetrol, samples=80, domain=5.8:9.5]
+%     {0.35 + 3.5/x};
+% \addplot[dashed, thwsgrey] coordinates {(5,0)(5,4.8)};
+% \node[font=\tiny, align=center] at (axis cs:2.5,4.8)
+%     {classical\\regime};
+% \node[font=\tiny, align=center, thwsgrey] at (axis cs:5,-0.6)
+%     {interpolation\\threshold};
+% \node[font=\tiny, align=center] at (axis cs:7.8,4.8)
+%     {overparameterised\\regime};
 \end{axis}
 \end{tikzpicture}
