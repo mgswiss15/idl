@@ -2373,34 +2373,6 @@
   <bcf:bibdata section="0">
     <bcf:datasource type="file" datatype="bibtex" glob="false">foundations.bib</bcf:datasource>
     <bcf:datasource type="file" datatype="bibtex" glob="false">session2.bib</bcf:datasource>
+    <bcf:datasource type="file" datatype="bibtex" glob="false">session5.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">lecun2015deeplearning</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">goodfellow2016deeplearning</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">rosenblatt1958perceptron</bcf:citekey>
-    <bcf:citekey order="4" intorder="1">widrow1960adaline</bcf:citekey>
-    <bcf:citekey order="5" intorder="1">minsky1969perceptrons</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">lighthill1973</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">werbos1974thesis</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">fukushima1980neocognitron</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">hopfield1982neural</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">fgcs1982</bcf:citekey>
-    <bcf:citekey order="11" intorder="1">rumelhart1986backprop</bcf:citekey>
-    <bcf:citekey order="12" intorder="1">hochreiter1997lstm</bcf:citekey>
-    <bcf:citekey order="13" intorder="1">vapnik1995svm</bcf:citekey>
-    <bcf:citekey order="14" intorder="1">lecun1998gradient</bcf:citekey>
-    <bcf:citekey order="15" intorder="1">bengio2004representation</bcf:citekey>
-    <bcf:citekey order="16" intorder="1">hinton2006belief</bcf:citekey>
-    <bcf:citekey order="17" intorder="1">raina2009gpu</bcf:citekey>
-    <bcf:citekey order="18" intorder="1">deng2009imagenet</bcf:citekey>
-    <bcf:citekey order="19" intorder="1">nair2010relu</bcf:citekey>
-    <bcf:citekey order="20" intorder="1">krizhevsky2012alexnet</bcf:citekey>
-    <bcf:citekey order="21" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="22" intorder="1">jumper2021alphafold</bcf:citekey>
-    <bcf:citekey order="23" intorder="1">silver2016alphago</bcf:citekey>
-    <bcf:citekey order="24" intorder="1">nair2010relu</bcf:citekey>
-    <bcf:citekey order="24" intorder="2">glorot2011relu</bcf:citekey>
-    <bcf:citekey order="25" intorder="1">cybenko1989approximation</bcf:citekey>
-    <bcf:citekey order="25" intorder="2">hornik1991approximation</bcf:citekey>
-    <bcf:citekey order="26" intorder="1">cybenko1989approximation</bcf:citekey>
-    <bcf:citekey order="27" intorder="1">hornik1991approximation</bcf:citekey>

@@ -157,11 +157,11 @@ Shuffling the dataset at the start of each epoch ensures that mini-batches are f
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Setting Up for Optimisation}
-\slideref{Session 5: Why Feature Scale Matters, Input Normalization, Initialization: The Symmetry Problem, Initialization: Vanishing and Exploding Signals, Xavier and He Initialization}
+\slideref{Session 5: Why Feature Scale Matters, Input normalisation, Initialization: The Symmetry Problem, Initialization: Vanishing and Exploding Signals, Xavier and He Initialization}
 
 Before running any optimisation algorithm, two practical steps have a large effect on whether training succeeds: normalising the inputs and initialising the weights carefully. Both affect the geometry of the loss landscape and the behaviour of gradients from the very first step.
 
-\subsubsection{Input Normalisation}
+\subsubsection{Input normalisation}
 \label{sec:input_norm}
 
 The shape of the loss surface as a function of the parameters depends on the scale of the input features. To see why, consider a concrete example close to home. Suppose we want to predict the future income of MAI graduates based on two features: $x_1$, their average final grade in the programme (ranging from 1 to 4), and $x_2$, the total number of days they spent in the programme (ranging from 0 to roughly 1500). We fit a linear regression model with MSE loss:
@@ -180,13 +180,13 @@ where $r^{(i)} = \theta_1 x_1^{(i)} + \theta_2 x_2^{(i)} - y^{(i)}$ is the resid
 \begin{wrapfigure}{r}{0.28\textwidth}
 \centering
 \vspace{-1em}
-\resizebox{0.26\textwidth}{!}{\input{\CommonPath/tikz/normalization_ellipse.tex}}
-\resizebox{0.26\textwidth}{!}{\input{\CommonPath/tikz/normalization_circle.tex}}
+\resizebox{0.26\textwidth}{!}{\input{\CommonPath/tikz/normalisation_ellipse.tex}}
+\resizebox{0.26\textwidth}{!}{\input{\CommonPath/tikz/normalisation_circle.tex}}
 \caption{Unnormalised (top) vs normalised (bottom) loss contours.}
-\label{fig:normalization}
+\label{fig:normalisation}
 \end{wrapfigure}
 
-The consequence is that the loss contours are highly elongated ellipses, as shown in Figure~\ref{fig:normalization} (top): the loss is very sensitive in the $\theta_2$ direction and nearly flat in the $\theta_1$ direction. Gradient descent oscillates violently across the steep direction while making negligible progress along the flat one — a classic symptom of an ill-conditioned optimisation problem.
+The consequence is that the loss contours are highly elongated ellipses, as shown in Figure~\ref{fig:normalisation} (top): the loss is very sensitive in the $\theta_2$ direction and nearly flat in the $\theta_1$ direction. Gradient descent oscillates violently across the steep direction while making negligible progress along the flat one — a classic symptom of an ill-conditioned optimisation problem.
 
 To see what this means in practice, consider what happens during training without normalisation. The gradient with respect to $\theta_2$ is large, so the update $\pvec \leftarrow \pvec - \eta\,\nabla_{\pvec}\loss$ makes a large step in the $\theta_2$ direction. If $\eta$ is chosen to make reasonable progress along $\theta_2$, the step in the $\theta_1$ direction is tiny — because the gradient there is small. The optimiser effectively ignores $\theta_1$ for many iterations. Conversely, if $\eta$ is increased to make progress on $\theta_1$, the step in $\theta_2$ overshoots, causing the iterates to bounce back and forth across the valley without descending into it. There is no single learning rate that works well for both parameters simultaneously. In the worst case, training diverges: the overshoot in the $\theta_2$ direction grows with each step, and the loss increases rather than decreasing. In the best case, training is simply very slow — the optimiser creeps along in the flat $\theta_1$ direction while wasting most of its steps oscillating across $\theta_2$. Both pathologies become dramatically worse as the number of features grows and their scales become more varied.
 
@@ -200,7 +200,7 @@ The standard fix is \textbf{z-score normalisation}, applied feature-wise before 
     \quad
     \sigma_j = \sqrt{\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} (x_j^{(i)} - \mu_j)^2}.
 \end{equation}
-After normalisation, the grade and duration features both have zero mean and unit variance. The optimiser now sees both on equal footing: a unit change in $\tilde{x}_1$ has the same scale as a unit change in $\tilde{x}_2$, and both gradients are of similar magnitude. The loss contours become approximately circular (Figure~\ref{fig:normalization}, bottom), and gradient descent converges much faster.
+After normalisation, the grade and duration features both have zero mean and unit variance. The optimiser now sees both on equal footing: a unit change in $\tilde{x}_1$ has the same scale as a unit change in $\tilde{x}_2$, and both gradients are of similar magnitude. The loss contours become approximately circular (Figure~\ref{fig:normalisation}, bottom), and gradient descent converges much faster.
 
 A critical implementation detail: $\mu_j$ and $\sigma_j$ must be computed on the \textbf{training set only} and then applied identically to validation and test sets. Computing statistics on the full dataset would leak information about the test distribution into preprocessing — a subtle but consequential data leakage error.
 

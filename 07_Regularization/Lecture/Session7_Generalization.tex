@@ -707,12 +707,15 @@ No change to model or loss function - all ingredients already in the training lo
 \vskip 0.5em
 
 \[
-    \hat{h}_j = \frac{h_j - \mu_{\mathcal{B}}}{\sqrt{\sigma^2_{\mathcal{B}} + \epsilon}}
+    \hat{h}_j^{(i)} = \frac{h_j^{(i)} - \mu_j}{\sqrt{\sigma^2_j + \epsilon}},
     \qquad
-    \tilde{h}_j = \gamma \hat{h}_j + \beta
+    \tilde{h}_j^{(i)} = \gamma_j \hat{h}_j^{(i)} + \beta_j, 
+    \qquad
+    \mu_j = \frac{1}{|\mathcal{B}|}\sum_{i \in \mathcal{B}} h_j^{(i)}, \quad 
+    \sigma^2_j = \frac{1}{|\mathcal{B}|}\sum_{i \in \mathcal{B}} (h_j^{(i)} - \mu_j)^2
 \]
 
-$\mu_{\mathcal{B}}, \sigma^2_{\mathcal{B}}$ - mini-batch mean and variance \quad $\gamma, \beta$ - learnable scale and shift
+$\mu_j, \sigma^2_j$ - mean \& var of feature $j$ across batch $\mathcal{B}$; \, $\gamma_j, \beta_j$ - learned per-feature scale \& shift
 
 \vskip 1em
 
@@ -742,6 +745,69 @@ $\mu_{\mathcal{B}}, \sigma^2_{\mathcal{B}}$ - mini-batch mean and variance \quad
 \vskip 0.5em
 
 \structure{Side effect:} mini-batch noise introduces mild regularisation - but not main motivation
+
+\end{frame}
+
+\begin{frame}{Batch Norm and Dropout}
+
+\vskip 2em
+
+\structure{Problem:} batch norm and dropout interact badly - \textbf{variance shift}
+
+\vskip 0.5em
+
+During training, dropout reduces activation variance - running stats reflect this. At test time, dropout disabled - variance higher, running stats wrong $\Rightarrow$ wrong normalisation.
+
+\vskip 1em
+
+\structure{Practical options:}
+\begin{itemize}
+    \item \structure{Batch norm only} - sufficient in many cases, standard in CNNs
+    \item \structure{Dropout only} - effective in MLPs, no interaction problems
+    \item \structure{Both} - dropout \emph{after} batch norm; use with care
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Layer Normalisation}
+
+\vskip 2em
+
+\structure{Idea:} normalise across features per example - not across batch
+
+\vskip 0.5em
+
+\begin{itemize}
+    \item Statistics computed per example independently - no running statistics needed
+    \item Identical behaviour in \texttt{model.train()} and \texttt{model.eval()}
+    \item Combines cleanly with dropout - no variance shift problem
+\end{itemize}
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Standard in:}
+\begin{itemize}
+    \item Transformers and sequence models
+    \item MLPs when combined with dropout
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Other normalisations:}
+\begin{itemize}
+    \item \textbf{Group norm} - groups of channels
+    \item \textbf{RMS norm} - no mean subtraction
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\structure{Practical guidance:} batch norm for CNNs - layer norm + dropout for MLPs and sequence models
 
 \end{frame}
 
