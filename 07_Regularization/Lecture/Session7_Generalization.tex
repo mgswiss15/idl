@@ -642,40 +642,6 @@ No change to model or loss function - all ingredients already in the training lo
 
 
 % -
-
-\begin{frame}{Randomness as Regularisation}
-
-\vskip 2em
-
-\structure{A recurring theme:} many effective regularisation techniques inject randomness
-
-\vskip 1em
-
-\begin{center}
-\begin{tabular}{lll}
-\toprule
-\textbf{Technique} & \textbf{Source of randomness} & \textbf{Type} \\
-\midrule
-Weight decay & - & explicit, deterministic \\
-Mini-batch SGD & random batch selection & implicit \\
-Dropout & random neuron masking & explicit \\
-Data augmentation & random transformations & explicit \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\vskip 1.5em
-
-\structure{Mini-batch SGD as implicit regularisation:}
-\begin{itemize}
-    \item No change to the loss function
-    \item Gradient noise prevents convergence to sharp minima
-    \item Flat minima found for free - at no extra cost
-\end{itemize}
-
-\end{frame}
-
-% -
 \section{Training Stability}
 % -
 
@@ -703,8 +669,8 @@ Data augmentation & random transformations & explicit \\
 
 \begin{itemize}
     \item \structure{Internal covariate shift} - activation distributions shift as parameters update
-    \item \structure{Dying ReLU} - neurons get stuck outputting zero permanently
     \item \structure{Vanishing/exploding grads} - signals decay or amplify exponentially through layers
+    \item \structure{Dying ReLU} - neurons get stuck outputting zero permanently
 \end{itemize}
 
 \vskip 2em
@@ -765,14 +731,14 @@ $\mu_{\mathcal{B}}, \sigma^2_{\mathcal{B}}$ - mini-batch mean and variance \quad
 \begin{column}{0.46\textwidth}
 \structure{\texttt{model.train():}}
 \begin{itemize}
-    \item Normalise using mini-batch statistics
-    \item Accumulate running mean and variance
+    \item Normalise using mini-batch stats
+    \item Accumulate running mean and var
 \end{itemize}
 \end{column}
 \begin{column}{0.46\textwidth}
 \structure{\texttt{model.eval():}}
 \begin{itemize}
-    \item Normalise using running statistics
+    \item Normalise using running stats
     \item Deterministic - no batch dependence
 \end{itemize}
 \end{column}
@@ -786,36 +752,7 @@ $\mu_{\mathcal{B}}, \sigma^2_{\mathcal{B}}$ - mini-batch mean and variance \quad
 
 \vskip 0.5em
 
-\structure{Side effect:} mini-batch noise introduces mild regularisation - but this is not the main motivation
-
-\end{frame}
-
-\begin{frame}{Dying ReLU}
-
-\vskip 2em
-
-\structure{Problem:} ReLU outputs zero for all negative pre-activations
-
-\vskip 0.5em
-
-If pre-activation $z < 0$ for all inputs $\Rightarrow$ output always zero $\Rightarrow$ gradient always zero $\Rightarrow$ weights never update - neuron permanently dead
-
-\vskip 1em
-
-\structure{In practice - less catastrophic than it sounds:}
-\begin{itemize}
-    \item He initialisation keeps pre-activations in a healthy range initially
-    \item Network compensates - surviving neurons carry the load
-    \item ReLU remains the \textbf{recommended baseline} - simple, cheap, works well
-\end{itemize}
-
-\vskip 1em
-
-\structure{Fixes when it is a problem:}
-\begin{itemize}
-    \item \textbf{LeakyReLU} - small negative slope $\alpha$: $a = \max(\alpha z,\, z)$, $\alpha \ll 1$
-    \item \textbf{ELU} - smooth exponential negative region, avoids hard zero
-\end{itemize}
+\structure{Side effect:} mini-batch noise introduces mild regularisation - but not main motivation
 
 \end{frame}
 
@@ -823,7 +760,7 @@ If pre-activation $z < 0$ for all inputs $\Rightarrow$ output always zero $\Righ
 
 \vskip 2em
 
-\structure{Problem:} backprop multiplies Jacobians across layers - products grow or shrink exponentially
+\structure{Backprop multiplies Jacobians backwards} - effect compounds, earliest layers affected most
 
 \[
     \frac{\partial \loss}{\partial \pvec^{(1)}} =
@@ -834,21 +771,22 @@ If pre-activation $z < 0$ for all inputs $\Rightarrow$ output always zero $\Righ
     \cdot \frac{\partial \vh^{(1)}}{\partial \pvec^{(1)}}
 \]
 
-\vskip 0.5em
+
+\vskip 2em
 
 \begin{columns}[t]
 \begin{column}{0.46\textwidth}
 \structure{Vanishing} (factors $< 1$)
 \begin{itemize}
-    \item Gradient $\to 0$ in early layers
+    \item Gradient $\to 0$ at earliest layers
     \item Early layers stop learning
-    \item Deep network effectively becomes shallow
+    \item Deep NNs effectively shallow
 \end{itemize}
 \end{column}
 \begin{column}{0.46\textwidth}
 \structure{Exploding} (factors $> 1$)
 \begin{itemize}
-    \item Gradient $\to \infty$ in early layers
+    \item Gradient $\to \infty$ at earliest layers
     \item Single large step destroys weights
     \item Training diverges
 \end{itemize}
@@ -857,16 +795,154 @@ If pre-activation $z < 0$ for all inputs $\Rightarrow$ output always zero $\Righ
 \end{column}
 \end{columns}
 
-\vskip 1em
+\vskip 2em
 
-\structure{Solutions:}
+\structure{Solutions:} Xavier/He init (Session 5); batch norm; gradient clipping (RNN, Transformers)
+
+\end{frame}
+
+\begin{frame}{Dying ReLU}
+
+\vskip 2em
+
+\alert{\textbf{Alarm:}} ReLU has zero gradient for all negative pre-activations - \alert{\textbf{half the input space}}
+
+\[
+    \frac{\partial \, \text{ReLU}(z)}{\partial z} = \begin{cases} 1 & z > 0 \\ 0 & z \leq 0 \end{cases}
+\]
+
+
+\vskip 2em
+
+\structure{Relief:} neuron dies if pre-activation negative for \alert{\textbf{all}} training examples \alert{\textbf{simultaneously}}
 \begin{itemize}
-    \item Xavier/He initialisation - covered in Session 5
-    \item Batch normalisation - stabilises forward pass, helps backward pass
-    \item Gradient clipping - cap gradient norm at threshold $\tau$ before update
+    \item Pre-activations vary across examples - some positive, some negative
+    \item Average gradient is nonzero - diversity in data saves us
+    \item \textbf{ReLU remains solid baseline}
 \end{itemize}
 
 \end{frame}
 
+\begin{frame}{Activation Functions}
+
+\vskip 2em
+
+\structure{Active research area:} many alternatives handle the negative region differently
+
+\vskip 1em
+
+\begin{columns}[c]
+\begin{column}{0.5\textwidth}
+\centering
+\input{\CommonPath/tikz/activation_functions.tex}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item \textbf{LeakyReLU} - small negative slope $\alpha$
+    \item \textbf{ELU} - smooth exponential region
+    \item \textbf{GELU, Swish, Mish} - smooth, used in modern architectures
+\end{itemize}
+
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\centering
+\vskip 2em
+
+No universal winner - \textbf{ReLU and LeakyReLU} cover most practical needs
+
+\end{frame}
+
+% -
+\section{Summary}
+% -
+
+\begin{frame}{}
+
+\vskip 8em
+
+\begin{center}
+{\Large \structure{Summary}}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Embracing Randomness}
+
+\vskip 2em
+
+\structure{Randomness pervasive in deep learning training - not a nuisance but a feature}
+
+\vskip 1em
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Source} & \textbf{Where} & \textbf{Effect} \\
+\midrule
+Weight initialisation & start of training & which minimum is found \\
+Data shuffling & each epoch & different batches, prevents order memorisation \\
+Mini-batch SGD & every update step & implicit regularisation, flat minima \\
+Dropout & forward pass & ensemble effect, prevents co-adaptation \\
+Data augmentation & data loading & invariance, population coverage \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vskip 1.5em
+
+\begin{center}
+Embracing randomness rather than eliminating it is part of what makes deep networks generalise well
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Summary}
+
+\vskip 2em
+
+\begin{columns}[t]
+\begin{column}{0.48\textwidth}
+\structure{Generalisation:}
+\begin{itemize}
+    \item True goal - low loss on population
+    \item Generalisation gap - monitor via validation loss
+    \item Deep NNs generalise surprisingly well - flat minima, double descent
+\end{itemize}
+
+\vskip 1em
+
+\structure{Regularisation:}
+\begin{itemize}
+    \item Weight decay - explicit penalty
+    \item Dropout - random subnetworks
+    \item Early stopping - cut training time
+    \item Data augmentation - most powerful
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\structure{Training stability:}
+\begin{itemize}
+    \item Batch norm - stable activation distribs
+    \item Gradient clipping - stop exploding grads
+    \item LeakyReLU / ELU - avoid dying ReLU
+\end{itemize}
+
+\vskip 1em
+
+\structure{In PyTorch:}
+\begin{itemize}
+    \item \texttt{nn.Dropout(p)}
+    \item \texttt{nn.BatchNorm1d}
+    \item \texttt{weight\_decay} in \texttt{torch.optim}
+    \item \texttt{model.train()} / \texttt{model.eval()}
+\end{itemize}
+\end{column}
+\end{columns}
+
+
+\end{frame}
 
 \end{document}
