@@ -204,7 +204,7 @@ After normalisation, the grade and duration features both have zero mean and uni
 
 A critical implementation detail: $\mu_j$ and $\sigma_j$ must be computed on the \textbf{training set only} and then applied identically to validation and test sets. Computing statistics on the full dataset would leak information about the test distribution into preprocessing — a subtle but consequential data leakage error.
 
-\subsubsection{Weight Initialisation}
+\subsubsection{Weight Initialisation}\label{sec:initialization}
 
 The choice of initial weights affects optimisation just as much as the loss landscape geometry. We already saw in Section~\ref{sec:gd_landscape} and Figure~\ref{fig:gd_descent_steps} that two trajectories starting from nearby but distinct points can converge to entirely different minima. The initialisation therefore determines not only how fast training proceeds, but which region of the loss landscape is explored and what solution is ultimately found. There are two distinct failure modes to avoid.
 
