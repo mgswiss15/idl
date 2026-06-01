@@ -872,6 +872,7 @@ During training, dropout reduces activation variance - running stats reflect thi
 \structure{Relief:} neuron dies if pre-activation negative for \alert{\textbf{all}} training examples \alert{\textbf{simultaneously}}
 \begin{itemize}
     \item Pre-activations vary across examples - some positive, some negative
+    \item Batchnorm helps by balancing around zero
     \item Average gradient is nonzero - diversity in data saves us
     \item \textbf{ReLU remains solid baseline}
 \end{itemize}
