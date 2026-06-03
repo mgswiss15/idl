@@ -272,8 +272,6 @@ where $\mu^{(i)}$ and $\sigma^{2(i)}$ are the mean and variance computed across 
 
 Batch norm and layer norm are two points in a larger design space of normalisation techniques. \textbf{Group norm} normalises across groups of channels per example and is useful when batch sizes are small. \textbf{RMS norm} is a simplified layer norm without mean subtraction, used in modern large language models such as LLaMA. The field has not settled on a single winner - the right choice depends on the architecture, batch size, and task.
 
-
-
 \subsubsection{Vanishing and Exploding Gradients}
 
 The second major training instability arises during backpropagation. The gradient of the loss with respect to the parameters of the first layer involves a product of Jacobians across all layers:
@@ -299,18 +297,44 @@ The third instability is the \textbf{dying ReLU} problem. The ReLU activation fu
 \end{equation}
 This sounds alarming: ReLU has zero gradient for half the input space. In a deep network, the vanishing gradient problem would seem to be inevitable.
 
-In practice, the dying ReLU problem is less severe than it first appears. A neuron dies only if its pre-activation is negative for \emph{all} training examples simultaneously. In a diverse dataset, pre-activations vary across examples - some positive, some negative - and the average gradient over a mini-batch is nonzero. The diversity of the training data saves us. Moreover, He initialisation is specifically designed to keep pre-activations in a healthy range initially, further reducing the risk. ReLU remains the recommended baseline activation function: it is simple, computationally cheap, and works well in practice.
+In practice, the dying ReLU problem is less severe than it first appears. A neuron dies only if its pre-activation is negative for \emph{all} training examples simultaneously - in a diverse dataset, pre-activations vary across examples and the average gradient over a mini-batch is nonzero. He initialisation further reduces the risk by keeping pre-activations in a healthy range at the start of training. Batch normalisation helps too: by keeping the pre-activation distribution centred at zero throughout training, it prevents the drift toward predominantly negative values that would increase the risk of neurons dying. It also guarantees that approximately half the pre-activations remain positive at all times - and for sufficiently wide networks, this is always enough active neurons to represent the necessary functions. ReLU therefore remains the recommended baseline: simple, computationally cheap, and well-protected by the standard training recipe of He initialisation and batch normalisation.
+\begin{wrapfigure}{r}{0.38\textwidth}
+\centering
+\resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/activation_functions.tex}}
+\caption{ReLU, LeakyReLU ($\alpha=0.1$), and ELU. LeakyReLU introduces a small negative slope; ELU uses a smooth exponential curve. Both maintain a nonzero gradient for negative pre-activations.}
+\label{fig:activation_functions}
+\end{wrapfigure}
 
 When dying ReLU does become a problem, the fix is to use an activation function that has a nonzero gradient for negative inputs. \textbf{Leaky ReLU} introduces a small negative slope $\alpha$:
 \begin{equation}
     \text{LeakyReLU}(z) = \max(\alpha z,\, z), \quad \alpha \ll 1.
 \end{equation}
-\textbf{ELU} (Exponential Linear Unit) uses a smooth exponential curve for negative inputs, avoiding the hard zero entirely. More recent activations - \textbf{GELU}, \textbf{Swish}, and \textbf{Mish} - are smooth, differentiable everywhere, and are used in modern architectures such as Transformers. There is no universal winner; ReLU and Leaky ReLU cover most practical needs for the feedforward networks considered in this course.
+\textbf{ELU} (Exponential Linear Unit) uses a smooth exponential curve for negative inputs, avoiding the hard zero entirely. More recent activations - \textbf{GELU}, \textbf{Swish}, and \textbf{Mish} - are smooth, differentiable everywhere, and are used in modern architectures such as transformers. There is no universal winner; ReLU and LeakyReLU cover most practical needs for the feedforward networks considered in this course.
+
 
 % - - - - - - - - - - - - - - - - - --
 \subsection{Embracing Randomness}
 \slideref{Session 7: Embracing Randomness, Summary}
 
-A recurring pattern throughout this lecture is that randomness is not merely a technical nuisance to be eliminated but a fundamental feature of deep learning training that contributes to generalisation. Weight initialisation is random - it determines which region of the loss landscape is explored. Data shuffling at the start of each epoch introduces randomness into the batch composition, preventing the model from memorising the order of examples. Mini-batch SGD introduces noise into the gradient estimates, which implicitly regularises by favouring flat minima. Dropout intentionally injects randomness into the forward pass, producing an ensemble effect. Data augmentation applies random transformations to training examples, expanding coverage of the population distribution.
+A recurring observation throughout this lecture is that randomness appears at every stage of deep learning training - not as a nuisance to be eliminated but as a deliberate feature that contributes to generalisation. Table~\ref{tab:randomness} summarises the main sources of randomness and their effects.
 
-This perspective inverts the usual framing. Rather than asking how to reduce randomness and achieve more deterministic training, the question becomes: how can we design the right kinds of randomness to improve generalisation? The techniques in this lecture - from the implicit noise of mini-batch SGD to the explicit masking of dropout to the domain-informed transformations of augmentation - are all answers to this question.
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Source} & \textbf{Where} & \textbf{Effect} \\
+\midrule
+Weight initialisation & start of training & which minimum is found \\
+Data shuffling & each epoch & different batches, prevents order memorisation \\
+Mini-batch SGD & every update step & implicit regularisation, flat minima \\
+Dropout & forward pass & ensemble effect, prevents co-adaptation \\
+Data augmentation & data loading & invariance, population coverage \\
+\bottomrule
+\end{tabular}
+\caption{Sources of randomness in deep learning training and their effects on generalisation.}
+\label{tab:randomness}
+\end{table}
+
+What is striking is that none of these are accidents. Each reflects a deliberate design choice that the field has converged on precisely because it improves generalisation. Weight initialisation is random to break symmetry and explore different regions of the loss landscape. Shuffling is random to prevent the model from exploiting the order of examples. Mini-batch SGD is stochastic by design - full-batch gradient descent is available but rarely used, because the noise from mini-batching implicitly regularises. Dropout injects noise into the forward pass deliberately. Data augmentation applies random transformations by choice.
+
+The deeper insight is that the right question is not how to make training more deterministic, but how to design the right kinds of randomness. This theme extends well beyond the techniques covered in this lecture. More advanced methods in representation learning, generative modelling, and self-supervised learning return to randomness again and again - as a source of supervision, as a form of regularisation, or as the fundamental mechanism by which a model learns to represent uncertainty. Embracing randomness, rather than treating it as an obstacle, is one of the defining characteristics of modern deep learning.
