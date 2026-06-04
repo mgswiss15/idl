@@ -13,7 +13,7 @@ class ResBlock(nn.Module):
             out_channels = channels * 2
             stride = 2
             self.shortcut = nn.Sequential(
-                nn.Conv2d(channels, out_channels, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(channels, out_channels, kernel_size=1, stride=1, bias=False),
                 nn.BatchNorm2d(out_channels)
             )
         self.conv1 = nn.Conv2d(channels, out_channels, kernel_size=3, padding=1, stride=stride, bias=False)
@@ -33,9 +33,8 @@ class ResBlock(nn.Module):
 
 class ResNet(nn.Module):
     def __init__(self, in_channels, num_classes):
-        super().__init__()
         
-        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=3, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(num_features=32)
         self.relu = nn.ReLU(inplace=True)
 
