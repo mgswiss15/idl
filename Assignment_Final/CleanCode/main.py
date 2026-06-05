@@ -1,0 +1,29 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from data import get_pathmnist_loaders
+from model import ResNet
+from train import Trainer
+
+def main():   
+    NUM_CLASSES = 9
+    CHANNELS = 3
+    BATCH_SIZE = 128
+    LEARNING_RATE = 0.001
+    EPOCHS = 5  # Set to 5 epochs for a quick verification run
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = "cpu"
+    print(f"Training executing on device: {device}")
+
+    train_loader, val_loader, _ = get_pathmnist_loaders(batch_size=BATCH_SIZE)
+
+    model = ResNet(in_channels=CHANNELS, num_classes=NUM_CLASSES).to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+
+    trainer = Trainer(model, criterion, optimizer, device)
+    trainer.fit(train_loader, val_loader, epochs=EPOCHS)
+
+if __name__ == "__main__":
+    main()

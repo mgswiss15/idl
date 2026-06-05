@@ -33,8 +33,7 @@ class ResBlock(nn.Module):
 
 class ResNet(nn.Module):
     def __init__(self, in_channels, num_classes):
-        super().__init__()
-        
+        super().__init__()      
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(num_features=32)
         self.relu = nn.ReLU(inplace=True)
@@ -47,10 +46,8 @@ class ResNet(nn.Module):
 
     def forward(self, x):
         x = self.relu(self.bn1(self.conv1(x)))
-
         x = self.resblock1(x)
         x = self.resblock2(x)
-
         x = self.avgpool(x).flatten(1)
         x = self.fc(x)
         return x
