@@ -10,10 +10,9 @@ def main():
     CHANNELS = 3
     BATCH_SIZE = 128
     LEARNING_RATE = 0.001
-    EPOCHS = 5  # Set to 5 epochs for a quick verification run
+    EPOCHS = 5
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = "cpu"
     print(f"Training executing on device: {device}")
 
     train_loader, val_loader, _ = get_pathmnist_loaders(batch_size=BATCH_SIZE)
