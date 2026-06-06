@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch
 import torch.nn as nn
 
-activation = nn.Identity()  # Placeholder for activation function, can be replaced with nn.ReLU(inplace=True) or others as needed.
+activation_str = "Identity"  # Placeholder for activation function, can be replaced with "ReLU" or others as needed.
 
 
 class VGGBlock(nn.Module):
