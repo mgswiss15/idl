@@ -2,9 +2,11 @@
 Workings for MAI/IDL - prepare the PathMNIST dataset for student use by downloading, transforming, and saving it in a single .pt file.
 
 Usage: Fast and dirty solution without any flexibility. 
-Used for these two datasets:
-1. medmnist.PathMNIST (RGB, 9 classes) to getnerate 'histology_data.pt'
-2. medmnist.TissueMNIST (Grayscale, 9 classes) to generate 'dapi_data.pt' - see here for description and reason for DAPI name: https://bbbc.broadinstitute.org/BBBC051
+Original description of datasets - https://arxiv.org/pdf/2110.14795
+Used for these three datasets:
+1. dataset_name="PathMNIST", output_name='histology' (RGB, 9 classes)
+2. dataset_name="TissueMNIST", output_name='dapi' (Grayscale, 8 classes) - https://bbbc.broadinstitute.org/BBBC051
+3. dataset_name="OCTMNIST", output_name='liver' (Grayscale, 4 classes) - https://pubmed.ncbi.nlm.nih.gov/36481607/
 
 MG 6/6/2026
 """
@@ -13,11 +15,12 @@ import torch.nn as nn
 import medmnist
 from torchvision import transforms
 
-def generate_student_dataset():
+def generate_student_dataset(dataset_name="OCTMNIST", output_name='liver'):
     # 1. Download/Load raw data
-    train_dataset = medmnist.TissueMNIST(split='train', download=True, root='../data')
-    val_dataset = medmnist.TissueMNIST(split='val', download=True, root='../data')
-    test_dataset = medmnist.TissueMNIST(split='test', download=True, root='../data')
+    dataset_class = getattr(medmnist, dataset_name)
+    train_dataset = dataset_class(split='train', download=True, root='../data')
+    val_dataset = dataset_class(split='val', download=True, root='../data')
+    test_dataset = dataset_class(split='test', download=True, root='../data')
     
     # 2. Transform to tensors and normalize right away
     # This turns images into float tensors of shape (3, 28, 28) with values ~ [-1.0, 1.0]
@@ -49,8 +52,8 @@ def generate_student_dataset():
         'test_labels': test_lbls
     }
     
-    torch.save(payload, '../data/dapi_data.pt')
-    print("File 'dapi_data.pt' successfully created and ready for distribution!")
+    torch.save(payload, '../data/'+output_name+'_data.pt')
+    print("File successfully created and ready for distribution!")
 
 if __name__ == "__main__":
     generate_student_dataset()

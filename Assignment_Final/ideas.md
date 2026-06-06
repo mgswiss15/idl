@@ -12,7 +12,13 @@
 - fix number of channels to 3 - will break for dapi
 - no longer have the config file
 - dapi works without normalization but histology completely breaks - needs to be introduced in get_loaders
-- overwrite basic function such as sum by a vriable name
+- request confusion matrix to spot the missing class problem
+- overwrite basic function such as sum by a vriable name?
 
 
-##
+## List of corrupts
+1. Missing config file
+2. Missing normalization in get_loaders - will work for dapi, but histology very bad performance
+3. in_channels=3 and num_classes=9 as default in class ResNet
+4. drop in_channels and num_classes args from ResNet instatiation in main
+5. 
