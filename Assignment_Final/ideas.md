@@ -31,3 +31,4 @@ Operational Directive: If your per-class breakdown reveals any unaligned categor
 4. drop in_channels and num_classes args from ResNet instatiation in main
 5. sum as variable in Trainer
 6. droped labels = labels.squeeze().long() from Trainer
+7. drop zero_out gradients

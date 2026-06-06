@@ -1,0 +1,59 @@
+import json
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from data import get_loaders
+from model import ResNet
+
+@torch.no_grad()
+def main():
+    with open("config.json", "r") as f:
+        config = json.load(f)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Running Unbiased Production Audit on: {device}")
+
+    # 1. Isolate the Test Stream (ignoring train/val entirely)
+    _, _, test_loader = get_loaders(data=config["DATA"], data_path=config["DATA_PATH"], batch_size=config["BATCH_SIZE"])
+
+    # 2. Instantiate a fresh, untrained network skeleton
+    model = ResNet(
+        in_channels=config["CHANNELS"], 
+        num_classes=config["NUM_CLASSES"]
+    ).to(device)
+
+    model_weights_path = "../checkpoints/"+config['DATA']+"_model.pth"
+    model.load_state_dict(torch.load(model_weights_path, map_location=device))
+    print(f"Successfully loaded {model_weights_path} weights.")
+
+    model.eval()
+    all_preds = []
+    all_targets = []
+
+    for images, labels in test_loader:
+        images = images.to(device)
+        outputs = model(images)
+        preds = torch.argmax(outputs, dim=1)
+        
+        all_preds.extend(preds.cpu().numpy())
+        all_targets.extend(labels.view(-1).cpu().numpy())
+
+    target_names = [f"Class {i}" for i in range(config["NUM_CLASSES"])]
+    
+    print("\n --- FINAL COMPLIANCE REPORT --- ")
+    print(classification_report(all_targets, all_preds, target_names=target_names, zero_division=0))
+
+    # 6. Plot Confusion Matrix
+    cm = confusion_matrix(all_targets, all_preds, labels=list(range(config["NUM_CLASSES"])))
+    fig, ax = plt.subplots(figsize=(8, 6))
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=target_names)
+    disp.plot(cmap=plt.cm.Blues, ax=ax, xticks_rotation='vertical')
+    
+    plt.title(f"Deployment Confusion Matrix (Classes: {config['NUM_CLASSES']})")
+    plt.tight_layout()
+    plt.savefig(config["DATA"]+"confusion.png", dpi=300)
+    print(f"Analysis visualization saved as {config["DATA"]}confusion.png\n")
+
+if __name__ == "__main__":
+    main()
