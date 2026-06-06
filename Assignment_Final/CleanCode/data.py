@@ -1,8 +1,10 @@
 import torch
+from pathlib import Path
 from torch.utils.data import TensorDataset, DataLoader
 
-def get_loaders(pt_path='../data/histology_data.pt', batch_size=128):
-    data_dict = torch.load(pt_path)
+def get_loaders(data, data_path, batch_size):
+    d_path = Path(data_path) / f"{data}_data.pt"
+    data_dict = torch.load(d_path)
     
     train_dataset = TensorDataset(data_dict['train_images'], data_dict['train_labels'])
     val_dataset = TensorDataset(data_dict['val_images'], data_dict['val_labels'])
