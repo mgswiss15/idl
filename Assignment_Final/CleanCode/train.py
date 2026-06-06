@@ -22,13 +22,14 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=config["LEARNING_RATE"])
 
     trainer = Trainer(model, criterion, optimizer, device)
-    trainer.fit(train_loader, val_loader, epochs=config["EPOCHS"])
+    train_loss, train_acc, val_loss, val_acc = trainer.fit(train_loader, val_loader, epochs=config["EPOCHS"])
 
     # Save the trained weights to a file artifact
     model_weights_path = "../checkpoints/"+config['DATA']+"_model.pth"
     torch.save(model.state_dict(), model_weights_path)
     print(f"Training complete. Weights safely exported to '{model_weights_path}'")
 
+    return train_loss, train_acc, val_loss, val_acc
 
 if __name__ == "__main__":
     main()

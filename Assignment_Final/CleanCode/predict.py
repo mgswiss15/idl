@@ -43,7 +43,8 @@ def main():
     target_names = [f"Class {i}" for i in range(config["NUM_CLASSES"])]
     
     print("\n --- FINAL COMPLIANCE REPORT --- ")
-    print(classification_report(all_targets, all_preds, target_names=target_names, zero_division=0))
+    report_dict = classification_report(all_targets, all_preds, target_names=target_names, zero_division=0, output_dict=True)
+    print(report_dict)
 
     # 6. Plot Confusion Matrix
     cm = confusion_matrix(all_targets, all_preds, labels=list(range(config["NUM_CLASSES"])))
@@ -55,6 +56,8 @@ def main():
     plt.tight_layout()
     plt.savefig(config["DATA"]+"confusion.png", dpi=300)
     print(f"Analysis visualization saved as {config["DATA"]}confusion.png\n")
+
+    return report_dict
 
 if __name__ == "__main__":
     main()

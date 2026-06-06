@@ -64,3 +64,4 @@ class Trainer:
         
         print("-" * 50)
         print("Training Complete!")
+        return train_loss, train_acc, val_loss, val_acc
