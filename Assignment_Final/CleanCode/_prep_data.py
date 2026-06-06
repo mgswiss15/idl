@@ -20,7 +20,7 @@ import torch.nn as nn
 import medmnist
 from torchvision import transforms
 
-def generate_student_dataset(dataset_name="PneumoniaMNIST", output_name='chest', size=64):
+def generate_student_dataset(dataset_name="OrganCMNIST", output_name='orgs', size=64):
     # 1. Download/Load raw data
     dataset_class = getattr(medmnist, dataset_name)
     train_dataset = dataset_class(split='train', download=True, size=size, root='../data')
@@ -58,7 +58,7 @@ def generate_student_dataset(dataset_name="PneumoniaMNIST", output_name='chest',
         'test_labels': test_lbls
     }
     
-    torch.save(payload, '../data/'+output_name+'_'+str(size)+'.pt')
+    torch.save(payload, '../data/'+output_name+'.pt')
     print("File successfully created and ready for distribution!")
 
 

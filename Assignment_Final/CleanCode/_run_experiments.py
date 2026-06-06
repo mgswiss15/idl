@@ -9,13 +9,14 @@ from predict import main as run_prediction
 def main():
     # 1. Define the experimental matrix you want to benchmark
     target_datasets = {
-        "orgs_64": {"CHANNELS": 1, "NUM_CLASSES": 11},
-        "cells_64":   {"CHANNELS": 3, "NUM_CLASSES": 8},
-        "chest_64":    {"CHANNELS": 1, "NUM_CLASSES": 2},
-        "lesions_64":    {"CHANNELS": 3, "NUM_CLASSES": 7},
+        "orgs": {"CHANNELS": 1, "NUM_CLASSES": 11},
+        "cells":   {"CHANNELS": 3, "NUM_CLASSES": 8},
+        "chest":    {"CHANNELS": 1, "NUM_CLASSES": 2},
+        "lesions":    {"CHANNELS": 3, "NUM_CLASSES": 7},
     }
     
-    target_models = ["AlexNet", "VGG16", "ResNet18"]
+    # target_models = ["AlexNet", "VGG16", "ResNet18"]
+    target_models = ["AlexNetMini", "ResNet6"]
     
     # 2. Set up base hyperparameters
     base_config = {

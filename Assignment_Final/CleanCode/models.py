@@ -203,7 +203,7 @@ class ResNet6(nn.Module):
         )
         
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.classifier = nn.Linear(512, num_classes)
+        self.classifier = nn.Linear(64, num_classes)
 
     def forward(self, x):
         out = self.activation(self.bn1(self.conv1(x)))
@@ -213,7 +213,7 @@ class ResNet6(nn.Module):
         return self.classifier(out)
     
 
-    class AlexNetMini(nn.Module):
+class AlexNetMini(nn.Module):
     """AlexNet (Krizhevsky et al., 2012) adapted for smaller inputs."""
     def __init__(self, in_channels, num_classes, **kwargs):
         super().__init__()
@@ -239,7 +239,7 @@ class ResNet6(nn.Module):
         
         self.classifier = nn.Sequential(
             nn.Dropout(p=drop_rate),
-            nn.Linear(1024, 512),
+            nn.Linear(2048, 512),
             nn.ReLU(inplace=True),
             nn.Dropout(p=drop_rate),
             nn.Linear(512, num_classes),

@@ -5,8 +5,8 @@
     "DATA_PATH": "../data/",
     "drop_rate": 0.5,
     "activation": "ReLU",
-    "DATA": "lesions_64",
-    "MODEL": "ResNet",
-    "CHANNELS": 3,
-    "NUM_CLASSES": 7
+    "DATA": "orgs",
+    "MODEL": "AlexNetMini",
+    "CHANNELS": 1,
+    "NUM_CLASSES": 11
 }
