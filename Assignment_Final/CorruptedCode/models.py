@@ -14,18 +14,16 @@ class VGGBlock(nn.Module):
 
     C configuration from Simonyan & Zisserman's VGG paper.
     """
-    def __init__(self, in_channels, out_channels, num_convs):
+    def __init__(self, in_channels, out_channels, num_convs, padding=1):
         super().__init__()
         layers = []
         current_in_channels = in_channels
         for i in range(num_convs):
             is_config_c_tail = (num_convs == 3 and i == 2)
             kernel_size = 1 if is_config_c_tail else 3
-            padding = 0 if is_config_c_tail else 1
             layers.append(nn.Conv2d(current_in_channels, out_channels, kernel_size=kernel_size, padding=padding))
             layers.append(nn.BatchNorm2d(out_channels))
             layers.append(nn.ReLU(inplace=True))
-            current_in_channels = out_channels
             
         layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
         self.block = nn.Sequential(*layers)
@@ -64,13 +62,13 @@ class ResBlock(nn.Module):
 
 class AlexNet(nn.Module):
     """AlexNet (Krizhevsky et al., 2012) adapted for smaller inputs."""
-    def __init__(self, in_channels, num_classes, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__()
 
         drop_rate = kwargs.get("drop_rate", 0.5)
         
         self.features = nn.Sequential(
-            nn.Conv2d(in_channels, 48, kernel_size=7, stride=2, padding=3),
+            nn.Conv2d(3, 48, kernel_size=7, stride=2, padding=3),
             nn.BatchNorm2d(48),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
@@ -91,12 +89,12 @@ class AlexNet(nn.Module):
         
         self.classifier = nn.Sequential(
             nn.Dropout(p=drop_rate),
-            nn.Linear(3072, 1024),
+            nn.Linear(2048, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(p=drop_rate),
             nn.Linear(1024, 1024),
             nn.ReLU(inplace=True),
-            nn.Linear(1024, num_classes),
+            nn.Linear(1024, 11),
         )
 
     def forward(self, x):
@@ -105,8 +103,8 @@ class AlexNet(nn.Module):
         return self.classifier(x)
 
 
-class VGG(nn.Module):
-    """VGG in C configuration of Simonyan & Zisserman, (2014) adapted for smaller inputs."""
+class VGG16(nn.Module):
+    """VGG16 in C configuration of Simonyan & Zisserman, (2014) adapted for smaller inputs."""
     def __init__(self, in_channels, num_classes, **kwargs):
         super().__init__()
 
@@ -121,11 +119,13 @@ class VGG(nn.Module):
         )
         
         self.classifier = nn.Sequential(
-            nn.Linear(2048, 512),
+            nn.Linear(2048, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(p=drop_rate),
-            nn.Linear(512, num_classes),
-            nn.Softmax(dim=1)
+            nn.Linear(1024, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=drop_rate),
+            nn.Linear(512, num_classes)
         )
 
     def forward(self, x):
@@ -142,7 +142,6 @@ class ResNet(nn.Module):
     def __init__(self, in_channels, num_classes, **kwargs):
         super().__init__()
 
-        activation_str = kwargs.get("activation", "ReLU")
         activation = getattr(nn, activation_str)
 
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
