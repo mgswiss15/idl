@@ -19,13 +19,12 @@
     \LARGE \bfseries Assignment Dossier: Operation Cyber-Histology \\
     \vspace{0.2cm}
     \large \fontfamily{cmtt}\selectfont Post-Incident Engineering and Pipeline Reconstruction \\
-    \vspace{0.5cm}
-    \hrule height 1pt
 \end{center}
+\hrule width \hsize \kern 1mm \hrule width \hsize height 2pt 
 
 \vspace{0.3cm}
 
-\noindent \textbf{RESTRICTED // FOR SYSTEM ARCHITECTS ONLY} \\
+\noindent \textbf{RESTRICTED // FOR ML EXPERTS ONLY} \\
 \textbf{To:} Freelance Machine Learning Expert \\
 \textbf{From:} Incident Response Team, BioHealth Diagnostics Global \\
 \textbf{Subject:} Total Pipeline Failure Following Malicious Corporate Espionage \\
@@ -51,7 +50,7 @@ Preliminary execution attempts on the recovered code show that it is highly unst
 \begin{enumerate}[nosep, noitemsep]
     \item \textbf{Complete Corrected Codebase:} A fully functional, production-grade version of the entire repository, including \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}, alongside your newly engineered configuration and testing frameworks. The codebase must be modular, error-free, compatible with all four target datasets, and capable of executing training and predictions for all three models via native Python calls driven by your configuration structure.
     \item \textbf{Incident Audit Log:} A technical table (submitted as \texttt{AUDIT\_LOG.md}) itemizing every bug, corruption, or anti-pattern discovered within the recovered code. For each entry, you must explicitly document: (i) the file name, (ii) how the problem manifests, (iii) the mathematical or logical root cause of the failure, (iv) the structural correction implemented, and (v) the exact git commit hash containing the fix.
-    \item \textbf{Consolidated Benchmark Report:} A brief evaluation report (submitted as \texttt{REPORT.md} or \texttt{REPORT.pdf} in your repository root) comparing the final performance of the corrected models across all configuration permutations. This must include a clean summary table capturing key metrics (accuracy, precision, recall, and macro F1-score) along with architectural recommendations for optimal dataset/model pairings based on your observed benchmarks.
+    \item \textbf{Consolidated Benchmark Report:} A brief evaluation report (submitted as \texttt{REPORT.md} or \texttt{REPORT.pdf} in your repository root) comparing the final performance of the corrected models across all configuration permutations. This must include a clean summary table capturing key metrics (accuracy, precision, recall, and macro F1-score) along with architectural recommendations for optimal dataset/model pairings based on your observed benchmarks. Expected \textbf{minimal accuracy} performance on test data: cells: 90\%, chest: 87\%,, lesions: 67\%, orgs: 83\%.
 \end{enumerate}
 
 \vspace{0.4cm}
@@ -73,13 +72,13 @@ The forensic team has been able to observe some patterns in the types of failure
 \paragraph{Rigid infrastructure:} Rigid, inflexible parts of the code that must be cleaned up into dynamic, modular variables so that the entire training and testing pipeline can be controlled cleanly through a single external configuration file.
 
 \vspace{0.4cm}
-\hrule
+\hrule width \hsize \kern 1mm \hrule width \hsize height 2pt 
 
 \vspace{0.3cm}
 
-\noindent \textbf{RESTRICTED // FOR SYSTEM ARCHITECTS ONLY} \\
+\noindent \textbf{OPEN // FOR ALL ML EXPERTS} \\
 \textbf{To:} Freelance Machine Learning Expert \\
-\textbf{From:} Executive Board BioHealth Diagnostics Global \\
+\textbf{From:} Executive Board, BioHealth Diagnostics Global \\
 \textbf{Subject:} Environmental Impact - Green Initiative \\
 \textbf{Urgency:} CRITICAL / IMMEDIATE ACTION REQUIRED
 
@@ -87,8 +86,48 @@ The forensic team has been able to observe some patterns in the types of failure
 \hrule
 
 \paragraph{Issue:}
-The 
+The executive board recognizes the critical importance of sustainability and environmental responsibility in our operations. In light of the recent incident and the subsequent need to rebuild our machine learning pipelines, we are committed to ensuring that our recovery efforts align with our green initiative goals. We expect that all code optimizations, model training processes, and computational resource management strategies implemented during the recovery will prioritize energy efficiency and minimize carbon footprint.
 
+\vspace{-0.4cm}
+\paragraph{Requested Action:}
+You are required to refactor the restored models to propose a network architecture that drastically reduces computational time and energy footprint while preserving baseline classification accuracy. Heavy, bloated topologies are no longer acceptable for our diagnostic devices. 
+
+The board expects you to implement aggressive efficiency strategies directly into your model definitions. Your specific optimization targets are:
+
+\begin{enumerate}[nosep, noitemsep]
+    \item \textbf{Architectural Downscaling:} Come up with an architecture with reduced complexity to minimize runtime and memory usage while maintaining performance.
+    \item \textbf{Efficiency Verification Matrix:} Expand your automated orchestration runner to profile and log the resource consumption of each model. For every dataset-model permutation, your tracking metrics must now include: (i) total training runtime duration, (ii) inference latency per sample, and (iii) peak memory consumption during training and inference phases.
+    \item \textbf{Green Initiative Analysis:} Include a dedicated section in your final report (\texttt{REPORT.md}) evaluating the trade-offs between model complexity and performance. You must quantitatively prove that your streamlined, green-optimized model achieves comparable accuracy to the original configurations while operating at a fraction of the computational cost.
+\end{enumerate}
+
+\vspace{0.4cm}
+\hrule width \hsize \kern 1mm \hrule width \hsize height 2pt 
+
+\vspace{0.3cm}
+
+\noindent \textbf{OPEN // FOR ALL ML EXPERTS} \\
+\textbf{To:} Freelance Machine Learning Expert \\
+\textbf{From:} Executive Board, BioHealth Diagnostics Global \\
+\textbf{Subject:} New Dataset - organs \\
+\textbf{Urgency:} CRITICAL / IMMEDIATE ACTION REQUIRED
+
+\vspace{0.4cm}
+\hrule
+
+\paragraph{Issue:}
+New study has yielded new data - \texttt{organs}. Though the dataset is so far small, there is an accute need to bring these data to use. Simple integration into existing pipline is unlikely to deliver sufficient accuracy. Innovative solutions are required to leverage the new data and extract maximum value from it.
+
+\vspace{-0.4cm}
+\paragraph{Requested Action:}
+Specialized strategy to successfully integrate this low-sample dataset into the restored pipeline is needed.
+
+The board expects you to implement a robust data-leveraging framework. Your specific architectural requirements are:
+
+\begin{enumerate}[nosep, noitemsep]
+    \item \textbf{Knowledge Transfer Adaptation:} Adapt your pipeline to utilize a data-efficient training regime. You must determine how to exploit structural features learned from your larger, existing image profiles to maximize diagnostic performance on the new, limited organs data.
+    \item \textbf{Scarce-Data Benchmark Matrix:} Expand your automated runner to track and log the performance behavior of this new data under different training states (e.g., training from completely scratch vs. leveraging transferred feature knowledge). Your log matrix must track validation convergence speed alongside standard performance metrics.
+    \item \textbf{Data-Scarcity Post-Mortem:} Document a dedicated analysis in your final report (\texttt{REPORT.md}) evaluating how dataset size correlates with generalization errors. You must quantitatively show the impact of your innovative approach compared to standard baseline training on restricted samples. The board hopes for at least 50\% accuracy on the test set. 
+\end{enumerate}
 
 
 \vspace{0.8cm}

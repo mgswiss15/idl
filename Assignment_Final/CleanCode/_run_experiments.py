@@ -9,10 +9,10 @@ from predict import main as run_prediction
 def main():
     # 1. Define the experimental matrix you want to benchmark
     target_datasets = {
-        "orgs": {"CHANNELS": 1, "NUM_CLASSES": 11},
-        "cells":   {"CHANNELS": 3, "NUM_CLASSES": 8},
-        "chest":    {"CHANNELS": 1, "NUM_CLASSES": 2},
-        "lesions":    {"CHANNELS": 3, "NUM_CLASSES": 7},
+        "organs": {"CHANNELS": 1, "NUM_CLASSES": 11},
+        # "cells":   {"CHANNELS": 3, "NUM_CLASSES": 8},
+        # "chest":    {"CHANNELS": 1, "NUM_CLASSES": 2},
+        # "lesions":    {"CHANNELS": 3, "NUM_CLASSES": 7},
     }
     
     # target_models = ["AlexNet", "VGG16", "ResNet18"]
