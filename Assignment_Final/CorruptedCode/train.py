@@ -1,3 +1,8 @@
+"""
+MAI/IDL SS26 - Final assignment. 
+
+MG 6/6/2026
+"""
 import torch
 
 class Trainer:
