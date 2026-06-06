@@ -12,6 +12,8 @@
 - fix number of channels to 1 - will break for histology
 - no longer have the config file
 - dapi works without normalization but histology completely breaks - needs to be introduced in get_loaders
+- use imagenet normalization
+- overwrite basic function such as sum by a vriable name
 
 
 ##
