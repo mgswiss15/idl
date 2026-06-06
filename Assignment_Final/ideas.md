@@ -30,3 +30,4 @@ Operational Directive: If your per-class breakdown reveals any unaligned categor
 3. in_channels=3 and num_classes=9 as default in class ResNet
 4. drop in_channels and num_classes args from ResNet instatiation in main
 5. sum as variable in Trainer
+6. droped labels = labels.squeeze().long() from Trainer
