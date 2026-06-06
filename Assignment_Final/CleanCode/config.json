@@ -5,7 +5,7 @@
     "LEARNING_RATE": 0.001,
     "EPOCHS": 5,
     "DATA_": "histology",
-    "DATA": "dapi",
+    "DATA": "organs",
     "DATA_I": "liver",
     "DATA_PATH": "../data/"
 }

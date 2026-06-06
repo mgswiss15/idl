@@ -3,11 +3,12 @@ Workings for MAI/IDL - prepare the PathMNIST dataset for student use by download
 
 Usage: Fast and dirty solution without any flexibility. 
 Original description of datasets - https://arxiv.org/pdf/2110.14795
-Used for these three datasets:
+Used for these datasets:
 1. dataset_name="PathMNIST", output_name='histology' (RGB, 9 classes)
 2. dataset_name="TissueMNIST", output_name='dapi' (Grayscale, 8 classes) - https://bbbc.broadinstitute.org/BBBC051
 3. dataset_name="OCTMNIST", output_name='liver' (Grayscale, 4 classes) - https://pubmed.ncbi.nlm.nih.gov/36481607/
-4. dataset_name="BloodMNIST", output_name='blood' (RGB, 8 classes) - https://bbbc.broadinstitute.org/BBBC047
+4. dataset_name="BloodMNIST", output_name='cells' (RGB, 8 classes)
+5. dataset_name="OrganSMNIST", output_name='organs' (Grayscale, 11 classes)
 
 MG 6/6/2026
 """
@@ -16,7 +17,7 @@ import torch.nn as nn
 import medmnist
 from torchvision import transforms
 
-def generate_student_dataset(dataset_name="PathMNIST", output_name='histology', size=64):
+def generate_student_dataset(dataset_name="BloodMNIST", output_name='cells', size=64):
     # 1. Download/Load raw data
     dataset_class = getattr(medmnist, dataset_name)
     train_dataset = dataset_class(split='train', download=True, size=size, root='../data')
