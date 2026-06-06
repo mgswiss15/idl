@@ -7,7 +7,7 @@ from train import Trainer
 
 def main():   
     NUM_CLASSES = 9
-    CHANNELS = 3
+    CHANNELS = 1
     BATCH_SIZE = 128
     LEARNING_RATE = 0.001
     EPOCHS = 5
