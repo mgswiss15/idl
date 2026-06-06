@@ -10,7 +10,6 @@ def get_loaders(data, data_path, batch_size):
     val_dataset = TensorDataset(data_dict['val_images'], data_dict['val_labels'])
     test_dataset = TensorDataset(data_dict['test_images'], data_dict['test_labels'])
     
-    # 3. Create the data loaders for execution
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)

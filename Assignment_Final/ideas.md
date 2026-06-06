@@ -7,12 +7,11 @@
     - rename to histology_data.pt and dapi_data.pt
 
 ## Assignment structure
-- code initially working for histology_data, wanted to extend to dapi - all broke down
+- code initially working for dapi, wanted to extend to histology - all broke down
 - fix number of classes to 8 - will break for histology
-- fix number of channels to 1 - will break for histology
+- fix number of channels to 3 - will break for dapi
 - no longer have the config file
 - dapi works without normalization but histology completely breaks - needs to be introduced in get_loaders
-- use imagenet normalization
 - overwrite basic function such as sum by a vriable name
 
 

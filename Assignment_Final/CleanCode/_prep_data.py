@@ -9,6 +9,7 @@ Used for these two datasets:
 MG 6/6/2026
 """
 import torch
+import torch.nn as nn
 import medmnist
 from torchvision import transforms
 
@@ -23,10 +24,11 @@ def generate_student_dataset():
     transform = transforms.Compose([
         transforms.ToTensor(),
         # transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        # transforms.PILToTensor()
     ])
     
     print("Converting training data to tensors...")
-    train_imgs = torch.stack([transform(img) for img, _ in train_dataset])
+    train_imgs = torch.stack([transform(img) for img, _ in train_dataset])   
     train_lbls = torch.tensor([label for _, label in train_dataset]) # Keeps original shape [N, 1]
     
     print("Converting validation data to tensors...")
