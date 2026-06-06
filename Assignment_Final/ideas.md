@@ -32,3 +32,4 @@ Operational Directive: If your per-class breakdown reveals any unaligned categor
 5. sum as variable in Trainer
 6. droped labels = labels.squeeze().long() from Trainer
 7. drop zero_out gradients
+8. validation set data leakackage

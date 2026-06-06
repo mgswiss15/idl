@@ -12,7 +12,7 @@ def get_loaders(data, data_path, batch_size):
     data_dict = torch.load(d_path)
     
     train_dataset = TensorDataset(data_dict['train_images'], data_dict['train_labels'])
-    val_dataset = TensorDataset(data_dict['val_images'], data_dict['val_labels'])
+    val_dataset = TensorDataset(data_dict['train_images'], data_dict['train_labels'])
     test_dataset = TensorDataset(data_dict['test_images'], data_dict['test_labels'])
     
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)

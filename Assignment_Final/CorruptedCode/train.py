@@ -3,66 +3,30 @@ MAI/IDL SS26 - Final assignment.
 
 MG 6/6/2026
 """
+import json
+
 import torch
+import torch.nn as nn
+import torch.optim as optim
+from data import get_loaders
+from model import ResNet
+from fit import Trainer
 
-class Trainer:
-    def __init__(self, model, criterion, optimizer, device):
-        self.model = model
-        self.criterion = criterion
-        self.optimizer = optimizer
-        self.device = device
+def main():   
+    with open("config.json", "r") as f:
+        config = json.load(f)
 
-    def train_one_epoch(self, dataloader):
-        self.model.train()
-        running_loss = 0.0
-        correct, sum = 0, 0
-        
-        for images, labels in dataloader:
-            images, labels = images.to(self.device), labels.to(self.device)
-            
-            outputs = self.model(images)
-            loss = self.criterion(outputs, labels)
-            
-            loss.backward()
-            self.optimizer.step()
-            
-            running_loss += loss.item() * images.size(0)
-            _, predicted = outputs.max(1)
-            sum += labels.size(0)
-            correct += predicted.eq(labels).sum().item()
-            
-        return running_loss / sum, (correct / sum) * 100
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Training executing on device: {device}")
 
-    def evaluate(self, dataloader):
-        self.model.eval()
-        running_loss = 0.0
-        correct, total = 0, 0
-        
-        with torch.no_grad():
-            for images, labels in dataloader:
-                images, labels = images.to(self.device), labels.to(self.device)
-                
-                outputs = self.model(images)
-                loss = self.criterion(outputs, labels)
-                
-                running_loss += loss.item() * images.size(0)
-                _, predicted = outputs.max(1)
-                total += labels.size(0)
-                correct += predicted.eq(labels).sum().item()
-                
-        return running_loss / total, (correct / total) * 100
+    train_loader, val_loader, _ = get_loaders(data=config["DATA"], data_path=config["DATA_PATH"], batch_size=config["BATCH_SIZE"])
 
-    def fit(self, train_loader, val_loader, epochs):
-        print("\n Starting Training Routine...")
-        print("-" * 50)
-        
-        for epoch in range(epochs):
-            train_loss, train_acc = self.train_one_epoch(train_loader)
-            val_loss, val_acc = self.evaluate(val_loader)
-            
-            print(f"Epoch [{epoch+1:02d}/{epochs:02d}] | "
-                  f"Train Loss: {train_loss:.4f} - Train Acc: {train_acc:.2f}% | "
-                  f"Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.2f}%")
-        
-        print("-" * 50)
-        print("Training Complete!")
+    model = ResNet().to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=config["LEARNING_RATE"])
+
+    trainer = Trainer(model, criterion, optimizer, device)
+    trainer.fit(train_loader, val_loader, epochs=config["EPOCHS"])
+
+if __name__ == "__main__":
+    main()

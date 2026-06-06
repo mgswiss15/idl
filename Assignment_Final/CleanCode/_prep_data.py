@@ -55,5 +55,7 @@ def generate_student_dataset(dataset_name="OCTMNIST", output_name='liver'):
     torch.save(payload, '../data/'+output_name+'_data.pt')
     print("File successfully created and ready for distribution!")
 
-if __name__ == "__main__":
+
+
+if __name__ == "__main__":   
     generate_student_dataset()

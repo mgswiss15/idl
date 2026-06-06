@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from data import get_loaders
 from model import ResNet
-from train import Trainer
+from Assignment_Final.CleanCode.fit import Trainer
 from _confustion import evaluate_and_plot
 
 def main():   
