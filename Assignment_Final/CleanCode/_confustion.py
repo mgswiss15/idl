@@ -44,5 +44,5 @@ def evaluate_and_plot(model, val_loader, device, num_classes):
     
     # Save image to disk so students can inspect it
     plt.savefig("confusion_matrix.png", dpi=300)
-    print("💾 Confusion matrix visualization saved as 'confusion_matrix.png'")
+    print("Confusion matrix visualization saved as 'confusion_matrix.png'")
     plt.show()

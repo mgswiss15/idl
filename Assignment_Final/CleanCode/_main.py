@@ -6,6 +6,7 @@ import torch.optim as optim
 from data import get_loaders
 from model import ResNet
 from train import Trainer
+from _confustion import evaluate_and_plot
 
 def main():   
     with open("config.json", "r") as f:
@@ -23,7 +24,8 @@ def main():
     trainer = Trainer(model, criterion, optimizer, device)
     trainer.fit(train_loader, val_loader, epochs=config["EPOCHS"])
 
+    return model, val_loader, device, config["NUM_CLASSES"]
 
 if __name__ == "__main__":
-    main()
-    
+    model, val_loader, device, num_classes = main()
+    evaluate_and_plot(model, val_loader, device, num_classes)
