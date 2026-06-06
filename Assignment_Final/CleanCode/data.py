@@ -1,35 +1,14 @@
 import torch
-from torch.utils.data import DataLoader
-import torchvision.transforms as transforms
-import medmnist
-from medmnist import INFO
+from torch.utils.data import TensorDataset, DataLoader
 
-def get_pathmnist_loaders(batch_size=64):
-    data_flag = 'pathmnist'
-    data_flag = 'tissuemnist'
-    info = INFO[data_flag]
-    task = info['task']
-    n_channels = info['n_channels']
-    n_classes = len(info['label'])
+def get_loaders(pt_path='../data/histology_data.pt', batch_size=128):
+    data_dict = torch.load(pt_path)
     
-    transform_train = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5], std=[0.5])
-    ])
+    train_dataset = TensorDataset(data_dict['train_images'], data_dict['train_labels'])
+    val_dataset = TensorDataset(data_dict['val_images'], data_dict['val_labels'])
+    test_dataset = TensorDataset(data_dict['test_images'], data_dict['test_labels'])
     
-    transform_val = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5], std=[0.5])
-    ])
-    
-    # Instantiate the MedMNIST datasets
-    DataClass = getattr(medmnist, info['python_class'])
-    
-    train_dataset = DataClass(split='train', transform=transform_train, download=True, root='../data')
-    val_dataset = DataClass(split='val', transform=transform_val, download=True, root='../data')
-    test_dataset = DataClass(split='test', transform=transform_val, download=True, root='../data')
-    
-    # Create the standard PyTorch Dataloaders
+    # 3. Create the data loaders for execution
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
