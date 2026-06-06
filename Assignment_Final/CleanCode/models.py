@@ -12,7 +12,7 @@ class VGGBlock(nn.Module):
 
     C configuration from Simonyan & Zisserman's VGG paper.
     """
-    def __init__(self, in_channels, out_channels, num_convs):
+    def __init__(self, in_channels, out_channels, num_convs, padding=1):
         super().__init__()
         layers = []
         current_in_channels = in_channels
@@ -103,8 +103,8 @@ class AlexNet(nn.Module):
         return self.classifier(x)
 
 
-class VGG(nn.Module):
-    """VGG in C configuration of Simonyan & Zisserman, (2014) adapted for smaller inputs."""
+class VGG16(nn.Module):
+    """VGG16 in C configuration of Simonyan & Zisserman, (2014) adapted for smaller inputs."""
     def __init__(self, in_channels, num_classes, **kwargs):
         super().__init__()
 
@@ -119,11 +119,13 @@ class VGG(nn.Module):
         )
         
         self.classifier = nn.Sequential(
-            nn.Linear(2048, 512),
+            nn.Linear(2048, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(p=drop_rate),
-            nn.Linear(512, num_classes),
-            nn.Softmax(dim=1)
+            nn.Linear(1024, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=drop_rate),
+            nn.Linear(512, num_classes)
         )
 
     def forward(self, x):
