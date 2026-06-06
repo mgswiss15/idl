@@ -24,3 +24,5 @@
 6. droped labels = labels.squeeze().long() from Trainer
 7. drop zero_out gradients
 8. validation set data leakackage
+9. nn.Linear(2046 instead of 3072, 1024) in AlexNet
+10. drop_rate=0.99 in train.py to stop training AlexNet

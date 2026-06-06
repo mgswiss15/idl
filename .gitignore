@@ -1,6 +1,7 @@
 ## Data
 data
 checkpoints
+*.png
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

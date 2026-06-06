@@ -4,55 +4,23 @@ import torch.nn as nn
 import torch
 import torch.nn as nn
 
-class AlexNet(nn.Module):
-    def __init__(self, in_channels, num_classes):
-        super().__init__()
-        
-        self.features = nn.Sequential(
-            nn.Conv2d(in_channels, 48, kernel_size=7, stride=2, padding=3),
-            nn.BatchNorm2d(48),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
-            
-            nn.Conv2d(48, 128, kernel_size=5, padding=2),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
-            
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 192, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
-        )
-        
-        self.classifier = nn.Sequential(
-            nn.Dropout(p=0.5),
-            nn.Linear(192 * 2 * 2, 1024),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5),
-            nn.Linear(1024, 1024),
-            nn.ReLU(inplace=True),
-            nn.Linear(1024, num_classes),
-        )
-
-    def forward(self, x):
-        x = self.features(x)
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        return self.classifier(x)
-
 class VGGBlock(nn.Module):
+    """Modular VGG block with configurable number of conv layers and channels.
+
+    C configuration from Simonyan & Zisserman's VGG paper.
+    """
     def __init__(self, in_channels, out_channels, num_convs):
         super().__init__()
         layers = []
+        current_in_channels = in_channels
         for i in range(num_convs):
-            layers.append(nn.Conv2d(in_channels if i == 0 else out_channels, 
-                                    out_channels, kernel_size=3, padding=1))
+            is_config_c_tail = (num_convs == 3 and i == 2)
+            kernel_size = 1 if is_config_c_tail else 3
+            padding = 0 if is_config_c_tail else 1
+            layers.append(nn.Conv2d(current_in_channels, out_channels, kernel_size=kernel_size, padding=padding))
             layers.append(nn.BatchNorm2d(out_channels))
             layers.append(nn.ReLU(inplace=True))
+            current_in_channels = out_channels
             
         layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
         self.block = nn.Sequential(*layers)
@@ -62,10 +30,6 @@ class VGGBlock(nn.Module):
 
 
 class ResNetBlock(nn.Module):
-    """
-    A reusable Residual Block (BasicBlock) with a shortcut highway connection.
-    Downsampling is handled natively via the stride argument.
-    """
     def __init__(self, in_channels, out_channels, stride=1):
         super(ResNetBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -94,47 +58,83 @@ class ResNetBlock(nn.Module):
         return out
 
 
-# =====================================================================
-# FINAL CLEAN ARCHITECTURES
-# =====================================================================
+class AlexNet(nn.Module):
+    """AlexNet (Krizhevsky et al., 2012) adapted for smaller inputs."""
+    def __init__(self, in_channels, num_classes, **kwargs):
+        super().__init__()
 
-class VGG16(nn.Module):
-    """
-    Modular VGG-16 Tailored for 64x64 inputs.
-    """
-    def __init__(self, in_channels, num_classes):
-        super(VGG16, self).__init__()
+        drop_rate = kwargs.get("drop_rate", 0.5)
         
-        # 64x64 input processed through repeated block abstractions
         self.features = nn.Sequential(
-            VGGBlock(in_channels, 64, num_convs=2),   # Down to 32x32
-            VGGBlock(64, 128, num_convs=2),          # Down to 16x16
-            VGGBlock(128, 256, num_convs=3),         # Down to 8x8
-            VGGBlock(256, 512, num_convs=3),         # Down to 4x4
-            VGGBlock(512, 512, num_convs=3)          # Down to 2x2
+            nn.Conv2d(in_channels, 48, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm2d(48),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            
+            nn.Conv2d(48, 128, kernel_size=5, padding=2),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 192, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
         
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))  # Squeezes spatial grid to 1x1
-        
         self.classifier = nn.Sequential(
-            nn.Linear(512 * 1 * 1, 512),
+            nn.Dropout(p=drop_rate),
+            nn.Linear(3072, 1024),
             nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5),
-            nn.Linear(512, num_classes)
+            nn.Dropout(p=drop_rate),
+            nn.Linear(1024, 1024),
+            nn.ReLU(inplace=True),
+            nn.Linear(1024, num_classes),
         )
 
     def forward(self, x):
         x = self.features(x)
-        x = self.avgpool(x)
         x = torch.flatten(x, 1)
         return self.classifier(x)
+
+class VGG(nn.Module):
+    """VGG in C configuration of Simonyan & Zisserman, (2014) adapted for smaller inputs."""
+    def __init__(self, in_channels, num_classes, **kwargs):
+        super().__init__()
+
+        drop_rate = kwargs.get("drop_rate", 0.5)
+
+        self.features = nn.Sequential(
+            VGGBlock(in_channels, 64, num_convs=2),
+            VGGBlock(64, 128, num_convs=2),
+            VGGBlock(128, 256, num_convs=3),
+            VGGBlock(256, 512, num_convs=3),
+            VGGBlock(512, 512, num_convs=3)
+        )
+        
+        self.classifier = nn.Sequential(
+            nn.Linear(2048, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5),
+            nn.Linear(512, num_classes),
+            nn.Softmax(dim=1)
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        return self.classifier(x)
+
 
 
 class ResNet18(nn.Module):
     """
     Modular ResNet-18 Tailored for 64x64 inputs.
     """
-    def __init__(self, in_channels, num_classes):
+    def __init__(self, in_channels, num_classes, **kwargs):
         super(ResNet18, self).__init__()
         
         # Stem Layer

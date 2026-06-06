@@ -4,11 +4,13 @@ Workings for MAI/IDL - prepare the PathMNIST dataset for student use by download
 Usage: Fast and dirty solution without any flexibility. 
 Original description of datasets - https://arxiv.org/pdf/2110.14795
 Used for these datasets:
-1. dataset_name="PathMNIST", output_name='histology' (RGB, 9 classes)
-2. dataset_name="TissueMNIST", output_name='dapi' (Grayscale, 8 classes) - https://bbbc.broadinstitute.org/BBBC051
-3. dataset_name="OCTMNIST", output_name='liver' (Grayscale, 4 classes) - https://pubmed.ncbi.nlm.nih.gov/36481607/
-4. dataset_name="BloodMNIST", output_name='cells' (RGB, 8 classes)
-5. dataset_name="OrganSMNIST", output_name='organs' (Grayscale, 11 classes)
+1. dataset_name="PathMNIST", output_name='histology' (RGB, 9 classes, 89k, 0.9) - https://bbbc.broadinstitute.org/BBBC038
+2. dataset_name="TissueMNIST", output_name='dapi' (Grayscale, 8 classes, 165k, 0.7) - https://bbbc.broadinstitute.org/BBBC051
+3. dataset_name="OCTMNIST", output_name='liver' (Grayscale, 4 classes, 97k, 0.7) - https://pubmed.ncbi.nlm.nih.gov/36481607/
+4. dataset_name="BloodMNIST", output_name='cells' (RGB, 8 classes, 11k, 0.9)
+5. dataset_name="OrganSMNIST", output_name='organs' (Grayscale, 11 classes, 14k, 0.7)
+6. dataset_name="DermaMNIST", output_name='lesions' (RGB, 7 classes, 7k, 0.7)
+7. dataset_name="OrganCMNIST", output_name='orgs' (Grayscale, 11 classes, 12k, 0.9)
 
 MG 6/6/2026
 """
@@ -17,7 +19,7 @@ import torch.nn as nn
 import medmnist
 from torchvision import transforms
 
-def generate_student_dataset(dataset_name="BloodMNIST", output_name='cells', size=64):
+def generate_student_dataset(dataset_name="OrganCMNIST", output_name='orgs', size=64):
     # 1. Download/Load raw data
     dataset_class = getattr(medmnist, dataset_name)
     train_dataset = dataset_class(split='train', download=True, size=size, root='../data')
@@ -55,7 +57,7 @@ def generate_student_dataset(dataset_name="BloodMNIST", output_name='cells', siz
         'test_labels': test_lbls
     }
     
-    torch.save(payload, '../data/'+output_name+'_'+str(size)+'data.pt')
+    torch.save(payload, '../data/'+output_name+'_'+str(size)+'.pt')
     print("File successfully created and ready for distribution!")
 
 

@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 from data import get_loaders
-from model import ResNet
+import models
 
 @torch.no_grad()
 def main():
@@ -17,10 +17,11 @@ def main():
     # 1. Isolate the Test Stream (ignoring train/val entirely)
     _, _, test_loader = get_loaders(data=config["DATA"], data_path=config["DATA_PATH"], batch_size=config["BATCH_SIZE"])
 
-    # 2. Instantiate a fresh, untrained network skeleton
-    model = ResNet(
+    model_class = getattr(models, config["MODEL"])
+    model = model_class(
         in_channels=config["CHANNELS"], 
-        num_classes=config["NUM_CLASSES"]
+        num_classes=config["NUM_CLASSES"],
+        **config
     ).to(device)
 
     model_weights_path = "../checkpoints/"+config['DATA']+"_model.pth"
