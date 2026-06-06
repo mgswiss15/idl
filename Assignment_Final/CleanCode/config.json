@@ -1,11 +1,11 @@
 {
-    "NUM_CLASSES": 4,
+    "NUM_CLASSES": 8,
     "CHANNELS": 1,
     "BATCH_SIZE": 128,
     "LEARNING_RATE": 0.001,
     "EPOCHS": 5,
-    "DATA_I": "histology",
-    "DATA_I": "dapi",
-    "DATA": "liver",
+    "DATA_": "histology",
+    "DATA": "dapi",
+    "DATA_I": "liver",
     "DATA_PATH": "../data/"
 }
