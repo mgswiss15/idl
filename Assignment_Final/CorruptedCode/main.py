@@ -1,29 +1,27 @@
+import json
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from data import get_pathmnist_loaders
+from data import get_loaders
 from model import ResNet
 from train import Trainer
 
 def main():   
-    NUM_CLASSES = 9
-    CHANNELS = 3
-    BATCH_SIZE = 128
-    LEARNING_RATE = 0.001
-    EPOCHS = 5  # Set to 5 epochs for a quick verification run
+    with open("config.json", "r") as f:
+        config = json.load(f)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = "cpu"
     print(f"Training executing on device: {device}")
 
-    train_loader, val_loader, _ = get_pathmnist_loaders(batch_size=BATCH_SIZE)
+    train_loader, val_loader, _ = get_loaders(data=config["DATA"], data_path=config["DATA_PATH"], batch_size=config["BATCH_SIZE"])
 
-    model = ResNet(in_channels=CHANNELS, num_classes=NUM_CLASSES).to(device)
+    model = ResNet(in_channels=config["CHANNELS"], num_classes=config["NUM_CLASSES"]).to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(model.parameters(), lr=config["LEARNING_RATE"])
 
     trainer = Trainer(model, criterion, optimizer, device)
-    trainer.fit(train_loader, val_loader, epochs=EPOCHS)
+    trainer.fit(train_loader, val_loader, epochs=config["EPOCHS"])
 
 if __name__ == "__main__":
     main()
