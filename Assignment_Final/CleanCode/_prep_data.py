@@ -11,6 +11,7 @@ Used for these datasets:
 5. dataset_name="OrganSMNIST", output_name='organs' (Grayscale, 11 classes, 14k, 0.7)
 6. dataset_name="DermaMNIST", output_name='lesions' (RGB, 7 classes, 7k, 0.7)
 7. dataset_name="OrganCMNIST", output_name='orgs' (Grayscale, 11 classes, 12k, 0.9)
+8. dataset_name="PneumoniaMNIST", output_name='chest' (Grayscale, 2 classes, 5k, 0.9)
 
 MG 6/6/2026
 """
@@ -19,7 +20,7 @@ import torch.nn as nn
 import medmnist
 from torchvision import transforms
 
-def generate_student_dataset(dataset_name="OrganCMNIST", output_name='orgs', size=64):
+def generate_student_dataset(dataset_name="PneumoniaMNIST", output_name='chest', size=64):
     # 1. Download/Load raw data
     dataset_class = getattr(medmnist, dataset_name)
     train_dataset = dataset_class(split='train', download=True, size=size, root='../data')

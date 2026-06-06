@@ -11,11 +11,11 @@ def main():
     target_datasets = {
         "orgs_64": {"CHANNELS": 1, "NUM_CLASSES": 11},
         "cells_64":   {"CHANNELS": 3, "NUM_CLASSES": 8},
-        "liver_64":    {"CHANNELS": 1, "NUM_CLASSES": 4}
+        "chest_64":    {"CHANNELS": 1, "NUM_CLASSES": 2},
         "lesions_64":    {"CHANNELS": 3, "NUM_CLASSES": 7},
     }
     
-    target_models = ["AlexNet", "VGG16", "ResNet"]
+    target_models = ["AlexNet", "VGG16", "ResNet18"]
     
     # 2. Set up base hyperparameters
     base_config = {
