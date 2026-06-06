@@ -6,16 +6,12 @@ from datetime import datetime
 from train import main as run_training
 from predict import main as run_prediction
 
-# Import the core logic functions from your existing scripts
-from train import run_training
-from predict import run_prediction
-
 def main():
     # 1. Define the experimental matrix you want to benchmark
     target_datasets = {
         "orgs_64": {"CHANNELS": 1, "NUM_CLASSES": 11},
-        "blood_64":   {"CHANNELS": 3, "NUM_CLASSES": 8},
-        "lesions_64":    {"CHANNELS": 3, "NUM_CLASSES": 7}
+        "cells_64":   {"CHANNELS": 3, "NUM_CLASSES": 8},
+        "lesions_64":    {"CHANNELS": 3, "NUM_CLASSES": 7},
         "liver_64":    {"CHANNELS": 1, "NUM_CLASSES": 4}
     }
     
@@ -41,7 +37,7 @@ def main():
         for model_name in target_models:
             print(f"\n{'='*60}")
             print(f"LAUNCHING: Model={model_name} | Dataset={dataset_name}")
-            print(f"{='='*60}")
+            print(f"{'='*60}")
             
             # Synthesize configuration dictionary state
             current_config = base_config.copy()

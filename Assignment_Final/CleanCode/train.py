@@ -7,8 +7,8 @@ from data import get_loaders
 import models
 from fit import Trainer
 
-def main():   
-    with open("config.json", "r") as f:
+def main(config_path="config.json"):   
+    with open(config_path, "r") as f:
         config = json.load(f)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
