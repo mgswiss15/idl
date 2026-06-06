@@ -16,7 +16,7 @@ def main():
 
     train_loader, val_loader, _ = get_loaders(data=config["DATA"], data_path=config["DATA_PATH"], batch_size=config["BATCH_SIZE"])
 
-    model = ResNet(in_channels=config["CHANNELS"], num_classes=config["NUM_CLASSES"]).to(device)
+    model = ResNet().to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config["LEARNING_RATE"])
 

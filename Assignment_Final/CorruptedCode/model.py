@@ -32,7 +32,8 @@ class ResBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, in_channels, num_classes):
+    """ResNet with 2 resblocks - one identify, one expanding."""
+    def __init__(self, in_channels=3, num_classes=9):
         super().__init__()      
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(num_features=32)
