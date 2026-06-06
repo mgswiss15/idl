@@ -25,4 +25,8 @@
 7. drop zero_out gradients
 8. validation set data leakackage
 9. nn.Linear(2046 instead of 3072, 1024) in AlexNet
-10. drop_rate=0.99 in train.py to stop training AlexNet
+10. drop_rate=0.99 in train.py to stop training AlexNet and VGG net
+11. drop current_in_channels = out_channels from VGG block
+12. drop padding = 0 if is_config_c_tail else 1 from VGG block
+13. nn.Softmax(dim=1) in VGG net
+

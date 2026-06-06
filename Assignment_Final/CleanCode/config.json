@@ -3,12 +3,13 @@
     "CHANNELS": 1,
     "BATCH_SIZE": 128,
     "LEARNING_RATE": 0.001,
-    "EPOCHS": 5,
+    "EPOCHS": 1,
     "DATA": "orgs_64",
     "DATA_": "histology_64",
     "DATA_I": "organs_64",
     "DATA_I": "liver",
     "DATA_PATH": "../data/",
-    "MODEL": "VGG",
-    "drop_rate": 0.5
+    "MODEL": "ResNet",
+    "drop_rate": 0.5,
+    "activation": "nn.ReLU(inplace=True)"
 }
