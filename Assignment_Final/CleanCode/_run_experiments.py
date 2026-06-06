@@ -24,7 +24,7 @@ def main():
         "EPOCHS": 10,              # Increased for meaningful evaluation
         "DATA_PATH": "../data/",
         "drop_rate": 0.5,
-        "activation": "nn.ReLU(inplace=True)"
+        "activation": "ReLU"
     }
     
     results_registry = []

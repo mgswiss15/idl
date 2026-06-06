@@ -54,8 +54,8 @@ def main(config_path="config.json"):
     
     plt.title(f"Deployment Confusion Matrix (Classes: {config['NUM_CLASSES']})")
     plt.tight_layout()
-    plt.savefig(config["DATA"]+"confusion.png", dpi=300)
-    print(f"Analysis visualization saved as {config["DATA"]}confusion.png\n")
+    plt.savefig("./results/" + config["DATA"] + "_confusion.png", dpi=300)
+    print(f"Analysis visualization saved as {config["DATA"]}_confusion.png\n")
 
     return report_dict
 

@@ -140,28 +140,29 @@ class ResNet(nn.Module):
     def __init__(self, in_channels, num_classes, **kwargs):
         super().__init__()
 
-        activation = kwargs.get("activation", nn.ReLU(inplace=True))
+        activation_str = kwargs.get("activation", "ReLU")
+        activation = getattr(nn, activation_str)
 
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
-        self.activation = activation
+        self.activation = activation(inplace=True)
         print("Using activation function:", self.activation)
         
         self.stage1 = nn.Sequential(
-            ResBlock(64, 64, self.activation, stride=1),
-            ResBlock(64, 64, self.activation, stride=1)
+            ResBlock(64, 64, activation(inplace=True), stride=1),
+            ResBlock(64, 64, activation(inplace=True), stride=1)
         )
         self.stage2 = nn.Sequential(
-            ResBlock(64, 128, self.activation, stride=2),          
-            ResBlock(128, 128, self.activation, stride=1)
+            ResBlock(64, 128, activation(inplace=True), stride=2),          
+            ResBlock(128, 128, activation(inplace=True), stride=1)
         )
         self.stage3 = nn.Sequential(
-            ResBlock(128, 256, self.activation, stride=2),
-            ResBlock(256, 256, self.activation, stride=1)
+            ResBlock(128, 256, activation(inplace=True), stride=2),
+            ResBlock(256, 256, activation(inplace=True), stride=1)
         )
         self.stage4 = nn.Sequential(
-            ResBlock(256, 512, self.activation, stride=2),
-            ResBlock(512, 512, self.activation, stride=1)
+            ResBlock(256, 512, activation(inplace=True), stride=2),
+            ResBlock(512, 512, activation(inplace=True), stride=1)
         )
         
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
