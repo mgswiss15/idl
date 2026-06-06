@@ -134,8 +134,8 @@ class VGG16(nn.Module):
         return self.classifier(x)
 
 
-class ResNet(nn.Module):
-    """ResNet (He et al., 2016) adapted for smaller inputs.
+class ResNet18(nn.Module):
+    """ResNet18 (He et al., 2016) adapted for smaller inputs.
     
     activation - flexible activation function to allow experimentation (e.g., ReLU, LeakyReLU, etc.)
     """
