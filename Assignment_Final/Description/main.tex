@@ -1,0 +1,101 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\usepackage{enumitem}
+
+\begin{document}
+% supress paragraph idents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5ex plus 0.2ex minus 0.1ex}
+\setlength\intextsep{0pt}
+
+\begin{center}
+    \LARGE \bfseries Assignment Dossier: Operation Cyber-Histology \\
+    \vspace{0.2cm}
+    \large \fontfamily{cmtt}\selectfont Post-Incident Engineering and Pipeline Reconstruction \\
+    \vspace{0.5cm}
+    \hrule height 1pt
+\end{center}
+
+\vspace{0.3cm}
+
+\noindent \textbf{RESTRICTED // FOR SYSTEM ARCHITECTS ONLY} \\
+\textbf{To:} Freelance Machine Learning Expert \\
+\textbf{From:} Incident Response Team, BioHealth Diagnostics Global \\
+\textbf{Subject:} Total Pipeline Failure Following Malicious Corporate Espionage \\
+\textbf{Urgency:} CRITICAL / IMMEDIATE ACTION REQUIRED
+
+\vspace{0.4cm}
+\hrule
+
+\paragraph{Incident Report:}
+Twenty-four hours ago, BioHealth Diagnostics was on the verge of deploying its next-generation multi-class clinical triage pipeline. Our core model registry, \textbf{AlexNet, VGG16, and ResNet18}, was calibrated to run seamlessly across our standardized diagnostic image profiles (\texttt{cells, chest, lesions} and \texttt{orgs}).
+
+Before fleeing the campus to evade security, disgruntled former architect Dr. Viktor Vance executed an environment-wipe utility. The damage is extensive:
+\begin{itemize}[nosep, noitemsep]
+    \item All trained weights, production-ready source code, configuration registries, and evaluation automation scripts were permanently deleted.
+    \item Forensics managed to scrape the local drive caches and recovered older, heavily unoptimized, and volatile draft copies of \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}. 
+    \item All configuration assets (\texttt{config.json}), automated testing frameworks, and multi-dataset comparison tools were completely unrecoverable. 
+\end{itemize}
+
+Preliminary execution attempts on the recovered code show that it is highly unstable. It suffers from a mix of immediate runtime exceptions, silent computational graph corruptions, numerical gradient explosions, and algorithmic anti-patterns. 
+
+\vspace{-0.4cm}
+\paragraph{Requested Action:} Audit the volatile remains of the codebase, neutralize every mathematical and syntactic landmine left behind in the scripts, forge the missing configuration infrastructure from scratch, and deploy an automated multi-dataset benchmark runner to restore project integrity before the system completely goes dark. The incident response team expects the below listed deliverables as commits to a dedicated branch named \texttt{en\_xxxx}, where xxxx is your student enrollment number, in the project repository \url{https://git.fiw.fhws.de/teaching/mai/idl26_finalassignment}, with clear commit messages indicating the nature of the changes made. \textbf{Deadline: 9.7.2026, midnight German time}. 
+\begin{enumerate}[nosep, noitemsep]
+    \item \textbf{Complete Corrected Codebase:} A fully functional, production-grade version of the entire repository, including \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}, alongside your newly engineered configuration and testing frameworks. The codebase must be modular, error-free, compatible with all four target datasets, and capable of executing training and predictions for all three models via native Python calls driven by your configuration structure.
+    \item \textbf{Incident Audit Log:} A technical table (submitted as \texttt{AUDIT\_LOG.md}) itemizing every bug, corruption, or anti-pattern discovered within the recovered code. For each entry, you must explicitly document: (i) the file name, (ii) how the problem manifests, (iii) the mathematical or logical root cause of the failure, (iv) the structural correction implemented, and (v) the exact git commit hash containing the fix.
+    \item \textbf{Consolidated Benchmark Report:} A brief evaluation report (submitted as \texttt{REPORT.md} or \texttt{REPORT.pdf} in your repository root) comparing the final performance of the corrected models across all configuration permutations. This must include a clean summary table capturing key metrics (accuracy, precision, recall, and macro F1-score) along with architectural recommendations for optimal dataset/model pairings based on your observed benchmarks.
+\end{enumerate}
+
+\vspace{0.4cm}
+\hrule
+
+\section*{System State and Engineering Requirements}
+The forensic team has been able to observe some patterns in the types of failures that are occurring when attempting to run the recovered code. So far, they have identified the following categories of issues that are plaguing the system and could be a useful starting point for your audit and reconstruction efforts:
+
+\vspace{-0.4cm}
+\paragraph{Crashing code / runtime errors:} Bugs that cause Python or PyTorch to throw an error and halt execution, e.g., syntax typos, shape mismatches, and incorrect data types.
+
+\vspace{-0.4cm}
+\paragraph{Silent logical flaws:} Hidden logical flaws where the scripts run smoothly without crashing, but the underlying math or logic is completely invalid, e.g., broken data boundaries, hidden data leaks, or shadowed variables that silently break the pipeline.
+
+\vspace{-0.4cm}
+\paragraph{Numerical and gradient failures:} Situations where models flatline or explode into useless numbers. You need to find out why the mathematical signals inside the network are getting trapped, neutralized, or blown out of proportion during execution.
+
+\vspace{-0.4cm}
+\paragraph{Rigid infrastructure:} Rigid, inflexible parts of the code that must be cleaned up into dynamic, modular variables so that the entire training and testing pipeline can be controlled cleanly through a single external configuration file.
+
+\vspace{0.4cm}
+\hrule
+
+\vspace{0.3cm}
+
+\noindent \textbf{RESTRICTED // FOR SYSTEM ARCHITECTS ONLY} \\
+\textbf{To:} Freelance Machine Learning Expert \\
+\textbf{From:} Executive Board BioHealth Diagnostics Global \\
+\textbf{Subject:} Environmental Impact - Green Initiative \\
+\textbf{Urgency:} CRITICAL / IMMEDIATE ACTION REQUIRED
+
+\vspace{0.4cm}
+\hrule
+
+\paragraph{Issue:}
+The 
+
+
+
+\vspace{0.8cm}
+\hrule height 0.5pt
+\vspace{0.2cm}
+\begin{center}
+    \small \color{gray} Internal System Recovery Protocol // Document ID: IR-2026-CH // BioHealth Core Staging Environment
+\end{center}
+
+\end{document}
