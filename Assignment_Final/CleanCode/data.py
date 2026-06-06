@@ -6,6 +6,7 @@ from medmnist import INFO
 
 def get_pathmnist_loaders(batch_size=64):
     data_flag = 'pathmnist'
+    data_flag = 'tissuemnist'
     info = INFO[data_flag]
     task = info['task']
     n_channels = info['n_channels']
