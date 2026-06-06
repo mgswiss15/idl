@@ -199,7 +199,7 @@ class ResNet6(nn.Module):
         
         self.stage1 = nn.Sequential(
             ResBlock(64, 64, activation(inplace=True), stride=1),
-            ResBlock(64, 64, activation(inplace=True), stride=1)
+            # ResBlock(64, 64, activation(inplace=True), stride=1)
         )
         
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
