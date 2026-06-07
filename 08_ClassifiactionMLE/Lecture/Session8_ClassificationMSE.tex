@@ -274,16 +274,16 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 
 \vskip 1em
 
-\structure{Likelihood:} probability of observing training data under the model
+\structure{Likelihood:} probability of observed data as a \textbf{function of parameters} --- data $\dataset$ is fixed
 
 \[
-    \mathcal{L}(\pvec) = \prod_{i=1}^{\nsamples} p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    L(\pvec) = \prod_{i=1}^{\nsamples} p(y^{(i)} \mid \vx^{(i)};\, \pvec)
 \]
 
 \structure{MLE:} find parameters that make observed data most probable
 
 \[
-    \pvec^* = \arg\max_{\pvec}\; \mathcal{L}(\pvec)
+    \pvec^* = \arg\max_{\pvec}\; L(\pvec)
 \]
 
 \vskip 1em
@@ -291,7 +291,7 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 \structure{Log-likelihood:} sum instead of product --- same maximiser, more convenient
 
 \[
-    \log \mathcal{L}(\pvec) = \sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    \log L(\pvec) = \sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
 \]
 
 \end{frame}
@@ -303,11 +303,11 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 \structure{Maximise} log-likelihood $\equiv$ \structure{minimise} negative log-likelihood (NLL)
 
 \[
-    \pvec^* = \arg\max_{\pvec} \sum_{i} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
-    = \arg\min_{\pvec} \underbrace{-\frac{1}{\nsamples}\sum_{i} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)}_{\loss(\pvec)}
+    \pvec^* = \arg\max_{\pvec} \log L(\pvec) = \arg\max_{\pvec} \sum_{i=1}^N \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    = \arg\min_{\pvec} \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^N \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)}_{\loss(\pvec)}
 \]
 
-\vskip 1.5em
+\vskip 0.5em
 
 \structure{Key insight:} choice of $p(y \mid \vx;\, \pvec)$ determines the loss function
 
@@ -329,24 +329,25 @@ Categorical & Categorical cross-entropy \\
 
 \begin{frame}{Gaussian Assumption $\to$ MSE}
 
-\vskip 2em
+\vskip 1em
 
-\structure{Assume:} $p(y \mid \vx;\, \pvec) = \mathcal{N}(y;\, f_{\pvec}(\vx),\, \sigma^2)$
+\[ \text{\structure{Assume: }} \quad p(y \mid \vx;\, \pvec) = \mathcal{N}(y;\, f_{\pvec}(\vx),\, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y - f_{\pvec}(\vx))^2}{2\sigma^2}\right) \]
+
+\vskip 1em
 
 \[
-    \log p(y \mid \vx;\, \pvec) = -\frac{1}{2\sigma^2}(y - f_{\pvec}(\vx))^2 - \frac{1}{2}\log(2\pi\sigma^2)
+  \text{\structure{Log-likelihood: }} \quad \log p(y \mid \vx;\, \pvec) = -\frac{(y - f_{\pvec}(\vx))^2}{2\sigma^2} - \frac{1}{2}\log(2\pi\sigma^2)
 \]
 
-\vskip 0.5em
-
-\structure{NLL:}
+\vskip 1em
 
 \[
+\text{\structure{NLL: }} \quad
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
     = \frac{1}{2\sigma^2} \underbrace{\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}(y^{(i)} - f_{\pvec}(\vx^{(i)}))^2}_{\text{MSE}} + \text{const}
 \]
 
-\vskip 1em
+\vskip 0.5em
 
 Minimising NLL under Gaussian noise assumption $\equiv$ minimising \alert{MSE}
 
@@ -358,28 +359,27 @@ Minimising NLL under Gaussian noise assumption $\equiv$ minimising \alert{MSE}
 
 \begin{frame}{Bernoulli Assumption $\to$ Binary Cross-Entropy}
 
-\vskip 2em
-
-\structure{Assume:} $p(y \mid \vx;\, \pvec) = \text{Bernoulli}(y;\, \hat{p}), \quad \hat{p} = \sigma(f_{\pvec}(\vx))$
+\vskip 1em
 
 \[
-    p(y \mid \vx;\, \pvec) = \hat{p}^{\,y}(1-\hat{p})^{1-y}
+    \text{\structure{Assume: }} \quad p(y \mid \vx;\, \pvec) = \text{Bernoulli}(y;\, \hat{p}) = \hat{p}^{\,y}(1-\hat{p})^{1-y}, \quad \hat{p} = \sigma(f_{\pvec}(\vx))
 \]
 
-\structure{Log-likelihood:}
+\vskip 1em
 
 \[
-    \log p(y \mid \vx;\, \pvec) = y \log \hat{p} + (1-y)\log(1-\hat{p})
+    \text{\structure{Log-likelihood: }} \quad \log p(y \mid \vx;\, \pvec) = y \log \hat{p} + (1-y)\log(1-\hat{p})
 \]
 
-\structure{NLL:}
+\vskip 1em
 
 \[
+    \text{\structure{NLL: }} \quad
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
     = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \left[y^{(i)} \log \hat{p}^{(i)} + (1-y^{(i)})\log(1-\hat{p}^{(i)})\right]}_{\text{binary cross-entropy}}
 \]
 
-\vskip 0.5em
+\vskip 1em
 
 Minimising NLL under Bernoulli assumption $\equiv$ minimising \alert{binary cross-entropy}
 
@@ -387,31 +387,321 @@ Minimising NLL under Bernoulli assumption $\equiv$ minimising \alert{binary cros
 
 \begin{frame}{Categorical Assumption $\to$ Categorical Cross-Entropy}
 
-\vskip 2em
-
-\structure{Assume:} $p(y \mid \vx;\, \pvec) = \text{Categorical}(y;\, \hat{\vp}), \quad \hat{\vp} = \text{softmax}(f_{\pvec}(\vx))$
+\vskip 1em
 
 \[
-    p(y \mid \vx;\, \pvec) = \prod_{k=1}^{K} \hat{p}_k^{\,y_k} = \hat{p}_y
+    \text{\structure{Assume: }} \quad p(y \mid \vx;\, \pvec) = \text{Categorical}(y;\, \hat{\vp}) = \prod_{k=1}^{K} \hat{p}_k^{\,y_k} = \hat{p}_y, \quad \hat{\vp} = \text{softmax}(f_{\pvec}(\vx))
 \]
 
-\structure{Log-likelihood:}
+\vskip 1em
 
 \[
-    \log p(y \mid \vx;\, \pvec) = \sum_{k=1}^{K} y_k \log \hat{p}_k = \log \hat{p}_y
+    \text{\structure{Log-likelihood: }} \quad \log p(y \mid \vx;\, \pvec) = \sum_{k=1}^{K} y_k \log \hat{p}_k = \log \hat{p}_y
 \]
 
-\structure{NLL:}
+\vskip 1em
 
 \[
+    \text{\structure{NLL: }} \quad
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
     = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log \hat{p}^{(i)}_{y^{(i)}}}_{\text{categorical cross-entropy}}
 \]
 
-\vskip 0.5em
+\vskip 1em
 
 Minimising NLL under categorical assumption $\equiv$ minimising \alert{categorical cross-entropy}
 
 \end{frame}
+
+% -
+\section{Information Theory}
+% -
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Information Theory}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Why Information Theory?}
+
+\vskip 2em
+
+\structure{So far:} cross-entropy - mathematical result of MLE derivation
+
+\vskip 1em
+
+\structure{Open question:} what does cross-entropy \textit{mean}?
+
+\vskip 1.5em
+
+\structure{Answer - information theory:}
+\begin{itemize}
+    \item Cross-entropy: fundamental measure of how well distribution $q$ approximates distribution $p$
+    \item Training minimises gap between model distribution $q = \hat{\vp}$ and true distribution $p$
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{We will build up:}
+\begin{itemize}
+    \item \structure{Information content} --- how surprising is an event?
+    \item \structure{Entropy} --- how uncertain is a distribution?
+    \item \structure{Cross-entropy and KL divergence} --- how far apart are two distributions?
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Payoff:} MLE, cross-entropy loss, and KL divergence - three views of same objective
+
+\end{frame}
+
+\begin{frame}{Information Content}
+
+\vskip 2em
+
+\structure{Intuition:} how surprised are we when event $k$ occurs?
+
+\begin{itemize}
+    \item Rare event --- very surprising --- highly informative
+    \item Common event --- expected --- low information
+\end{itemize}
+
+\vskip 1em
+
+\structure{Information content (Shannon, 1948):}
+
+\[
+    I(k) = -\log p_k
+\]
+
+\vskip 1em
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$p_k$ & $I(k)$ & Interpretation \\
+\midrule
+$1$ & $0$ & certain event --- no surprise \\
+$0.5$ & $1$ bit & coin flip \\
+$0.01$ & $\approx 6.6$ bits & rare event --- very surprising \\
+$\to 0$ & $\to \infty$ & impossible event becoming true \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Information Content}
+
+\vskip 1.5em
+
+\structure{Intuition:} how surprised are we when event $k$ occurs?
+\begin{itemize}
+    \item Rare event --- very surprising --- highly informative
+    \item Common event --- expected --- low information
+\end{itemize}
+
+\vskip 1em
+
+\structure{Information content:} \structure{$I(k) = -\log_2 p_k$}  - optimal number of bits to encode event $k$ 
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$p_k$ & $I(k)$ & Interpretation \\
+\midrule
+$1$ & $0$ & certain event --- no bits needed \\
+$0.5$ & $1$ bit & coin flip \\
+$0.01$ & $\approx 6.6$ bits & rare event --- very surprising - long encoding\\
+$\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vskip 0.5em
+
+\structure{Why $-\log$?} More probable events - shorter codes; info of independent events - sum of info; monotonic and smooth.
+
+\end{frame}
+
+\begin{frame}{Entropy}
+
+\vskip 2em
+
+\structure{Entropy:} expected information content = minimum average code length for samples from distribution $p$
+
+\[
+    H(p) = \mathbb{E}_{k \sim p}[I(k)] = -\sum_{k} p_k \log p_k
+\]
+
+\vskip 1em
+
+\structure{Measures uncertainty:}
+\begin{itemize}
+    \item High entropy --- high uncertainty, long average code --- distribution spread out
+    \item Low entropy --- low uncertainty, short average code --- distribution concentrated
+    \item $H(p) = 0$ --- deterministic distribution, no bits needed
+    \item $H(p)$ maximised by uniform distribution --- maximum uncertainty
+\end{itemize}
+
+
+
+\end{frame}
+
+\begin{frame}{Binary Entropy and Coding}
+
+\vskip 2em
+
+\structure{Binary distribution:} $p = (p, 1-p)$
+
+\[
+    H(p) = -p\log_2 p - (1-p)\log_2(1-p)
+\]
+
+\vskip 1em
+
+\begin{itemize}
+    \item \structure{Fair coin} $p = 0.5$: $H = 1$ bit --- optimal code 1 bit per outcome; matches practice
+    \item \structure{Biased coin} $p = 0.9$: $H \approx 0.47$ bits --- in theory we can do better than 1 bit per symbol
+\end{itemize}
+
+\vskip 1em
+
+\structure{Practical limit:} single outcomes cannot be encoded in less than 1 bit
+
+\vskip 0.5em
+
+The bound $H(p) < 1$ is only achievable asymptotically --- by encoding long sequences of outcomes together rather than individual symbols
+
+\vskip 1em
+
+\structure{This motivates a figure:} $H(p)$ as a function of $p \in [0,1]$ --- symmetric, maximised at $p=0.5$, zero at $p \in \{0,1\}$
+
+\end{frame}
+
+\begin{frame}{Entropy}
+
+\vskip 2em
+
+\structure{Entropy:} expected information content of distribution $p$
+
+\[
+    H(p) = \mathbb{E}_{k \sim p}[I(k)] = -\sum_{k} p_k \log p_k
+\]
+
+\structure{Measures uncertainty:}
+\begin{itemize}
+    \item High entropy --- high uncertainty, distribution spread out
+    \item Low entropy --- low uncertainty, distribution concentrated
+    \item $H(p) = 0$ --- deterministic distribution, no uncertainty
+    \item $H(p)$ maximised by uniform distribution
+\end{itemize}
+
+\vskip 1em
+
+\structure{Example:} binary distribution $p = (p, 1-p)$
+\[
+    H(p) = -p\log p - (1-p)\log(1-p)
+\]
+Maximised at $p = 0.5$ --- complete uncertainty between two outcomes
+
+\end{frame}
+
+\begin{frame}{Cross-Entropy}
+
+\vskip 2em
+
+\structure{Setup:} true distribution $p$, model distribution $q$
+
+\vskip 1em
+
+\structure{Cross-entropy:} expected information content when using $q$ to encode events from $p$
+
+\[
+    H(p, q) = -\sum_{k} p_k \log q_k
+\]
+
+\vskip 1em
+
+\begin{itemize}
+    \item $H(p, q) \geq H(p)$ --- using wrong distribution always costs extra bits
+    \item $H(p, q) = H(p)$ iff $p = q$ --- no extra cost when model is perfect
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Connection to classification loss:}
+\begin{itemize}
+    \item True labels $\Rightarrow$ true distribution $p$ (one-hot)
+    \item Model predictions $\Rightarrow$ estimated distribution $q = \hat{\vp}$
+    \item Categorical cross-entropy loss $= H(p, q)$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{KL Divergence}
+
+\vskip 2em
+
+\structure{KL divergence:} extra cost of using $q$ instead of $p$
+
+\[
+    D_{KL}(p \| q) = H(p, q) - H(p) = \sum_{k} p_k \log \frac{p_k}{q_k}
+\]
+
+\vskip 1em
+
+\begin{itemize}
+    \item $D_{KL}(p \| q) \geq 0$ --- always non-negative
+    \item $D_{KL}(p \| q) = 0$ iff $p = q$
+    \item \alert{Not symmetric:} $D_{KL}(p \| q) \neq D_{KL}(q \| p)$ in general
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Connection to cross-entropy loss:} since $H(p)$ is fixed (labels do not depend on $\pvec$)
+
+\[
+    \min_{\pvec}\; H(p, q) \equiv \min_{\pvec}\; D_{KL}(p \| q)
+\]
+
+Minimising cross-entropy loss $\equiv$ minimising KL divergence between true and predicted distribution
+
+\end{frame}
+
+\begin{frame}{Three Views, One Objective}
+
+\vskip 2em
+
+\structure{Three perspectives on the same optimisation problem:}
+
+\vskip 1.5em
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Perspective} & \textbf{Objective} \\
+\midrule
+\structure{Maximum likelihood} & maximise probability of observed data \\[0.5em]
+\structure{Information theory} & minimise KL divergence $D_{KL}(p \| q)$ \\[0.5em]
+\structure{Loss minimisation} & minimise cross-entropy $H(p, q)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vskip 2em
+
+\begin{center}
+All three are equivalent --- MLE gives the statistical motivation,\\
+cross-entropy gives the practical loss, KL divergence gives the geometric interpretation
+\end{center}
+
+\vskip 1em
+
+\alert{The choice of loss function is not arbitrary --- it reflects an assumption about the data-generating process}
+
+\end{frame}
+
 
 \end{document}
