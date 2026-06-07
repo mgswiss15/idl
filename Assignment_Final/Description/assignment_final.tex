@@ -36,21 +36,24 @@
 \paragraph{Incident Report:}
 Twenty-four hours ago, BioHealth Diagnostics was on the verge of deploying its next-generation multi-class clinical triage pipeline. Our core model registry, \textbf{AlexNet, VGG16, and ResNet18}, was calibrated to run seamlessly across our standardized diagnostic image profiles (\texttt{cells, chest, lesions} and \texttt{orgs}).
 
-Before fleeing the campus to evade security, disgruntled former architect Dr. Viktor Vance executed an environment-wipe utility. The damage is extensive:
+Before fleeing the campus to evade security, disgruntled former ML chief engineer Dr. Viktor Vance executed an environment-wipe utility. The damage is extensive:
 \begin{itemize}[nosep, noitemsep]
     \item All trained weights, production-ready source code, configuration registries, and evaluation automation scripts were permanently deleted.
     \item Forensics managed to scrape the local drive caches and recovered older, heavily unoptimized, and volatile draft copies of \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}. 
     \item All configuration assets (\texttt{config.json}), automated testing frameworks, and multi-dataset comparison tools were completely unrecoverable. 
+    \item Luckily, all data have been stored on an emergency back-up and have been successfully restored and are intact.
 \end{itemize}
 
 Preliminary execution attempts on the recovered code show that it is highly unstable. It suffers from a mix of immediate runtime exceptions, silent computational graph corruptions, numerical gradient explosions, and algorithmic anti-patterns. 
 
 \vspace{-0.4cm}
-\paragraph{Requested Action:} Audit the volatile remains of the codebase, neutralize every mathematical and syntactic landmine left behind in the scripts, forge the missing configuration infrastructure from scratch, and deploy an automated multi-dataset benchmark runner to restore project integrity before the system completely goes dark. The incident response team expects the below listed deliverables as commits to a dedicated branch named \texttt{en\_xxxx}, where xxxx is your student enrollment number, in the project repository \url{https://git.fiw.fhws.de/teaching/mai/idl26_finalassignment}, with clear commit messages indicating the nature of the changes made. \textbf{Deadline: 9.7.2026, midnight German time}. 
+\paragraph{Requested Action:} Audit the volatile remains of the codebase, neutralize every mathematical and syntactic issue in the scripts, and create the missing configuration and testing infrastructure from scratch to restore the project integrity before the system completely goes dark. The forensic team has prepared a github repository template with the recovered code \url{https://github.com/thws-mai/idl26_finalAssignment}. The ML experts are expected to use this template to create their own repositories for all development documenting all critical code updates and contributions to the below deliverables with clear commit messages within the \texttt{main} branch of the created repo. \textbf{Deadline: 9.7.2026, midnight German time}. 
 \begin{enumerate}[nosep, noitemsep]
-    \item \textbf{Complete Corrected Codebase:} A fully functional, production-grade version of the entire repository, including \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}, alongside your newly engineered configuration and testing frameworks. The codebase must be modular, error-free, compatible with all four target datasets, and capable of executing training and predictions for all three models via native Python calls driven by your configuration structure.
+    \item \textbf{Complete Corrected Codebase:} Fully functional, production-grade version of the entire repository, including \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}, alongside your newly engineered configuration and testing frameworks. The codebase must be modular, error-free, compatible with all four target datasets, and capable of executing training and predictions for all three models via native Python calls driven by the developed configuration structure.
+    \item \textbf{Professional Repository Documentation (\texttt{README.md}):}
+    Clean, comprehensive markdown file in the root of your \texttt{main} branch detailing the content, structural layout, prerequisites, and explicit commands required to install dependencies and execute the train and test pipeline.
     \item \textbf{Incident Audit Log:} A technical table (submitted as \texttt{AUDIT\_LOG.md}) itemizing every bug, corruption, or anti-pattern discovered within the recovered code. For each entry, you must explicitly document: (i) the file name, (ii) how the problem manifests, (iii) the mathematical or logical root cause of the failure, (iv) the structural correction implemented, and (v) the exact git commit hash containing the fix.
-    \item \textbf{Consolidated Benchmark Report:} A brief evaluation report (submitted as \texttt{REPORT.md} or \texttt{REPORT.pdf} in your repository root) comparing the final performance of the corrected models across all configuration permutations. This must include a clean summary table capturing key metrics (accuracy, precision, recall, and macro F1-score) along with architectural recommendations for optimal dataset/model pairings based on your observed benchmarks. Expected \textbf{minimal accuracy} performance on test data: cells: 90\%, chest: 87\%,, lesions: 67\%, orgs: 83\%.
+    \item \textbf{Consolidated Benchmark Report:} A brief evaluation report (submitted as \texttt{REPORT.md} or \texttt{REPORT.pdf} in your repository root) comparing the final performance of the corrected models across all configuration permutations. This must include a clean summary table capturing key metrics (accuracy, precision, recall, and macro F1-score) along with architectural recommendations for optimal dataset/model pairings based on your observed benchmarks. Expected \textbf{minimal accuracy} performance on test data: cells: 90\%, chest: 87\%, lesions: 67\%, orgs: 83\%.
 \end{enumerate}
 
 \vspace{0.4cm}
@@ -91,8 +94,7 @@ The executive board recognizes the critical importance of sustainability and env
 \vspace{-0.4cm}
 \paragraph{Requested Action:}
 You are required to refactor the restored models to propose a network architecture that drastically reduces computational time and energy footprint while preserving baseline classification accuracy. Heavy, bloated topologies are no longer acceptable for our diagnostic devices. 
-
-The board expects you to implement aggressive efficiency strategies directly into your model definitions as additional commits in your development branch. \textbf{Deadline: 9.7.2026, midnight German time}. 
+The board expects you to implement aggressive efficiency strategies directly into your model definitions as additional commits in your repository within the \texttt{main} branch. \textbf{Deadline: 9.7.2026, midnight German time}. 
 
 Your specific optimization targets are:
 \begin{enumerate}[nosep, noitemsep]
@@ -108,7 +110,7 @@ Your specific optimization targets are:
 
 \noindent \textbf{OPEN // FOR ALL ML EXPERTS} \\
 \textbf{To:} Freelance Machine Learning Expert \\
-\textbf{From:} Executive Board, BioHealth Diagnostics Global \\
+\textbf{From:} Chief of Medical Testing, BioHealth Diagnostics Global \\
 \textbf{Subject:} New Dataset - organs \\
 \textbf{Urgency:} HIGH / WEIGHT: 25 pts
 
@@ -116,20 +118,18 @@ Your specific optimization targets are:
 \hrule
 
 \paragraph{Issue:}
-New study has yielded new data - \texttt{organs}. Though the dataset is so far small, there is an accute need to bring these data to use. Simple integration into existing pipline is unlikely to deliver sufficient accuracy. Innovative solutions are required to leverage the new data and extract maximum value from it.
+New study has yielded new data - \texttt{organs}. Though the dataset is so far small, there is an imminent need to bring these data to use. Simple integration into existing pipeline is unlikely to deliver sufficient accuracy. Innovative solutions are required to leverage the new data and extract maximum value from it.
 
 \vspace{-0.4cm}
 \paragraph{Requested Action:}
-Specialized strategy to successfully integrate this low-sample dataset into the restored pipeline is needed.
-
-The board expects you to implement a robust data-leveraging framework. These specific model developments shall be additional commits in your development branch. \textbf{Deadline: 9.7.2026, midnight German time}. 
+Specialized strategy to successfully integrate this low-sample dataset into the restored pipeline is needed. The chief of medical testing wishes you to implement a robust data-leveraging framework to gain as much as possible from the limited training data. As he understands the challenge and risk of working with so little data, he also expects your expert opinion on various solution strategies with respect to their potential for practical use and recommendations for future strategies as more data are gathered. These specific developments shall be additional commits in your development branch. \textbf{Deadline: 9.7.2026, midnight German time}. 
 
 Your specific architectural requirements are:
 
 \begin{enumerate}[nosep, noitemsep]
     \item \textbf{Knowledge Transfer Adaptation:} Adapt your pipeline to utilize a data-efficient training regime. Determine how to exploit structural features learned from your larger, existing image profiles to maximize performance on the new, limited organs data.
     \item \textbf{Scarce-Data Benchmark Matrix:} Expand your automated runner to track and log the performance behavior of this new data under different training states (e.g., training from completely scratch vs. leveraging transferred feature knowledge).
-    \item \textbf{Data-Scarcity Post-Mortem:} Document a dedicated analysis in your final report (\texttt{REPORT.md}). Show quantitatively the impact of your innovative approach compared to standard baseline training. The board hopes for at least 50\% accuracy on the test set. 
+    \item \textbf{Data-Scarcity Post-Mortem:} Dedicated analysis in the final report (\texttt{REPORT.md}) analyzing quantitatively the impact of the innovative approaches, comparison to standard baseline training and expert summary and recommendations. The chief hopes for at least 40\% accuracy on the test set. 
 \end{enumerate}
 
 
