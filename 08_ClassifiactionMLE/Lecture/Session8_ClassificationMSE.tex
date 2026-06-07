@@ -1,0 +1,417 @@
+\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller, t]{beamer}
+\newcommand{\CommonPath}{../../Common}
+\newcommand{\coursename}{Intro to DL - S8}
+\usepackage{\CommonPath/slidespreamble}
+\usepackage{\CommonPath/math_commands}
+\setbeameroption{hide notes}
+
+\title{Introduction to Deep Learning}
+\subtitle{Session 8: Classification \& Maximum Likelihood \\[1em]
+\small May 2026}
+\author{Magda Gregorová - \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}
+\institute{\includegraphics[width=0.3\textwidth]{thws-logo_vert_en_orange-rgb.png}}
+\hypersetup{
+pdftitle={Introduction to Deep Learning},
+pdfauthor={Magda Gregorová},
+pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid, information theory}
+}
+
+\date{{\color{skyblue1}\footnotesize Licensed according to
+\href{https://creativecommons.org/licenses/by-sa/4.0}{\color{skyblue1}CC-BY-SA 4.0}}}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+\begin{frame}{Lecture Overview}
+\tableofcontents
+\end{frame}
+
+% -
+\section{Classification Problem}
+% -
+\begin{frame}{From Regression to Classification}
+
+\vskip 2em
+
+\structure{Regression:} predict continuous value $y \in \mathbb{R}$
+\begin{itemize}
+    \item Output: house price, temperature, critical temperature
+    \item Loss: MSE --- penalises distance between prediction and target
+\end{itemize}
+
+\vskip 1em
+
+\structure{Classification:} predict  discrete category $y \in \{1, \ldots, K\}$
+\begin{itemize}
+    \item Output: image class, spam or not, medical diagnosis
+    \item Output space fundamentally different --- no notion of distance between classes
+\end{itemize}
+
+\vskip 1em
+
+\structure{Problem:} raw network output $f_{\pvec}(\vx) \in \mathbb{R}$ cannot be interpreted as class directly
+
+\vskip 1em
+
+\begin{center}
+\textbf{\alert{Idea:} convert output to probability distribution over classes}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{What We Need}
+
+\vskip 2em
+
+\structure{Requirements} for valid probability distribution over $K$ classes:
+
+\[
+    p_k \geq 0 \quad \forall\, k \qquad \text{and} \qquad \sum_{k=1}^{K} p_k = 1
+\]
+
+\vskip 1em
+
+\structure{Raw network outputs} (logits) \alert{$\vz = f_{\pvec}(\vx) \in \mathbb{R}^K$}
+
+\vskip 1em
+
+\structure{Solution:} transformation that maps logits to valid probability distribution
+\begin{itemize}
+    \item \structure{Binary classification} ($K = 2$): \textbf{sigmoid} $\to$ next section
+    \item \structure{Multiclass classification} ($K > 2$): \textbf{softmax} $\to$ following section
+\end{itemize}
+
+\vskip 1em
+
+\structure{Loss function:} for probability outputs? not MSE, hm ... 
+
+\end{frame}
+
+% -
+\section{Binary Classification}
+% -
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Binary Classification}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Sigmoid}
+
+\vskip 2em
+
+\structure{Binary classification:} $y \in \{0, 1\}$ - network outputs single logit $z = f_{\pvec}(\vx) \in \mathbb{R}$
+
+\vskip 1em
+
+\structure{Sigmoid:} squashes logit to $(0, 1)$ - interpreted as probability of class 1
+
+\[
+    \hat{p} = \sigma(z) = \frac{1}{1 + e^{-z}}
+\]
+
+\vskip 1em
+
+\begin{columns}[c]
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item $\sigma(z) \in (0, 1)$ for all $z \in \mathbb{R}$
+    \item $\sigma(0) = 0.5$ - symmetric around origin
+    \item $\sigma(z) \to 1$ as $z \to \infty$
+    \item $\sigma(z) \to 0$ as $z \to -\infty$
+\end{itemize}
+\end{column}
+\begin{column}{0.45\textwidth}
+\centering
+\input{\CommonPath/tikz/sigmoid.tex}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Binary Cross-Entropy}
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
+\structure{Loss:} penalise confident wrong predictions
+\[
+    \ell(\hat{p}, y) = -y \log \hat{p} - (1-y) \log(1 - \hat{p})
+\]
+  \begin{columns}[c] 
+  \begin{column}{0.5\textwidth}
+  \structure{$y = 1$:} loss $= -\log \hat{p}$
+  \begin{itemize}
+      \item $\hat{p} \to 1$ : loss $\to 0$ \checkmark
+      \item $\hat{p} \to 0$ : loss $\to \infty$ \alert{\texttimes}
+  \end{itemize}
+  \end{column}
+  \begin{column}{0.5\textwidth}
+  \structure{$y = 0$:} loss $= -\log(1-\hat{p})$
+  \begin{itemize}
+      \item $\hat{p} \to 0$ : loss $\to 0$ \checkmark
+      \item $\hat{p} \to 1$ : loss $\to \infty$ \alert{\texttimes}
+  \end{itemize}
+  \end{column}
+\end{columns}
+\end{column}
+\begin{column}{0.38\textwidth}
+
+\,
+
+\centering
+\input{\CommonPath/tikz/bce_loss.tex}
+\end{column}
+\end{columns}
+
+\vskip 1.5em
+
+\structure{Training loss:}
+\[
+    \loss(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \left[ y^{(i)} \log \hat{p}^{(i)} + (1 - y^{(i)}) \log(1 - \hat{p}^{(i)}) \right]
+\]
+
+\end{frame}
+
+% -
+\section{Multiclass Classification}
+% -
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Multiclass Classification}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Softmax}
+
+\vskip 2em
+
+\structure{Multiclass classification:} $y \in \{1, \ldots, K\}$ - network outputs $K$ logits $\vz \in \mathbb{R}^K$
+
+\vskip 1em
+
+\structure{Softmax:} maps logits to valid probability distribution
+\begin{columns}[c]
+\begin{column}{0.4\textwidth}
+\[
+    \hat{p}_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}, \qquad k = 1, \ldots, K
+\]
+\end{column}
+\begin{column}{0.6\textwidth}
+\begin{itemize}
+    \item $\hat{p}_k > 0$ for all $k$ --- all probabilities positive
+    \item $\sum_{k=1}^{K} \hat{p}_k = 1$ --- valid distribution
+    \item Larger logit $\Rightarrow$ larger probability
+\end{itemize}
+\end{column}
+\end{columns}
+
+\vskip 2em
+
+\structure{Connection to sigmoid:} softmax with $K=2$ reduces to sigmoid
+
+\[
+    \hat{p}_1 = \frac{e^{z_1}}{e^{z_1} + e^{z_2}} = \frac{1}{1 + e^{-(z_1 - z_2)}} = \sigma(z_1 - z_2)
+\]
+
+\vskip 0.5em
+
+Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
+
+\end{frame}
+
+\begin{frame}{Categorical Cross-Entropy}
+
+\vskip 2em
+
+\structure{Labels:} one-hot vector $\vy \in \{0,1\}^K$ --- $y_k = 1$ for correct class, 0 otherwise
+
+\vskip 1em
+
+\structure{Loss:} picks out log probability of correct class
+
+\[
+    \ell(\hat{\vp}, \vy) = -\sum_{k=1}^{K} y_k \log \hat{p}_k = -\log \hat{p}_{y}
+\]
+
+\vskip 1em
+
+\begin{itemize}
+    \item Correct class predicted confidently $\hat{p}_y \to 1$ : loss $\to 0$ \checkmark
+    \item Correct class predicted with low confidence $\hat{p}_y \to 0$ : loss $\to \infty$ \alert{\texttimes}
+\end{itemize}
+
+\vskip 1em
+
+\structure{Training loss:}
+\[
+    \loss(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \log \hat{p}_{y^{(i)}}^{(i)}
+\]
+
+\end{frame}
+
+% -
+\section{Maximum Likelihood}
+% -
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Maximum Likelihood}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Maximum Likelihood Principle}
+
+\vskip 2em
+
+\structure{Setup:} model defines conditional distribution $p(y \mid \vx;\, \pvec)$ over outputs
+
+\vskip 1em
+
+\structure{Likelihood:} probability of observing training data under the model
+
+\[
+    \mathcal{L}(\pvec) = \prod_{i=1}^{\nsamples} p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+\]
+
+\structure{MLE:} find parameters that make observed data most probable
+
+\[
+    \pvec^* = \arg\max_{\pvec}\; \mathcal{L}(\pvec)
+\]
+
+\vskip 1em
+
+\structure{Log-likelihood:} sum instead of product --- same maximiser, more convenient
+
+\[
+    \log \mathcal{L}(\pvec) = \sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+\]
+
+\end{frame}
+
+\begin{frame}{From MLE to Loss Minimisation}
+
+\vskip 2em
+
+\structure{Maximise} log-likelihood $\equiv$ \structure{minimise} negative log-likelihood (NLL)
+
+\[
+    \pvec^* = \arg\max_{\pvec} \sum_{i} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    = \arg\min_{\pvec} \underbrace{-\frac{1}{\nsamples}\sum_{i} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)}_{\loss(\pvec)}
+\]
+
+\vskip 1.5em
+
+\structure{Key insight:} choice of $p(y \mid \vx;\, \pvec)$ determines the loss function
+
+\vskip 1em
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Distributional assumption} & \textbf{Loss function} \\
+\midrule
+Gaussian & MSE \\
+Bernoulli & Binary cross-entropy \\
+Categorical & Categorical cross-entropy \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Gaussian Assumption $\to$ MSE}
+
+\vskip 2em
+
+\structure{Assume:} $p(y \mid \vx;\, \pvec) = \mathcal{N}(y;\, f_{\pvec}(\vx),\, \sigma^2)$
+
+\[
+    \log p(y \mid \vx;\, \pvec) = -\frac{1}{2\sigma^2}(y - f_{\pvec}(\vx))^2 - \frac{1}{2}\log(2\pi\sigma^2)
+\]
+
+\vskip 0.5em
+
+\structure{NLL:}
+
+\[
+    -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    = \frac{1}{2\sigma^2} \underbrace{\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}(y^{(i)} - f_{\pvec}(\vx^{(i)}))^2}_{\text{MSE}} + \text{const}
+\]
+
+\vskip 1em
+
+Minimising NLL under Gaussian noise assumption $\equiv$ minimising \alert{MSE}
+
+\vskip 0.5em
+
+\structure{Connects to Session 3:} MSE is not arbitrary --- it is MLE under Gaussian noise
+
+\end{frame}
+
+\begin{frame}{Bernoulli Assumption $\to$ Binary Cross-Entropy}
+
+\vskip 2em
+
+\structure{Assume:} $p(y \mid \vx;\, \pvec) = \text{Bernoulli}(y;\, \hat{p}), \quad \hat{p} = \sigma(f_{\pvec}(\vx))$
+
+\[
+    p(y \mid \vx;\, \pvec) = \hat{p}^{\,y}(1-\hat{p})^{1-y}
+\]
+
+\structure{Log-likelihood:}
+
+\[
+    \log p(y \mid \vx;\, \pvec) = y \log \hat{p} + (1-y)\log(1-\hat{p})
+\]
+
+\structure{NLL:}
+
+\[
+    -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \left[y^{(i)} \log \hat{p}^{(i)} + (1-y^{(i)})\log(1-\hat{p}^{(i)})\right]}_{\text{binary cross-entropy}}
+\]
+
+\vskip 0.5em
+
+Minimising NLL under Bernoulli assumption $\equiv$ minimising \alert{binary cross-entropy}
+
+\end{frame}
+
+\begin{frame}{Categorical Assumption $\to$ Categorical Cross-Entropy}
+
+\vskip 2em
+
+\structure{Assume:} $p(y \mid \vx;\, \pvec) = \text{Categorical}(y;\, \hat{\vp}), \quad \hat{\vp} = \text{softmax}(f_{\pvec}(\vx))$
+
+\[
+    p(y \mid \vx;\, \pvec) = \prod_{k=1}^{K} \hat{p}_k^{\,y_k} = \hat{p}_y
+\]
+
+\structure{Log-likelihood:}
+
+\[
+    \log p(y \mid \vx;\, \pvec) = \sum_{k=1}^{K} y_k \log \hat{p}_k = \log \hat{p}_y
+\]
+
+\structure{NLL:}
+
+\[
+    -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log \hat{p}^{(i)}_{y^{(i)}}}_{\text{categorical cross-entropy}}
+\]
+
+\vskip 0.5em
+
+Minimising NLL under categorical assumption $\equiv$ minimising \alert{categorical cross-entropy}
+
+\end{frame}
+
+\end{document}
