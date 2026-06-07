@@ -41,7 +41,7 @@ Before fleeing the campus to evade security, disgruntled former ML chief enginee
     \item All trained weights, production-ready source code, configuration registries, and evaluation automation scripts were permanently deleted.
     \item Forensics managed to scrape the local drive caches and recovered older, heavily unoptimized, and volatile draft copies of \texttt{data.py}, \texttt{models.py}, \texttt{train.py}, and \texttt{trainer.py}. 
     \item All configuration assets (\texttt{config.json}), automated testing frameworks, and multi-dataset comparison tools were completely unrecoverable. 
-    \item Luckily, all data have been stored on an emergency back-up and have been successfully restored and are intact.
+    \item Luckily, all data have been stored on an emergency back-up and have been successfully restored and are intact. They are available for download here \url{https://cloud.fiw.fhws.de/s/LpYa2dCW85kwdNn}.
 \end{itemize}
 
 Preliminary execution attempts on the recovered code show that it is highly unstable. It suffers from a mix of immediate runtime exceptions, silent computational graph corruptions, numerical gradient explosions, and algorithmic anti-patterns. 
@@ -61,18 +61,13 @@ Preliminary execution attempts on the recovered code show that it is highly unst
 
 \section*{System State and Engineering Requirements}
 The forensic team has been able to observe some patterns in the types of failures that are occurring when attempting to run the recovered code. So far, they have identified the following categories of issues that are plaguing the system and could be a useful starting point for your audit and reconstruction efforts:
-
-\vspace{-0.4cm}
-\paragraph{Crashing code / runtime errors:} Bugs that cause Python or PyTorch to throw an error and halt execution, e.g., syntax typos, shape mismatches, and incorrect data types.
-
-\vspace{-0.4cm}
-\paragraph{Silent logical flaws:} Hidden logical flaws where the scripts run smoothly without crashing, but the underlying math or logic is completely invalid, e.g., broken data boundaries, hidden data leaks, or shadowed variables that silently break the pipeline.
-
-\vspace{-0.4cm}
-\paragraph{Numerical and gradient failures:} Situations where models flatline or explode into useless numbers. You need to find out why the mathematical signals inside the network are getting trapped, neutralized, or blown out of proportion during execution.
-
-\vspace{-0.4cm}
-\paragraph{Rigid infrastructure:} Rigid, inflexible parts of the code that must be cleaned up into dynamic, modular variables so that the entire training and testing pipeline can be controlled cleanly through a single external configuration file.
+\begin{itemize}[nosep, noitemsep]
+\item \textbf{Crashing code / runtime errors:} Bugs that cause Python or PyTorch to throw an error and halt execution, e.g., syntax typos, shape mismatches, and incorrect data types.
+\item \textbf{Silent logical flaws:} Hidden logical flaws where the scripts run smoothly without crashing, but the underlying math or logic is completely invalid, e.g., broken data boundaries, hidden data leaks, or shadowed variables that silently break the pipeline.
+\item \textbf{Numerical and gradient failures:} Situations where models flatline or explode into useless numbers. You need to find out why the mathematical signals inside the network are getting trapped, neutralized, or blown out of proportion during execution.
+\item \textbf{Rigid infrastructure:} Rigid, inflexible parts of the code that must be cleaned up into dynamic, modular variables so that the entire training and testing pipeline can be controlled cleanly through a single external configuration file.
+\end{itemize}
+The forensic team confirms that the data have been fully recovered and are intact.
 
 \vspace{0.4cm}
 \hrule width \hsize \kern 1mm \hrule width \hsize height 2pt 
