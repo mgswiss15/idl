@@ -32,22 +32,49 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 % -
 \section{Classification Problem}
 % -
-\begin{frame}{From Regression to Classification}
+
+\begin{frame}{Classification Problem}
 
 \vskip 2em
 
-\structure{Regression:} predict continuous value $y \in \mathbb{R}$
+\structure{Classification:} predict discrete category $y \in \{1, \ldots, K\}$
 \begin{itemize}
-    \item Output: house price, temperature, critical temperature
-    \item Loss: MSE --- penalises distance between prediction and target
+    \item Output: image class, spam or not, medical diagnosis
+    \item Output space fundamentally different from regression --- no notion of distance between classes
 \end{itemize}
+
+\vskip 2em
+
+\structure{Natural objective:} accuracy --- fraction of correctly classified examples
+
+\[
+    \text{acc} = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \mathbf{1}[\hat{y}^{(i)} = y^{(i)}]
+\]
+
+\end{frame}
+
+\begin{frame}{From Accuracy to Loss}
+
+\vskip 2em
+
+\structure{Problem:} accuracy not differentiable --- cannot use as training loss
+
+\[
+    \mathbf{1}[\hat{y} = y] = \begin{cases} 1 & \hat{y} = y \\ 0 & \hat{y} \neq y \end{cases}
+    \quad \Rightarrow \quad \frac{\partial}{\partial \pvec}\mathbf{1}[\hat{y} = y] = 0 \text{ almost everywhere}
+\]
 
 \vskip 1em
 
-\structure{Classification:} predict  discrete category $y \in \{1, \ldots, K\}$
+\structure{Solution:} differentiable proxy loss $\to$ \alert{optimise loss in training, evaluate accuracy at test}
+
+\vskip 1em
+
+\structure{Requirements} for proxy:
 \begin{itemize}
-    \item Output: image class, spam or not, medical diagnosis
-    \item Output space fundamentally different --- no notion of distance between classes
+    \item Differentiable --- gradient descent can optimise
+    \item Correlates with accuracy --- improving loss should improve accuracy
+    \item Computatble from NN outputs
 \end{itemize}
 
 \vskip 1em
@@ -61,6 +88,7 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 \end{center}
 
 \end{frame}
+
 
 \begin{frame}{What We Need}
 
@@ -641,6 +669,119 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
 \end{frame}
 
 % -
+\section{Practical Implementation}
+% -
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Practical Implementation}}
+\end{center}
+\end{frame}
+
+\begin{frame}{PyTorch Loss Functions}
+
+\vskip 2em
+
+\begin{columns}[t]
+\begin{column}{0.5\textwidth}
+\structure{Binary classification:}
+\begin{itemize}
+    \item \alert{\texttt{nn.BCEWithLogitsLoss}} --- takes logits
+    \item \texttt{nn.BCELoss} --- takes probabilities
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\structure{Multiclass classification:}
+\begin{itemize}
+    \item \alert{\texttt{nn.CrossEntropyLoss}} --- takes logits
+    \item \texttt{nn.NLLLoss} --- takes log-probabilities
+\end{itemize}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\structure{Why logits?}
+\begin{itemize}
+    \item Numerically stable --- PyTorch applies log-sum-exp trick internally
+    \item Fewer operations --- no need to apply sigmoid/softmax before loss
+    \item Less risk of errors --- sigmoid then BCELoss is a common bug source
+\end{itemize}
+
+\vskip 1em
+
+\structure{Note:} \texttt{nn.CrossEntropyLoss} expects:
+\begin{itemize}
+    \item Integer class indices of shape \texttt{(N,)} --- standard usage
+    \item Float probability distributions of shape \texttt{(N, K)} --- for soft targets (see later)
+\end{itemize}
+One-hot integer vectors are \alert{not supported}
+
+\end{frame}
+
+\begin{frame}{Numerical Stability}
+
+\vskip 1em
+
+\structure{Cross-entropy loss requires $\log \hat{p}_k$:}
+
+\[
+    \loss = -\frac{1}{\nsamples}\sum_i \log \hat{p}_{y^{(i)}}^{(i)}
+    \qquad \Rightarrow \qquad
+    \log \hat{p}_k = \log \frac{e^{z_k}}{\sum_j e^{z_j}} = z_k - \log \sum_j e^{z_j}
+\]
+
+\structure{Problem:} \texttt{log-softmax} numerically unstable
+
+\vskip 0.5em
+
+Large logits $\Rightarrow$ $e^{z_k}$ overflows to \texttt{inf} \quad Small logits $\Rightarrow$ $\log \sum_j e^{z_j}$ underflows to \texttt{-inf}
+
+\vskip 1em
+
+\structure{Log-sum-exp trick:} subtract maximum logit before exponentiating
+
+\[
+    \log \sum_j e^{z_j} = c + \log \sum_j e^{z_j - c}, \qquad c = \max_j z_j
+\]
+
+\begin{itemize}
+    \item Largest term is always $e^0 = 1$ --- no overflow
+    \item Other terms $\leq 1$ --- no underflow
+\end{itemize}
+
+\vskip 0.5em
+
+\structure{\texttt{nn.CrossEntropyLoss} and \texttt{nn.BCEWithLogitsLoss}} apply this internally!
+\end{frame}
+
+\begin{frame}{Predictions and Accuracy}
+
+\vskip 2em
+
+\structure{From logits to predicted class:}
+
+\begin{itemize}
+    \item Softmax is monotone --- highest logit = highest probability class
+    \item No need to apply softmax / sigmoid
+    \item \structure{Multiclass:} $\hat{y} = \arg\max_k z_k$
+    \item \structure{Binary:} decision boundary at logit $= 0$ --- predict class 1 if $z > 0$
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Accuracy:} fraction of correctly classified examples
+
+\[
+    \text{acc} = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \mathbf{1}[\hat{y}^{(i)} = y^{(i)}]
+\]
+
+
+
+\end{frame}
+
+
+% -
 \section{Advanced Considerations}
 % -
 \begin{frame}{}
@@ -658,23 +799,23 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
 \structure{Problem:} cross-entropy with hard labels always rewards higher confidence
 
 \[
-    \loss(\pvec) = -\frac{1}{\nsamples}\sum_{i} \log \hat{p}_{y^{(i)}}^{(i)}
+    \ell_{CE}(\hat{\vp}, \vy) = -\sum_{k=1}^{K} y_k \log \hat{p}_k = -\log \hat{p}_{y}
     \qquad \text{minimised as } \hat{p}_{y} \to 1
 \]
 
 \begin{itemize}
-    \item Network always rewarded for being more confident --- never penalised for overconfidence
+    \item Rewarded for confidence --- never penalised for overconfidence
     \item Learns to saturate softmax --- assigns high probability even when uncertain
-    \item Out-of-distribution input: network may assign 99\% confidence to wrong class
+    \item Out-of-distribution input: may assign 99\% confidence to wrong class
 \end{itemize}
 
 \vskip 1.5em
 
-\structure{Information theory view:} predicted distribution has too low entropy --- model is too certain
+\structure{Information theory view:} entropy $H(\hat{\vp})$ too low --- model is too certain
 
 \vskip 1em
 
-\alert{Predicted probabilities do not reflect true uncertainty}
+\alert{\textbf{Predicted probabilities not indicative for true prediction (un)certainty!}}
 
 \end{frame}
 
@@ -682,10 +823,10 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
 
 \vskip 2em
 
-\structure{Fix:} replace hard one-hot targets with soft targets
+\structure{Fix:} replace hard one-hot targets $\vy$ with soft targets $\vy^{\text{smooth}}$
 
 \[
-    y_k^{\text{smooth}} = \begin{cases} 1 - \varepsilon & k = y \\ \varepsilon / (K-1) & k \neq y \end{cases}
+    \ell_{CE}(\hat{\vp}, \vy^{\text{smooth}}) = -\sum_{k=1}^{K} y_k^{\text{smooth}} \log \hat{p}_k, \quad \text{ where } y_k^{\text{smooth}} = \begin{cases} 1 - \varepsilon & k = y \\ \varepsilon / (K-1) & k \neq y \end{cases}
 \]
 
 \begin{itemize}
@@ -694,13 +835,9 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
     \item Typical value: $\varepsilon = 0.1$
 \end{itemize}
 
-\vskip 1em
+\vskip 2em
 
 \structure{Standard in modern architectures:} Inception, Vision Transformers, modern ResNets --- consistently effective with small $\varepsilon$
-
-\vskip 1em
-
-\structure{Information theory view:} label smoothing adds a uniform distribution to the target --- minimising cross-entropy now also maximises entropy of predictions
 
 \end{frame}
 
@@ -708,7 +845,7 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
 
 \vskip 2em
 
-\structure{Well-calibrated model:} predicted probability $= $ empirical accuracy
+\structure{Well-calibrated model:} predicted probability $=$ empirical accuracy
 
 \begin{center}
 predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
@@ -716,21 +853,26 @@ predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
 
 \vskip 1em
 
-\structure{Most networks are not calibrated} --- overconfident, predicted probabilities too high
-
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
+\structure{Reliability diagram:}
+\begin{itemize}
+  \item group data to bins by predicted confidence
+  \item get actual accuracy of samples in bin
+  \item well-calibrated model on diagonal
+\end{itemize}
 \vskip 1em
 
-\structure{Reliability diagram:} plot predicted confidence vs actual accuracy --- well-calibrated model lies on diagonal
-
-\vskip 1em
-
-\structure{Temperature scaling:} simple post-hoc fix --- divide logits by $T > 1$ before softmax
-
+\structure{Temperature scaling:} divide logits $\vz$ by $\tau > 1$
 \[
-    \hat{\vp} = \text{softmax}\!\left(\frac{\vz}{T}\right)
+    \hat{\vp} = \text{softmax}\!\left(\frac{\vz}{\tau}\right); \quad \hat{p}_k = \frac{e^{z_k/\tau}}{\sum_j e^{z_j/\tau}}
 \]
-
-$T > 1$ softens the distribution --- reduces overconfidence without retraining
+\end{column}
+\begin{column}{0.4\textwidth}
+\centering
+\input{\CommonPath/tikz/reliability_diagram.tex}
+\end{column}
+\end{columns}
 
 \end{frame}
 
@@ -771,13 +913,13 @@ $T > 1$ softens the distribution --- reduces overconfidence without retraining
 
 \begin{itemize}
     \item \structure{Noisy labels} --- annotators make mistakes; loss computed against wrong targets
-    \item \structure{Partial labels} --- only some classes labelled per example; missing labels treated as negatives
-    \item \structure{Ambiguous labels} --- multiple valid answers exist; hard labels force an arbitrary choice
+    \item \structure{Partial labels} --- only some examples labelled; missing labels treated as negatives
+    \item \structure{Ambiguous labels} --- multiple valid answers; hard labels force arbitrary choice
 \end{itemize}
 
 \vskip 1.5em
 
-\structure{Consequence:} model optimises toward the label, not the truth
+\alert{\textbf{Consequence: model optimises toward label, not the truth!}}
 
 \vskip 1em
 
