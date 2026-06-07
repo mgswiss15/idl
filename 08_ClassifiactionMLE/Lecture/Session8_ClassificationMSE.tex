@@ -40,12 +40,12 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 \structure{Classification:} predict discrete category $y \in \{1, \ldots, K\}$
 \begin{itemize}
     \item Output: image class, spam or not, medical diagnosis
-    \item Output space fundamentally different from regression --- no notion of distance between classes
+    \item Output space fundamentally different from regression - no notion of distance between classes
 \end{itemize}
 
 \vskip 2em
 
-\structure{Natural objective:} accuracy --- fraction of correctly classified examples
+\structure{Natural objective:} accuracy - fraction of correctly classified examples
 
 \[
     \text{acc} = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \mathbf{1}[\hat{y}^{(i)} = y^{(i)}]
@@ -57,7 +57,7 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 
 \vskip 2em
 
-\structure{Problem:} accuracy not differentiable --- cannot use as training loss
+\structure{Problem:} accuracy not differentiable - cannot use as training loss
 
 \[
     \mathbf{1}[\hat{y} = y] = \begin{cases} 1 & \hat{y} = y \\ 0 & \hat{y} \neq y \end{cases}
@@ -72,8 +72,8 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 
 \structure{Requirements} for proxy:
 \begin{itemize}
-    \item Differentiable --- gradient descent can optimise
-    \item Correlates with accuracy --- improving loss should improve accuracy
+    \item Differentiable - gradient descent can optimise
+    \item Correlates with accuracy - improving loss should improve accuracy
     \item Computatble from NN outputs
 \end{itemize}
 
@@ -233,8 +233,8 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 \end{column}
 \begin{column}{0.6\textwidth}
 \begin{itemize}
-    \item $\hat{p}_k > 0$ for all $k$ --- all probabilities positive
-    \item $\sum_{k=1}^{K} \hat{p}_k = 1$ --- valid distribution
+    \item $\hat{p}_k > 0$ for all $k$ - all probabilities positive
+    \item $\sum_{k=1}^{K} \hat{p}_k = 1$ - valid distribution
     \item Larger logit $\Rightarrow$ larger probability
 \end{itemize}
 \end{column}
@@ -250,7 +250,7 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 
 \vskip 0.5em
 
-Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
+Single logit $z = z_1 - z_2$ - one degree of freedom is redundant
 
 \end{frame}
 
@@ -258,7 +258,7 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 
 \vskip 2em
 
-\structure{Labels:} one-hot vector $\vy \in \{0,1\}^K$ --- $y_k = 1$ for correct class, 0 otherwise
+\structure{Labels:} one-hot vector $\vy \in \{0,1\}^K$ - $y_k = 1$ for correct class, 0 otherwise
 
 \vskip 1em
 
@@ -296,16 +296,20 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 
 \begin{frame}{Maximum Likelihood Principle}
 
-\vskip 2em
+\vskip 1em
 
 \structure{Setup:} model defines conditional distribution $p(y \mid \vx;\, \pvec)$ over outputs
 
 \vskip 1em
 
-\structure{Likelihood:} probability of observed data as a \textbf{function of parameters} --- data $\dataset$ is fixed
+\structure{Likelihood:} probability of observed data as a \textbf{function of parameters} - data $\dataset$ is fixed
+
+\vskip 0.5em
+
+\structure{Assumption:} examples i.i.d.\ - joint likelihood factorises as product over examples
 
 \[
-    L(\pvec) = \prod_{i=1}^{\nsamples} p(y^{(i)} \mid \vx^{(i)};\, \pvec)
+    L(\pvec) = p(\dataset;\, \pvec) = \prod_{i=1}^{\nsamples} p(y^{(i)} \mid \vx^{(i)};\, \pvec)
 \]
 
 \structure{MLE:} find parameters that make observed data most probable
@@ -314,9 +318,9 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
     \pvec^* = \arg\max_{\pvec}\; L(\pvec)
 \]
 
-\vskip 1em
+\vskip 0.5em
 
-\structure{Log-likelihood:} sum instead of product --- same maximiser, more convenient
+\structure{Log-likelihood:} sum instead of product - same maximiser, more convenient
 
 \[
     \log L(\pvec) = \sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
@@ -477,9 +481,9 @@ Minimising NLL under categorical assumption $\equiv$ minimising \alert{categoric
 
 \structure{We will build up:}
 \begin{itemize}
-    \item \structure{Information content} --- how surprising is an event?
-    \item \structure{Entropy} --- how uncertain is a distribution?
-    \item \structure{Cross-entropy and KL divergence} --- how far apart are two distributions?
+    \item \structure{Information content} - how surprising is an event?
+    \item \structure{Entropy} - how uncertain is a distribution?
+    \item \structure{Cross-entropy and KL divergence} - how far apart are two distributions?
 \end{itemize}
 
 \vskip 1em
@@ -494,8 +498,8 @@ Minimising NLL under categorical assumption $\equiv$ minimising \alert{categoric
 
 \structure{Intuition:} how surprised are we when event $k$ occurs?
 \begin{itemize}
-    \item Rare event --- very surprising --- highly informative
-    \item Common event --- expected --- low information
+    \item Rare event - very surprising - highly informative
+    \item Common event - expected - low information
 \end{itemize}
 
 \vskip 1em
@@ -507,9 +511,9 @@ Minimising NLL under categorical assumption $\equiv$ minimising \alert{categoric
 \toprule
 $p_k$ & $I(k)$ & Interpretation \\
 \midrule
-$1$ & $0$ & certain event --- no bits needed \\
+$1$ & $0$ & certain event - no bits needed \\
 $0.5$ & $1$ bit & coin flip \\
-$0.01$ & $\approx 6.6$ bits & rare event --- very surprising - long encoding\\
+$0.01$ & $\approx 6.6$ bits & rare event - very surprising - long encoding\\
 $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 \bottomrule
 \end{tabular}
@@ -535,10 +539,10 @@ $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 
 \structure{Measures uncertainty:}
 \begin{itemize}
-    \item High entropy --- high uncertainty, long average code --- distribution spread out
-    \item Low entropy --- low uncertainty, short average code --- distribution concentrated
-    \item $H(p) = 0$ --- deterministic distribution, no bits needed
-    \item $H(p)$ maximised by uniform distribution --- maximum uncertainty
+    \item High entropy - high uncertainty, long average code - distribution spread out
+    \item Low entropy - low uncertainty, short average code - distribution concentrated
+    \item $H(p) = 0$ - deterministic distribution, no bits needed
+    \item $H(p)$ maximised by uniform distribution - maximum uncertainty
 \end{itemize}
 
 
@@ -560,8 +564,8 @@ $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 \begin{columns}[c]
 \begin{column}{0.55\textwidth}
 \begin{itemize}
-    \item \structure{Fair coin} $p = 0.5$: $H = 1$ bit --- optimal code 1 bit per outcome; matches practice
-    \item \structure{Biased coin} $p = 0.9$: $H \approx 0.47$ bits --- in theory we can do better than 1 bit per symbol
+    \item \structure{Fair coin} $p = 0.5$: $H = 1$ bit - optimal code 1 bit per outcome; matches practice
+    \item \structure{Biased coin} $p = 0.9$: $H \approx 0.47$ bits - in theory we can do better than 1 bit per symbol
 \end{itemize}
 \end{column}
 \begin{column}{0.45\textwidth}
@@ -589,8 +593,8 @@ $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 \]
 
 \begin{itemize}
-    \item $H(p, \hat{\vp}) \geq H(p)$ --- using wrong distribution always costs extra bits
-    \item $H(p, \hat{\vp}) = H(p)$ iff $p = \hat{\vp}$ --- no extra cost when model is perfect
+    \item $H(p, \hat{\vp}) \geq H(p)$ - using wrong distribution always costs extra bits
+    \item $H(p, \hat{\vp}) = H(p)$ iff $p = \hat{\vp}$ - no extra cost when model is perfect
 \end{itemize}
 
 \vskip 1em
@@ -618,14 +622,14 @@ $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 \]
 
 \begin{itemize}
-    \item $D_{KL}(p \| \hat{\vp}) \geq 0$ --- always non-negative
+    \item $D_{KL}(p \| \hat{\vp}) \geq 0$ - always non-negative
     \item $D_{KL}(p \| \hat{\vp}) = 0$ iff $p = \hat{\vp}$
     \item Not symmetric: $D_{KL}(p \| \hat{\vp}) \neq D_{KL}(\hat{\vp} \| p)$ in general
 \end{itemize}
 
 \vskip 1em
 
-\structure{Connection to cross-entropy:} $H(p)$ is fixed --- labels do not depend on $\pvec$
+\structure{Connection to cross-entropy:} $H(p)$ is fixed - labels do not depend on $\pvec$
 
 \centering
 \vskip 0.5em
@@ -686,15 +690,15 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
 \begin{column}{0.5\textwidth}
 \structure{Binary classification:}
 \begin{itemize}
-    \item \alert{\texttt{nn.BCEWithLogitsLoss}} --- takes logits
-    \item \texttt{nn.BCELoss} --- takes probabilities
+    \item \alert{\texttt{nn.BCEWithLogitsLoss}} - takes logits
+    \item \texttt{nn.BCELoss} - takes probabilities
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
 \structure{Multiclass classification:}
 \begin{itemize}
-    \item \alert{\texttt{nn.CrossEntropyLoss}} --- takes logits
-    \item \texttt{nn.NLLLoss} --- takes log-probabilities
+    \item \alert{\texttt{nn.CrossEntropyLoss}} - takes logits
+    \item \texttt{nn.NLLLoss} - takes log-probabilities
 \end{itemize}
 \end{column}
 \end{columns}
@@ -703,17 +707,17 @@ Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-
 
 \structure{Why logits?}
 \begin{itemize}
-    \item Numerically stable --- PyTorch applies log-sum-exp trick internally
-    \item Fewer operations --- no need to apply sigmoid/softmax before loss
-    \item Less risk of errors --- sigmoid then BCELoss is a common bug source
+    \item Numerically stable - PyTorch applies log-sum-exp trick internally
+    \item Fewer operations - no need to apply sigmoid/softmax before loss
+    \item Less risk of errors - sigmoid then BCELoss is a common bug source
 \end{itemize}
 
 \vskip 1em
 
 \structure{Note:} \texttt{nn.CrossEntropyLoss} expects:
 \begin{itemize}
-    \item Integer class indices of shape \texttt{(N,)} --- standard usage
-    \item Float probability distributions of shape \texttt{(N, K)} --- for soft targets (see later)
+    \item Integer class indices of shape \texttt{(N,)} - standard usage
+    \item Float probability distributions of shape \texttt{(N, K)} - for soft targets (see later)
 \end{itemize}
 One-hot integer vectors are \alert{not supported}
 
@@ -746,8 +750,8 @@ Large logits $\Rightarrow$ $e^{z_k}$ overflows to \texttt{inf} \quad Small logit
 \]
 
 \begin{itemize}
-    \item Largest term is always $e^0 = 1$ --- no overflow
-    \item Other terms $\leq 1$ --- no underflow
+    \item Largest term is always $e^0 = 1$ - no overflow
+    \item Other terms $\leq 1$ - no underflow
 \end{itemize}
 
 \vskip 0.5em
@@ -762,10 +766,10 @@ Large logits $\Rightarrow$ $e^{z_k}$ overflows to \texttt{inf} \quad Small logit
 \structure{From logits to predicted class:}
 
 \begin{itemize}
-    \item Softmax is monotone --- highest logit = highest probability class
+    \item Softmax is monotone - highest logit = highest probability class
     \item No need to apply softmax / sigmoid
     \item \structure{Multiclass:} $\hat{y} = \arg\max_k z_k$
-    \item \structure{Binary:} decision boundary at logit $= 0$ --- predict class 1 if $z > 0$
+    \item \structure{Binary:} decision boundary at logit $= 0$ - predict class 1 if $z > 0$
 \end{itemize}
 
 \vskip 1.5em
@@ -804,14 +808,14 @@ Large logits $\Rightarrow$ $e^{z_k}$ overflows to \texttt{inf} \quad Small logit
 \]
 
 \begin{itemize}
-    \item Rewarded for confidence --- never penalised for overconfidence
-    \item Learns to saturate softmax --- assigns high probability even when uncertain
+    \item Rewarded for confidence - never penalised for overconfidence
+    \item Learns to saturate softmax - assigns high probability even when uncertain
     \item Out-of-distribution input: may assign 99\% confidence to wrong class
 \end{itemize}
 
 \vskip 1.5em
 
-\structure{Information theory view:} entropy $H(\hat{\vp})$ too low --- model is too certain
+\structure{Information theory view:} entropy $H(\hat{\vp})$ too low - model is too certain
 
 \vskip 1em
 
@@ -830,14 +834,14 @@ Large logits $\Rightarrow$ $e^{z_k}$ overflows to \texttt{inf} \quad Small logit
 \]
 
 \begin{itemize}
-    \item Model can never be 100\% confident --- softmax cannot saturate
-    \item Increases entropy of predictions --- more calibrated uncertainty
+    \item Model can never be 100\% confident - softmax cannot saturate
+    \item Increases entropy of predictions - more calibrated uncertainty
     \item Typical value: $\varepsilon = 0.1$
 \end{itemize}
 
 \vskip 2em
 
-\structure{Standard in modern architectures:} Inception, Vision Transformers, modern ResNets --- consistently effective with small $\varepsilon$
+\structure{Standard in modern architectures:} Inception, Vision Transformers, modern ResNets - consistently effective with small $\varepsilon$
 
 \end{frame}
 
@@ -884,7 +888,7 @@ predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
 
 \begin{itemize}
     \item Cross-entropy dominated by frequent classes
-    \item Model learns to ignore rare classes --- predicting majority class is cheap
+    \item Model learns to ignore rare classes - predicting majority class is cheap
     \item Common in practice: medical diagnosis, fraud detection, rare events
 \end{itemize}
 
@@ -892,9 +896,9 @@ predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
 
 \structure{Fixes:}
 \begin{itemize}
-    \item \structure{Weighted loss} --- upweight rare classes: $\loss = -\frac{1}{\nsamples}\sum_i w_{y^{(i)}} \log \hat{p}_{y^{(i)}}^{(i)}$
-    \item \structure{Oversampling} --- duplicate rare class examples
-    \item \structure{Undersampling} --- remove frequent class examples
+    \item \structure{Weighted loss} - upweight rare classes: $\loss = -\frac{1}{\nsamples}\sum_i w_{y^{(i)}} \log \hat{p}_{y^{(i)}}^{(i)}$
+    \item \structure{Oversampling} - duplicate rare class examples
+    \item \structure{Undersampling} - remove frequent class examples
 \end{itemize}
 
 \vskip 1em
@@ -912,9 +916,9 @@ predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
 \vskip 1em
 
 \begin{itemize}
-    \item \structure{Noisy labels} --- annotators make mistakes; loss computed against wrong targets
-    \item \structure{Partial labels} --- only some examples labelled; missing labels treated as negatives
-    \item \structure{Ambiguous labels} --- multiple valid answers; hard labels force arbitrary choice
+    \item \structure{Noisy labels} - annotators make mistakes; loss computed against wrong targets
+    \item \structure{Partial labels} - only some examples labelled; missing labels treated as negatives
+    \item \structure{Ambiguous labels} - multiple valid answers; hard labels force arbitrary choice
 \end{itemize}
 
 \vskip 1.5em
@@ -925,9 +929,9 @@ predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
 
 \structure{Mitigations:}
 \begin{itemize}
-    \item Label cleaning --- detect and correct noisy labels
-    \item Label smoothing --- reduces impact of individual wrong labels
-    \item Multiple annotators --- aggregate labels to reduce noise
+    \item Label cleaning - detect and correct noisy labels
+    \item Label smoothing - reduces impact of individual wrong labels
+    \item Multiple annotators - aggregate labels to reduce noise
 \end{itemize}
 
 \vskip 1em
