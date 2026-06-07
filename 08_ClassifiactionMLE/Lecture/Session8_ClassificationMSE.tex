@@ -141,7 +141,7 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 \begin{column}{0.55\textwidth}
 \structure{Loss:} penalise confident wrong predictions
 \[
-    \ell(\hat{p}, y) = -y \log \hat{p} - (1-y) \log(1 - \hat{p})
+    \ell_{BCE}(\hat{p}, y) = -y \log \hat{p} - (1-y) \log(1 - \hat{p})
 \]
   \begin{columns}[c] 
   \begin{column}{0.5\textwidth}
@@ -173,7 +173,7 @@ pdfkeywords={classification, maximum likelihood, cross-entropy, softmax, sigmoid
 
 \structure{Training loss:}
 \[
-    \loss(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \left[ y^{(i)} \log \hat{p}^{(i)} + (1 - y^{(i)}) \log(1 - \hat{p}^{(i)}) \right]
+    \loss_{BCE}(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \left[ y^{(i)} \log \hat{p}^{(i)} + (1 - y^{(i)}) \log(1 - \hat{p}^{(i)}) \right]
 \]
 
 \end{frame}
@@ -237,7 +237,7 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 \structure{Loss:} picks out log probability of correct class
 
 \[
-    \ell(\hat{\vp}, \vy) = -\sum_{k=1}^{K} y_k \log \hat{p}_k = -\log \hat{p}_{y}
+    \ell_{CE}(\hat{\vp}, \vy) = -\sum_{k=1}^{K} y_k \log \hat{p}_k = -\log \hat{p}_{y}
 \]
 
 \vskip 1em
@@ -251,7 +251,7 @@ Single logit $z = z_1 - z_2$ --- one degree of freedom is redundant
 
 \structure{Training loss:}
 \[
-    \loss(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \log \hat{p}_{y^{(i)}}^{(i)}
+    \loss_{CE}(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \log \hat{p}_{y^{(i)}}^{(i)}
 \]
 
 \end{frame}
@@ -329,8 +329,6 @@ Categorical & Categorical cross-entropy \\
 
 \begin{frame}{Gaussian Assumption $\to$ MSE}
 
-\vskip 1em
-
 \[ \text{\structure{Assume: }} \quad p(y \mid \vx;\, \pvec) = \mathcal{N}(y;\, f_{\pvec}(\vx),\, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y - f_{\pvec}(\vx))^2}{2\sigma^2}\right) \]
 
 \vskip 1em
@@ -349,17 +347,15 @@ Categorical & Categorical cross-entropy \\
 
 \vskip 0.5em
 
-Minimising NLL under Gaussian noise assumption $\equiv$ minimising \alert{MSE}
+Minimising NLL under Gaussian assumption $\equiv$ minimising \alert{MSE} - \structure{MSE not arbitrary!}
 
+\centering
 \vskip 0.5em
-
-\structure{Connects to Session 3:} MSE is not arbitrary --- it is MLE under Gaussian noise
+\colorbox{thwsorange!10}{$\displaystyle\arg\min_{\pvec} NLL_{\mathcal{N}}(\pvec) = \arg \min_{\pvec} MSE(\pvec)$}
 
 \end{frame}
 
 \begin{frame}{Bernoulli Assumption $\to$ Binary Cross-Entropy}
-
-\vskip 1em
 
 \[
     \text{\structure{Assume: }} \quad p(y \mid \vx;\, \pvec) = \text{Bernoulli}(y;\, \hat{p}) = \hat{p}^{\,y}(1-\hat{p})^{1-y}, \quad \hat{p} = \sigma(f_{\pvec}(\vx))
@@ -376,18 +372,21 @@ Minimising NLL under Gaussian noise assumption $\equiv$ minimising \alert{MSE}
 \[
     \text{\structure{NLL: }} \quad
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
-    = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \left[y^{(i)} \log \hat{p}^{(i)} + (1-y^{(i)})\log(1-\hat{p}^{(i)})\right]}_{\text{binary cross-entropy}}
+    = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \left[y^{(i)} \log \hat{p}^{(i)} + (1-y^{(i)})\log(1-\hat{p}^{(i)})\right]}_{\text{binary cross-entropy } \loss_{BCE}(\pvec)}
 \]
 
 \vskip 1em
 
 Minimising NLL under Bernoulli assumption $\equiv$ minimising \alert{binary cross-entropy}
 
+\centering
+\vskip 0.5em
+\colorbox{thwsorange!10}{$\displaystyle\arg\min_{\pvec} NLL_{Be}(\pvec) = \arg \min_{\pvec} \loss_{BCE}(\pvec)$}
+
+
 \end{frame}
 
 \begin{frame}{Categorical Assumption $\to$ Categorical Cross-Entropy}
-
-\vskip 1em
 
 \[
     \text{\structure{Assume: }} \quad p(y \mid \vx;\, \pvec) = \text{Categorical}(y;\, \hat{\vp}) = \prod_{k=1}^{K} \hat{p}_k^{\,y_k} = \hat{p}_y, \quad \hat{\vp} = \text{softmax}(f_{\pvec}(\vx))
@@ -404,12 +403,17 @@ Minimising NLL under Bernoulli assumption $\equiv$ minimising \alert{binary cros
 \[
     \text{\structure{NLL: }} \quad
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec)
-    = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log \hat{p}^{(i)}_{y^{(i)}}}_{\text{categorical cross-entropy}}
+    = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log \hat{p}^{(i)}_{y^{(i)}}}_{\loss_{CE}(\pvec)}
 \]
 
 \vskip 1em
 
 Minimising NLL under categorical assumption $\equiv$ minimising \alert{categorical cross-entropy}
+
+\centering
+\vskip 0.5em
+\colorbox{thwsorange!10}{$\displaystyle\arg\min_{\pvec} NLL_{Cat}(\pvec) = \arg \min_{\pvec} \loss_{CE}(\pvec)$}
+
 
 \end{frame}
 
@@ -425,7 +429,7 @@ Minimising NLL under categorical assumption $\equiv$ minimising \alert{categoric
 
 \begin{frame}{Why Information Theory?}
 
-\vskip 2em
+\vskip 1em
 
 \structure{So far:} cross-entropy - mathematical result of MLE derivation
 
@@ -450,45 +454,9 @@ Minimising NLL under categorical assumption $\equiv$ minimising \alert{categoric
     \item \structure{Cross-entropy and KL divergence} --- how far apart are two distributions?
 \end{itemize}
 
-\vskip 1.5em
+\vskip 1em
 
 \structure{Payoff:} MLE, cross-entropy loss, and KL divergence - three views of same objective
-
-\end{frame}
-
-\begin{frame}{Information Content}
-
-\vskip 2em
-
-\structure{Intuition:} how surprised are we when event $k$ occurs?
-
-\begin{itemize}
-    \item Rare event --- very surprising --- highly informative
-    \item Common event --- expected --- low information
-\end{itemize}
-
-\vskip 1em
-
-\structure{Information content (Shannon, 1948):}
-
-\[
-    I(k) = -\log p_k
-\]
-
-\vskip 1em
-
-\begin{center}
-\begin{tabular}{lll}
-\toprule
-$p_k$ & $I(k)$ & Interpretation \\
-\midrule
-$1$ & $0$ & certain event --- no surprise \\
-$0.5$ & $1$ bit & coin flip \\
-$0.01$ & $\approx 6.6$ bits & rare event --- very surprising \\
-$\to 0$ & $\to \infty$ & impossible event becoming true \\
-\bottomrule
-\end{tabular}
-\end{center}
 
 \end{frame}
 
@@ -521,7 +489,7 @@ $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 
 \vskip 0.5em
 
-\structure{Why $-\log$?} More probable events - shorter codes; info of independent events - sum of info; monotonic and smooth.
+\structure{Why $-\log$?} More probable events - shorter codes; info of independent events - sum of info; monotonic and smooth (Shannon, 1948).
 
 \end{frame}
 
@@ -561,112 +529,88 @@ $\to 0$ & $\to \infty$ & impossible event becoming true - impossible to encode\\
 
 \vskip 1em
 
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
 \begin{itemize}
     \item \structure{Fair coin} $p = 0.5$: $H = 1$ bit --- optimal code 1 bit per outcome; matches practice
     \item \structure{Biased coin} $p = 0.9$: $H \approx 0.47$ bits --- in theory we can do better than 1 bit per symbol
 \end{itemize}
+\end{column}
+\begin{column}{0.45\textwidth}
+\centering
+\input{\CommonPath/tikz/binary_entropy.tex}
+\end{column}
+\end{columns}
 
-\vskip 1em
-
-\structure{Practical limit:} single outcomes cannot be encoded in less than 1 bit
-
-\vskip 0.5em
-
-The bound $H(p) < 1$ is only achievable asymptotically --- by encoding long sequences of outcomes together rather than individual symbols
-
-\vskip 1em
-
-\structure{This motivates a figure:} $H(p)$ as a function of $p \in [0,1]$ --- symmetric, maximised at $p=0.5$, zero at $p \in \{0,1\}$
-
-\end{frame}
-
-\begin{frame}{Entropy}
-
-\vskip 2em
-
-\structure{Entropy:} expected information content of distribution $p$
-
-\[
-    H(p) = \mathbb{E}_{k \sim p}[I(k)] = -\sum_{k} p_k \log p_k
-\]
-
-\structure{Measures uncertainty:}
-\begin{itemize}
-    \item High entropy --- high uncertainty, distribution spread out
-    \item Low entropy --- low uncertainty, distribution concentrated
-    \item $H(p) = 0$ --- deterministic distribution, no uncertainty
-    \item $H(p)$ maximised by uniform distribution
-\end{itemize}
-
-\vskip 1em
-
-\structure{Example:} binary distribution $p = (p, 1-p)$
-\[
-    H(p) = -p\log p - (1-p)\log(1-p)
-\]
-Maximised at $p = 0.5$ --- complete uncertainty between two outcomes
+\structure{Practical limit:} single outcomes cannot be encoded in less than 1 bit. Bound $H(p) < 1$ only achievable asymptotically by encoding longer sequences together
 
 \end{frame}
 
 \begin{frame}{Cross-Entropy}
 
-\vskip 2em
+\vskip 1em
 
-\structure{Setup:} true distribution $p$, model distribution $q$
+\structure{Setup:} true distribution $p$, model distribution $\hat{\vp}$
 
 \vskip 1em
 
-\structure{Cross-entropy:} expected information content when using $q$ to encode events from $p$
+\structure{Cross-entropy:} average code length when using $\hat{\vp}$ to encode events from $p$
 
 \[
-    H(p, q) = -\sum_{k} p_k \log q_k
+    H(p, \hat{\vp}) = -\sum_{k} p_k \log \hat{p}_k
 \]
 
-\vskip 1em
-
 \begin{itemize}
-    \item $H(p, q) \geq H(p)$ --- using wrong distribution always costs extra bits
-    \item $H(p, q) = H(p)$ iff $p = q$ --- no extra cost when model is perfect
+    \item $H(p, \hat{\vp}) \geq H(p)$ --- using wrong distribution always costs extra bits
+    \item $H(p, \hat{\vp}) = H(p)$ iff $p = \hat{\vp}$ --- no extra cost when model is perfect
 \end{itemize}
 
-\vskip 1.5em
+\vskip 1em
 
 \structure{Connection to classification loss:}
 \begin{itemize}
-    \item True labels $\Rightarrow$ true distribution $p$ (one-hot)
-    \item Model predictions $\Rightarrow$ estimated distribution $q = \hat{\vp}$
-    \item Categorical cross-entropy loss $= H(p, q)$
+    \item True labels $\Rightarrow$ true distribution $p\sim$ one-hot $\vy \in \{0,1\}^K$
+    \item Model predictions $\Rightarrow$ estimated distribution $\hat{\vp}_{\pvec} = \text{softmax}(f_{\pvec}(\vx))$
 \end{itemize}
+
+\centering
+\vskip 0.5em
+\colorbox{thwsorange!10}{$\displaystyle\loss_{CE}(\pvec) = NLL_{CE}(\pvec) = H(p, \hat{\vp}_{\pvec})$}
 
 \end{frame}
 
 \begin{frame}{KL Divergence}
 
-\vskip 2em
+\vskip 1em
 
-\structure{KL divergence:} extra cost of using $q$ instead of $p$
+\structure{KL divergence:} extra cost of using $\hat{\vp}$ instead of $p$
 
 \[
-    D_{KL}(p \| q) = H(p, q) - H(p) = \sum_{k} p_k \log \frac{p_k}{q_k}
+    D_{KL}(p \| \hat{\vp}) = H(p, \hat{\vp}) - H(p) = \sum_{k} p_k \log \frac{p_k}{\hat{p}_k} = \underbrace{\sum_{k} p_k \log p_k}_{- H(p)} - \underbrace{\sum_{k} p_k \log \hat{p}_k}_{H(p, \hat{\vp})}
 \]
+
+\begin{itemize}
+    \item $D_{KL}(p \| \hat{\vp}) \geq 0$ --- always non-negative
+    \item $D_{KL}(p \| \hat{\vp}) = 0$ iff $p = \hat{\vp}$
+    \item Not symmetric: $D_{KL}(p \| \hat{\vp}) \neq D_{KL}(\hat{\vp} \| p)$ in general
+\end{itemize}
 
 \vskip 1em
 
-\begin{itemize}
-    \item $D_{KL}(p \| q) \geq 0$ --- always non-negative
-    \item $D_{KL}(p \| q) = 0$ iff $p = q$
-    \item \alert{Not symmetric:} $D_{KL}(p \| q) \neq D_{KL}(q \| p)$ in general
-\end{itemize}
+\structure{Connection to cross-entropy:} $H(p)$ is fixed --- labels do not depend on $\pvec$
 
-\vskip 1.5em
+\centering
+\vskip 0.5em
 
-\structure{Connection to cross-entropy loss:} since $H(p)$ is fixed (labels do not depend on $\pvec$)
+\colorbox{thwsorange!10}{$\displaystyle\arg\min_{\pvec}\; D_{KL}(p \| \hat{\vp}) \equiv \arg\min_{\pvec}\; H(p, \hat{\vp})$}
 
-\[
-    \min_{\pvec}\; H(p, q) \equiv \min_{\pvec}\; D_{KL}(p \| q)
-\]
+\vskip 0.5em
 
-Minimising cross-entropy loss $\equiv$ minimising KL divergence between true and predicted distribution
+Min KL divergence btw true and predicted distribution $\equiv$ minimising cross-entropy
+
+\vskip 0.5em
+
+(Holds equivalently for any other distribution family.)
 
 \end{frame}
 
@@ -674,34 +618,180 @@ Minimising cross-entropy loss $\equiv$ minimising KL divergence between true and
 
 \vskip 2em
 
-\structure{Three perspectives on the same optimisation problem:}
+\structure{Three perspectives - same optimisation problem:}
 
 \vskip 1.5em
 
 \begin{center}
-\begin{tabular}{ll}
+\begin{tabular}{llll}
 \toprule
-\textbf{Perspective} & \textbf{Objective} \\
+\textbf{Perspective} & \textbf{Gaussian} & \textbf{Bernoulli} & \textbf{Categorical} \\
 \midrule
-\structure{Maximum likelihood} & maximise probability of observed data \\[0.5em]
-\structure{Information theory} & minimise KL divergence $D_{KL}(p \| q)$ \\[0.5em]
-\structure{Loss minimisation} & minimise cross-entropy $H(p, q)$ \\
+\structure{Loss} & MSE & binary CE & categorical CE \\[0.5em]
+\structure{MLE} & maximise $\log \mathcal{N}$ & maximise $\log \text{Ber}$ & maximise $\log \text{Cat}$ \\[0.5em]
+\structure{Info theory} & $\min D_{KL}$ & $\min D_{KL}$ & $\min D_{KL}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \vskip 2em
 
+\alert{\large Choice of loss not arbitrary $\sim$ assumption about data-generating process!}
+
+\end{frame}
+
+% -
+\section{Advanced Considerations}
+% -
+\begin{frame}{}
+\vskip 8em
 \begin{center}
-All three are equivalent --- MLE gives the statistical motivation,\\
-cross-entropy gives the practical loss, KL divergence gives the geometric interpretation
+{\Large \structure{Advanced Considerations}}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Overconfidence}
+
+\vskip 2em
+
+\structure{Problem:} cross-entropy with hard labels always rewards higher confidence
+
+\[
+    \loss(\pvec) = -\frac{1}{\nsamples}\sum_{i} \log \hat{p}_{y^{(i)}}^{(i)}
+    \qquad \text{minimised as } \hat{p}_{y} \to 1
+\]
+
+\begin{itemize}
+    \item Network always rewarded for being more confident --- never penalised for overconfidence
+    \item Learns to saturate softmax --- assigns high probability even when uncertain
+    \item Out-of-distribution input: network may assign 99\% confidence to wrong class
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Information theory view:} predicted distribution has too low entropy --- model is too certain
+
+\vskip 1em
+
+\alert{Predicted probabilities do not reflect true uncertainty}
+
+\end{frame}
+
+\begin{frame}{Label Smoothing}
+
+\vskip 2em
+
+\structure{Fix:} replace hard one-hot targets with soft targets
+
+\[
+    y_k^{\text{smooth}} = \begin{cases} 1 - \varepsilon & k = y \\ \varepsilon / (K-1) & k \neq y \end{cases}
+\]
+
+\begin{itemize}
+    \item Model can never be 100\% confident --- softmax cannot saturate
+    \item Increases entropy of predictions --- more calibrated uncertainty
+    \item Typical value: $\varepsilon = 0.1$
+\end{itemize}
+
+\vskip 1em
+
+\structure{Standard in modern architectures:} Inception, Vision Transformers, modern ResNets --- consistently effective with small $\varepsilon$
+
+\vskip 1em
+
+\structure{Information theory view:} label smoothing adds a uniform distribution to the target --- minimising cross-entropy now also maximises entropy of predictions
+
+\end{frame}
+
+\begin{frame}{Calibration}
+
+\vskip 2em
+
+\structure{Well-calibrated model:} predicted probability $= $ empirical accuracy
+
+\begin{center}
+predicted confidence 80\% $\Rightarrow$ correct 80\% of the time
 \end{center}
 
 \vskip 1em
 
-\alert{The choice of loss function is not arbitrary --- it reflects an assumption about the data-generating process}
+\structure{Most networks are not calibrated} --- overconfident, predicted probabilities too high
+
+\vskip 1em
+
+\structure{Reliability diagram:} plot predicted confidence vs actual accuracy --- well-calibrated model lies on diagonal
+
+\vskip 1em
+
+\structure{Temperature scaling:} simple post-hoc fix --- divide logits by $T > 1$ before softmax
+
+\[
+    \hat{\vp} = \text{softmax}\!\left(\frac{\vz}{T}\right)
+\]
+
+$T > 1$ softens the distribution --- reduces overconfidence without retraining
 
 \end{frame}
 
+\begin{frame}{Class Imbalance}
+
+\vskip 2em
+
+\structure{Problem:} training set has far more examples of some classes than others
+
+\begin{itemize}
+    \item Cross-entropy dominated by frequent classes
+    \item Model learns to ignore rare classes --- predicting majority class is cheap
+    \item Common in practice: medical diagnosis, fraud detection, rare events
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Fixes:}
+\begin{itemize}
+    \item \structure{Weighted loss} --- upweight rare classes: $\loss = -\frac{1}{\nsamples}\sum_i w_{y^{(i)}} \log \hat{p}_{y^{(i)}}^{(i)}$
+    \item \structure{Oversampling} --- duplicate rare class examples
+    \item \structure{Undersampling} --- remove frequent class examples
+\end{itemize}
+
+\vskip 1em
+
+\alert{Always check class distribution before training}
+
+\end{frame}
+
+\begin{frame}{Weak Labels}
+
+\vskip 2em
+
+\structure{Labels are often imperfect in practice:}
+
+\vskip 1em
+
+\begin{itemize}
+    \item \structure{Noisy labels} --- annotators make mistakes; loss computed against wrong targets
+    \item \structure{Partial labels} --- only some classes labelled per example; missing labels treated as negatives
+    \item \structure{Ambiguous labels} --- multiple valid answers exist; hard labels force an arbitrary choice
+\end{itemize}
+
+\vskip 1.5em
+
+\structure{Consequence:} model optimises toward the label, not the truth
+
+\vskip 1em
+
+\structure{Mitigations:}
+\begin{itemize}
+    \item Label cleaning --- detect and correct noisy labels
+    \item Label smoothing --- reduces impact of individual wrong labels
+    \item Multiple annotators --- aggregate labels to reduce noise
+\end{itemize}
+
+\vskip 1em
+
+\alert{Label quality matters as much as model quality}
+
+\end{frame}
 
 \end{document}
