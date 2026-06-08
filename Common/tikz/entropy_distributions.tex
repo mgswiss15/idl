@@ -1,0 +1,45 @@
+% entropy_distributions.tex
+\begin{tikzpicture}
+\begin{axis}[
+    width=6.5cm, height=5cm,
+    xlabel={Symbol},
+    ylabel={Probability},
+    xmin=0.4, xmax=5.6,
+    ymin=0, ymax=0.7,
+    xtick={1, 2, 3, 4, 5},
+    xticklabels={A, B, C, D, E},
+    ytick={0, 0.2, 0.4, 0.6},
+    label style={font=\small},
+    tick label style={font=\scriptsize},
+    axis lines=left,
+    ybar,
+    bar width=12pt,
+    legend pos=north east,
+    legend style={font=\scriptsize, draw=none},
+    clip=false,
+]
+
+% low entropy — concentrated distribution — petrol, shift left
+\addplot[fill=thwspetrol, fill opacity=0.7, draw=thwspetrol,
+         bar shift=-5pt] coordinates {
+    (1, 0.20)
+    (2, 0.60)
+    (3, 0.06)
+    (4, 0.04)
+    (5, 0.10)
+};
+\addlegendentry{low entropy}
+
+% high entropy — near-uniform distribution — orange, shift right
+\addplot[fill=thwsorange, fill opacity=0.7, draw=thwsorange,
+         bar shift=5pt] coordinates {
+    (1, 0.20)
+    (2, 0.22)
+    (3, 0.25)
+    (4, 0.15)
+    (5, 0.18)
+};
+\addlegendentry{high entropy}
+
+\end{axis}
+\end{tikzpicture}

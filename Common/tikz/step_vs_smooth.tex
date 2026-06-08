@@ -1,0 +1,38 @@
+% step_vs_smooth.tex
+\begin{tikzpicture}
+\begin{axis}[
+    width=6.5cm, height=5cm,
+    xlabel={$\hat{p}$},
+    ylabel={$\hat{y}$},
+    xmin=0, xmax=1,
+    ymin=-0.1, ymax=1.2,
+    xtick={0, 0.5, 1},
+    ytick={0, 1},
+    yticklabels={$0$, $1$},
+    label style={font=\small},
+    tick label style={font=\scriptsize},
+    legend pos=north west,
+    legend style={font=\scriptsize, draw=none},
+    axis lines=left,
+    clip=false,
+]
+
+% step function — carnelian
+\addplot[thick, carnelian, solid] coordinates {(0,0) (0.5,0)};
+\addplot[thick, carnelian, solid, forget plot] coordinates {(0.5,1) (1,1)};
+\addplot[only marks, mark=o, carnelian, mark size=2.5pt, forget plot]
+    coordinates {(0.5, 0)};
+\addplot[only marks, mark=*, carnelian, mark size=2.5pt, forget plot]
+    coordinates {(0.5, 1)};
+\addlegendentry{accuracy}
+
+% smooth proxy — petrol dashed
+\addplot[thick, thwspetrol, dashed, domain=0:1, samples=100]
+    {1/(1+exp(-12*(x-0.5)))};
+\addlegendentry{proxy}
+
+% decision boundary
+\addplot[thin, thwsgrey, dashed] coordinates {(0.5,-0.1)(0.5,1.2)};
+
+\end{axis}
+\end{tikzpicture}

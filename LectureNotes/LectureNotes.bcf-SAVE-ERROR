@@ -2374,5 +2374,10 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">foundations.bib</bcf:datasource>
     <bcf:datasource type="file" datatype="bibtex" glob="false">session2.bib</bcf:datasource>
     <bcf:datasource type="file" datatype="bibtex" glob="false">session5.bib</bcf:datasource>
+    <bcf:datasource type="file" datatype="bibtex" glob="false">session7.bib</bcf:datasource>
+    <bcf:datasource type="file" datatype="bibtex" glob="false">session8.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
+    <bcf:citekey order="1" intorder="1">Shannon1948</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">Shannon1948</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">Shannon1948</bcf:citekey>

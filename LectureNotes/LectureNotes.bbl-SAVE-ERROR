@@ -19,144 +19,77 @@
 
 \refsection{0}
   \datalist[entry]{nyt/global//global/global/global}
-    \entry{glorot2010understanding}{inproceedings}{}{}
+    \entry{Kullback1951}{article}{}{}
       \name{author}{2}{}{%
-        {{un=0,uniquepart=base,hash=0b3943c3bfdbb5867b3760f7c7d488c2}{%
-           family={Glorot},
-           familyi={G\bibinitperiod},
-           given={Xavier},
-           giveni={X\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=40a8e4774982146adc2688546f54efb2}{%
-           family={Bengio},
-           familyi={B\bibinitperiod},
-           given={Yoshua},
-           giveni={Y\bibinitperiod},
-           givenun=0}}%
-      }
-      \name{editor}{2}{}{%
-        {{hash=a71fae003da84f44e31d26e868859945}{%
-           family={Teh},
-           familyi={T\bibinitperiod},
-           given={Yee\bibnamedelima Whye},
-           giveni={Y\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
-        {{hash=4f07cb446ab04d4d77854b6722712e32}{%
-           family={Titterington},
-           familyi={T\bibinitperiod},
-           given={Mike},
-           giveni={M\bibinitperiod}}}%
-      }
-      \list{publisher}{1}{%
-        {PMLR}%
-      }
-      \strng{namehash}{02af15243279c938a0a5ca766835bcd4}
-      \strng{fullhash}{02af15243279c938a0a5ca766835bcd4}
-      \strng{fullhashraw}{02af15243279c938a0a5ca766835bcd4}
-      \strng{bibnamehash}{02af15243279c938a0a5ca766835bcd4}
-      \strng{authorbibnamehash}{02af15243279c938a0a5ca766835bcd4}
-      \strng{authornamehash}{02af15243279c938a0a5ca766835bcd4}
-      \strng{authorfullhash}{02af15243279c938a0a5ca766835bcd4}
-      \strng{authorfullhashraw}{02af15243279c938a0a5ca766835bcd4}
-      \strng{editorbibnamehash}{ea4550790536e3c5e0b1f0cd5656198b}
-      \strng{editornamehash}{ea4550790536e3c5e0b1f0cd5656198b}
-      \strng{editorfullhash}{ea4550790536e3c5e0b1f0cd5656198b}
-      \strng{editorfullhashraw}{ea4550790536e3c5e0b1f0cd5656198b}
-      \field{sortinit}{G}
-      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{Proceedings of the Thirteenth International Conference on Artificial Intelligence and Statistics (AISTATS)}
-      \field{series}{Proceedings of Machine Learning Research}
-      \field{title}{Understanding the Difficulty of Training Deep Feedforward Neural Networks}
-      \field{volume}{9}
-      \field{year}{2010}
-      \field{pages}{249\bibrangedash 256}
-      \range{pages}{8}
-    \endentry
-    \entry{he2015delving}{inproceedings}{}{}
-      \name{author}{4}{}{%
-        {{un=0,uniquepart=base,hash=6b4b60e909e78633945f3f9c9dc83e01}{%
-           family={He},
-           familyi={H\bibinitperiod},
-           given={Kaiming},
-           giveni={K\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=5e72bc22dbcf0984c6d113d280e36990}{%
-           family={Zhang},
-           familyi={Z\bibinitperiod},
-           given={Xiangyu},
-           giveni={X\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=bb295293acacd54387339079ebbe4ead}{%
-           family={Ren},
-           familyi={R\bibinitperiod},
-           given={Shaoqing},
+        {{un=0,uniquepart=base,hash=34c5bbf9876c37127c3abe4e7d7a7198}{%
+           family={Kullback},
+           familyi={K\bibinitperiod},
+           given={Solomon},
            giveni={S\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=f85751488058842b5777c7b4074077b5}{%
-           family={Sun},
-           familyi={S\bibinitperiod},
-           given={Jian},
-           giveni={J\bibinitperiod},
+        {{un=0,uniquepart=base,hash=589dd9109c4ab08b8766cbb5f1bd58c8}{%
+           family={Leibler},
+           familyi={L\bibinitperiod},
+           given={Richard\bibnamedelima A.},
+           giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod},
            givenun=0}}%
       }
-      \strng{namehash}{6edb98fe38401d2fe4a026f5ce6e8451}
-      \strng{fullhash}{42c4b52dc3a62cebabbc11c73e1afb53}
-      \strng{fullhashraw}{42c4b52dc3a62cebabbc11c73e1afb53}
-      \strng{bibnamehash}{6edb98fe38401d2fe4a026f5ce6e8451}
-      \strng{authorbibnamehash}{6edb98fe38401d2fe4a026f5ce6e8451}
-      \strng{authornamehash}{6edb98fe38401d2fe4a026f5ce6e8451}
-      \strng{authorfullhash}{42c4b52dc3a62cebabbc11c73e1afb53}
-      \strng{authorfullhashraw}{42c4b52dc3a62cebabbc11c73e1afb53}
-      \field{sortinit}{H}
-      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{Proceedings of the IEEE International Conference on Computer Vision (ICCV)}
-      \field{title}{Delving Deep into Rectifiers: Surpassing Human-Level Performance on {ImageNet} Classification}
-      \field{year}{2015}
-      \field{pages}{1026\bibrangedash 1034}
-      \range{pages}{9}
-    \endentry
-    \entry{kingma2015adam}{article}{}{}
-      \name{author}{2}{}{%
-        {{un=0,uniquepart=base,hash=b6fbd171848aad4edf3925543f1f1522}{%
-           family={Kingma},
-           familyi={K\bibinitperiod},
-           given={Diederik\bibnamedelima P.},
-           giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=8aa66e8231cc2fdbe67aa4f18ca970c6}{%
-           family={Ba},
-           familyi={B\bibinitperiod},
-           given={Jimmy},
-           giveni={J\bibinitperiod},
-           givenun=0}}%
-      }
-      \strng{namehash}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{fullhash}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{fullhashraw}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{bibnamehash}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{authorbibnamehash}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{authornamehash}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{authorfullhash}{a09df9f123146b8e2c7f1134c9496932}
-      \strng{authorfullhashraw}{a09df9f123146b8e2c7f1134c9496932}
+      \strng{namehash}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{fullhash}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{fullhashraw}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{bibnamehash}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{authorbibnamehash}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{authornamehash}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{authorfullhash}{dacf610a392371bd89d9fb4fdc21a220}
+      \strng{authorfullhashraw}{dacf610a392371bd89d9fb4fdc21a220}
       \field{sortinit}{K}
       \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
       \field{extradatescope}{labelyear}
       \field{labeldatesource}{}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{International Conference on Learning Representations (ICLR)}
-      \field{note}{arXiv:1412.6980}
-      \field{title}{Adam: {A} Method for Stochastic Optimization}
-      \field{year}{2015}
+      \field{journaltitle}{The Annals of Mathematical Statistics}
+      \field{number}{1}
+      \field{title}{On Information and Sufficiency}
+      \field{volume}{22}
+      \field{year}{1951}
+      \field{pages}{79\bibrangedash 86}
+      \range{pages}{8}
+    \endentry
+    \entry{Shannon1948}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=536c91678d1dde76c9acd47047556291}{%
+           family={Shannon},
+           familyi={S\bibinitperiod},
+           given={Claude\bibnamedelima E.},
+           giveni={C\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{536c91678d1dde76c9acd47047556291}
+      \strng{fullhash}{536c91678d1dde76c9acd47047556291}
+      \strng{fullhashraw}{536c91678d1dde76c9acd47047556291}
+      \strng{bibnamehash}{536c91678d1dde76c9acd47047556291}
+      \strng{authorbibnamehash}{536c91678d1dde76c9acd47047556291}
+      \strng{authornamehash}{536c91678d1dde76c9acd47047556291}
+      \strng{authorfullhash}{536c91678d1dde76c9acd47047556291}
+      \strng{authorfullhashraw}{536c91678d1dde76c9acd47047556291}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The Bell System Technical Journal}
+      \field{number}{3}
+      \field{title}{A Mathematical Theory of Communication}
+      \field{volume}{27}
+      \field{year}{1948}
+      \field{pages}{379\bibrangedash 423}
+      \range{pages}{45}
     \endentry
   \enddatalist
+  \missing{Guo2017}
+  \missing{Szegedy2016}
 \endrefsection
 \endinput
 
