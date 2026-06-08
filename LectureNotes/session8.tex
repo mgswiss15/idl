@@ -1,7 +1,7 @@
 \section{Classification \& Maximum Likelihood}
 \slideref{Session 8}
 
-Sessions 1--7 developed the full machinery for training deep networks on regression problems --- forward pass, backpropagation, optimisation, regularisation, and the PyTorch API, all using mean squared error as the loss. This session introduces the second major problem type: classification. We begin with the practical setup --- what classification is, why accuracy cannot be directly optimised, and how sigmoid and softmax map network outputs to probability distributions. We then develop the theoretical foundation through maximum likelihood estimation, showing that MSE and cross-entropy are not arbitrary choices but principled consequences of distributional assumptions about the data. Finally, information theory gives a geometric interpretation of cross-entropy as a measure of distributional distance, and we close with practical considerations for implementing classification in PyTorch.
+Sessions 1--7 developed the full machinery for training deep networks on regression problems - forward pass, backpropagation, optimisation, regularisation, and the PyTorch API, all using mean squared error as the loss. This session introduces the second major problem type: classification. We begin with the practical setup - what classification is, why accuracy cannot be directly optimised, and how sigmoid and softmax map network outputs to probability distributions. We then develop the theoretical foundation through maximum likelihood estimation, showing that MSE and cross-entropy are not arbitrary choices but principled consequences of distributional assumptions about the data. Finally, information theory gives a geometric interpretation of cross-entropy as a measure of distributional distance, and we close with practical considerations for implementing classification in PyTorch.
 
 % - - - - - - - - - - - - - - - - -
 \subsection{Classification Problem}
@@ -9,16 +9,16 @@ Sessions 1--7 developed the full machinery for training deep networks on regress
 
 \subsubsection{From Regression to Classification}
 
-In regression, the output space is continuous: $y \in \mathbb{R}$ (or $y \in \mathbb{R}^m$ for multi-output regression). The network predicts a real-valued quantity and the loss measures the distance between prediction and target. In classification, the output space is discrete: $y \in \{1, \ldots, K\}$ for $K$ classes. The network must assign each input to one of a finite set of categories --- image class, spam or not, medical diagnosis. There is no natural notion of distance between classes: class 3 is not ``between'' class 2 and class 4 in any meaningful sense.
+In regression, the output space is continuous: $y \in \mathbb{R}$ (or $y \in \mathbb{R}^m$ for multi-output regression). The network predicts a real-valued quantity and the loss measures the distance between prediction and target. In classification, the output space is discrete: $y \in \{1, \ldots, K\}$ for $K$ classes. The network must assign each input to one of a finite set of categories - image class, spam or not, medical diagnosis. There is no natural notion of distance between classes: class 3 is not ``between'' class 2 and class 4 in any meaningful sense.
 
 
 \subsubsection{Accuracy and Why We Cannot Optimise It Directly}
 
-The natural performance measure for classification is \textbf{accuracy} --- the fraction of examples correctly classified:
+The natural performance measure for classification is \textbf{accuracy} - the fraction of examples correctly classified:
 \begin{equation}
     \text{acc} = \frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \mathbf{1}[\hat{y}^{(i)} = y^{(i)}],
 \end{equation}
-where $\hat{y}^{(i)}$ is the predicted class for example $i$ and $\mathbf{1}[\cdot]$ is the indicator function. Despite being the quantity we care about, accuracy cannot be used as a training loss. The network outputs real numbers $f_{\pvec}(\vx) \in \mathbb{R}$ rather than class labels, so the indicator function cannot be applied directly. Moreover, even if we knew how to predict classes from a neural network, the indicator function is piecewise constant --- its gradient with respect to the network parameters is zero almost everywhere and undefined at the discontinuities, as illustrated in Figure~\ref{fig:step_vs_smooth}. Accuracy would provide no useful signal for gradient descent.
+where $\hat{y}^{(i)}$ is the predicted class for example $i$ and $\mathbf{1}[\cdot]$ is the indicator function. Despite being the quantity we care about, accuracy cannot be used as a training loss. The network outputs real numbers $f_{\pvec}(\vx) \in \mathbb{R}$ rather than class labels, so the indicator function cannot be applied directly. Moreover, even if we knew how to predict classes from a neural network, the indicator function is piecewise constant - its gradient with respect to the network parameters is zero almost everywhere and undefined at the discontinuities, as illustrated in Figure~\ref{fig:step_vs_smooth}. Accuracy would provide no useful signal for gradient descent.
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
@@ -27,7 +27,7 @@ where $\hat{y}^{(i)}$ is the predicted class for example $i$ and $\mathbf{1}[\cd
 \label{fig:step_vs_smooth}
 \end{wrapfigure}
 
-The key idea is to move from predicting numbers to predicting a \textbf{probability distribution over classes}. Instead of predicting a hard class label --- ``this example is of class $k$'' --- the network predicts the probability that an example belongs to each class: $p(y = k \mid \vx; \pvec)$ for all $k$.
+The key idea is to move from predicting numbers to predicting a \textbf{probability distribution over classes}. Instead of predicting a hard class label - ``this example is of class $k$'' - the network predicts the probability that an example belongs to each class: $p(y = k \mid \vx; \pvec)$ for all $k$.
 A smooth, differentiable loss function can then be defined over these probabilities rather than over hard class labels, as illustrated in Figure~\ref{fig:step_vs_smooth}.
 
 How do we make the neural network predict probabilities? In short, we do not. The network continues to output real-valued \textbf{logits} $\vz = f_{\pvec}(\vx) \in \mathbb{R}^K$ for every category $k \in {1, \dots, K}$ which we then pass into a \textbf{suitable transformation} function so that the transformed values can be interpreted as probabilities.
@@ -42,11 +42,6 @@ The next two sections introduce these transformations for binary and multiclass 
 \subsection{Binary Classification}\label{sec:bce}
 \slideref{Session 8: Sigmoid, Binary Cross-Entropy}
 
-In binary classification there are two classes, $y \in \{0, 1\}$, and the output is fully determined by a single probability --- the probability of class 1, since class 0 has probability $1 - \hat{p}$ by complementarity. The network therefore can output a single logit $z = f_{\pvec}(\vx) \in \mathbb{R}$ and we need a function that maps this real-valued logit to $(0, 1)$ --- the space of valid probabilities. The \textbf{sigmoid function} is the natural choice:
-\begin{equation}\label{eq:sigmoid}
-    \hat{p} = \sigma(z) = \frac{1}{1 + e^{-z}}.
-\end{equation}
-
 \begin{wrapfigure}{r}{0.35\textwidth}
 \centering
 \resizebox{0.33\textwidth}{!}{\input{\CommonPath/tikz/sigmoid.tex}}
@@ -54,13 +49,20 @@ In binary classification there are two classes, $y \in \{0, 1\}$, and the output
 \label{fig:sigmoid}
 \end{wrapfigure}
 
-It is monotone, smooth everywhere, and maps the entire real line to the open interval $(0,1)$. Figure~\ref{fig:sigmoid} shows its shape: symmetric around $\sigma(0) = 0.5$, saturating toward 1 for large positive $z$ and toward 0 for large negative $z$. The output $\hat{p}$ is interpreted as $p(y=1 \mid \vx; \pvec)$ --- the model's estimated probability that the input belongs to class 1. The probability of class 0 is $1-\hat{p}$.
+In binary classification there are two classes, $y \in \{0, 1\}$, and the output is fully determined by a single probability - the probability of class 1, since class 0 has probability $1 - \hat{p}$ by complementarity. The network therefore can output a single logit $z = f_{\pvec}(\vx) \in \mathbb{R}$ and we need a function that maps this real-valued logit to $(0, 1)$ - the space of valid probabilities. The \textbf{sigmoid function} is the natural choice:
+\begin{equation}\label{eq:sigmoid}
+    \hat{p} = \sigma(z) = \frac{1}{1 + e^{-z}}.
+\end{equation}
 
-The decision boundary between the two classes is at $z = 0$: if the logit (the output of the NN) is positive the model predicts class 1, if negative it predicts class 0. Importantly, at inference time there is no need to compute $\hat{p}$ explicitly --- since sigmoid is monotone, the sign of $z$ alone determines the predicted class.
+
+
+It is monotone, smooth everywhere, and maps the entire real line to the open interval $(0,1)$. Figure~\ref{fig:sigmoid} shows its shape: symmetric around $\sigma(0) = 0.5$, saturating toward 1 for large positive $z$ and toward 0 for large negative $z$. The output $\hat{p}$ is interpreted as $p(y=1 \mid \vx; \pvec)$ - the model's estimated probability that the input belongs to class 1. The probability of class 0 is $1-\hat{p}$.
+
+The decision boundary between the two classes is at $z = 0$: if the logit (the output of the NN) is positive the model predicts class 1, if negative it predicts class 0. Importantly, at inference time there is no need to compute $\hat{p}$ explicitly - since sigmoid is monotone, the sign of $z$ alone determines the predicted class.
 
 \subsubsection{Binary Cross-Entropy}
 
-With the sigmoid providing a predicted probability $\hat{p} \in (0,1)$, we need a loss function defined over probabilities rather than raw numbers. MSE is inappropriate here --- it does not respect the probabilistic structure of the output and penalises predictions symmetrically regardless of confidence. What we want is a loss that is zero when the model assigns all probability to the correct class and grows without bound as it becomes confidently wrong. The $-\log$ function has exactly this shape: $-\log \hat{p} \to 0$ as $\hat{p} \to 1$ and $-\log \hat{p} \to \infty$ as $\hat{p} \to 0$. This motivates the \textbf{binary cross-entropy} loss:
+With the sigmoid providing a predicted probability $\hat{p} \in (0,1)$, we need a loss function defined over probabilities rather than raw numbers. MSE is inappropriate here - it does not respect the probabilistic structure of the output and penalises predictions symmetrically regardless of confidence. What we want is a loss that is zero when the model assigns all probability to the correct class and grows without bound as it becomes confidently wrong. The $-\log$ function has exactly this shape: $-\log \hat{p} \to 0$ as $\hat{p} \to 1$ and $-\log \hat{p} \to \infty$ as $\hat{p} \to 0$. This motivates the \textbf{binary cross-entropy} loss:
 \begin{equation}
     \ell_{BCE}(\hat{p}, y) = -y \log \hat{p} - (1-y) \log(1-\hat{p}).
 \end{equation}
@@ -72,7 +74,7 @@ With the sigmoid providing a predicted probability $\hat{p} \in (0,1)$, we need 
 \label{fig:bce}
 \end{wrapfigure}
 
-The two terms activate depending on the true label: when $y=1$ only the first term contributes, penalising low $\hat{p}$; when $y=0$ only the second term contributes, penalising high $\hat{p}$. Figure~\ref{fig:bce} shows both curves. This choice is not arbitrary --- Section~\ref{sec:mle} will show that binary cross-entropy is the exact consequence of assuming a Bernoulli data-generating process and maximising the likelihood.
+The two terms activate depending on the true label: when $y=1$ only the first term contributes, penalising low $\hat{p}$; when $y=0$ only the second term contributes, penalising high $\hat{p}$. Figure~\ref{fig:bce} shows both curves. This choice is not arbitrary - Section~\ref{sec:mle} will show that binary cross-entropy is the exact consequence of assuming a Bernoulli data-generating process and maximising the likelihood.
 
 The training loss is the average binary cross-entropy over all examples:
 \begin{equation}
@@ -85,9 +87,9 @@ where $\hat{p}^{(i)} = \sigma(f_{\pvec}(\vx^{(i)}))$ is the predicted probabilit
 \subsection{Multiclass Classification}\label{sec:ce}
 \slideref{Session 8: Softmax, Categorical Cross-Entropy}
 
-Generalising from binary to multiclass classification, we now have $K$ classes and the network produces $K$ logits $\vz = f_{\pvec}(\vx) \in \mathbb{R}^K$. We need a transformation that maps these to a valid probability distribution --- all $K$ values must be non-negative and sum to 1 simultaneously.
+Generalising from binary to multiclass classification, we now have $K$ classes and the network produces $K$ logits $\vz = f_{\pvec}(\vx) \in \mathbb{R}^K$. We need a transformation that maps these to a valid probability distribution - all $K$ values must be non-negative and sum to 1 simultaneously.
 
-Simple hack would be to make the values positive, e.g. by absolute value or square, and divide by the sum across the categories. This way all would be positive and would sum to 1. The challenge is, however, in preserving the ordering of the logits: class with higher logit should receive higher probability. Simple squaring or absolute values destroy the sign information --- a logit of $-3$ and a logit of $+3$ would produce the same value, making it impossible to distinguish a strong negative prediction from a strong positive one. On the other hand, the exponential $e^{z_k}$ is a much better choice: it is strictly positive, differentiable everywhere, and strictly monotone --- larger logits always produce larger values, preserving the preference ordering. Dividing by the sum ensures normalisation so that accross categoreies we have got the correct total probability. This gives us the \textbf{softmax function}:
+Simple hack would be to make the values positive, e.g. by absolute value or square, and divide by the sum across the categories. This way all would be positive and would sum to 1. The challenge is, however, in preserving the ordering of the logits: class with higher logit should receive higher probability. Simple squaring or absolute values destroy the sign information - a logit of $-3$ and a logit of $+3$ would produce the same value, making it impossible to distinguish a strong negative prediction from a strong positive one. On the other hand, the exponential $e^{z_k}$ is a much better choice: it is strictly positive, differentiable everywhere, and strictly monotone - larger logits always produce larger values, preserving the preference ordering. Dividing by the sum ensures normalisation so that accross categoreies we have got the correct total probability. This gives us the \textbf{softmax function}:
 \begin{equation}
     \hat{p}_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}, \qquad k = 1, \ldots, K \enspace.
 \end{equation}
@@ -95,17 +97,17 @@ which satisfies $\hat{p}_k > 0$ for all $k$ and $\sum_k \hat{p}_k = 1$, and is d
 
 
 \paragraph{Relationship to softmax.}
-Binary classification could in principle be handled as a special case of multiclass classification with $K=2$ --- using two output nodes, softmax, and categorical cross-entropy. As shown in equation~\eqref{eq:sigmoid_softmax}, the two are mathematically equivalent:
+Binary classification could in principle be handled as a special case of multiclass classification with $K=2$ - using two output nodes, softmax, and categorical cross-entropy. As shown in equation~\eqref{eq:sigmoid_softmax}, the two are mathematically equivalent:
 
 \begin{equation}\label{eq:sigmoid_softmax}
     \hat{p}_1 = \frac{e^{z_1}}{e^{z_1} + e^{z_2}} = \frac{1}{1 + e^{-(z_1-z_2)}} = \sigma(z_1 - z_2).
 \end{equation}
 
-In practice the two-output formulation is not used. With two logits, only the difference $z_1 - z_2$ determines the output --- the individual values of $z_1$ and $z_2$ are irrelevant. One degree of freedom is therefore redundant and unidentifiable from the loss. A single output node with sigmoid eliminates this redundancy: the single logit $z$ directly encodes the relative evidence for class 1 over class 0 with no superfluous parameter. Therefore the binary formulation is the standard choice whenever there are exactly two classes.
+In practice the two-output formulation is not used. With two logits, only the difference $z_1 - z_2$ determines the output - the individual values of $z_1$ and $z_2$ are irrelevant. One degree of freedom is therefore redundant and unidentifiable from the loss. A single output node with sigmoid eliminates this redundancy: the single logit $z$ directly encodes the relative evidence for class 1 over class 0 with no superfluous parameter. Therefore the binary formulation is the standard choice whenever there are exactly two classes.
 
 \subsubsection{Categorical Cross-Entropy}
 
-With softmax producing a valid probability distribution $\hat{\vp}$ over $K$ classes, we need a loss function that measures how well this distribution matches the true label. Labels are represented as \textbf{one-hot vectors} $\vy \in \{0,1\}^K$, where $y_k = 1$ for the correct class and $y_k = 0$ for all others. By the same argument as for binary cross-entropy --- we want a loss that is zero when the model is confident and correct, and grows without bound when it is confident and wrong --- the natural choice is the negative log probability of the correct class. The \textbf{categorical cross-entropy} loss is:
+With softmax producing a valid probability distribution $\hat{\vp}$ over $K$ classes, we need a loss function that measures how well this distribution matches the true label. Labels are represented as \textbf{one-hot vectors} $\vy \in \{0,1\}^K$, where $y_k = 1$ for the correct class and $y_k = 0$ for all others. By the same argument as for binary cross-entropy - we want a loss that is zero when the model is confident and correct, and grows without bound when it is confident and wrong - the natural choice is the negative log probability of the correct class. The \textbf{categorical cross-entropy} loss is:
 \begin{equation}
     \ell_{CE}(\hat{\vp}, \vy) = -\sum_{k=1}^{K} y_k \log \hat{p}_k = -\log \hat{p}_y,
 \end{equation}
@@ -116,30 +118,30 @@ The training loss averages over all examples:
     \loss_{CE}(\pvec) = -\frac{1}{\nsamples} \sum_{i=1}^{\nsamples} \log \hat{p}_{y^{(i)}}^{(i)}.
 \end{equation}
 
-One important property to note: the loss is minimised as $\hat{p}_y \to 1$, meaning the model is always rewarded for increasing its confidence in the correct class --- it is never penalised for being overconfident. This has practical consequences for calibration that we will discuss in Section~\ref{sec:calibration}.  The principled derivation of this loss from maximum likelihood will be given in Section~\ref{sec:mle}.
+One important property to note: the loss is minimised as $\hat{p}_y \to 1$, meaning the model is always rewarded for increasing its confidence in the correct class - it is never penalised for being overconfident. This has practical consequences for calibration that we will discuss in Section~\ref{sec:calibration}.  The principled derivation of this loss from maximum likelihood will be given in Section~\ref{sec:mle}.
 
 % - - - - - - - - - - - - - - - - -
 \subsection{Maximum Likelihood}\label{sec:mle}
 \slideref{Session 8: Maximum Likelihood Principle, From MLE to Loss Minimisation, Gaussian Assumption, Bernoulli Assumption, Categorical Assumption}
 
-The losses introduced above were motivated intuitively --- they penalise wrong predictions in sensible ways and work well in practice. But why MSE for regression and cross-entropy for classification? Could we have chosen differently? The answer is yes --- many loss functions are conceivable --- but not all choices are equally well-motivated. \textbf{Maximum likelihood (ML) estimation} provides a principled framework for making this choice: given an explicit assumption about how the data was generated, ML identifies the most suitable loss function as a direct consequence of that assumption. The choice is no longer a design decision made by intuition but a logical consequence of what we believe about the data-generating process. Different assumptions lead to different losses, and being explicit about the assumption makes the choice transparent and justifiable. We will see that MSE and cross-entropy are not two unrelated design choices but instances of the same principle under different distributional assumptions.
+The losses introduced above were motivated intuitively - they penalise wrong predictions in sensible ways and work well in practice. But why MSE for regression and cross-entropy for classification? Could we have chosen differently? The answer is yes - many loss functions are conceivable - but not all choices are equally well-motivated. \textbf{Maximum likelihood (ML) estimation} provides a principled framework for making this choice: given an explicit assumption about how the data was generated, ML identifies the most suitable loss function as a direct consequence of that assumption. The choice is no longer a design decision made by intuition but a logical consequence of what we believe about the data-generating process. Different assumptions lead to different losses, and being explicit about the assumption makes the choice transparent and justifiable. We will see that MSE and cross-entropy are not two unrelated design choices but instances of the same principle under different distributional assumptions.
 
 \subsubsection{Maximum Likelihood Principle}
 
-Real data is noisy. Even for the same input $\vx$, repeated measurements of the output $y$ would differ --- due to measurement error, natural variability, or factors not captured by $\vx$. A deterministic model $f_{\pvec}(\vx)$ produces a single prediction and ignores this variability entirely. A \textbf{probabilistic model} instead specifies a conditional distribution $p(y \mid \vx; \pvec)$ over outputs given inputs, explicitly modelling the uncertainty in the output. The network $f_{\pvec}$ defines the parameters of this distribution --- its mean for regression, or its class probabilities for classification.
+Real data is noisy. Even for the same input $\vx$, repeated measurements of the output $y$ would differ - due to measurement error, natural variability, or factors not captured by $\vx$. A deterministic model $f_{\pvec}(\vx)$ produces a single prediction and ignores this variability entirely. A \textbf{probabilistic model} instead specifies a conditional distribution $p(y \mid \vx; \pvec)$ over outputs given inputs, explicitly modelling the uncertainty in the output. The network $f_{\pvec}$ defines the parameters of this distribution - its mean for regression, or its class probabilities for classification.
 
 \begin{wrapfigure}{r}{0.42\textwidth}
 \centering
 \resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/likelihood_illustration.tex}}
-\caption{Likelihood intuition. Data points (ticks) were generated by one of two distributions. The petrol distribution is centred on the data --- it is a plausible generator. The orange distribution is shifted and narrower --- it could have generated the data, but with much lower probability - low likelihood.}
+\caption{Likelihood intuition. Data points (ticks) were generated by one of two distributions. The petrol distribution is centred on the data - it is a plausible generator. The orange distribution is shifted and narrower - it could have generated the data, but with much lower probability - low likelihood.}
 \label{fig:likelihood}
 \end{wrapfigure}
 
 Given that the model assigns a probability to every possible output, we can ask: how probable is the data we actually observed under this model? If the model is a good fit for the data, the observed outputs should be highly probable under it; if it is a poor fit, the observed outputs should be improbable. This suggests fitting the model by choosing parameters that make the observed data as probable as possible.
 
-The \textbf{likelihood} function $L(\pvec) = p(y \mid \vx; \pvec)$ formalises this idea: it is the same probability of the observed data under the model, but now viewed as a function of the parameters $\pvec$ with the data $(\vx, y)$ fixed. Figure~\ref{fig:likelihood} illustrates the intuition: the petrol distribution assigns high probability to the the observed data points - high likelihood that data were generated from this distribution, while the orange distribution assigns low probability - low likelihood of this parameterization. ML method chooses the parameters that maximise this probability --- the distribution that most plausibly generated the observed data.
+The \textbf{likelihood} function $L(\pvec) = p(y \mid \vx; \pvec)$ formalises this idea: it is the same probability of the observed data under the model, but now viewed as a function of the parameters $\pvec$ with the data $(\vx, y)$ fixed. Figure~\ref{fig:likelihood} illustrates the intuition: the petrol distribution assigns high probability to the the observed data points - high likelihood that data were generated from this distribution, while the orange distribution assigns low probability - low likelihood of this parameterization. ML method chooses the parameters that maximise this probability - the distribution that most plausibly generated the observed data.
 
-So far we have considered the likelihood of a single observation $(\vx, y)$. In practice we have a full dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$ and we want to find parameters that make the \emph{entire} dataset probable --- not just one example. The likelihood we want to maximise is therefore the joint probability of all observed outputs $L(\pvec) = p(\dataset;\, \pvec)$. To write this down, we need an assumption about the relationship between examples. The standard assumption is that examples are \textbf{independently and identically distributed} (i.i.d.): \textbf{independent} means that knowing the output of one example tells us nothing about the outputs of others; \textbf{identically distributed} means all examples are drawn from the same distribution $p_{\text{data}}$. Together, these assumptions mean the joint probability of the dataset factorises into a product over individual examples:
+So far we have considered the likelihood of a single observation $(\vx, y)$. In practice we have a full dataset $\dataset = \{(\vx^{(i)}, y^{(i)})\}_{i=1}^{\nsamples}$ and we want to find parameters that make the \emph{entire} dataset probable - not just one example. The likelihood we want to maximise is therefore the joint probability of all observed outputs $L(\pvec) = p(\dataset;\, \pvec)$. To write this down, we need an assumption about the relationship between examples. The standard assumption is that examples are \textbf{independently and identically distributed} (i.i.d.): \textbf{independent} means that knowing the output of one example tells us nothing about the outputs of others; \textbf{identically distributed} means all examples are drawn from the same distribution $p_{\text{data}}$. Together, these assumptions mean the joint probability of the dataset factorises into a product over individual examples:
 
 \begin{equation}
     L(\pvec) = p(\dataset;\, \pvec) = \prod_{i=1}^{\nsamples} p(y^{(i)} \mid \vx^{(i)};\, \pvec).
@@ -149,7 +151,7 @@ So far we have considered the likelihood of a single observation $(\vx, y)$. In 
 \begin{equation}
     \pvec^* = \arg\max_{\pvec}\; L(\pvec).
 \end{equation}
-Working directly with the likelihood product is unwieldy: multiplying many probabilities together quickly produces extremely small numbers that are both hard to interpret and prone to numerical underflow. Taking the logarithm resolves this. Since log is strictly monotone, maximising $\log L(\pvec)$ gives exactly the same solution as maximising $L(\pvec)$ --- the log does not change which parameter setting wins, only the scale on which we measure it. The \textbf{log-likelihood} turns the product into a sum, which is far more tractable both numerically and analytically:
+Working directly with the likelihood product is unwieldy: multiplying many probabilities together quickly produces extremely small numbers that are both hard to interpret and prone to numerical underflow. Taking the logarithm resolves this. Since log is strictly monotone, maximising $\log L(\pvec)$ gives exactly the same solution as maximising $L(\pvec)$ - the log does not change which parameter setting wins, only the scale on which we measure it. The \textbf{log-likelihood} turns the product into a sum, which is far more tractable both numerically and analytically:
 \begin{equation}
     \log L(\pvec) = \sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec).
 \end{equation}
@@ -160,16 +162,10 @@ Finally, in machine learning we prefer to minimize our objectives rather than ma
 \end{equation}
 This NLL is our loss function. 
 
-So far the derivation has been abstract --- we have worked with a generic distribution $p(y \mid \vx; \pvec)$ without specifying what it is. In practice, this is where we make a concrete assumption about the data-generating process and plug it in. The result is a specific, usable loss function. The choice of distributional assumption $p(y \mid \vx; \pvec)$ determines which loss emerges --- different assumptions lead to different losses. The next three subsections work through the three cases we care about: Gaussian for regression, Bernoulli for binary classification, and Categorical for multiclass classification, but in more advanced methods such as deep generative modeling this is where the magic often happens. 
+So far the derivation has been abstract - we have worked with a generic distribution $p(y \mid \vx; \pvec)$ without specifying what it is. In practice, this is where we make a concrete assumption about the data-generating process and plug it in. The result is a specific, usable loss function. The choice of distributional assumption $p(y \mid \vx; \pvec)$ determines which loss emerges - different assumptions lead to different losses. The next three subsections work through the three cases we care about: Gaussian for regression, Bernoulli for binary classification, and Categorical for multiclass classification, but in more advanced methods such as deep generative modeling this is where the magic often happens. 
 
 \subsubsection{Gaussian Assumption $\to$ MSE}
 
-\begin{wrapfigure}{r}{0.42\textwidth}
-\centering
-\resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/gaussian_regression.tex}}
-\caption{Regression under Gaussian noise. The network predicts the mean of a Gaussian distribution at each input $x$. Data points scatter around the regression line, with the conditional distribution $p(y \mid x; \pvec)$ shown at three locations.}
-\label{fig:gaussian_regression}
-\end{wrapfigure}
 
 For regression, the natural probabilistic assumption is that the true output is the network prediction plus independent Gaussian noise $y = f_{\pvec}(\vx) + \epsilon, \ \epsilon \sim \mathcal{N}(0, \sigma^2)$: the network $f_{\pvec}(\vx)$ predicts the mean of a Gaussian distribution centred on the true relationship, and each observation deviates from this mean by a random noise term. Figure~\ref{fig:gaussian_regression} illustrates this: at each input $x$, the conditional distribution $p(y \mid x; \pvec)$ is a Gaussian centred on the regression line, and the data points scatter around it. Formally:
 \begin{equation}
@@ -183,11 +179,19 @@ The NLL averaged over the training set is:
 \begin{equation}
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec) = \frac{1}{2\sigma^2} \underbrace{\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}(y^{(i)} - f_{\pvec}(\vx^{(i)}))^2}_{\text{MSE}} + \text{const}.
 \end{equation}
+
+\begin{wrapfigure}{r}{0.42\textwidth}
+\centering
+\resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/gaussian_regression.tex}}
+\caption{Regression under Gaussian noise. The network predicts the mean of a Gaussian distribution at each input $x$. Data points scatter around the regression line, with the conditional distribution $p(y \mid x; \pvec)$ shown at three locations.}
+\label{fig:gaussian_regression}
+\end{wrapfigure}
 Here we see how the MSE loss emerges from minimising the NLL under a Gaussian assumption. The $\frac{1}{2\sigma^2}$ and the additive constant do not affect which $\pvec$ minimises the expression and hence we can freely ignore them when searching for the network parameters $\pvec$. We see that MSE is not an arbitrary choice but the principled consequence of assuming Gaussian observation noise. This connects back to Session~?? where MSE was introduced: we now understand why it is the right loss for regression under this assumption.
+
 
 \subsubsection{Bernoulli Assumption $\to$ Binary Cross-Entropy}
 
-For binary classification, the label $y \in \{0, 1\}$ takes exactly the values of a Bernoulli random variable --- it is either 0 or 1, with no intermediate values. The natural probabilistic assumption is therefore that the label follows a Bernoulli distribution with success probability $\hat{p} = \sigma(f_{\pvec}(\vx))$, where the network predicts the logits (also known as log-odds) and sigmoid converts it to a probability. The Bernoulli distribution has a particularly clean form: it assigns probability $\hat{p}$ to outcome 1 and probability $1 - \hat{p}$ to outcome 0, which can be written compactly as:
+For binary classification, the label $y \in \{0, 1\}$ takes exactly the values of a Bernoulli random variable - it is either 0 or 1, with no intermediate values. The natural probabilistic assumption is therefore that the label follows a Bernoulli distribution with success probability $\hat{p} = \sigma(f_{\pvec}(\vx))$, where the network predicts the logits (also known as log-odds) and sigmoid converts it to a probability. The Bernoulli distribution has a particularly clean form: it assigns probability $\hat{p}$ to outcome 1 and probability $1 - \hat{p}$ to outcome 0, which can be written compactly as:
 \begin{equation}
     p(y \mid \vx;\, \pvec) = \text{Bernoulli}(y;\, \hat{p}) = \hat{p}^{\,y}(1-\hat{p})^{1-y}.
 \end{equation}
@@ -199,12 +203,12 @@ The NLL averaged over the training set is:
 \begin{equation}
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec) = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples}\left[y^{(i)}\log\hat{p}^{(i)} + (1-y^{(i)})\log(1-\hat{p}^{(i)})\right]}_{\loss_{BCE}(\pvec)}.
 \end{equation}
-This is exactly the binary cross-entropy loss from Section~\ref{sec:bce}. Minimising the NLL under a Bernoulli assumption is equivalent to minimising binary cross-entropy --- the loss we motivated intuitively now has a principled derivation.
+This is exactly the binary cross-entropy loss from Section~\ref{sec:bce}. Minimising the NLL under a Bernoulli assumption is equivalent to minimising binary cross-entropy - the loss we motivated intuitively now has a principled derivation.
 
 
 \subsubsection{Categorical Assumption $\to$ Categorical Cross-Entropy}
 
-For multiclass classification, the label $y \in \{1, \ldots, K\}$ takes one of $K$ discrete values --- exactly the support of a Categorical distribution. The natural probabilistic assumption is that the label follows a Categorical distribution with class probabilities $\hat{\vp} = \text{softmax}(f_{\pvec}(\vx))$, where the network predicts the logits and softmax converts them to a valid probability distribution. Using one-hot encoding $\vy \in \{0,1\}^K$, the Categorical distribution can be written compactly as:
+For multiclass classification, the label $y \in \{1, \ldots, K\}$ takes one of $K$ discrete values - exactly the support of a Categorical distribution. The natural probabilistic assumption is that the label follows a Categorical distribution with class probabilities $\hat{\vp} = \text{softmax}(f_{\pvec}(\vx))$, where the network predicts the logits and softmax converts them to a valid probability distribution. Using one-hot encoding $\vy \in \{0,1\}^K$, the Categorical distribution can be written compactly as:
 \begin{equation}
     p(y \mid \vx;\, \pvec) = \text{Categorical}(y;\, \hat{\vp}) = \prod_{k=1}^{K} \hat{p}_k^{\,y_k} = \hat{p}_y.
 \end{equation}
@@ -216,51 +220,43 @@ The NLL averaged over the training set is:
 \begin{equation}
     -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log p(y^{(i)} \mid \vx^{(i)};\, \pvec) = \underbrace{-\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} \log \hat{p}^{(i)}_{y^{(i)}}}_{\loss_{CE}(\pvec)}.
 \end{equation}
-This is exactly the categorical cross-entropy loss from Section~\ref{sec:ce}. Minimising the NLL under a Categorical assumption is equivalent to minimising categorical cross-entropy --- completing the picture: all three losses we have been using are maximum likelihood estimators under their respective distributional assumptions.
+This is exactly the categorical cross-entropy loss from Section~\ref{sec:ce}. Minimising the NLL under a Categorical assumption is equivalent to minimising categorical cross-entropy - completing the picture: all three losses we have been using are maximum likelihood estimators under their respective distributional assumptions.
 
 % - - - - - - - - - - - - - - - - -
 
 \subsection{Information Theory}
 \slideref{Session 8: Why Information Theory, Information Content, Entropy, Binary Entropy and Coding, Cross-Entropy, KL Divergence, Three Views One Objective}
 
-Maximum likelihood gave us a statistical justification for cross-entropy: it is the NLL under a Categorical assumption. But this derivation treats cross-entropy as a computational object --- a formula that emerges from an algebraic manipulation. It does not tell us what cross-entropy \emph{means} geometrically, or why it is a natural measure of the distance between two probability distributions.
+Maximum likelihood gave us a statistical justification for cross-entropy: it is the NLL under a Categorical assumption. But this derivation treats cross-entropy as a computational object - a formula that emerges from an algebraic manipulation. It does not tell us what cross-entropy \emph{means} geometrically, or why it is a natural measure of the distance between two probability distributions.
 
-Information theory, developed by Claude Shannon in his landmark 1948 paper \parencite{Shannon1948}, was originally motivated by a practical engineering problem: how much can a message be compressed without losing information, and at what rate can information be transmitted reliably over a noisy channel? To answer these questions, Shannon developed a mathematical theory of information that quantifies uncertainty, surprise, and the cost of miscommunication. The central concepts --- entropy, cross-entropy, and KL divergence --- turn out to be exactly the right tools for understanding what happens when we train a classifier and in extension any machine learning model.
+Information theory, developed by Claude Shannon in his landmark 1948 paper \parencite{Shannon1948}, was originally motivated by a practical engineering problem: how much can a message be compressed without losing information, and at what rate can information be transmitted reliably over a noisy channel? To answer these questions, Shannon developed a mathematical theory of information that quantifies uncertainty, surprise, and the cost of miscommunication. The central concepts - entropy, cross-entropy, and KL divergence - turn out to be exactly the right tools for understanding what happens when we train a classifier and in extension any machine learning model.
 
-The connection is this: training minimises the cross-entropy loss, which is equivalent to minimising the KL divergence between the true label distribution and the model's predicted distribution. KL divergence measures how far apart two distributions are in the information-theoretic sense --- minimising it means bringing the model as close as possible to the truth. This reframes training not as curve fitting but as distribution matching, which is a more fundamental and illuminating perspective. This section builds up the necessary concepts from first principles.
+The connection is this: training minimises the cross-entropy loss, which is equivalent to minimising the KL divergence between the true label distribution and the model's predicted distribution. KL divergence measures how far apart two distributions are in the information-theoretic sense - minimising it means bringing the model as close as possible to the truth. This reframes training not as curve fitting but as distribution matching, which is a more fundamental and illuminating perspective. This section builds up the necessary concepts from first principles.
 
 \subsubsection{Information Content}
 
-We begin with the most basic question: how much information does a single event carry? Intuitively, learning that a rare event occurred is more surprising and more informative than learning that a common one did. If someone tells you it rained in London today, you learn little --- it happens often. If they tell you it snowed in June, you learn a lot. We want to quantify this notion of surprise formally, as a function of the event's probability.
+We begin with the most basic question: how much information does a single event carry? Intuitively, learning that a rare event occurred is more surprising and more informative than learning that a common one did. If someone tells you it rained in London today, you learn little - it happens often. If they tell you it snowed in June, you learn a lot. We want to quantify this notion of surprise formally, as a function of the event's probability.
 
 The \textbf{information content} (or self-information) of event $k$ occurring with probability $p_k$ is:
 \begin{equation}
     I(k) = -\log_2 p_k.
 \end{equation}
-The unit is \textbf{bits} when using $\log_2$. A certain event ($p_k = 1$) carries zero information --- you already knew it would happen. A coin flip ($p_k = 0.5$) carries 1 bit --- you needed one binary question to predict it. A rare event ($p_k = 0.01$) carries approximately 6.6 bits --- it takes many binary questions to narrow it down.
+The unit is \textbf{bits} when using $\log_2$. A certain event ($p_k = 1$) carries zero information - you already knew it would happen. A coin flip ($p_k = 0.5$) carries 1 bit - you needed one binary question to predict it. A rare event ($p_k = 0.01$) carries approximately 6.6 bits - it takes many binary questions to narrow it down.
 
 \paragraph{Why $-\log$?}
 The logarithm is not an arbitrary choice. Three natural requirements uniquely determine the form $I(k) = - \log p_k$ \parencite{Shannon1948}:
 \begin{enumerate}
-    \item \textbf{Monotonicity:} more probable events carry less information --- $I$ should be a decreasing function of $p_k$
+    \item \textbf{Monotonicity:} more probable events carry less information - $I$ should be a decreasing function of $p_k$
     \item \textbf{Additivity:} for two independent events $A$ and $B$, the information of both occurring should equal the sum of their individual informations: $I(A \cap B) = I(A) + I(B)$. Since $p(A \cap B) = p(A)p(B)$ for independent events, this requires a function satisfying $f(p \cdot q) = f(p) + f(q)$, which forces $f(p) = - \log p$
-    \item \textbf{Continuity:} small changes in probability should produce small changes in information --- no discontinuous jumps
+    \item \textbf{Continuity:} small changes in probability should produce small changes in information - no discontinuous jumps
 \end{enumerate}
-Beyond the axiomatic justification, Shannon's source coding theorem \parencite{Shannon1948} gives $-\log_2 p_k$ a concrete operational meaning: it is the minimum number of bits needed to encode event $k$ in an optimal lossless compression scheme. Information content is not just a mathematical abstraction --- it is the fundamental currency of compression.
+Beyond the axiomatic justification, Shannon's source coding theorem \parencite{Shannon1948} gives $-\log_2 p_k$ a concrete operational meaning: it is the minimum number of bits needed to encode event $k$ in an optimal lossless compression scheme. Information content is not just a mathematical abstraction - it is the fundamental currency of compression.
 
-Morse code illustrates this concretely. Morse code encodes letters of English alphabet into a series of dashes and dots (equivalents of zeros $0$ and ones $1$) based on their frequency as they appear in standard English language. The idea is too make communication and transmission of messages efficient - you use few bits (dots or dashes) for encoding very common letters and you can afford to use long codes for rare letters as they anyway do not appear very often. Letters actually have very different frequencies --- for example E and T are common, Q and Z are rare. Morse code assigns short codes to such frequent letters (E is a single dot, T is a single dash) and longer codes to rare ones (Q is \texttt{- - . -}, Z is \texttt{- - . .}).
+Morse code illustrates this concretely. Morse code encodes letters of English alphabet into a series of dashes and dots (equivalents of zeros $0$ and ones $1$) based on their frequency as they appear in standard English language. The idea is too make communication and transmission of messages efficient - you use few bits (dots or dashes) for encoding very common letters and you can afford to use long codes for rare letters as they anyway do not appear very often. Letters actually have very different frequencies - for example E and T are common, Q and Z are rare. Morse code assigns short codes to such frequent letters (E is a single dot, T is a single dash) and longer codes to rare ones (Q is \texttt{- - . -}, Z is \texttt{- - . .}).
 
-This matches the information content principle: frequent letters carry little information and deserve short codes; rare letters carry a lot of information and require longer ones. The optimal code length for letter $k$ is $-\log_2 p_k$ bits, where $p_k$ is the probability of that letter occurring in English langauge --- exactly the information content.
+This matches the information content principle: frequent letters carry little information and deserve short codes; rare letters carry a lot of information and require longer ones. The optimal code length for letter $k$ is $-\log_2 p_k$ bits, where $p_k$ is the probability of that letter occurring in English langauge - exactly the information content.
 
 Note that in machine learning we typically do not work with $\log_2$ but with natural logarithm $\log$. This changes the \emph{currency} from bits into something we call \textbf{nats} but does not change the fundamental principles. 
-
-\subsubsection{Entropy}
-
-Information content tells us how many bits (zeros and ones, or dots and dashes) to assign to a single symbol. A message is a sequence of many symbols, each encoded independently. The total length of a message is the sum of the code lengths of its symbols. If we use optimal codes --- assigning $-\log_2 p_k$ bits to symbol $k$ --- the total length of a message of $n$ symbols is $\sum_i (-\log_2 p_{k_i})$. How long is the encoding of a typical symbol? The answer is the expected code length, which is the \textbf{entropy}:
-\begin{equation}
-    H(p) = \mathbb{E}_{k \sim p}[I(k)] = -\sum_k p_k \log p_k.
-\end{equation}
-Entropy tells us the average number of bits per symbol under optimal encoding - how long our messages will be on average.
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
@@ -269,11 +265,21 @@ Entropy tells us the average number of bits per symbol under optimal encoding - 
 \label{fig:entropy_distributions}
 \end{wrapfigure}
 
-Consider two extremes - see figure~\ref{fig:entropy_distributions}. If the distribution is highly concentrated --- a few symbols are very frequent and the rest almost never appear --- we can assign very short codes to the frequent ones. Since they dominate the messages, the average code length is short. This is \textbf{low entropy}: the distribution is uneven, the frequent symbols are easy to predict, and messages compress well.
+\subsubsection{Entropy}
 
-English is like this: E constitutes roughly 13\% of standard English text, T about 9\%, while Q and Z appear in less than 0.1\% - try it, take some English text and calculate the letter frequencies! An English text compresses efficiently because most characters are predictable. If the distribution is more even --- many symbols with similar frequencies --- we cannot benefit from assigning short codes to a few dominant ones. Every symbol needs a reasonably long code, and messages are longer on average. This is \textbf{high entropy}: the distribution is spread out and messages compress poorly.
+Information content tells us how many bits (zeros and ones, or dots and dashes) to assign to a single symbol. A message is a sequence of many symbols, each encoded independently. The total length of a message is the sum of the code lengths of its symbols. If we use optimal codes - assigning $-\log_2 p_k$ bits to symbol $k$ - the total length of a message of $n$ symbols is $\sum_i (-\log_2 p_{k_i})$. How long is the encoding of a typical symbol? The answer is the expected code length, which is the \textbf{entropy}:
+\begin{equation}
+    H(p) = \mathbb{E}_{k \sim p}[I(k)] = -\sum_k p_k \log p_k.
+\end{equation}
+Entropy tells us the average number of bits per symbol under optimal encoding - how long our messages will be on average.
 
-This connects directly to uncertainty. When we randomly pick a letter from an English text, it is often E --- we can make a reasonable guess. Low entropy means we can bet on the outcome: the distribution is concentrated enough that one or a few outcomes are much more likely than others, and the bet is not too risky. High entropy means the distribution is close to uniform --- any symbol is about as likely as any other, guessing is hard, and betting is risky. Entropy is therefore simultaneously a measure of compression efficiency, predictability, and uncertainty. No lossless encoding can achieve an average code length below $H(p)$ bits per symbol --- it is a fundamental lower bound on compression \parencite{Shannon1948}.
+
+
+Consider two extremes - see figure~\ref{fig:entropy_distributions}. If the distribution is highly concentrated - a few symbols are very frequent and the rest almost never appear - we can assign very short codes to the frequent ones. Since they dominate the messages, the average code length is short. This is \textbf{low entropy}: the distribution is uneven, the frequent symbols are easy to predict, and messages compress well.
+
+English is like this: E constitutes roughly 13\% of standard English text, T about 9\%, while Q and Z appear in less than 0.1\% - try it, take some English text and calculate the letter frequencies! An English text compresses efficiently because most characters are predictable. If the distribution is more even - many symbols with similar frequencies - we cannot benefit from assigning short codes to a few dominant ones. Every symbol needs a reasonably long code, and messages are longer on average. This is \textbf{high entropy}: the distribution is spread out and messages compress poorly.
+
+This connects directly to uncertainty. When we randomly pick a letter from an English text, it is often E - we can make a reasonable guess. Low entropy means we can bet on the outcome: the distribution is concentrated enough that one or a few outcomes are much more likely than others, and the bet is not too risky. High entropy means the distribution is close to uniform - any symbol is about as likely as any other, guessing is hard, and betting is risky. Entropy is therefore simultaneously a measure of compression efficiency, predictability, and uncertainty. No lossless encoding can achieve an average code length below $H(p)$ bits per symbol - it is a fundamental lower bound on compression \parencite{Shannon1948}.
 
 \subsubsection{Binary Entropy and Coding}
 
@@ -288,50 +294,50 @@ For a binary distribution $p = (p, 1-p)$ entropy is:
 \begin{equation}
     H(p) = -p\log_2 p - (1-p)\log_2(1-p).
 \end{equation}
-This is shown in figure~\ref{fig:binary_entropy} as a function of the probability $p$. A fair coin ($p=0.5$) has entropy 1 bit --- the optimal code assigns 1 bit per outcome, matching practice. A biased coin ($p=0.9$) has entropy approximately 0.47 bits --- theory says we can encode the information about the outcome of the coin flip with shorter messages than 1 bit per symbol on average. However, this bound is only achievable in practice by encoding long sequences together rather than one symbol at a time. A single binary outcome always requires at least 1 bit --- the minimum addressable unit. The theoretical savings come from treating a whole sequence as a single message: a long sequence of biased coin flips can be compressed well below 1 bit per flip on average, because the sequence as a whole has far fewer probable patterns than the $2^n$ possible ones. The entropy bound applies to the per-symbol rate in the limit of long sequences, not to individual symbols.
+This is shown in figure~\ref{fig:binary_entropy} as a function of the probability $p$. A fair coin ($p=0.5$) has entropy 1 bit - the optimal code assigns 1 bit per outcome, matching practice. A biased coin ($p=0.9$) has entropy approximately 0.47 bits - theory says we can encode the information about the outcome of the coin flip with shorter messages than 1 bit per symbol on average. However, this bound is only achievable in practice by encoding long sequences together rather than one symbol at a time. A single binary outcome always requires at least 1 bit - the minimum addressable unit. The theoretical savings come from treating a whole sequence as a single message: a long sequence of biased coin flips can be compressed well below 1 bit per flip on average, because the sequence as a whole has far fewer probable patterns than the $2^n$ possible ones. The entropy bound applies to the per-symbol rate in the limit of long sequences, not to individual symbols.
 
 \subsubsection{Cross-Entropy}
 
 Entropy tells us the minimum average code length when we know the true distribution and design the code accordingly. But what happens when we use a wrong distribution when designing our code?
 
-Imagine trying to encode a Finnish text using Morse code designed for English. English Morse assigns short codes to frequent English letters like E and T, which are much less dominant in Finnish. Finnish has its own letter frequencies --- for example Finish love to use `k`, it forms about 4\% of Finish texts while in English that would be less than 1\%. In English you can assign the latter `k` a long-binary code - it is not used so often - but in Finish it is used all the time, it should have a short code. Overall, the English-designed code will assign long codes to common Finnish letters and short codes to rare ones, producing messages that are longer than necessary. A Morse code designed specifically for Finnish would be shorter. The \textbf{cross-entropy} measures this mess-up.
+Imagine trying to encode a Finnish text using Morse code designed for English. English Morse assigns short codes to frequent English letters like E and T, which are much less dominant in Finnish. Finnish has its own letter frequencies - for example Finish love to use `k`, it forms about 4\% of Finish texts while in English that would be less than 1\%. In English you can assign the latter `k` a long-binary code - it is not used so often - but in Finish it is used all the time, it should have a short code. Overall, the English-designed code will assign long codes to common Finnish letters and short codes to rare ones, producing messages that are longer than necessary. A Morse code designed specifically for Finnish would be shorter. The \textbf{cross-entropy} measures this mess-up.
 
 More precisely, cross-entropy measures the average code length when we use a model distribution $\hat{\vp}$ to design the code but events actually follow the true distribution $p$:
 \begin{equation}
     H(p, \hat{\vp}) = -\sum_k p_k \log \hat{p}_k.
 \end{equation}
-Using the wrong distribution always costs extra bits: $H(p, \hat{\vp}) \geq H(p)$, with equality if and only if $p = \hat{\vp}$ --- only a perfectly matched code achieves the minimum. The extra cost is exactly the KL divergence, which we define in the next subsection.
+Using the wrong distribution always costs extra bits: $H(p, \hat{\vp}) \geq H(p)$, with equality if and only if $p = \hat{\vp}$ - only a perfectly matched code achieves the minimum. The extra cost is exactly the KL divergence, which we define in the next subsection.
 
-The connection to our classification loss follows naturally from this framing. In classification, the ``symbols'' are the class labels --- each example belongs to one of $K$ classes. The true distribution $p$ over classes is the one-hot label vector: the correct class has probability 1 and all others have probability 0. If we knew this true distribution, we would assign a code of length $-\log_2 p_k$ to each class --- the correct class would get a code of length 0 (it is certain) and all others would get infinite length codes (they never occur). In practice we do not know the true distribution for a new example; instead our neural network learns an estimate $\hat{\vp} = \text{softmax}(f_{\pvec}(\vx))$ of how probable each class is.
+The connection to our classification loss follows naturally from this framing. In classification, the ``symbols'' are the class labels - each example belongs to one of $K$ classes. The true distribution $p$ over classes is the one-hot label vector: the correct class has probability 1 and all others have probability 0. If we knew this true distribution, we would assign a code of length $-\log_2 p_k$ to each class - the correct class would get a code of length 0 (it is certain) and all others would get infinite length codes (they never occur). In practice we do not know the true distribution for a new example; instead our neural network learns an estimate $\hat{\vp} = \text{softmax}(f_{\pvec}(\vx))$ of how probable each class is.
 
 Using this estimated distribution to design our code, the cross-entropy measures the average code length we achieve:
 \begin{equation}
     H(p, \hat{\vp}) = -\sum_k y_k \log \hat{p}_k = -\log \hat{p}_y = \ell_{CE}(\hat{\vp}, \vy).
 \end{equation}
-When the model assigns high probability to the correct class, $\hat{p}_y \approx 1$ and the code length $-\log \hat{p}_y \approx 0$ --- the class is easy to describe, the message is short. When the model assigns low probability to the correct class, $\hat{p}_y \approx 0$ and the code length $-\log \hat{p}_y \to \infty$ --- the model is surprised by the correct answer, the message is long. Training minimises this cross-entropy: we are learning a probability distribution over classes that allows us to describe the true class labels as efficiently as possible. The better the model's estimated distribution matches the true one, the shorter our messages --- and the lower our loss.
+When the model assigns high probability to the correct class, $\hat{p}_y \approx 1$ and the code length $-\log \hat{p}_y \approx 0$ - the class is easy to describe, the message is short. When the model assigns low probability to the correct class, $\hat{p}_y \approx 0$ and the code length $-\log \hat{p}_y \to \infty$ - the model is surprised by the correct answer, the message is long. Training minimises this cross-entropy: we are learning a probability distribution over classes that allows us to describe the true class labels as efficiently as possible. The better the model's estimated distribution matches the true one, the shorter our messages - and the lower our loss.
 
 
 \subsubsection{KL Divergence}
 
-Cross-entropy measures the total average code length when using the wrong distribution. But part of that length is unavoidable --- even with the perfect code, a message of $n$ symbols drawn from $p$ requires at least $H(p)$ bits per symbol. The truly interesting quantity is the \textbf{extra} cost we pay for using the wrong distribution: how many unnecessary bits does our Finnish text accumulate because we used English Morse code instead of Finnish Morse code? This extra cost is the \textbf{Kullback-Leibler divergence} \parencite{Kullback1951}:
+Cross-entropy measures the total average code length when using the wrong distribution. But part of that length is unavoidable - even with the perfect code, a message of $n$ symbols drawn from $p$ requires at least $H(p)$ bits per symbol. The truly interesting quantity is the \textbf{extra} cost we pay for using the wrong distribution: how many unnecessary bits does our Finnish text accumulate because we used English Morse code instead of Finnish Morse code? This extra cost is the \textbf{Kullback-Leibler divergence} \parencite{Kullback1951}:
 \begin{equation}
     D_{KL}(p \| \hat{\vp}) = H(p, \hat{\vp}) - H(p) = \sum_k p_k \log \frac{p_k}{\hat{p}_k}.
 \end{equation}
-The KL divergence is the gap between the code length we achieve with $\hat{\vp}$ and the minimum code length achievable with the true distribution $p$. It is zero if and only if $p = \hat{\vp}$ --- our estimated distribution is perfect and we pay no unnecessary bits. It is always non-negative --- we can never do better than the true distribution. It is not symmetric: the extra cost of encoding $p$ with $\hat{\vp}$ is generally different from encoding $\hat{\vp}$ with $p$, so it is not a distance in the mathematical sense.
+The KL divergence is the gap between the code length we achieve with $\hat{\vp}$ and the minimum code length achievable with the true distribution $p$. It is zero if and only if $p = \hat{\vp}$ - our estimated distribution is perfect and we pay no unnecessary bits. It is always non-negative - we can never do better than the true distribution. It is not symmetric: the extra cost of encoding $p$ with $\hat{\vp}$ is generally different from encoding $\hat{\vp}$ with $p$, so it is not a distance in the mathematical sense.
 
-Returning to classification: the true label distribution $p$ is fixed --- it is determined by the data, not by our model. The entropy $H(p)$ is therefore a constant that does not depend on the parameters $\pvec$. The cross-entropy $H(p, \hat{\vp})$ differs from $D_{KL}(p \| \hat{\vp})$ only by this constant:
+Returning to classification: the true label distribution $p$ is fixed - it is determined by the data, not by our model. The entropy $H(p)$ is therefore a constant that does not depend on the parameters $\pvec$. The cross-entropy $H(p, \hat{\vp})$ differs from $D_{KL}(p \| \hat{\vp})$ only by this constant:
 \begin{equation}
     \arg\min_{\pvec}\; H(p, \hat{\vp}) \equiv \arg\min_{\pvec}\; D_{KL}(p \| \hat{\vp}).
 \end{equation}
-Minimising the cross-entropy loss is therefore equivalent to minimising the KL divergence between the true label distribution and the model's predicted distribution. Training is not just curve fitting --- it is \textbf{distribution matching}: we are finding the model parameters that bring the predicted distribution as close as possible to the true one, as measured by the extra bits we would waste using the model's code instead of the ideal one.
+Minimising the cross-entropy loss is therefore equivalent to minimising the KL divergence between the true label distribution and the model's predicted distribution. Training is not just curve fitting - it is \textbf{distribution matching}: we are finding the model parameters that bring the predicted distribution as close as possible to the true one, as measured by the extra bits we would waste using the model's code instead of the ideal one.
 
-This equivalence holds for any distributional assumption. For Gaussian regression, minimising MSE is equivalent to minimising the KL divergence between two Gaussians. For binary classification, minimising binary cross-entropy is equivalent to minimising the KL divergence between two Bernoullis. The loss function is always the NLL, and minimising it is always distribution matching --- the specific distributions involved depend on what we assume about the data-generating process.
+This equivalence holds for any distributional assumption. For Gaussian regression, minimising MSE is equivalent to minimising the KL divergence between two Gaussians. For binary classification, minimising binary cross-entropy is equivalent to minimising the KL divergence between two Bernoullis. The loss function is always the NLL, and minimising it is always distribution matching - the specific distributions involved depend on what we assume about the data-generating process.
 
-Beyond the coding interpretation, KL divergence is used throughout machine learning and statistics as a general measure of the difference between two probability distributions --- how much information is lost when $\hat{\vp}$ is used to approximate $p$. It appears in variational inference, generative models, reinforcement learning, and many other settings where we need to quantify how far apart two distributions are. The asymmetry is practically meaningful: $D_{KL}(p \| \hat{\vp})$ penalises placing low probability where $p$ places high probability --- it is large when the model misses probability mass that the true distribution assigns. $D_{KL}(\hat{\vp} \| p)$ has the opposite character --- it penalises placing high probability where $p$ places low probability. Generally, if you wish to go deep in deep learning, it is good to know what KL divergence is.
+Beyond the coding interpretation, KL divergence is used throughout machine learning and statistics as a general measure of the difference between two probability distributions - how much information is lost when $\hat{\vp}$ is used to approximate $p$. It appears in variational inference, generative models, reinforcement learning, and many other settings where we need to quantify how far apart two distributions are. The asymmetry is practically meaningful: $D_{KL}(p \| \hat{\vp})$ penalises placing low probability where $p$ places high probability - it is large when the model misses probability mass that the true distribution assigns. $D_{KL}(\hat{\vp} \| p)$ has the opposite character - it penalises placing high probability where $p$ places low probability. Generally, if you wish to go deep in deep learning, it is good to know what KL divergence is.
 
 \subsubsection{Three Views, One Objective}
 
-Table~\ref{tab:three_views} summarises the equivalence across all three cases. The three perspectives --- loss minimisation, maximum likelihood, and KL divergence minimisation --- are the same optimisation problem viewed through different lenses. MLE gives the statistical motivation, the loss function gives the practical objective, and KL divergence gives the geometric interpretation. This triple perspective is not only useful but also quite beautiful --- when things work well in mathematics and science, the same truth tends to reveal itself from multiple directions at once, and each new angle deepens the understanding. Here, a statistician fitting a model, an engineer minimising a loss, and an information theorist compressing a message are all doing the same thing without knowing it.
+Table~\ref{tab:three_views} summarises the equivalence across all three cases. The three perspectives - loss minimisation, maximum likelihood, and KL divergence minimisation - are the same optimisation problem viewed through different lenses. MLE gives the statistical motivation, the loss function gives the practical objective, and KL divergence gives the geometric interpretation. This triple perspective is not only useful but also quite beautiful - when things work well in mathematics and science, the same truth tends to reveal itself from multiple directions at once, and each new angle deepens the understanding. Here, a statistician fitting a model, an engineer minimising a loss, and an information theorist compressing a message are all doing the same thing without knowing it.
 
 \begin{table}[h]
 \centering
@@ -392,7 +398,7 @@ In \textbf{multi-label classification}, each example can belong to multiple clas
 \subsection{Advanced Considerations}
 \slideref{Session 8: Overconfidence, Label Smoothing, Calibration, Class Imbalance, Weak Labels}
 
-The previous section covered the mechanics of implementation. This section steps back and examines deeper issues that arise when deploying classification models in practice. These are not edge cases --- they are systematic problems that affect almost every real classification task. Understanding them is the difference between a model that works on a clean benchmark and one that is trustworthy in deployment.
+The previous section covered the mechanics of implementation. This section steps back and examines deeper issues that arise when deploying classification models in practice. These are not edge cases - they are systematic problems that affect almost every real classification task. Understanding them is the difference between a model that works on a clean benchmark and one that is trustworthy in deployment.
 
 \slideref{Session 8: Overconfidence, Label Smoothing, Calibration, Class Imbalance, Weak Labels}
 
@@ -405,15 +411,15 @@ The previous section covered the mechanics of implementation. This section steps
 \label{fig:reliability}
 \end{wrapfigure}
 
-Cross-entropy with hard one-hot labels always rewards higher confidence: the loss $-\log \hat{p}_y$ is minimised as $\hat{p}_y \to 1$, so the network is perpetually rewarded for being more confident and never penalised for overconfidence. The result is that trained classifiers tend to assign high probability to their predictions even when uncertain. Shown an out-of-distribution input, a network may assign 99\% confidence to a wrong class. From an information theory perspective, the predicted distribution has too low entropy --- the model is too certain.
+Cross-entropy with hard one-hot labels always rewards higher confidence: the loss $-\log \hat{p}_y$ is minimised as $\hat{p}_y \to 1$, so the network is perpetually rewarded for being more confident and never penalised for overconfidence. The result is that trained classifiers tend to assign high probability to their predictions even when uncertain. Shown an out-of-distribution input, a network may assign 99\% confidence to a wrong class. From an information theory perspective, the predicted distribution has too low entropy - the model is too certain.
 
-A \textbf{well-calibrated} model is one whose predicted probabilities reflect true empirical frequencies: if it says 80\% confidence, it should be correct 80\% of the time. Most neural networks are not well-calibrated out of the box --- they are overconfident. The \textbf{reliability diagram} visualises calibration by grouping predictions into bins by confidence level and plotting the actual accuracy within each bin against the predicted confidence (Figure~\ref{fig:reliability}). A perfectly calibrated model lies on the diagonal; an overconfident model sits below it.
+A \textbf{well-calibrated} model is one whose predicted probabilities reflect true empirical frequencies: if it says 80\% confidence, it should be correct 80\% of the time. Most neural networks are not well-calibrated out of the box - they are overconfident. The \textbf{reliability diagram} visualises calibration by grouping predictions into bins by confidence level and plotting the actual accuracy within each bin against the predicted confidence (Figure~\ref{fig:reliability}). A perfectly calibrated model lies on the diagonal; an overconfident model sits below it.
 
 \textbf{Temperature scaling} \parencite{Guo2017} is a simple post-hoc calibration method: divide the logits by a scalar temperature $\tau > 1$ before softmax:
 \begin{equation}
     \hat{\vp} = \text{softmax}\!\left(\frac{\vz}{\tau}\right).
 \end{equation}
-$\tau > 1$ softens the distribution, reducing overconfidence. $\tau$ is a single scalar fitted on the validation set after training --- the model weights are not modified. Despite its simplicity, temperature scaling works surprisingly well in practice.
+$\tau > 1$ softens the distribution, reducing overconfidence. $\tau$ is a single scalar fitted on the validation set after training - the model weights are not modified. Despite its simplicity, temperature scaling works surprisingly well in practice.
 
 \subsubsection{Label Smoothing}
 
@@ -421,26 +427,29 @@ Label smoothing \parencite{Szegedy2016} directly addresses overconfidence by rep
 \begin{equation}
     y_k^{\text{smooth}} = \begin{cases} 1 - \varepsilon & k = y \\ \varepsilon / (K-1) & k \neq y \end{cases}
 \end{equation}
-where $\varepsilon$ is a fixed hyperparameter (typically 0.1). With soft targets the model can never assign probability 1 to the correct class --- the loss would be infinite from the small positive targets on wrong classes --- so the softmax cannot saturate. This produces predictions with higher entropy and more calibrated uncertainty.
+where $\varepsilon$ is a fixed hyperparameter (typically 0.1). With soft targets the model can never assign probability 1 to the correct class - the loss would be infinite from the small positive targets on wrong classes - so the softmax cannot saturate. This produces predictions with higher entropy and more calibrated uncertainty.
 
-Label smoothing is now standard in modern architectures: Inception v3 \parencite{Szegedy2016}, Vision Transformers, and modern ResNets all use it, consistently improving both accuracy and calibration with minimal cost. In PyTorch: \texttt{nn.CrossEntropyLoss(label\_smoothing=0.1)}.
+Label smoothing is now standard in modern architectures: Inception v3 \parencite{Szegedy2016}, Vision Transformers, and modern ResNets all use it, consistently improving both accuracy and calibration with minimal cost.
+A secondary benefit is reducing the impact of individual noisy labels - a wrong label in the training set causes less damage when the targets are soft rather than hard one-hot vectors.
 
-A secondary benefit: label smoothing reduces the impact of individual noisy labels --- a wrong label in the training set causes less damage when the targets are soft rather than hard one-hot vectors.
+In PyTorch: \texttt{nn.CrossEntropyLoss(label\_smoothing=0.1)}.
 
 \subsubsection{Class Imbalance}
 
-When the training set has far more examples of some classes than others, standard cross-entropy is dominated by frequent classes. The model learns that predicting the majority class for every input is cheap --- it achieves low loss without learning anything useful about rare classes. This is particularly common in medical diagnosis, fraud detection, and any domain where the events of interest are rare.
+When the training set has far more examples of some classes than others, standard cross-entropy is dominated by frequent classes. The model learns that predicting the majority class for every input is cheap - it achieves low loss without learning anything useful about rare classes. This is particularly common in medical diagnosis, fraud detection, and any domain where the events of interest are rare.
 
 \textbf{Weighted loss} assigns higher weight to rare classes:
 \begin{equation}
     \loss = -\frac{1}{\nsamples}\sum_{i=1}^{\nsamples} w_{y^{(i)}} \log \hat{p}_{y^{(i)}}^{(i)},
 \end{equation}
-where $w_k$ is inversely proportional to the frequency of class $k$. In PyTorch: \texttt{nn.CrossEntropyLoss(weight=class\_weights)}.
+where $w_k$ is inversely proportional to the frequency of class $k$. 
 
-Alternatively, \textbf{oversampling} duplicates rare class examples (with or without augmentation) and \textbf{undersampling} removes frequent class examples to balance the training set. When class imbalance is present, accuracy is a misleading evaluation metric --- precision, recall, and F1 score are more informative, as they separately measure performance on positive and negative classes.
+In PyTorch: \texttt{nn.CrossEntropyLoss(weight=class\_weights)}.
+
+Alternatively, \textbf{oversampling} duplicates rare class examples (with or without augmentation) and \textbf{undersampling} removes frequent class examples to balance the training set. When class imbalance is present, accuracy is a misleading evaluation metric - precision, recall, and F1 score are more informative, as they separately measure performance on positive and negative classes.
 
 \subsubsection{Weak Labels}
 
-Labels in real datasets are often imperfect. \textbf{Noisy labels} arise when annotators make mistakes --- the loss is then computed against wrong targets, pushing the model in the wrong direction. \textbf{Partial labels} occur when only some examples are labelled; missing labels are often treated as negatives, which can be misleading if the missing label simply means the class was not checked rather than absent. \textbf{Ambiguous labels} arise when multiple valid answers exist and hard labels force an arbitrary choice --- a medical image that two radiologists interpret differently, or a sentence that can be classified as either neutral or positive.
+Labels in real datasets are often imperfect. \textbf{Noisy labels} arise when annotators make mistakes - the loss is then computed against wrong targets, pushing the model in the wrong direction. \textbf{Partial labels} occur when only some examples are labelled; missing labels are often treated as negatives, which can be misleading if the missing label simply means the class was not checked rather than absent. \textbf{Ambiguous labels} arise when multiple valid answers exist and hard labels force an arbitrary choice - a medical image that two radiologists interpret differently, or a sentence that can be classified as either neutral or positive.
 
-In all these cases, the model optimises toward the label rather than the truth. Mitigations include label cleaning (detecting and correcting noisy labels), label smoothing (which reduces the impact of individual wrong labels), and collecting multiple annotations per example and aggregating them to reduce noise. The fundamental issue is that the quality of the learned model is bounded by the quality of the labels --- label quality matters as much as model quality.
+In all these cases, \textbf{the model optimises toward the label rather than the truth}. Mitigations include label cleaning (detecting and correcting noisy labels), label smoothing (which reduces the impact of individual wrong labels), and collecting multiple annotations per example and aggregating them to reduce noise. The fundamental issue is that the quality of the learned model is bounded by the quality of the labels - \textbf{label quality matters as much as model quality}.
