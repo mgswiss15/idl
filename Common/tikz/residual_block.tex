@@ -1,0 +1,20 @@
+% residual_block.tex — placeholder
+\begin{tikzpicture}[node distance=1.0cm, every node/.style={font=\small}]
+\node[draw, thwspetrol, fill=thwspetrol!15, rounded corners, minimum width=2cm, minimum height=0.6cm] (conv1) {Conv-BN-ReLU};
+\node[draw, thwspetrol, fill=thwspetrol!15, rounded corners, minimum width=2cm, minimum height=0.6cm, below of=conv1, node distance=1.2cm] (conv2) {Conv-BN};
+\node[circle, draw, thwsorange, fill=thwsorange!20, minimum size=0.5cm, below of=conv2, node distance=1.0cm] (add) {$+$};
+\node[draw, carnelian, fill=carnelian!15, rounded corners, minimum width=2cm, minimum height=0.6cm, below of=add, node distance=0.8cm] (relu) {ReLU};
+
+\draw[->, thick] (conv1) -- (conv2);
+\draw[->, thick] (conv2) -- (add);
+\draw[->, thick] (add) -- (relu);
+
+% skip connection
+\draw[->, thick, thwsorange] (-1.8,0.3) -- (-1.8,-2.5) -- (add.west);
+\draw[->, thick] (-1.8,0.8) -- (conv1);
+\node[font=\scriptsize, thwsorange] at (-2.3,-1.0) {$\vx$};
+\node[font=\scriptsize] at (-2.3,0.6) {input};
+
+\draw[->, thick] (relu) -- ++(0,-0.7);
+\node[font=\scriptsize] at (0.3,-3.6) {output};
+\end{tikzpicture}

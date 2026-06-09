@@ -1,0 +1,12 @@
+% cnn_block.tex — placeholder
+\begin{tikzpicture}[node distance=1.2cm, every node/.style={font=\small}]
+\node[draw, thwspetrol, fill=thwspetrol!15, rounded corners, minimum width=1.5cm, minimum height=0.6cm] (conv) {Conv};
+\node[draw, thwsorange, fill=thwsorange!15, rounded corners, minimum width=1.5cm, minimum height=0.6cm, right of=conv] (bn) {BN};
+\node[draw, carnelian, fill=carnelian!15, rounded corners, minimum width=1.5cm, minimum height=0.6cm, right of=bn] (relu) {ReLU};
+\node[draw, thwsblue, fill=thwsblue!10, rounded corners, minimum width=1.5cm, minimum height=0.6cm, right of=relu] (pool) {Pool};
+\draw[->, thick] (conv) -- (bn);
+\draw[->, thick] (bn) -- (relu);
+\draw[->, thick] (relu) -- (pool);
+\draw[->, thick] (-1.5,0) -- (conv);
+\draw[->, thick] (pool) -- ++(1.2,0);
+\end{tikzpicture}

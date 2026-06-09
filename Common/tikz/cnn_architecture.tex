@@ -1,0 +1,22 @@
+% cnn_architecture.tex — placeholder
+\begin{tikzpicture}[node distance=1.0cm, every node/.style={font=\scriptsize}]
+\node[draw, thwspetrol!60, fill=thwspetrol!10, minimum width=0.8cm, minimum height=1.6cm] (img) {};
+\node[below=0.05cm of img] {$3\times32\times32$};
+\node[draw, thwspetrol, fill=thwspetrol!20, minimum width=0.6cm, minimum height=1.2cm, right of=img, node distance=1.4cm] (c1) {};
+\node[below=0.05cm of c1] {$32\times16\times16$};
+\node[draw, thwspetrol, fill=thwspetrol!30, minimum width=0.5cm, minimum height=0.9cm, right of=c1, node distance=1.2cm] (c2) {};
+\node[below=0.05cm of c2] {$64\times8\times8$};
+\node[draw, thwspetrol, fill=thwspetrol!40, minimum width=0.4cm, minimum height=0.6cm, right of=c2, node distance=1.1cm] (c3) {};
+\node[below=0.05cm of c3] {$128\times4\times4$};
+\node[draw, carnelian, fill=carnelian!15, minimum width=0.8cm, minimum height=0.4cm, right of=c3, node distance=1.2cm] (fc1) {};
+\node[below=0.05cm of fc1] {FC 256};
+\node[draw, carnelian, fill=carnelian!25, minimum width=0.6cm, minimum height=0.3cm, right of=fc1, node distance=1.1cm] (fc2) {};
+\node[below=0.05cm of fc2] {FC 10};
+\draw[->, thick] (img) -- (c1);
+\draw[->, thick] (c1) -- (c2);
+\draw[->, thick] (c2) -- (c3);
+\draw[->, thick] (c3) -- (fc1);
+\draw[->, thick] (fc1) -- (fc2);
+\node[above=0.3cm of c2, xshift=-0.5cm, font=\scriptsize, thwspetrol] {conv blocks};
+\node[above=0.3cm of fc1, font=\scriptsize, carnelian] {FC head};
+\end{tikzpicture}
