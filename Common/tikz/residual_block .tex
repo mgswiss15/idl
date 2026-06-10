@@ -1,0 +1,46 @@
+% residual_block.tex
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners=3pt, minimum width=2.4cm,
+                minimum height=0.6cm, font=\small, thick},
+    node distance=1.1cm
+]
+
+% main path nodes
+\node[box, thwspetrol, fill=thwspetrol!15] (conv1)
+    {Conv $3\times3$ -- BN -- ReLU};
+\node[box, thwspetrol, fill=thwspetrol!15, below of=conv1]  (conv2)
+    {Conv $3\times3$ -- BN};
+\node[circle, draw, thwsorange, fill=thwsorange!25, minimum size=0.55cm,
+      thick, below of=conv2, node distance=0.9cm] (add)  {$+$};
+\node[box, carnelian, fill=carnelian!15, below of=add, node distance=0.85cm] (relu)
+    {ReLU};
+
+% main path arrows
+\draw[->, thick] (0, 0.7)   -- (conv1);
+\draw[->, thick] (conv1)    -- (conv2);
+\draw[->, thick] (conv2)    -- (add);
+\draw[->, thick] (add)      -- (relu);
+\draw[->, thick] (relu)     -- (0,-4.1);
+
+% skip connection
+\draw[thwsorange, thick] (-1.8, 0.7) |- (-1.8,-2.75) -| (add.west);
+\draw[->, thwsorange, thick] (-1.8,0.7) -- (conv1.west |- 0,0.7)
+    node[midway] {};
+\draw[thwsorange, thick] (-1.8,0.7) -- (-1.8,0.7);
+
+% re-route: input splits
+\draw[->, thick] (0,0.7) -- (conv1);
+\draw[thwsorange, thick] (0,0.7) -- (-1.8,0.7) -- (-1.8,-2.75)
+    -- (add.west);
+\draw[->, thwsorange, thick] (-1.8,-2.75) -- (add.west);
+
+% input label
+\node[font=\small] at (0, 1.0) {$\vx$};
+
+% output label  
+\node[font=\small] at (0,-4.4) {$\vy = \mathcal{F}(\vx)+\vx$};
+
+% skip label
+\node[font=\scriptsize, thwsorange] at (-2.3,-1.0) {$\vx$};
+
+\end{tikzpicture}

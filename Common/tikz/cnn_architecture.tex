@@ -1,22 +1,73 @@
-% cnn_architecture.tex — placeholder
-\begin{tikzpicture}[node distance=1.0cm, every node/.style={font=\scriptsize}]
-\node[draw, thwspetrol!60, fill=thwspetrol!10, minimum width=0.8cm, minimum height=1.6cm] (img) {};
-\node[below=0.05cm of img] {$3\times32\times32$};
-\node[draw, thwspetrol, fill=thwspetrol!20, minimum width=0.6cm, minimum height=1.2cm, right of=img, node distance=1.4cm] (c1) {};
-\node[below=0.05cm of c1] {$32\times16\times16$};
-\node[draw, thwspetrol, fill=thwspetrol!30, minimum width=0.5cm, minimum height=0.9cm, right of=c1, node distance=1.2cm] (c2) {};
-\node[below=0.05cm of c2] {$64\times8\times8$};
-\node[draw, thwspetrol, fill=thwspetrol!40, minimum width=0.4cm, minimum height=0.6cm, right of=c2, node distance=1.1cm] (c3) {};
-\node[below=0.05cm of c3] {$128\times4\times4$};
-\node[draw, carnelian, fill=carnelian!15, minimum width=0.8cm, minimum height=0.4cm, right of=c3, node distance=1.2cm] (fc1) {};
-\node[below=0.05cm of fc1] {FC 256};
-\node[draw, carnelian, fill=carnelian!25, minimum width=0.6cm, minimum height=0.3cm, right of=fc1, node distance=1.1cm] (fc2) {};
-\node[below=0.05cm of fc2] {FC 10};
-\draw[->, thick] (img) -- (c1);
-\draw[->, thick] (c1) -- (c2);
-\draw[->, thick] (c2) -- (c3);
-\draw[->, thick] (c3) -- (fc1);
-\draw[->, thick] (fc1) -- (fc2);
-\node[above=0.3cm of c2, xshift=-0.5cm, font=\scriptsize, thwspetrol] {conv blocks};
-\node[above=0.3cm of fc1, font=\scriptsize, carnelian] {FC head};
+% cnn_architecture.tex
+\begin{tikzpicture}[scale=0.85, every node/.style={font=\scriptsize}]
+
+% helper: \fmap{x}{width}{height}{color}{label}
+% drawn as a 3D-ish rectangle
+
+% image: 3x32x32
+\draw[thwspetrol!50, fill=thwspetrol!10]
+    (0,0) rectangle (0.4,2.0);
+\draw[thwspetrol!50, fill=thwspetrol!15]
+    (0,2.0) -- (0.25,2.25) -- (0.65,2.25) -- (0.4,2.0);
+\draw[thwspetrol!50, fill=thwspetrol!20]
+    (0.4,0) -- (0.65,0.25) -- (0.65,2.25) -- (0.4,2.0);
+\node[thwspetrol] at (0.2,-0.3) {$3\!\times\!32\!\times\!32$};
+
+% conv block 1: 32x16x16
+\draw[thwspetrol, fill=thwspetrol!20]
+    (1.4,0.25) rectangle (1.8,1.75);
+\draw[thwspetrol, fill=thwspetrol!25]
+    (1.4,1.75) -- (1.65,2.0) -- (2.05,2.0) -- (1.8,1.75);
+\draw[thwspetrol, fill=thwspetrol!30]
+    (1.8,0.25) -- (2.05,0.5) -- (2.05,2.0) -- (1.8,1.75);
+\node[thwspetrol] at (1.75,-0.05) {$32\!\times\!16\!\times\!16$};
+
+% conv block 2: 64x8x8
+\draw[thwspetrol, fill=thwspetrol!30]
+    (3.0,0.5) rectangle (3.5,1.5);
+\draw[thwspetrol, fill=thwspetrol!35]
+    (3.0,1.5) -- (3.25,1.75) -- (3.75,1.75) -- (3.5,1.5);
+\draw[thwspetrol, fill=thwspetrol!40]
+    (3.5,0.5) -- (3.75,0.75) -- (3.75,1.75) -- (3.5,1.5);
+\node[thwspetrol] at (3.35,-0.05) {$64\!\times\!8\!\times\!8$};
+
+% conv block 3: 128x4x4
+\draw[thwspetrol, fill=thwspetrol!45]
+    (4.6,0.65) rectangle (5.2,1.35);
+\draw[thwspetrol, fill=thwspetrol!50]
+    (4.6,1.35) -- (4.85,1.6) -- (5.45,1.6) -- (5.2,1.35);
+\draw[thwspetrol, fill=thwspetrol!55]
+    (5.2,0.65) -- (5.45,0.9) -- (5.45,1.6) -- (5.2,1.35);
+\node[thwspetrol] at (5.0,-0.05) {$128\!\times\!4\!\times\!4$};
+
+% flatten arrow
+\draw[->, thick, thwsgrey] (5.5,1.0) -- (6.1,1.0);
+\node[thwsgrey] at (5.8,1.25) {flat};
+
+% FC 256
+\draw[carnelian, fill=carnelian!20, thick]
+    (6.2,0.6) rectangle (6.6,1.4);
+\node[carnelian] at (6.4,-0.05) {FC 256};
+
+% FC 10
+\draw[carnelian, fill=carnelian!35, thick]
+    (7.2,0.75) rectangle (7.55,1.25);
+\node[carnelian] at (7.35,-0.05) {FC 10};
+
+% arrows
+\draw[->, thick] (0.65,1.0) -- (1.35,1.0);
+\draw[->, thick] (2.1,1.0)  -- (2.9,1.0);
+\draw[->, thick] (3.8,1.0)  -- (4.5,1.0);
+\draw[->, thick] (6.6,1.0)  -- (7.15,1.0);
+\draw[->, thick] (7.55,1.0) -- (8.0,1.0);
+
+% braces
+\draw[decorate, decoration={brace,amplitude=4pt}, thwspetrol]
+    (0,-0.6) -- (5.5,-0.6);
+\node[thwspetrol] at (2.75,-0.95) {conv blocks (feature extraction)};
+
+\draw[decorate, decoration={brace,amplitude=4pt}, carnelian]
+    (6.15,-0.6) -- (7.6,-0.6);
+\node[carnelian] at (6.9,-0.95) {FC head};
+
 \end{tikzpicture}

@@ -1,17 +1,48 @@
-% conv1d.tex — placeholder
-\begin{tikzpicture}[scale=0.8]
-\foreach \i in {0,...,7} {
-    \draw[thwspetrol, fill=thwspetrol!20] (\i*0.6,0) rectangle (\i*0.6+0.5,0.5);
-    \node[font=\tiny] at (\i*0.6+0.25,0.25) {$x_{\i}$};
+% conv1d.tex
+\begin{tikzpicture}[scale=0.85]
+
+% input signal (8 cells)
+\foreach \i/\v in {0/2, 1/1, 2/3, 3/4, 4/2, 5/1, 6/3, 7/2} {
+    \ifnum\i=1 \def\fillcol{thwspetrol!40}
+    \else \ifnum\i=2 \def\fillcol{thwspetrol!40}
+    \else \ifnum\i=3 \def\fillcol{thwspetrol!40}
+    \else \def\fillcol{thwspetrol!15} \fi\fi\fi
+    \draw[thwspetrol, fill=\fillcol] (\i*0.7,0) rectangle (\i*0.7+0.6,0.6);
+    \node[font=\scriptsize] at (\i*0.7+0.3,0.3) {\v};
 }
-\foreach \i in {0,...,2} {
-    \draw[thwsorange, fill=thwsorange!30, thick] (\i*0.6+0.6,0.8) rectangle (\i*0.6+1.1,1.3);
-    \node[font=\tiny] at (\i*0.6+0.85,1.05) {$w_{\i}$};
+\node[font=\small, thwspetrol] at (-0.5,0.3) {$\vx$};
+
+% filter (3 cells)
+\foreach \i/\v in {0/1,1/-1,2/2} {
+    \draw[thwsorange, fill=thwsorange!30, thick]
+        (\i*0.7+0.7,1.0) rectangle (\i*0.7+1.3,1.6);
+    \node[font=\scriptsize] at (\i*0.7+1.0,1.3) {\v};
 }
-\foreach \i in {0,...,5} {
-    \draw[carnelian, fill=carnelian!20] (\i*0.6+0.6,-0.8) rectangle (\i*0.6+1.1,-0.3);
-    \node[font=\tiny] at (\i*0.6+0.85,-0.55) {$y_{\i}$};
+\node[font=\small, thwsorange] at (-0.5,1.3) {$\kernel$};
+
+% arrows filter -> patch
+\foreach \i in {0,1,2} {
+    \draw[->, thwsgrey, thin] (\i*0.7+1.0,1.0) -- (\i*0.7+1.0,0.6);
 }
-\draw[->, thwsgrey] (1.45,0.8) -- (1.45,-0.3);
-\node[font=\tiny, thwsgrey] at (1.8,0.25) {$\cdot$};
+
+% computation annotation
+\node[font=\scriptsize, thwspetrol] at (1.75,-0.35)
+    {$1{\cdot}1+3{\cdot}(-1)+4{\cdot}2=6$};
+
+% output signal (6 cells)
+\foreach \i/\v in {0/{\cdot},1/6,2/{\cdot},3/{\cdot},4/{\cdot},5/{\cdot}} {
+    \ifnum\i=1 \def\fillcol{carnelian!40} \else \def\fillcol{carnelian!15} \fi
+    \draw[carnelian, fill=\fillcol]
+        (\i*0.7+0.7,-1.4) rectangle (\i*0.7+1.3,-0.8);
+    \node[font=\scriptsize] at (\i*0.7+1.0,-1.1) {$\v$};
+}
+\node[font=\small, carnelian] at (-0.5,-1.1) {$\vh$};
+
+% arrow computation -> output
+\draw[->, carnelian, thin] (1.7,-0.5) -- (1.7,-0.75);
+
+% slide arrow
+\draw[<->, thwsorange, thick] (0.0,1.8) -- (5.5,1.8);
+\node[font=\scriptsize, thwsorange] at (2.8,2.0) {stride 1};
+
 \end{tikzpicture}

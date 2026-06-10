@@ -32,28 +32,58 @@ pdfkeywords={convolutional neural networks, convolution, pooling, ResNet, AlexNe
 \section{Why Not MLPs for Images?}
 % -------------------------------------------------------
 
-\begin{frame}{Images as Data}
+\begin{frame}{Images in Computers}
 
-\vskip 2em
+\vskip 1em
 
-\structure{Image:} tensor of shape $H \times W \times C$
+\begin{columns}[c]
+\begin{column}{0.7\textwidth}
 
+\structure{Image:} 3D tensor of shape $H \times W \times C$
 \begin{itemize}
-    \item $H$, $W$ --- height and width in pixels
-    \item $C$ --- channels (1 for grayscale, 3 for RGB)
+    \item Each entry: pixel intensity, integer 0--255 or float 0--1,
+    \item $2^8$ possible values $\sim 8$ bits
+    \item \structure{Grayscale} ($C=1$): single channel, 0 = black, 255 = white
+    \item \structure{RGB} ($C=3$): red, green, blue --- standard cameras, screens
+\end{itemize}
+
+\end{column}
+\begin{column}{0.25\textwidth}
+\centering
+\includegraphics[width=\textwidth]{\CommonPath/Pics/rgb.png}
+\end{column}
+\end{columns}
+
+\structure{Other formats:}
+\begin{itemize}
+    \item RGBA ($C=4$): RGB + $\alpha$ transparency
+    \item CMYK ($C=4$): print format
+    \item Medical/hyperspectral: many channels, often 16-bit depth
 \end{itemize}
 
 \vskip 1em
 
-\structure{Typical sizes:}
+\centering
+\alert{DL mostly \textbf{RGB and grayscale} --- other formats typically converted before use}
+
+\end{frame}
+
+\begin{frame}{Images as Data}
+
+\vskip 1em
+
+\structure{Image sizes --- from benchmarks to real world:}
+
 \begin{center}
-\begin{tabular}{lll}
+\begin{tabular}{llll}
 \toprule
-Dataset & Size & Input dimensions \\
+\textbf{Source} & \textbf{Size} & \textbf{Channels} & \textbf{Pixels} \\
 \midrule
-MNIST & $28 \times 28 \times 1$ & 784 \\
-CIFAR-10 & $32 \times 32 \times 3$ & 3\,072 \\
-ImageNet & $224 \times 224 \times 3$ & 150\,528 \\
+MNIST & $28 \times 28$ & 1 & 784 \\
+ImageNet & $224 \times 224$ & 3 & 150\,528 \\
+Phone camera & $4000 \times 3000$ & 3 & 36\,000\,000 \\
+Full HD screen & $1920 \times 1080$ & 3 & 6\,220\,800 \\
+Medical (CT slice) & $512 \times 512$ & 1 & 262\,144 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -64,105 +94,43 @@ ImageNet & $224 \times 224 \times 3$ & 150\,528 \\
 
 \vskip 0.5em
 
-\alert{This leads to fundamental problems}
-
-\end{frame}
-
-% -------------------------------------------------------
-
-\begin{frame}{Parameter Explosion}
+ImageNet: first hidden from $\R^{150\,528} \to \R^{1024} \Rightarrow \approx 154$M parameters --- one layer only!
 
 \vskip 2em
 
-\structure{MLP on ImageNet images:} input dimension $= 224 \times 224 \times 3 = 150\,528$
-
-\vskip 1em
-
-First hidden layer with 1024 units:
-\[
-    150\,528 \times 1024 \approx 154 \text{ million parameters} \quad \text{(one layer only)}
-\]
-
-\vskip 1em
-
-\structure{For comparison:}
-\begin{itemize}
-    \item ResNet-50 (entire network): $\sim$25 million parameters
-    \item VGG-16 (entire network): $\sim$138 million parameters
-\end{itemize}
-
-\vskip 1.5em
-
-\structure{Consequences:}
-\begin{itemize}
-    \item Enormous memory and compute requirements
-    \item Massive overfitting --- far more parameters than training examples
-    \item Impractical to train even with modern hardware
-\end{itemize}
+\centering
+\alert{\large How to handle high-dimensional data efficiently?}
 
 \end{frame}
 
-% -------------------------------------------------------
-
-\begin{frame}{No Spatial Structure}
+\begin{frame}{How to Look at Images}
 
 \vskip 2em
-
-\structure{MLP treats each pixel independently} --- no notion of spatial neighbourhood
-
-\vskip 1em
 
 \begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Problem 1: no translation invariance}
+\begin{column}{0.48\textwidth}
+\structure{Human vision:}
 \begin{itemize}
-    \item Cat in top-left corner activates completely different weights than cat in bottom-right
-    \item Same concept must be learned independently at every location
-    \item $H \times W$ times more parameters needed
+    \item Looks for local patterns --- edges, corners, textures
+    \item Same pattern recognised anywhere in the visual field
+    \item Simple features combine into complex ones
 \end{itemize}
 \end{column}
-\begin{column}{0.46\textwidth}
-\structure{Problem 2: no local structure}
+\begin{column}{0.48\textwidth}
+\structure{Technical equivalent:}
 \begin{itemize}
-    \item Nearby pixels are highly correlated --- edges, textures, shapes span local regions
-    \item MLP ignores this --- pixel $(0,0)$ and pixel $(223,223)$ treated identically
-    \item Spatial relationships not exploited
+    \item \structure{Local connectivity} --- connect to small patches only
+    \item \structure{Parameter sharing} --- same filter at every location
+    \item \structure{Hierarchical features} --- edges $\to$ shapes $\to$ objects
 \end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
-\vskip 1.5em
-
-\begin{center}
-\alert{We need an architecture that exploits the spatial structure of images}
-\end{center}
-
-\end{frame}
-
-% -------------------------------------------------------
-
-\begin{frame}{What We Need}
-
 \vskip 2em
 
-Three properties that an image-aware architecture should have:
-
-\vskip 1em
-
-\begin{itemize}
-    \item \structure{Local connectivity} --- each neuron connects only to a small local region of the input (the \textbf{receptive field}), not the entire image
-    \vskip 0.5em
-    \item \structure{Parameter sharing} --- the same filter (weights) applied at every spatial location --- detects the same feature everywhere
-    \vskip 0.5em
-    \item \structure{Translation invariance} --- detecting a feature regardless of where it appears in the image
-\end{itemize}
-
-\vskip 1.5em
-
 \begin{center}
-These three properties define the \textbf{convolutional layer}
+Three key properties: \textbf{\alert{locality}, \alert{translation invariance}, \alert{parameter efficiency}}\\[1em]
+These define the \textbf{convolutional layer}
 \end{center}
 
 \end{frame}
@@ -170,6 +138,92 @@ These three properties define the \textbf{convolutional layer}
 % -------------------------------------------------------
 \section{Convolution Operation}
 % -------------------------------------------------------
+
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Convolution Operation}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Convolution --- The Operation}
+
+\vskip 1em
+
+\centering
+
+\structure{Single step:} dot product of local patch and filter $\to$ one output value\\[0.5em]
+\input{\CommonPath/tikz/conv2d.tex}
+
+\vskip 0.5em
+
+\structure{Full operation:} same filter slides across input --- each position produces one output value\\[0.5em]
+\input{\CommonPath/tikz/conv2d_steps.tex}
+
+\vskip 0.5em
+
+\structure{All 3 requirements:} local connectivity, parameter sharing, translation invariance
+
+\end{frame}
+
+\begin{frame}{1D Convolution}
+
+\vskip 2em
+
+\structure{Filter $\kernel \in \mathbb{R}^k$} slides over signal $\vx \in \mathbb{R}^n$ --- at each position $i$, dot product with local patch
+
+\begin{columns}[c]
+\begin{column}{0.4\textwidth}
+\centering
+\input{\CommonPath/tikz/conv1d.tex}
+\end{column}
+\begin{column}{0.55\textwidth}
+
+\[
+    (\vx * \kernel)[i] = \sum_{j=0}^{k-1} \vx[i+j]\; \kernel[j]
+\]
+
+\begin{itemize}
+    \item $i$ --- output position; $j$ --- index within filter
+    \item Dot product of filter with local patch
+\end{itemize}
+
+\vskip 1em
+
+\structure{Example:} at position $i=1$:
+\[
+    1{\cdot}1 + 3{\cdot}(-1) + 4{\cdot}2 = 6
+\]
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Convolution --- The Math}
+
+\vskip 2em
+
+\structure{2D convolution:} filter $\mW \in \mathbb{R}^{k \times k}$ slides over image $\mX \in \mathbb{R}^{H \times W}$
+
+\[
+    (\mX * \mW)[i,j] = \sum_{p=0}^{k-1}\sum_{q=0}^{k-1} \mX[i+p,\, j+q]\; \mW[p,q]
+\]
+
+\begin{itemize}
+    \item At each position $(i,j)$: dot product between filter and $k \times k$ patch
+    \item Output feature map shape: $(H-k+1) \times (W-k+1)$
+    \item Filter weights $\mW$ are \textbf{learned by backpropagation}
+\end{itemize}
+
+\vskip 1em
+
+\begin{center}
+\input{\CommonPath/tikz/conv2d.tex}
+\end{center}
+
+\end{frame}
+
 
 \begin{frame}{1D Convolution --- Intuition}
 
@@ -318,518 +372,518 @@ nn.Conv2d(in\_channels=3, out\_channels=64, kernel\_size=3, stride=1, padding=1)
 
 \end{frame}
 
-% -------------------------------------------------------
-\section{Pooling}
-% -------------------------------------------------------
+% % -------------------------------------------------------
+% \section{Pooling}
+% % -------------------------------------------------------
 
-\begin{frame}{Pooling}
+% \begin{frame}{Pooling}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Pooling:} spatial downsampling --- reduces feature map size
+% \structure{Pooling:} spatial downsampling --- reduces feature map size
 
-\vskip 1em
+% \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Max pooling:}
-\[
-    y[i,j] = \max_{p,q \in \mathcal{R}_{ij}} x[p,q]
-\]
-\begin{itemize}
-    \item Takes maximum over local region
-    \item Retains strongest activation
-    \item Most commonly used
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{Average pooling:}
-\[
-    y[i,j] = \frac{1}{|\mathcal{R}_{ij}|}\sum_{p,q \in \mathcal{R}_{ij}} x[p,q]
-\]
-\begin{itemize}
-    \item Takes average over local region
-    \item Smoother downsampling
-    \item Less common in hidden layers
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \begin{columns}[t]
+% \begin{column}{0.46\textwidth}
+% \structure{Max pooling:}
+% \[
+%     y[i,j] = \max_{p,q \in \mathcal{R}_{ij}} x[p,q]
+% \]
+% \begin{itemize}
+%     \item Takes maximum over local region
+%     \item Retains strongest activation
+%     \item Most commonly used
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.46\textwidth}
+% \structure{Average pooling:}
+% \[
+%     y[i,j] = \frac{1}{|\mathcal{R}_{ij}|}\sum_{p,q \in \mathcal{R}_{ij}} x[p,q]
+% \]
+% \begin{itemize}
+%     \item Takes average over local region
+%     \item Smoother downsampling
+%     \item Less common in hidden layers
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\vskip 1.5em
+% \vskip 1.5em
 
-\structure{Benefits:}
-\begin{itemize}
-    \item Reduces spatial dimensions --- fewer parameters in subsequent layers
-    \item Local translation invariance --- small shifts in feature position do not affect output
-\end{itemize}
+% \structure{Benefits:}
+% \begin{itemize}
+%     \item Reduces spatial dimensions --- fewer parameters in subsequent layers
+%     \item Local translation invariance --- small shifts in feature position do not affect output
+% \end{itemize}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{Global Average Pooling}
+% \begin{frame}{Global Average Pooling}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Global average pooling (GAP):} averages entire feature map to a single value per channel
+% \structure{Global average pooling (GAP):} averages entire feature map to a single value per channel
 
-\[
-    y_c = \frac{1}{H \cdot W} \sum_{i=1}^{H}\sum_{j=1}^{W} x_c[i,j]
-\]
+% \[
+%     y_c = \frac{1}{H \cdot W} \sum_{i=1}^{H}\sum_{j=1}^{W} x_c[i,j]
+% \]
 
-\begin{itemize}
-    \item Output: vector of length $C_{\text{out}}$ --- one value per feature map
-    \item Replaces large FC layers at the end of the network
-    \item Dramatically reduces parameters
-    \item Forces each feature map to represent a single concept
-\end{itemize}
+% \begin{itemize}
+%     \item Output: vector of length $C_{\text{out}}$ --- one value per feature map
+%     \item Replaces large FC layers at the end of the network
+%     \item Dramatically reduces parameters
+%     \item Forces each feature map to represent a single concept
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Used in:} ResNet, GoogLeNet, MobileNet --- modern standard
+% \structure{Used in:} ResNet, GoogLeNet, MobileNet --- modern standard
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{In PyTorch:} \texttt{nn.AdaptiveAvgPool2d((1,1))} followed by \texttt{flatten}
+% \structure{In PyTorch:} \texttt{nn.AdaptiveAvgPool2d((1,1))} followed by \texttt{flatten}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
-\section{CNN Architecture}
-% -------------------------------------------------------
+% % -------------------------------------------------------
+% \section{CNN Architecture}
+% % -------------------------------------------------------
 
-\begin{frame}{CNN Building Block}
+% \begin{frame}{CNN Building Block}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Standard pattern:} Conv $\to$ BatchNorm $\to$ ReLU $\to$ (Pool)
+% \structure{Standard pattern:} Conv $\to$ BatchNorm $\to$ ReLU $\to$ (Pool)
 
-\vskip 1em
+% \vskip 1em
 
-\begin{center}
-\input{\CommonPath/tikz/cnn_block.tex}
-\end{center}
+% \begin{center}
+% \input{\CommonPath/tikz/cnn_block.tex}
+% \end{center}
 
-\vskip 1em
+% \vskip 1em
 
-\begin{itemize}
-    \item \structure{Conv:} extract features via learned filters
-    \item \structure{BatchNorm:} stabilise activations --- essential for deep CNNs
-    \item \structure{ReLU:} non-linearity --- enables complex feature combinations
-    \item \structure{Pool:} spatial downsampling --- reduce resolution, increase receptive field
-\end{itemize}
+% \begin{itemize}
+%     \item \structure{Conv:} extract features via learned filters
+%     \item \structure{BatchNorm:} stabilise activations --- essential for deep CNNs
+%     \item \structure{ReLU:} non-linearity --- enables complex feature combinations
+%     \item \structure{Pool:} spatial downsampling --- reduce resolution, increase receptive field
+% \end{itemize}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{Full CNN Architecture}
+% \begin{frame}{Full CNN Architecture}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Two stages:} feature extraction (conv blocks) $\to$ classification (FC head)
+% \structure{Two stages:} feature extraction (conv blocks) $\to$ classification (FC head)
 
-\vskip 1em
+% \vskip 1em
 
-\begin{center}
-\input{\CommonPath/tikz/cnn_architecture.tex}
-\end{center}
+% \begin{center}
+% \input{\CommonPath/tikz/cnn_architecture.tex}
+% \end{center}
 
-\vskip 1em
+% \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Conv blocks:}
-\begin{itemize}
-    \item Increasing channels: 3 $\to$ 32 $\to$ 64 $\to$ 128
-    \item Decreasing spatial size via pooling
-    \item Learn hierarchical features
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{FC head:}
-\begin{itemize}
-    \item Flatten spatial features
-    \item One or more FC layers
-    \item Final softmax for classification
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \begin{columns}[t]
+% \begin{column}{0.46\textwidth}
+% \structure{Conv blocks:}
+% \begin{itemize}
+%     \item Increasing channels: 3 $\to$ 32 $\to$ 64 $\to$ 128
+%     \item Decreasing spatial size via pooling
+%     \item Learn hierarchical features
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.46\textwidth}
+% \structure{FC head:}
+% \begin{itemize}
+%     \item Flatten spatial features
+%     \item One or more FC layers
+%     \item Final softmax for classification
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
-\section{Classic Architectures}
-% -------------------------------------------------------
+% % -------------------------------------------------------
+% \section{Classic Architectures}
+% % -------------------------------------------------------
 
-\begin{frame}{LeNet-5 (LeCun et al., 1998)}
+% \begin{frame}{LeNet-5 (LeCun et al., 1998)}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{First successful CNN} --- handwritten digit recognition (MNIST)
+% \structure{First successful CNN} --- handwritten digit recognition (MNIST)
 
-\vskip 1em
+% \vskip 1em
 
-\begin{itemize}
-    \item 2 conv layers + 2 FC layers
-    \item $28\times28$ input $\to$ 10 class output
-    \item $\sim$60k parameters --- tiny by modern standards
-    \item Used sigmoid/tanh activations, average pooling
-\end{itemize}
+% \begin{itemize}
+%     \item 2 conv layers + 2 FC layers
+%     \item $28\times28$ input $\to$ 10 class output
+%     \item $\sim$60k parameters --- tiny by modern standards
+%     \item Used sigmoid/tanh activations, average pooling
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Significance:}
-\begin{itemize}
-    \item Demonstrated that learned features outperform hand-crafted ones
-    \item Introduced the conv $\to$ pool $\to$ conv $\to$ pool $\to$ FC pattern
-    \item Deployed commercially for cheque reading
-\end{itemize}
+% \structure{Significance:}
+% \begin{itemize}
+%     \item Demonstrated that learned features outperform hand-crafted ones
+%     \item Introduced the conv $\to$ pool $\to$ conv $\to$ pool $\to$ FC pattern
+%     \item Deployed commercially for cheque reading
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Limitation:} too shallow and small for complex tasks --- needed more compute
+% \structure{Limitation:} too shallow and small for complex tasks --- needed more compute
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{AlexNet (Krizhevsky et al., 2012)}
+% \begin{frame}{AlexNet (Krizhevsky et al., 2012)}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{ImageNet moment} --- won ILSVRC 2012 with 15.3\% top-5 error vs 26.2\% runner-up
+% \structure{ImageNet moment} --- won ILSVRC 2012 with 15.3\% top-5 error vs 26.2\% runner-up
 
-\vskip 1em
+% \vskip 1em
 
-\begin{itemize}
-    \item 5 conv layers + 3 FC layers, $\sim$60M parameters
-    \item Key innovations:
-    \begin{itemize}
-        \item \alert{ReLU activations} instead of sigmoid/tanh --- faster training
-        \item \alert{Dropout} in FC layers --- regularisation
-        \item \alert{Data augmentation} --- random crops, horizontal flips
-        \item \alert{GPU training} --- two GTX 580 GPUs
-        \item Local response normalisation (since superseded by BatchNorm)
-    \end{itemize}
-\end{itemize}
+% \begin{itemize}
+%     \item 5 conv layers + 3 FC layers, $\sim$60M parameters
+%     \item Key innovations:
+%     \begin{itemize}
+%         \item \alert{ReLU activations} instead of sigmoid/tanh --- faster training
+%         \item \alert{Dropout} in FC layers --- regularisation
+%         \item \alert{Data augmentation} --- random crops, horizontal flips
+%         \item \alert{GPU training} --- two GTX 580 GPUs
+%         \item Local response normalisation (since superseded by BatchNorm)
+%     \end{itemize}
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Impact:} launched the modern deep learning era --- proved deep CNNs work at scale
+% \structure{Impact:} launched the modern deep learning era --- proved deep CNNs work at scale
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{VGG (Simonyan \& Zisserman, 2014)}
+% \begin{frame}{VGG (Simonyan \& Zisserman, 2014)}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Simplicity through depth} --- all $3\times3$ convolutions, increasing depth
+% \structure{Simplicity through depth} --- all $3\times3$ convolutions, increasing depth
 
-\vskip 1em
+% \vskip 1em
 
-\begin{itemize}
-    \item VGG-16: 13 conv layers + 3 FC layers, $\sim$138M parameters
-    \item Only $3\times3$ filters throughout --- simplicity as a design principle
-    \item Depth: 16--19 layers
-\end{itemize}
+% \begin{itemize}
+%     \item VGG-16: 13 conv layers + 3 FC layers, $\sim$138M parameters
+%     \item Only $3\times3$ filters throughout --- simplicity as a design principle
+%     \item Depth: 16--19 layers
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Key insight:} two $3\times3$ conv layers have same receptive field as one $5\times5$ but:
-\begin{itemize}
-    \item Fewer parameters: $2 \times 3^2 = 18$ vs $5^2 = 25$
-    \item More non-linearities --- more expressive
-\end{itemize}
+% \structure{Key insight:} two $3\times3$ conv layers have same receptive field as one $5\times5$ but:
+% \begin{itemize}
+%     \item Fewer parameters: $2 \times 3^2 = 18$ vs $5^2 = 25$
+%     \item More non-linearities --- more expressive
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Limitation:} 3 large FC layers contain most parameters ($\sim$100M) --- memory intensive
+% \structure{Limitation:} 3 large FC layers contain most parameters ($\sim$100M) --- memory intensive
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Legacy:} VGG features widely used for transfer learning; clean design still instructive
+% \structure{Legacy:} VGG features widely used for transfer learning; clean design still instructive
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{ResNet (He et al., 2016)}
+% \begin{frame}{ResNet (He et al., 2016)}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Problem:} deeper networks were performing \alert{worse} than shallower ones
+% \structure{Problem:} deeper networks were performing \alert{worse} than shallower ones
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Degradation problem:} adding more layers hurts training accuracy --- not overfitting, but optimisation failure
+% \structure{Degradation problem:} adding more layers hurts training accuracy --- not overfitting, but optimisation failure
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Key idea:} \textbf{residual connections} (skip connections)
+% \structure{Key idea:} \textbf{residual connections} (skip connections)
 
-\[
-    \vy = \mathcal{F}(\vx, \{\mW_i\}) + \vx
-\]
+% \[
+%     \vy = \mathcal{F}(\vx, \{\mW_i\}) + \vx
+% \]
 
-\begin{itemize}
-    \item Instead of learning $\vy = \mathcal{F}(\vx)$, learn the \textbf{residual} $\mathcal{F}(\vx) = \vy - \vx$
-    \item If optimal solution is identity, easier to learn $\mathcal{F}(\vx) = 0$ than $\mathcal{F}(\vx) = \vx$
-    \item Gradient flows directly through skip connection --- no vanishing gradients
-\end{itemize}
+% \begin{itemize}
+%     \item Instead of learning $\vy = \mathcal{F}(\vx)$, learn the \textbf{residual} $\mathcal{F}(\vx) = \vy - \vx$
+%     \item If optimal solution is identity, easier to learn $\mathcal{F}(\vx) = 0$ than $\mathcal{F}(\vx) = \vx$
+%     \item Gradient flows directly through skip connection --- no vanishing gradients
+% \end{itemize}
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Result:} successfully trained networks with 50, 101, 152 layers
+% \structure{Result:} successfully trained networks with 50, 101, 152 layers
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{Residual Block}
+% \begin{frame}{Residual Block}
 
-\vskip 2em
+% \vskip 2em
 
-\begin{columns}[c]
-\begin{column}{0.55\textwidth}
+% \begin{columns}[c]
+% \begin{column}{0.55\textwidth}
 
-\structure{Basic residual block:}
-\[
-    \vy = \text{ReLU}(\mathcal{F}(\vx) + \vx)
-\]
+% \structure{Basic residual block:}
+% \[
+%     \vy = \text{ReLU}(\mathcal{F}(\vx) + \vx)
+% \]
 
-\vskip 0.5em
+% \vskip 0.5em
 
-$\mathcal{F}(\vx)$: two Conv-BN-ReLU layers
+% $\mathcal{F}(\vx)$: two Conv-BN-ReLU layers
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Bottleneck block} (ResNet-50+):
-\begin{itemize}
-    \item $1\times1$ conv: reduce channels
-    \item $3\times3$ conv: spatial processing
-    \item $1\times1$ conv: restore channels
-\end{itemize}
-Fewer parameters than basic block at same depth
+% \structure{Bottleneck block} (ResNet-50+):
+% \begin{itemize}
+%     \item $1\times1$ conv: reduce channels
+%     \item $3\times3$ conv: spatial processing
+%     \item $1\times1$ conv: restore channels
+% \end{itemize}
+% Fewer parameters than basic block at same depth
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Projection shortcut:} when dimensions change, use $1\times1$ conv on skip connection to match
+% \structure{Projection shortcut:} when dimensions change, use $1\times1$ conv on skip connection to match
 
-\end{column}
-\begin{column}{0.4\textwidth}
-\centering
-\input{\CommonPath/tikz/residual_block.tex}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \end{column}
+% \begin{column}{0.4\textwidth}
+% \centering
+% \input{\CommonPath/tikz/residual_block.tex}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
-\section{Modern Details}
-% -------------------------------------------------------
+% % -------------------------------------------------------
+% \section{Modern Details}
+% % -------------------------------------------------------
 
-\begin{frame}{$1\times1$ Convolutions}
+% \begin{frame}{$1\times1$ Convolutions}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{$1\times1$ conv:} applies a learned linear combination across channels at each spatial location
+% \structure{$1\times1$ conv:} applies a learned linear combination across channels at each spatial location
 
-\[
-    y_c[i,j] = \sum_{c'=1}^{C_{\text{in}}} w_{c,c'}\, x_{c'}[i,j] + b_c
-\]
+% \[
+%     y_c[i,j] = \sum_{c'=1}^{C_{\text{in}}} w_{c,c'}\, x_{c'}[i,j] + b_c
+% \]
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Equivalent to:} FC layer applied independently at each spatial location
+% \structure{Equivalent to:} FC layer applied independently at each spatial location
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Uses:}
-\begin{itemize}
-    \item \structure{Channel reduction/expansion} --- change $C_{\text{in}}$ to $C_{\text{out}}$ cheaply (bottleneck blocks)
-    \item \structure{Non-linearity injection} --- add ReLU between channels without spatial processing
-    \item \structure{Network-in-network} --- increase model capacity without larger filters
-    \item \structure{Projection shortcuts} --- match dimensions in residual connections
-\end{itemize}
+% \structure{Uses:}
+% \begin{itemize}
+%     \item \structure{Channel reduction/expansion} --- change $C_{\text{in}}$ to $C_{\text{out}}$ cheaply (bottleneck blocks)
+%     \item \structure{Non-linearity injection} --- add ReLU between channels without spatial processing
+%     \item \structure{Network-in-network} --- increase model capacity without larger filters
+%     \item \structure{Projection shortcuts} --- match dimensions in residual connections
+% \end{itemize}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{Depthwise Separable Convolutions}
+% \begin{frame}{Depthwise Separable Convolutions}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Standard conv:} $C_{\text{out}} \times C_{\text{in}} \times k \times k$ parameters
+% \structure{Standard conv:} $C_{\text{out}} \times C_{\text{in}} \times k \times k$ parameters
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Depthwise separable conv:} split into two steps
+% \structure{Depthwise separable conv:} split into two steps
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Depthwise conv:}
-\begin{itemize}
-    \item One filter per input channel
-    \item Spatial processing only
-    \item $C_{\text{in}} \times k \times k$ parameters
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{Pointwise conv ($1\times1$):}
-\begin{itemize}
-    \item Mix channels
-    \item $C_{\text{out}} \times C_{\text{in}}$ parameters
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
+% \begin{columns}[t]
+% \begin{column}{0.46\textwidth}
+% \structure{Depthwise conv:}
+% \begin{itemize}
+%     \item One filter per input channel
+%     \item Spatial processing only
+%     \item $C_{\text{in}} \times k \times k$ parameters
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.46\textwidth}
+% \structure{Pointwise conv ($1\times1$):}
+% \begin{itemize}
+%     \item Mix channels
+%     \item $C_{\text{out}} \times C_{\text{in}}$ parameters
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.04\textwidth}
+% \end{column}
+% \end{columns}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Parameter reduction:} factor of $\approx k^2$ --- for $3\times3$: $\sim$9$\times$ fewer parameters
+% \structure{Parameter reduction:} factor of $\approx k^2$ --- for $3\times3$: $\sim$9$\times$ fewer parameters
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Used in:} MobileNet, EfficientNet --- efficient architectures for mobile/edge deployment
+% \structure{Used in:} MobileNet, EfficientNet --- efficient architectures for mobile/edge deployment
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{Batch Norm in CNNs}
+% \begin{frame}{Batch Norm in CNNs}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{BatchNorm2d:} normalises over batch \textbf{and} spatial dimensions for each channel
+% \structure{BatchNorm2d:} normalises over batch \textbf{and} spatial dimensions for each channel
 
-\[
-    \mu_c = \frac{1}{N \cdot H \cdot W}\sum_{n,i,j} x_c^{(n)}[i,j], \qquad
-    \sigma^2_c = \frac{1}{N \cdot H \cdot W}\sum_{n,i,j}(x_c^{(n)}[i,j] - \mu_c)^2
-\]
+% \[
+%     \mu_c = \frac{1}{N \cdot H \cdot W}\sum_{n,i,j} x_c^{(n)}[i,j], \qquad
+%     \sigma^2_c = \frac{1}{N \cdot H \cdot W}\sum_{n,i,j}(x_c^{(n)}[i,j] - \mu_c)^2
+% \]
 
-\begin{itemize}
-    \item One mean and variance per \textbf{channel} --- not per spatial location
-    \item Learnable $\gamma_c$ and $\beta_c$ per channel
-\end{itemize}
+% \begin{itemize}
+%     \item One mean and variance per \textbf{channel} --- not per spatial location
+%     \item Learnable $\gamma_c$ and $\beta_c$ per channel
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Placement:} Conv $\to$ \alert{BN} $\to$ ReLU (standard) or Conv $\to$ ReLU $\to$ BN (less common)
+% \structure{Placement:} Conv $\to$ \alert{BN} $\to$ ReLU (standard) or Conv $\to$ ReLU $\to$ BN (less common)
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Effect in CNNs:}
-\begin{itemize}
-    \item Essential for training deep CNNs --- without it, networks beyond $\sim$10 layers are very hard to train
-    \item Allows higher learning rates
-    \item Reduces need for careful initialisation
-\end{itemize}
+% \structure{Effect in CNNs:}
+% \begin{itemize}
+%     \item Essential for training deep CNNs --- without it, networks beyond $\sim$10 layers are very hard to train
+%     \item Allows higher learning rates
+%     \item Reduces need for careful initialisation
+% \end{itemize}
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
+% % -------------------------------------------------------
 
-\begin{frame}{Dropout in CNNs}
+% \begin{frame}{Dropout in CNNs}
 
-\vskip 2em
+% \vskip 2em
 
-\structure{Standard dropout} on FC layers works well in CNNs too
+% \structure{Standard dropout} on FC layers works well in CNNs too
 
-\vskip 1em
+% \vskip 1em
 
-\structure{Problem with dropout on conv layers:}
-\begin{itemize}
-    \item Adjacent pixels are highly correlated
-    \item Dropping individual activations does not create enough independence
-    \item Information easily propagated through neighbouring non-dropped activations
-\end{itemize}
+% \structure{Problem with dropout on conv layers:}
+% \begin{itemize}
+%     \item Adjacent pixels are highly correlated
+%     \item Dropping individual activations does not create enough independence
+%     \item Information easily propagated through neighbouring non-dropped activations
+% \end{itemize}
 
-\vskip 1.5em
+% \vskip 1.5em
 
-\structure{SpatialDropout2d:} drop entire feature maps (channels) rather than individual activations
-\begin{itemize}
-    \item Removes all spatial locations of a channel simultaneously
-    \item Forces network to use diverse feature maps
-    \item More effective regularisation for conv layers
-\end{itemize}
+% \structure{SpatialDropout2d:} drop entire feature maps (channels) rather than individual activations
+% \begin{itemize}
+%     \item Removes all spatial locations of a channel simultaneously
+%     \item Forces network to use diverse feature maps
+%     \item More effective regularisation for conv layers
+% \end{itemize}
 
-\vskip 1em
+% \vskip 1em
 
-\structure{In practice:} BatchNorm often sufficient regularisation in conv layers --- dropout mainly used in FC head
+% \structure{In practice:} BatchNorm often sufficient regularisation in conv layers --- dropout mainly used in FC head
 
-\end{frame}
+% \end{frame}
 
-% -------------------------------------------------------
-\section{Summary}
-% -------------------------------------------------------
+% % -------------------------------------------------------
+% \section{Summary}
+% % -------------------------------------------------------
 
-\begin{frame}{Summary}
+% \begin{frame}{Summary}
 
-\vskip 1em
+% \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.48\textwidth}
-\structure{Why CNNs:}
-\begin{itemize}
-    \item Local connectivity
-    \item Parameter sharing
-    \item Translation invariance
-\end{itemize}
+% \begin{columns}[t]
+% \begin{column}{0.48\textwidth}
+% \structure{Why CNNs:}
+% \begin{itemize}
+%     \item Local connectivity
+%     \item Parameter sharing
+%     \item Translation invariance
+% \end{itemize}
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Building blocks:}
-\begin{itemize}
-    \item Conv: feature extraction
-    \item BatchNorm + ReLU: stability + non-linearity
-    \item Pooling / stride: downsampling
-    \item FC head: classification
-\end{itemize}
+% \structure{Building blocks:}
+% \begin{itemize}
+%     \item Conv: feature extraction
+%     \item BatchNorm + ReLU: stability + non-linearity
+%     \item Pooling / stride: downsampling
+%     \item FC head: classification
+% \end{itemize}
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Key architectures:}
-\begin{itemize}
-    \item LeNet $\to$ AlexNet $\to$ VGG $\to$ ResNet
-    \item Residual connections: key to deep networks
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\structure{Modern details:}
-\begin{itemize}
-    \item $1\times1$ conv: channel mixing
-    \item Depthwise separable: efficiency
-    \item BatchNorm2d: per-channel normalisation
-    \item SpatialDropout: conv regularisation
-\end{itemize}
+% \structure{Key architectures:}
+% \begin{itemize}
+%     \item LeNet $\to$ AlexNet $\to$ VGG $\to$ ResNet
+%     \item Residual connections: key to deep networks
+% \end{itemize}
+% \end{column}
+% \begin{column}{0.48\textwidth}
+% \structure{Modern details:}
+% \begin{itemize}
+%     \item $1\times1$ conv: channel mixing
+%     \item Depthwise separable: efficiency
+%     \item BatchNorm2d: per-channel normalisation
+%     \item SpatialDropout: conv regularisation
+% \end{itemize}
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{In PyTorch:}
-\begin{itemize}
-    \item \texttt{nn.Conv2d}
-    \item \texttt{nn.MaxPool2d}
-    \item \texttt{nn.BatchNorm2d}
-    \item \texttt{nn.AdaptiveAvgPool2d}
-\end{itemize}
+% \structure{In PyTorch:}
+% \begin{itemize}
+%     \item \texttt{nn.Conv2d}
+%     \item \texttt{nn.MaxPool2d}
+%     \item \texttt{nn.BatchNorm2d}
+%     \item \texttt{nn.AdaptiveAvgPool2d}
+% \end{itemize}
 
-\vskip 0.5em
+% \vskip 0.5em
 
-\structure{Next:} L10 --- Sequence Models \& RNNs
-\end{column}
-\end{columns}
+% \structure{Next:} L10 --- Sequence Models \& RNNs
+% \end{column}
+% \end{columns}
 
-\end{frame}
+% \end{frame}
 
 \end{document}

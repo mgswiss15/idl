@@ -1,33 +1,64 @@
-% conv2d.tex — placeholder
-\begin{tikzpicture}[scale=0.7]
-% input image
-\foreach \i in {0,...,4} {
-    \foreach \j in {0,...,4} {
-        \draw[thwspetrol!40, fill=thwspetrol!10] (\j*0.5,\i*0.5) rectangle (\j*0.5+0.45,\i*0.5+0.45);
+% conv2d.tex — simplified, no nested foreach or conditionals
+\begin{tikzpicture}[scale=0.75]
+
+% --- input 5x5 ---
+% plain grid first
+\foreach \col in {0,...,4} {
+    \foreach \row in {0,...,4} {
+        \draw[thwspetrol!30, fill=thwspetrol!8]
+            (\col*0.6, \row*0.6) rectangle (\col*0.6+0.55, \row*0.6+0.55);
     }
 }
-% highlighted patch
-\foreach \i in {1,...,3} {
-    \foreach \j in {1,...,3} {
-        \draw[thwsorange, fill=thwsorange!30, thick] (\j*0.5,\i*0.5) rectangle (\j*0.5+0.45,\i*0.5+0.45);
+% highlighted 3x3 patch (cols 1-3, rows 1-3)
+\foreach \col in {0,1,2} {
+    \foreach \row in {2,3,4} {
+        \draw[thwspetrol, fill=thwspetrol!35, thick]
+            (\col*0.6, \row*0.6) rectangle (\col*0.6+0.55, \row*0.6+0.55);
     }
 }
-\node[font=\small] at (1.1,-0.3) {input};
-% filter
-\foreach \i in {0,...,2} {
-    \foreach \j in {0,...,2} {
-        \draw[thwsorange, fill=thwsorange!50, thick] (\j*0.5+3.5,\i*0.5+0.5) rectangle (\j*0.5+3.95,\i*0.5+0.95);
+\node[font=\scriptsize, thwspetrol] at (1.35,-0.35) {$\vx$: input $5\times5$};
+
+% --- arrow ---
+\draw[->, thick, thwsgrey] (3.35,1.5) -- (3.75,1.5);
+
+% --- filter 3x3 ---
+\foreach \col in {0,1,2} {
+    \foreach \row in {0,1,2} {
+        \draw[thwsorange, fill=thwsorange!30, thick]
+            (\col*0.6+4.0, \row*0.6+0.6) rectangle
+            (\col*0.6+4.55, \row*0.6+1.15);
     }
 }
-\node[font=\small] at (4.25,0.2) {filter};
-% output
-\foreach \i in {0,...,2} {
-    \foreach \j in {0,...,2} {
-        \draw[carnelian!60, fill=carnelian!15] (\j*0.5+6.5,\i*0.5+0.5) rectangle (\j*0.5+6.95,\i*0.5+0.95);
+% filter values
+\node[font=\tiny] at (4.28, 0.88) {1};
+\node[font=\tiny] at (4.88, 0.88) {0};
+\node[font=\tiny] at (5.48, 0.88) {-2};
+\node[font=\tiny] at (4.28, 1.48) {3};
+\node[font=\tiny] at (4.88, 1.48) {3};
+\node[font=\tiny] at (5.48, 1.48) {-1};
+\node[font=\tiny] at (4.28, 2.08) {0};
+\node[font=\tiny] at (4.88, 2.08) {2};
+\node[font=\tiny] at (5.48, 2.08) {3};
+\node[font=\scriptsize, thwsorange] at (4.95,0.25) {$\kernel$: filter $3\times3$};
+
+% --- arrow ---
+\draw[->, thick, thwsgrey] (6.2,1.5) -- (6.6,1.5);
+
+% --- output 3x3 ---
+\foreach \col in {0,1,2} {
+    \foreach \row in {0,1,2} {
+        \draw[carnelian!40, fill=carnelian!12]
+            (\col*0.6+6.9, \row*0.6+0.6) rectangle
+            (\col*0.6+7.45, \row*0.6+1.15);
     }
 }
-\draw[carnelian, fill=carnelian!40, thick] (7.0,1.0) rectangle (7.45,1.45);
-\node[font=\small] at (7.25,0.2) {output};
-\draw[->, thick, thwsgrey] (3.0,1.25) -- (3.4,1.25);
-\draw[->, thick, thwsgrey] (5.5,1.25) -- (6.4,1.25);
+% highlight top-left output cell
+\draw[carnelian, fill=carnelian!40, thick]
+    (6.9,1.8) rectangle (7.45,2.35);
+\node[font=\scriptsize, carnelian] at (7.8,0.25) {$\vh$: output $3\times3$};
+
+% % dot product annotation
+% \node[font=\scriptsize, thwspetrol, align=center] at (4.95,-0.8)
+%     {dot product of patch and filter $\to$ one output value};
+
 \end{tikzpicture}
