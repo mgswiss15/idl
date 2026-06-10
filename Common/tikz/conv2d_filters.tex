@@ -1,13 +1,9 @@
 % conv2d_filters.tex
-% Shows C_out filters -> C_out feature maps
-% Input: 3 stacked grids (petrol)
-% Filters: C_out=3 filter volumes stacked with offset (orange)
-% Output: C_out=3 feature maps stacked (carnelian)
 \begin{tikzpicture}[scale=0.72]
 
 \def\cs{0.42}   % cell size
-\def\os{0.12}   % channel offset
-\def\fs{0.10}   % filter stack offset
+\def\os{0.12}   % channel offset (within filter volume)
+\def\gs{0.5}   % group stack offset (between filter groups)
 
 % ── INPUT VOLUME ──────────────────────────────────────────────────
 \foreach \ch in {2,1,0} {
@@ -22,50 +18,53 @@
         }
     }
 }
-\node[font=\scriptsize, thwspetrol] at (1.1+2*\os, -0.35) {input $C_{in}{\times}H{\times}W$};
+\node[font=\scriptsize, thwspetrol] at (1.1+2*\os, -0.4) {input $C_{in}{\times}H{\times}W$};
 
 % ── ARROW ────────────────────────────────────────────────────────
-\draw[->, thick, thwsgrey] (2.6, 1.4) -- (3.1, 1.4);
+\draw[->, thick, thwsgrey] (2.6, 1.6) -- (3.1, 1.6);
 
-% ── C_out FILTERS stacked ─────────────────────────────────────────
-% 3 filter volumes, each offset slightly
-\foreach \filt in {2,1,0} {
-    \pgfmathsetmacro\xfoff{3.3+\filt*\fs*3}
-    \pgfmathsetmacro\yfoff{0.2+\filt*0.45}
-    % each filter volume has C_in=3 layers
+% ── C_out FILTER GROUPS: draw back to front ──────────────────────
+\foreach \filt/\gshade in {2/15, 1/40, 0/65} {
+    \pgfmathsetmacro\gxoff{3.3+\filt*\gs}
+    \pgfmathsetmacro\gyoff{0.2+\filt*\gs}
+    % all layers same shade within group
     \foreach \ch in {2,1,0} {
-        \pgfmathsetmacro\xoff{\xfoff+\ch*\os}
-        \pgfmathsetmacro\yoff{\yfoff+\ch*\os}
+        \pgfmathsetmacro\xoff{\gxoff+\ch*\os}
+        \pgfmathsetmacro\yoff{\gyoff+\ch*\os}
         \foreach \col in {0,1,2} {
             \foreach \row in {0,1,2} {
-                \draw[thwsorange, fill=thwsorange!25, thick]
+                \draw[thwsorange, fill=thwsorange!\gshade, thick]
                     (\col*\cs+\xoff, \row*\cs+\yoff)
                     rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
             }
         }
     }
+    % label well to the right of the front layer
+    \pgfmathsetmacro\lx{\gxoff+2*\cs+0.5}
+    \pgfmathsetmacro\ly{\gyoff+1.5*\cs-0.5}
+    \node[font=\tiny, thwsorange, anchor=west] at (\lx, \ly) {$\kernel_{\filt}$};
 }
-\node[font=\scriptsize, thwsorange] at (4.5, -0.35) {$C_{out}$ filters};
+\node[font=\scriptsize, thwsorange] at (4.7, -0.4) {$C_{out}$ filters};
 
-% ── ARROWS ───────────────────────────────────────────────────────
-\draw[->, thick, thwsgrey] (5.8, 1.4) -- (6.3, 1.4);
+% ── ARROW ────────────────────────────────────────────────────────
+\draw[->, thick, thwsgrey] (6.3, 1.6) -- (6.8, 1.6);
 
-% ── C_out FEATURE MAPS stacked ────────────────────────────────────
-\foreach \filt in {2,1,0} {
-    \pgfmathsetmacro\xoff{6.5+\filt*\os}
-    \pgfmathsetmacro\yoff{0.3+\filt*0.45}
+% ── C_out FEATURE MAPS ───────────────────────────────────────────
+\foreach \filt/\shade in {2/12, 1/32, 0/55} {
+    \pgfmathsetmacro\gxoff{7.0+\filt*\gs}
+    \pgfmathsetmacro\gyoff{0.2+\filt*\gs}
     \foreach \col in {0,1,2} {
         \foreach \row in {0,1,2} {
-            \draw[carnelian, fill=carnelian!25]
-                (\col*\cs+\xoff, \row*\cs+\yoff)
-                rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
+            \draw[carnelian, fill=carnelian!\shade]
+                (\col*\cs+\gxoff, \row*\cs+\gyoff)
+                rectangle (\col*\cs+\cs-0.02+\gxoff, \row*\cs+\cs-0.02+\gyoff);
         }
     }
+    % label well to the right
+    \pgfmathsetmacro\lx{\gxoff+2*\cs+0.4}
+    \pgfmathsetmacro\ly{\gyoff+1.5*\cs-0.55}
+    \node[font=\tiny, carnelian, anchor=west] at (\lx, \ly) {$\vh_{\filt}$};
 }
-\node[font=\scriptsize, carnelian] at (7.4, -0.35) {$C_{out}$ feature maps};
-
-% ── LABEL ────────────────────────────────────────────────────────
-\node[font=\scriptsize, thwsgrey, align=center] at (4.2, -0.9)
-    {each filter produces one feature map $\to$ output $C_{out}{\times}H'{\times}W'$};
+\node[font=\scriptsize, carnelian] at (8.4, -0.4) {$C_{out}$ feature maps};
 
 \end{tikzpicture}

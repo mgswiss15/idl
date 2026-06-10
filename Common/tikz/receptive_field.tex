@@ -1,0 +1,68 @@
+% receptive_field.tex
+% Growing receptive field through 3 conv layers (3x3 filters)
+% Input 7x7 -> layer1 5x5 -> layer2 3x3 -> layer3 1x1
+
+\begin{tikzpicture}[scale=0.72]
+
+\def\cs{0.38}  % cell size
+
+% ── INPUT 7x7 — plain grid ───────────────────────────────────────
+\foreach \col in {0,...,6} {
+    \foreach \row in {0,...,6} {
+        \draw[thwspetrol!25, fill=thwspetrol!8]
+            (\col*\cs, \row*\cs) rectangle (\col*\cs+\cs-0.02, \row*\cs+\cs-0.02);
+    }
+}
+% highlight center 1x1
+\draw[thwspetrol, fill=thwspetrol!60, thick]
+    (3*\cs, 3*\cs) rectangle (3*\cs+\cs-0.02, 3*\cs+\cs-0.02);
+\node[font=\scriptsize, thwspetrol] at (3*\cs+\cs/2, -0.3) {input $7{\times}7$};
+\node[font=\scriptsize, thwsgrey]   at (3*\cs+\cs/2, -0.6) {RF: $1{\times}1$};
+
+% ── ARROW ────────────────────────────────────────────────────────
+\draw[->, thick, thwsgrey] (7*\cs+0.1, 3*\cs) -- (7*\cs+0.5, 3*\cs);
+
+% ── LAYER 1: 5x5 ─────────────────────────────────────────────────
+\def\xone{2.85}
+\foreach \col in {0,...,4} {
+    \foreach \row in {0,...,4} {
+        \draw[thwspetrol!25, fill=thwspetrol!8]
+            (\col*\cs+\xone, \row*\cs) rectangle (\col*\cs+\cs-0.02+\xone, \row*\cs+\cs-0.02);
+    }
+}
+% highlight 3x3 patch (cols 1-3, rows 1-3)
+\foreach \col in {1,2,3} {
+    \foreach \row in {1,2,3} {
+        \draw[thwspetrol, fill=thwspetrol!45, thick]
+            (\col*\cs+\xone, \row*\cs) rectangle (\col*\cs+\cs-0.02+\xone, \row*\cs+\cs-0.02);
+    }
+}
+\node[font=\scriptsize, thwspetrol] at (\xone+2*\cs, -0.3) {layer 1 $5{\times}5$};
+\node[font=\scriptsize, thwsgrey]   at (\xone+2*\cs, -0.6) {RF: $3{\times}3$};
+
+% ── ARROW ────────────────────────────────────────────────────────
+\def\xtwo{5.55}
+\draw[->, thick, thwsgrey] (\xone+5*\cs+0.1, 3*\cs) -- (\xone+5*\cs+0.5, 3*\cs);
+
+% ── LAYER 2: 3x3 — all highlighted ──────────────────────────────
+\foreach \col in {0,1,2} {
+    \foreach \row in {0,1,2} {
+        \draw[thwspetrol, fill=thwspetrol!35, thick]
+            (\col*\cs+\xtwo, \row*\cs+0.38) rectangle
+            (\col*\cs+\cs-0.02+\xtwo, \row*\cs+\cs-0.02+0.38);
+    }
+}
+\node[font=\scriptsize, thwspetrol] at (\xtwo+\cs, -0.3) {layer 2 $3{\times}3$};
+\node[font=\scriptsize, thwsgrey]   at (\xtwo+\cs, -0.6) {RF: $5{\times}5$};
+
+% ── ARROW ────────────────────────────────────────────────────────
+\def\xthree{7.25}
+\draw[->, thick, thwsgrey] (\xtwo+3*\cs+0.1, 3*\cs) -- (\xtwo+3*\cs+0.5, 3*\cs);
+
+% ── LAYER 3: 1x1 ─────────────────────────────────────────────────
+\draw[carnelian, fill=carnelian!50, thick]
+    (\xthree, 3*\cs) rectangle (\xthree+\cs-0.02, 4*\cs-0.02);
+\node[font=\scriptsize, carnelian] at (\xthree+\cs/2, -0.3) {layer 3};
+\node[font=\scriptsize, thwsgrey]  at (\xthree+\cs/2, -0.6) {RF: $7{\times}7$};
+
+\end{tikzpicture}

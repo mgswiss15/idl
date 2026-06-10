@@ -353,28 +353,52 @@ Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
 
 \end{frame}
 
-\begin{frame}{Multiple Filters}
+\begin{frame}{Multiple Output Channels}
 
-\vskip 2em
+\vskip 1em
 
-\structure{$C_{out}$ filters:} each produces one feature map --- output has $C_{out}$ channels
+\structure{$C_{out}$ filters:} each filter independently applied to the full input volume
+
+\vskip 0.5em
+
+\[
+    \vh_f[i,j] = \sum_{c=0}^{C_{in}-1}\sum_{p=0}^{k-1}\sum_{q=0}^{k-1}
+    \mX[c,\, i+p,\, j+q]\; \kernel_f[c,\, p,\, q]
+    \quad f = 0,\ldots,C_{out}-1
+\]
 
 \begin{center}
 \tikzsetnextfilename{conv2d_filters}
 \input{\CommonPath/tikz/conv2d_filters.tex}
 \end{center}
 
-\vskip 1em
-
 \begin{itemize}
-    \item Each filter detects a different pattern
+    \item Each filter $\kernel_f$ produces one feature map $\vh_f$ independently
     \item Output tensor: $C_{out} \times H' \times W'$
-    \item Parameters per layer: $C_{out} \times C_{in} \times k \times k + C_{out}$ (with bias)
+    \item Parameters: $C_{out} \times C_{in} \times k \times k + C_{out}$ (with bias)
 \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Receptive Field}
+
+\vskip 2em
+
+\structure{Receptive field:} region of the input that influences a given neuron's output
+
+\begin{center}
+\tikzsetnextfilename{receptive_field}
+\input{\CommonPath/tikz/receptive_field.tex}
+\end{center}
 
 \vskip 0.5em
 
-\structure{In PyTorch:} {\scriptsize\ttfamily nn.Conv2d(in\_channels, out\_channels, kernel\_size, stride, padding)}
+\begin{itemize}
+    \item Each $3\times3$ conv layer adds 2 pixels to the receptive field in each dimension
+    \item $L$ layers of $3\times3$ filters: receptive field $= (2L+1)\times(2L+1)$
+    \item Deep networks see large regions despite small local filters
+    \item Early layers: local features (edges) --- later layers: global patterns (objects)
+\end{itemize}
 
 \end{frame}
 
