@@ -81,6 +81,18 @@
 \RequirePackage{tikz}
 \usetikzlibrary{arrows.meta, positioning}
 
+
+% externalizing 
+% careful - when compiling needs to compile with -shell-escape
+% for example pdflatex -shell-escape Session9_CNNs.tex
+% there is a recipe for it in workspace settings
+\usetikzlibrary{external}
+\tikzexternalize[prefix=\CommonPath/tikz-cache/]
+\tikzset{external/optimize=false}
+% needs symlink for mapping tikz-cache
+% cd Session9
+% ln -s ../../Common/tikz-cache tikz-cache
+
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.13}
 \pgfplotsset{
