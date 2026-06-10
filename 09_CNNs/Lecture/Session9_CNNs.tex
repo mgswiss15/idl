@@ -153,11 +153,13 @@ These define the \textbf{convolutional layer}
 \centering
 
 \structure{Single step:} dot product of local patch and filter $\to$ one output value\\[0.5em]
+\tikzsetnextfilename{conv2d}
 \input{\CommonPath/tikz/conv2d.tex}
 
 \vskip 0.5em
 
 \structure{Full operation:} same filter slides across input --- each position produces one output value\\[0.5em]
+\tikzsetnextfilename{conv2d_steps}
 \input{\CommonPath/tikz/conv2d_steps.tex}
 
 \vskip 0.5em
@@ -175,6 +177,7 @@ These define the \textbf{convolutional layer}
 \begin{columns}[c]
 \begin{column}{0.4\textwidth}
 \centering
+\tikzsetnextfilename{conv1d}
 \input{\CommonPath/tikz/conv1d.tex}
 \end{column}
 \begin{column}{0.55\textwidth}
@@ -200,7 +203,7 @@ These define the \textbf{convolutional layer}
 
 \end{frame}
 
-\begin{frame}{2D Convolution}
+\begin{frame}{2D Convolutiona}
 
 \vskip 2em
 
@@ -212,6 +215,7 @@ These define the \textbf{convolutional layer}
 \begin{columns}[c]
 \begin{column}{0.5\textwidth}
 \centering
+\tikzsetnextfilename{conv2d}
 \input{\CommonPath/tikz/conv2d.tex}
 \end{column}
 \begin{column}{0.5\textwidth}
@@ -241,9 +245,11 @@ These define the \textbf{convolutional layer}
 
 \begin{columns}[c]
 \begin{column}{0.46\textwidth}
+\tikzsetnextfilename{conv2d}
 \input{\CommonPath/tikz/conv2d.tex}
 \end{column}
 \begin{column}{0.46\textwidth}
+\tikzsetnextfilename{conv2d_matrix}
 \input{\CommonPath/tikz/conv2d_matrix.tex}
 \end{column}
 \end{columns}

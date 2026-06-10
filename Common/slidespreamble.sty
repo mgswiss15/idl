@@ -1,5 +1,7 @@
 \ProvidesPackage{./../Common/slidespreamble}[2026/03/21, MG]
 
+% Careful about tikz externalize and special way to compile!
+
 % packages loaded automatically with beamer
 % graphicx, hyperref
 % amsmath, amssymb, amsfonts, amstext, amsthm
@@ -87,7 +89,7 @@
 % for example pdflatex -shell-escape Session9_CNNs.tex
 % there is a recipe for it in workspace settings
 \usetikzlibrary{external}
-\tikzexternalize[prefix=\CommonPath/tikz-cache/]
+\tikzexternalize[prefix=tikz-cache/]
 \tikzset{external/optimize=false}
 % needs symlink for mapping tikz-cache
 % cd Session9

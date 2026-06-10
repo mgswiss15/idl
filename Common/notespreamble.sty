@@ -1,5 +1,7 @@
 \ProvidesPackage{../Common/notespreamble}[2026/03/21, MG]
 
+% Careful about tikz externalize and special way to compile!
+
 % font encoding
 \RequirePackage[T1]{fontenc}
 \RequirePackage{kpfonts}
@@ -70,9 +72,12 @@
 % externalizing 
 % careful - when compiling needs to compile with -shell-escape
 % for example pdflatex -shell-escape Session9_CNNs.tex
+% there is a recipe for it in workspace settings
 \usetikzlibrary{external}
-\tikzexternalize[prefix=\CommonPath/tikz-cache/]
+\tikzexternalize[prefix=tikz-cache/]
 % \tikzset{external/optimize=false}
+% needs symlink for mapping tikz-cache
+% ln -s ../../Common/tikz-cache tikz-cache
 
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.13}
