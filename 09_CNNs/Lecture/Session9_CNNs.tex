@@ -262,6 +262,81 @@ Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
 
 \end{frame}
 
+\begin{frame}{Padding}
+
+\vskip 2em
+
+\structure{Problem:} convolution shrinks spatial dimensions --- each layer loses $k-1$ pixels
+
+\vskip 1em
+
+\begin{center}
+\input{\CommonPath/tikz/conv2d_padding.tex}
+\end{center}
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Valid padding} ($p=0$)
+\begin{itemize}
+    \item No zeros added
+    \item Output shrinks: $(H-k+1) \times (W-k+1)$
+    \item Spatial information lost at borders
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Same padding} ($p=(k-1)/2$)
+\begin{itemize}
+    \item Zeros added around border
+    \item Output same size as input
+    \item Standard choice in most architectures
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Stride}
+
+\vskip 2em
+
+\structure{Stride $s$:} filter moves $s$ pixels at each step instead of 1
+
+\vskip 1em
+
+\begin{center}
+\input{\CommonPath/tikz/conv2d_stride.tex}
+\end{center}
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Stride 1} (standard)
+\begin{itemize}
+    \item Dense coverage of input
+    \item Output nearly same size
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Stride 2}
+\begin{itemize}
+    \item Output halved --- spatial downsampling
+    \item Alternative to pooling layers
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\structure{General output size:} $\left\lfloor \dfrac{H + 2p - k}{s} \right\rfloor + 1$
+
+\end{frame}
 
 % -------------------------------------------------------
 
