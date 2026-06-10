@@ -1,50 +1,36 @@
 % conv2d_matrix.tex — full 9x25 weight matrix with 25x1 input and 9x1 output
-% kernel values (row-major, bottom-up as in conv2d.tex):
-% row0(bot): 1  0 -2
-% row1(mid): 3  3 -1
-% row2(top): 0  2  0
-% kernel flattened row-major (top-to-bottom): 0,2,0,3,3,-1,1,0,-2
-% for output position (i,j), active input cols in 25-element flat vector:
-% flat index = row*5 + col
-% output row k (k=0..8): i=k/3, j=k%3
-% active flat indices: (i+0)*5+(j+0), (i+0)*5+(j+1), (i+0)*5+(j+2),
-%                      (i+1)*5+(j+0), (i+1)*5+(j+1), (i+1)*5+(j+2),
-%                      (i+2)*5+(j+0), (i+2)*5+(j+1), (i+2)*5+(j+2)
+% kernel (top-to-bottom, left-to-right):
+%   top: 0  2  0
+%   mid: 3  3 -1
+%   bot: 1  0 -2
+% input patch (flat indices 0,1,2,5,6,7,10,11,12):
+%   3  1 -2
+%   1  0  2
+%  -1  1  0
+% output[0] = 0*3+2*1+0*(-2)+3*1+3*0+(-1)*2+1*(-1)+0*1+(-2)*0 = 2
 
 \begin{tikzpicture}[scale=0.75]
 
-\def\cw{0.30}  % cell width
-\def\ch{0.30}  % cell height
-\def\gap{0.15} % gap between blocks
+\def\cw{0.30}
+\def\ch{0.30}
+\def\gap{0.3}
 
-% kernel values in flat order (top-left to bottom-right of filter)
-% kv[0..8]: positions in filter scanned row by row
-% filter from conv2d.tex (top row first):
-% top:    0  2  0
-% mid:    3  3 -1
-% bot:    1  0 -2
-\def\kva{0}
-\def\kvb{2}
-\def\kvc{0}
-\def\kvd{3}
-\def\kve{3}
-\def\kvf{-1}
-\def\kvg{1}
-\def\kvh{0}
-\def\kvi{-2}
+% kernel values flat (top-left to bottom-right)
+\def\kva{0}  \def\kvb{2}  \def\kvc{0}
+\def\kvd{3}  \def\kve{3}  \def\kvf{-1}
+\def\kvg{1}  \def\kvh{0}  \def\kvi{-2}
 
-% active flat input indices for each of 9 output positions
-% output k: i=floor(k/3), j=mod(k,3)
-% active: (i)*5+j, i*5+j+1, i*5+j+2, (i+1)*5+j, ..., (i+2)*5+j+2
+% input patch values at flat indices 0,1,2,5,6,7,10,11,12
+\def\iva{3}   \def\ivb{1}   \def\ivc{-2}
+\def\ivd{1}   \def\ive{0}   \def\ivf{2}
+\def\ivg{-1}  \def\ivh{1}   \def\ivi{0}
 
 % ─────────────────────────────────────────────────────
 % WEIGHT MATRIX  9 rows x 25 cols
 % ─────────────────────────────────────────────────────
 \foreach \outrow in {0,...,8} {
-    % compute patch start: i=floor(outrow/3), j=mod(outrow,3)
     \pgfmathtruncatemacro\pi{int(\outrow/3)}
     \pgfmathtruncatemacro\pj{int(mod(\outrow,3))}
-    % 9 active flat indices
     \pgfmathtruncatemacro\aa{int(\pi*5+\pj)}
     \pgfmathtruncatemacro\ab{int(\pi*5+\pj+1)}
     \pgfmathtruncatemacro\ac{int(\pi*5+\pj+2)}
@@ -55,7 +41,6 @@
     \pgfmathtruncatemacro\cb{int((\pi+2)*5+\pj+1)}
     \pgfmathtruncatemacro\cc{int((\pi+2)*5+\pj+2)}
     \foreach \incol in {0,...,24} {
-        % check if active
         \pgfmathtruncatemacro\act{ifthenelse(
             \incol==\aa || \incol==\ab || \incol==\ac ||
             \incol==\ba || \incol==\bb || \incol==\bc ||
@@ -64,7 +49,6 @@
             \draw[thwsorange, fill=thwsorange!35, thick]
                 (\incol*\cw, -\outrow*\ch)
                 rectangle (\incol*\cw+\cw-0.02, -\outrow*\ch+\ch-0.02);
-            % kernel value: which position in 3x3 kernel?
             \pgfmathtruncatemacro\kidx{ifthenelse(\incol==\aa,0,
                 ifthenelse(\incol==\ab,1,
                 ifthenelse(\incol==\ac,2,
@@ -88,18 +72,17 @@
             \draw[thwsgrey!25, fill=thwsgrey!8]
                 (\incol*\cw, -\outrow*\ch)
                 rectangle (\incol*\cw+\cw-0.02, -\outrow*\ch+\ch-0.02);
-            \node[font=\tiny, thwsgrey!60] at
-                (\incol*\cw+\cw/2-0.01, -\outrow*\ch+\ch/2-0.01) {0};
         \fi
     }
 }
 \node[font=\scriptsize, thwsorange] at (25*\cw/2, 0.45) {$\mW$ \quad $9\times25$};
 
 % ─────────────────────────────────────────────────────
-% INPUT VECTOR  25x1  (to the right of matrix)
+% INPUT VECTOR  25x1
 % ─────────────────────────────────────────────────────
 \pgfmathsetmacro\xinput{25*\cw + \gap}
-% patch for output 0: active flat indices 0,1,2,5,6,7,10,11,12
+
+% patch values at flat indices 0,1,2,5,6,7,10,11,12
 \foreach \i in {0,...,24} {
     \pgfmathtruncatemacro\act{ifthenelse(
         \i==0||\i==1||\i==2||
@@ -108,25 +91,36 @@
     \ifnum\act=1
         \draw[thwspetrol, fill=thwspetrol!35, thick]
             (\xinput, -\i*\cw) rectangle (\xinput+\cw-0.02, -\i*\cw+\cw-0.02);
+        % assign value
+        \ifnum\i=0  \def\ival{\iva} \fi
+        \ifnum\i=1  \def\ival{\ivb} \fi
+        \ifnum\i=2  \def\ival{\ivc} \fi
+        \ifnum\i=5  \def\ival{\ivd} \fi
+        \ifnum\i=6  \def\ival{\ive} \fi
+        \ifnum\i=7  \def\ival{\ivf} \fi
+        \ifnum\i=10 \def\ival{\ivg} \fi
+        \ifnum\i=11 \def\ival{\ivh} \fi
+        \ifnum\i=12 \def\ival{\ivi} \fi
+        \node[font=\tiny] at
+            (\xinput+\cw/2-0.01, -\i*\cw+\cw/2-0.01) {\ival};
     \else
-        \draw[thwspetrol!25, fill=thwspetrol!8]
+        \draw[thwspetrol!20, fill=thwspetrol!5]
             (\xinput, -\i*\cw) rectangle (\xinput+\cw-0.02, -\i*\cw+\cw-0.02);
     \fi
 }
 \node[font=\scriptsize, thwspetrol] at (\xinput+\cw/2, 0.45) {$\vx$};
 \node[font=\scriptsize, thwspetrol] at (\xinput+\cw/2, -25*\cw-0.2) {$25\times1$};
-
-% multiplication sign
 \node[font=\normalsize] at (\xinput-\gap/2, -4*\cw) {$\times$};
 
 % ─────────────────────────────────────────────────────
-% OUTPUT VECTOR  9x1  (to the left of matrix)
+% OUTPUT VECTOR  9x1
 % ─────────────────────────────────────────────────────
 \pgfmathsetmacro\xoutput{-\cw - \gap}
 \foreach \i in {0,...,8} {
     \ifnum\i=0
         \draw[carnelian, fill=carnelian!40, thick]
             (\xoutput, -\i*\ch) rectangle (\xoutput+\cw-0.02, -\i*\ch+\ch-0.02);
+        \node[font=\tiny] at (\xoutput+\cw/2-0.01, -\i*\ch+\ch/2-0.01) {2};
     \else
         \draw[carnelian!35, fill=carnelian!10]
             (\xoutput, -\i*\ch) rectangle (\xoutput+\cw-0.02, -\i*\ch+\ch-0.02);
@@ -134,21 +128,19 @@
 }
 \node[font=\scriptsize, carnelian] at (\xoutput+\cw/2, 0.45) {$\vh$};
 \node[font=\scriptsize, carnelian] at (\xoutput+\cw/2, -9*\ch-0.2) {$9\times1$};
-
-% equals sign
 \node[font=\normalsize] at (\xoutput+\cw+\gap/2, -4*\cw) {$=$};
 
 % ─────────────────────────────────────────────────────
 % ANNOTATIONS
 % ─────────────────────────────────────────────────────
 \draw[decorate, decoration={brace,amplitude=4pt}, thwsorange]
-    (0, 0.35) -- (25*\cw, 0.35);
-\node[font=\scriptsize, thwsorange, align=center] at (25*\cw/2, 0.75)
+    (0, 0.6) -- (25*\cw, 0.6);
+\node[font=\scriptsize, thwsorange, align=center] at (25*\cw/2, 1)
     {same kernel values, shifted --- \textbf{tied weights}};
 
-\draw[decorate, decoration={brace,amplitude=4pt,mirror}, thwsgrey]
+\draw[decorate, decoration={brace,amplitude=4pt,mirror}, thwspetrol]
     (0, -9*\ch-0.05) -- (25*\cw, -9*\ch-0.05);
-\node[font=\scriptsize, thwsgrey] at (25*\cw/2, -9*\ch-0.45)
+\node[font=\scriptsize, thwspetrol] at (25*\cw/2, -9*\ch-0.45)
     {most entries zero --- \textbf{sparse}};
 
 \end{tikzpicture}

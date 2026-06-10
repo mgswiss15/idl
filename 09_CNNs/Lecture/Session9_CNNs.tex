@@ -235,24 +235,16 @@ These define the \textbf{convolutional layer}
 
 \begin{frame}{Convolution as Matrix Multiplication}
 
-\vskip 2em
+\vskip 1em
 
 \structure{Flatten input and output} --- convolution becomes matrix multiplication
 
-\begin{center}
+\begin{columns}[c]
+\begin{column}{0.46\textwidth}
+\input{\CommonPath/tikz/conv2d.tex}
+\end{column}
+\begin{column}{0.46\textwidth}
 \input{\CommonPath/tikz/conv2d_matrix.tex}
-\end{center}
-
-\vskip 0.5em
-
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Sparse:} each output connects only to its local patch --- most weights zero
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{Tied weights:} same kernel values reused at every position --- parameter sharing enforced
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
