@@ -1,0 +1,58 @@
+% conv2d_channels.tex
+% Shows single filter with C_in=3 channels -> one output feature map
+% Input: 3 stacked 5x5 grids (petrol shades)
+% Filter: 3 stacked 3x3 grids (orange)
+% Output: one 3x3 feature map (carnelian)
+\begin{tikzpicture}[scale=0.72]
+
+\def\cs{0.42}  % cell size
+\def\os{0.12}  % channel offset (3D effect)
+
+% ── INPUT VOLUME: 3 channels ──────────────────────────────────────
+% draw back to front so front channel appears on top
+\foreach \ch in {2,1,0} {
+    \pgfmathsetmacro\xoff{\ch*\os}
+    \pgfmathsetmacro\yoff{\ch*\os}
+    \pgfmathtruncatemacro\shade{15+\ch*10}
+    \foreach \col in {0,...,4} {
+        \foreach \row in {0,...,4} {
+            \draw[thwspetrol!\shade!black, fill=thwspetrol!\shade]
+                (\col*\cs+\xoff, \row*\cs+\yoff)
+                rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
+        }
+    }
+}
+\node[font=\scriptsize, thwspetrol] at (1.1+2*\os, -0.35) {input $C_{in}{\times}H{\times}W$};
+
+% ── ARROW ────────────────────────────────────────────────────────
+\draw[->, thick, thwsgrey] (2.6, 1.2) -- (3.1, 1.2);
+
+% ── FILTER: 3 layers (one per input channel) ─────────────────────
+\foreach \ch in {2,1,0} {
+    \pgfmathsetmacro\xoff{3.3+\ch*\os}
+    \pgfmathsetmacro\yoff{0.5+\ch*\os}
+    \foreach \col in {0,1,2} {
+        \foreach \row in {0,1,2} {
+            \draw[thwsorange, fill=thwsorange!30, thick]
+                (\col*\cs+\xoff, \row*\cs+\yoff)
+                rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
+        }
+    }
+}
+\node[font=\scriptsize, thwsorange] at (4.25, -0.35) {filter $C_{in}{\times}k{\times}k$};
+
+% ── ARROW ────────────────────────────────────────────────────────
+\draw[->, thick, thwsgrey] (5.7, 1.2) -- (6.2, 1.2);
+
+% ── OUTPUT: one feature map ───────────────────────────────────────
+\foreach \col in {0,1,2} {
+    \foreach \row in {0,1,2} {
+        \draw[carnelian, fill=carnelian!25]
+            (\col*\cs+6.4, \row*\cs+0.5)
+            rectangle (\col*\cs+\cs-0.02+6.4, \row*\cs+\cs-0.02+0.5);
+    }
+}
+\node[font=\scriptsize, carnelian] at (7.1, -0.35) {feature map $H'{\times}W'$};
+
+
+\end{tikzpicture}

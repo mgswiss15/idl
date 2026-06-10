@@ -1,0 +1,71 @@
+% conv2d_filters.tex
+% Shows C_out filters -> C_out feature maps
+% Input: 3 stacked grids (petrol)
+% Filters: C_out=3 filter volumes stacked with offset (orange)
+% Output: C_out=3 feature maps stacked (carnelian)
+\begin{tikzpicture}[scale=0.72]
+
+\def\cs{0.42}   % cell size
+\def\os{0.12}   % channel offset
+\def\fs{0.10}   % filter stack offset
+
+% ── INPUT VOLUME ──────────────────────────────────────────────────
+\foreach \ch in {2,1,0} {
+    \pgfmathsetmacro\xoff{\ch*\os}
+    \pgfmathsetmacro\yoff{\ch*\os}
+    \pgfmathtruncatemacro\shade{15+\ch*10}
+    \foreach \col in {0,...,4} {
+        \foreach \row in {0,...,4} {
+            \draw[thwspetrol!\shade!black, fill=thwspetrol!\shade]
+                (\col*\cs+\xoff, \row*\cs+\yoff)
+                rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
+        }
+    }
+}
+\node[font=\scriptsize, thwspetrol] at (1.1+2*\os, -0.35) {input $C_{in}{\times}H{\times}W$};
+
+% ── ARROW ────────────────────────────────────────────────────────
+\draw[->, thick, thwsgrey] (2.6, 1.4) -- (3.1, 1.4);
+
+% ── C_out FILTERS stacked ─────────────────────────────────────────
+% 3 filter volumes, each offset slightly
+\foreach \filt in {2,1,0} {
+    \pgfmathsetmacro\xfoff{3.3+\filt*\fs*3}
+    \pgfmathsetmacro\yfoff{0.2+\filt*0.45}
+    % each filter volume has C_in=3 layers
+    \foreach \ch in {2,1,0} {
+        \pgfmathsetmacro\xoff{\xfoff+\ch*\os}
+        \pgfmathsetmacro\yoff{\yfoff+\ch*\os}
+        \foreach \col in {0,1,2} {
+            \foreach \row in {0,1,2} {
+                \draw[thwsorange, fill=thwsorange!25, thick]
+                    (\col*\cs+\xoff, \row*\cs+\yoff)
+                    rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
+            }
+        }
+    }
+}
+\node[font=\scriptsize, thwsorange] at (4.5, -0.35) {$C_{out}$ filters};
+
+% ── ARROWS ───────────────────────────────────────────────────────
+\draw[->, thick, thwsgrey] (5.8, 1.4) -- (6.3, 1.4);
+
+% ── C_out FEATURE MAPS stacked ────────────────────────────────────
+\foreach \filt in {2,1,0} {
+    \pgfmathsetmacro\xoff{6.5+\filt*\os}
+    \pgfmathsetmacro\yoff{0.3+\filt*0.45}
+    \foreach \col in {0,1,2} {
+        \foreach \row in {0,1,2} {
+            \draw[carnelian, fill=carnelian!25]
+                (\col*\cs+\xoff, \row*\cs+\yoff)
+                rectangle (\col*\cs+\cs-0.02+\xoff, \row*\cs+\cs-0.02+\yoff);
+        }
+    }
+}
+\node[font=\scriptsize, carnelian] at (7.4, -0.35) {$C_{out}$ feature maps};
+
+% ── LABEL ────────────────────────────────────────────────────────
+\node[font=\scriptsize, thwsgrey, align=center] at (4.2, -0.9)
+    {each filter produces one feature map $\to$ output $C_{out}{\times}H'{\times}W'$};
+
+\end{tikzpicture}

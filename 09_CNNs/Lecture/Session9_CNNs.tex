@@ -39,7 +39,7 @@ pdfkeywords={convolutional neural networks, convolution, pooling, ResNet, AlexNe
 \begin{columns}[c]
 \begin{column}{0.7\textwidth}
 
-\structure{Image:} 3D tensor of shape $H \times W \times C$
+\structure{Image:} 3D tensor of shape $C \times H \times W$
 \begin{itemize}
     \item Each entry: pixel intensity, integer 0--255 or float 0--1,
     \item $2^8$ possible values $\sim 8$ bits
@@ -264,28 +264,32 @@ Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
 
 \begin{frame}{Padding}
 
-\vskip 2em
+\vskip 1em
 
 \structure{Problem:} convolution shrinks spatial dimensions --- each layer loses $k-1$ pixels
 
 \vskip 1em
-
-\begin{center}
-\input{\CommonPath/tikz/conv2d_padding.tex}
-\end{center}
+\centering
+\resizebox{0.6\textwidth}{!}{%
+    \tikzsetnextfilename{conv2d_steps}
+    \input{\CommonPath/tikz/conv2d_steps.tex}%
+}
 
 \vskip 1em
 
+
 \begin{columns}[t]
-\begin{column}{0.46\textwidth}
+\begin{column}{0.5\textwidth}
+\tikzsetnextfilename{conv2d_padding}
+\input{\CommonPath/tikz/conv2d_padding.tex}
+\end{column}
+\begin{column}{0.5\textwidth}
 \structure{Valid padding} ($p=0$)
 \begin{itemize}
     \item No zeros added
     \item Output shrinks: $(H-k+1) \times (W-k+1)$
     \item Spatial information lost at borders
 \end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
 \structure{Same padding} ($p=(k-1)/2$)
 \begin{itemize}
     \item Zeros added around border
@@ -293,115 +297,84 @@ Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
     \item Standard choice in most architectures
 \end{itemize}
 \end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
 \end{columns}
 
 \end{frame}
 
 \begin{frame}{Stride}
 
-\vskip 2em
+\vskip 1em
 
-\structure{Stride $s$:} filter moves $s$ pixels at each step instead of 1
+\structure{Stride $s$:} filter $\kernel$ moves $s$ pixels at each step instead of 1
 
 \vskip 1em
 
-\begin{center}
+\tikzsetnextfilename{conv2d_stride}
 \input{\CommonPath/tikz/conv2d_stride.tex}
+
+\vspace{-2.5cm}\hspace{8cm}%
+\begin{minipage}{0.4\textwidth}
+\structure{Stride 1:} $\kernel$ moves one step a time\\[0.3em]
+\structure{Stride 2:} $\kernel$ skips one - output halved\\[0.5em]
+\end{minipage}
+
+\vspace{0.5cm}%
+\[
+   \hspace{6cm} \text{\alert{\textbf{General output size:}}} \quad \left\lfloor \frac{H + 2p - k}{s} \right\rfloor + 1
+\]
+
+\end{frame}
+
+\begin{frame}{Multiple Input Channels}
+
+\vskip 1em
+
+\structure{RGB input:} $C_{in}$ channels --- filter must have same depth $C_{in}$
+
+\vskip 1em
+
+\structure{Operation:} filter has $C_{in}$ slices --- each slice convolves with one input channel
+
+\[
+    (\mX * \kernel)[i,j] = \sum_{c=0}^{C_{in}-1}\underbrace{\sum_{p=0}^{k-1}\sum_{q=0}^{k-1}
+    \mX[c,\, i+p,\, j+q]\; \kernel[c,\, p,\, q]}_{\text{conv with channel } c}
+\]
+
+\begin{itemize}
+    \item Inner double sum: convolution of filter slice $c$ with input channel $c$
+    \item Outer sum over $c$: results summed across all channels
+    \item One filter $\to$ one output feature map
+\end{itemize}
+
+\begin{center}
+\tikzsetnextfilename{conv2d_channels}
+\input{\CommonPath/tikz/conv2d_channels.tex}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Multiple Filters}
+
+\vskip 2em
+
+\structure{$C_{out}$ filters:} each produces one feature map --- output has $C_{out}$ channels
+
+\begin{center}
+\tikzsetnextfilename{conv2d_filters}
+\input{\CommonPath/tikz/conv2d_filters.tex}
 \end{center}
 
 \vskip 1em
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Stride 1} (standard)
-\begin{itemize}
-    \item Dense coverage of input
-    \item Output nearly same size
-\end{itemize}
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{Stride 2}
-\begin{itemize}
-    \item Output halved --- spatial downsampling
-    \item Alternative to pooling layers
-\end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
-
-\vskip 1em
-
-\structure{General output size:} $\left\lfloor \dfrac{H + 2p - k}{s} \right\rfloor + 1$
-
-\end{frame}
-
-% -------------------------------------------------------
-
-\begin{frame}{Stride and Padding}
-
-\vskip 2em
-
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Stride $s$:} filter moves $s$ pixels at each step
-\begin{itemize}
-    \item $s=1$: standard, output size $\approx$ input size
-    \item $s=2$: output halved --- spatial downsampling
-    \item Reduces computation and memory
-\end{itemize}
-
-Output size: $\lfloor (H - k) / s \rfloor + 1$
-
-\end{column}
-\begin{column}{0.46\textwidth}
-\structure{Padding $p$:} add zeros around the border
-\begin{itemize}
-    \item \textbf{Valid} ($p=0$): no padding, output smaller than input
-    \item \textbf{Same} ($p=(k-1)/2$): output same size as input
-    \item Preserves spatial dimensions
-\end{itemize}
-
-Output size: $\lfloor (H + 2p - k) / s \rfloor + 1$
-
-\end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-% -------------------------------------------------------
-
-\begin{frame}{Multiple Channels and Filters}
-
-\vskip 2em
-
-\structure{RGB input:} $C_{\text{in}}$ input channels --- filter must have depth $C_{\text{in}}$
-
-\[
-    (\mX * \mW)[i,j] = \sum_{c=0}^{C_{\text{in}}-1}\sum_{p=0}^{k-1}\sum_{q=0}^{k-1} \mX[c,\, i+p,\, j+q]\; \mW[c,\, p,\, q]
-\]
-
-\vskip 1em
-
-\structure{Multiple filters:} $C_{\text{out}}$ filters produce $C_{\text{out}}$ output feature maps
-
 \begin{itemize}
     \item Each filter detects a different pattern
-    \item Output tensor: $C_{\text{out}} \times H' \times W'$
-    \item Total parameters per layer: $C_{\text{out}} \times C_{\text{in}} \times k \times k + C_{\text{out}}$ (with bias)
+    \item Output tensor: $C_{out} \times H' \times W'$
+    \item Parameters per layer: $C_{out} \times C_{in} \times k \times k + C_{out}$ (with bias)
 \end{itemize}
 
-\vskip 1em
+\vskip 0.5em
 
-\structure{In PyTorch:}
-
-{\scriptsize\ttfamily
-nn.Conv2d(in\_channels=3, out\_channels=64, kernel\_size=3, stride=1, padding=1)
-}
+\structure{In PyTorch:} {\scriptsize\ttfamily nn.Conv2d(in\_channels, out\_channels, kernel\_size, stride, padding)}
 
 \end{frame}
 
