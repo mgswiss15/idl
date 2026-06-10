@@ -16,6 +16,16 @@
             (\col*0.6, \row*0.6) rectangle (\col*0.6+0.55, \row*0.6+0.55);
     }
 }
+% data values
+\node[font=\tiny] at (0.28, 2.68) {3};
+\node[font=\tiny] at (0.88, 2.68) {1};
+\node[font=\tiny] at (1.48, 2.68) {-2};
+\node[font=\tiny] at (0.28, 2.08) {1};
+\node[font=\tiny] at (0.88, 2.08) {0};
+\node[font=\tiny] at (1.48, 2.08) {2};
+\node[font=\tiny] at (0.28, 1.48) {-1};
+\node[font=\tiny] at (0.88, 1.48) {1};
+\node[font=\tiny] at (1.48, 1.48) {0};
 \node[font=\scriptsize, thwspetrol] at (1.35,-0.35) {$\vx$: input $5\times5$};
 
 % --- arrow ---
@@ -38,7 +48,7 @@
 \node[font=\tiny] at (5.48, 1.48) {-1};
 \node[font=\tiny] at (4.28, 2.08) {0};
 \node[font=\tiny] at (4.88, 2.08) {2};
-\node[font=\tiny] at (5.48, 2.08) {3};
+\node[font=\tiny] at (5.48, 2.08) {0};
 \node[font=\scriptsize, thwsorange] at (4.95,0.25) {$\kernel$: filter $3\times3$};
 
 % --- arrow ---
@@ -55,6 +65,7 @@
 % highlight top-left output cell
 \draw[carnelian, fill=carnelian!40, thick]
     (6.9,1.8) rectangle (7.45,2.35);
+\node[font=\tiny] at (7.18, 2.08) {2};
 \node[font=\scriptsize, carnelian] at (7.8,0.25) {$\vh$: output $3\times3$};
 
 % % dot product annotation

@@ -200,80 +200,70 @@ These define the \textbf{convolutional layer}
 
 \end{frame}
 
-\begin{frame}{Convolution --- The Math}
-
-\vskip 2em
-
-\structure{2D convolution:} filter $\mW \in \mathbb{R}^{k \times k}$ slides over image $\mX \in \mathbb{R}^{H \times W}$
-
-\[
-    (\mX * \mW)[i,j] = \sum_{p=0}^{k-1}\sum_{q=0}^{k-1} \mX[i+p,\, j+q]\; \mW[p,q]
-\]
-
-\begin{itemize}
-    \item At each position $(i,j)$: dot product between filter and $k \times k$ patch
-    \item Output feature map shape: $(H-k+1) \times (W-k+1)$
-    \item Filter weights $\mW$ are \textbf{learned by backpropagation}
-\end{itemize}
-
-\vskip 1em
-
-\begin{center}
-\input{\CommonPath/tikz/conv2d.tex}
-\end{center}
-
-\end{frame}
-
-
-\begin{frame}{1D Convolution --- Intuition}
-
-\vskip 2em
-
-\structure{1D convolution:} filter $\vw \in \mathbb{R}^k$ slides over signal $\vx \in \mathbb{R}^n$
-
-\[
-    (x * w)[i] = \sum_{j=0}^{k-1} x[i+j]\, w[j]
-\]
-
-\begin{itemize}
-    \item At each position $i$: dot product between filter and local patch of signal
-    \item Filter detects a specific local pattern
-    \item Same filter applied at every position --- \textbf{parameter sharing}
-\end{itemize}
-
-\vskip 1em
-
-\structure{Example:} edge detector, smoothing filter, derivative approximation
-
-\vskip 1em
-
-\input{\CommonPath/tikz/conv1d.tex}
-
-\end{frame}
-
-% -------------------------------------------------------
-
 \begin{frame}{2D Convolution}
 
 \vskip 2em
 
-\structure{2D convolution:} filter $\mW \in \mathbb{R}^{k \times k}$ slides over image $\mX \in \mathbb{R}^{H \times W}$
-
+\structure{Extend to 2D:} filter $\kernel \in \mathbb{R}^{k \times k}$ slides over image $\mX \in \mathbb{R}^{H \times W}$:
 \[
-    (\mX * \mW)[i,j] = \sum_{p=0}^{k-1}\sum_{q=0}^{k-1} \mX[i+p,\, j+q]\; \mW[p,q]
+    (\mX * \kernel)[i,j] = \sum_{p=0}^{k-1}\sum_{q=0}^{k-1} \mX[i+p,\, j+q]\; \kernel[p,q]
 \]
 
+\begin{columns}[c]
+\begin{column}{0.5\textwidth}
+\centering
+\input{\CommonPath/tikz/conv2d.tex}
+\end{column}
+\begin{column}{0.5\textwidth}
+
+
 \begin{itemize}
-    \item At each position $(i,j)$: dot product between filter and $k \times k$ patch
-    \item Output: \textbf{feature map} of shape $(H-k+1) \times (W-k+1)$
-    \item Filter learns to detect a specific visual pattern (edge, corner, texture)
+    \item $(i,j)$ --- output position
+    \item $(p,q)$ --- index within filter
+    \item Two sums: over rows and columns of filter
 \end{itemize}
+\end{column}
+\end{columns}
 
 \vskip 1em
 
-\input{\CommonPath/tikz/conv2d.tex}
+\centering
+\structure{Output size:} $(H - k + 1) \times (W - k + 1)$
+
 
 \end{frame}
+
+\begin{frame}{Convolution as Matrix Multiplication}
+
+\vskip 2em
+
+\structure{Flatten input and output} --- convolution becomes matrix multiplication
+
+\begin{center}
+\input{\CommonPath/tikz/conv2d_matrix.tex}
+\end{center}
+
+\vskip 0.5em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Sparse:} each output connects only to its local patch --- most weights zero
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Tied weights:} same kernel values reused at every position --- parameter sharing enforced
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\begin{center}
+Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
+\end{center}
+
+\end{frame}
+
 
 % -------------------------------------------------------
 
