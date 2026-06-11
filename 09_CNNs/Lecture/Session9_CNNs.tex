@@ -377,22 +377,23 @@ These define the \textbf{convolutional layer}
 \begin{minipage}{1\textwidth}
 \centering
 Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights\\[0.5em]
-Convolution - \alert{linear transformation!}
+Convolution - \alert{linear transformation!}\\[0.5em]
+Conv2d $\to$ ReLu $\to$ Conv2d $\to$ ReLu $\to$ Conv2d $\to$ ReLu $\to$ :)
 \end{minipage}
 
 \end{frame}
 
+
 % -------------------------------------------------------
-\section{Deep CNNs}
+\section{CNN Architecture}
 % -------------------------------------------------------
 
 \begin{frame}{}
 \vskip 8em
 \begin{center}
-{\Large \structure{Deep CNNs}}
+{\Large \structure{CNN Architecture}}
 \end{center}
 \end{frame}
-
 
 \begin{frame}{Receptive Field}
 
@@ -416,16 +417,34 @@ Convolution - \alert{linear transformation!}
 
 \end{frame}
 
+\begin{frame}{What Do CNNs Learn?}
 
-% -------------------------------------------------------
-\section{Pooling}
-% -------------------------------------------------------
+\vskip 2em
 
-\begin{frame}{}
-\vskip 8em
-\begin{center}
-{\Large \structure{Pooling}}
-\end{center}
+\href{https://arxiv.org/abs/1311.2901}{\structure{Zeiler \& Fergus (2014)}} visualised features learned at each layer of a CNN trained on ImageNet:
+
+\vskip 0.5em
+
+\begin{columns}[c]
+\begin{column}{0.3\textwidth}
+\centering
+\includegraphics[width=\textwidth]{\CommonPath/Pics/zeiler_features.png}
+\end{column}
+\begin{column}{0.7\textwidth}
+\begin{itemize}
+    \item \structure{Layer 1--2:} edges, colours, orientations
+    \item \structure{Layer 3:} textures, repeated patterns
+    \item \structure{Layer 4--5:} object parts, faces, complex structures
+\end{itemize}
+\end{column}
+\end{columns}
+
+
+\vskip 2em
+
+\centering
+Hierarchical features --- simple features combine into complex ones through depth
+
 \end{frame}
 
 \begin{frame}{Pooling}
@@ -433,7 +452,7 @@ Convolution - \alert{linear transformation!}
 \vskip 1em
 
 \structure{Problem:} convs features spatially redundant - overlapping receptive field $\to$ nearby cells highly correlated\\[1em]
-\structure{Solution - pooling:} fixed non-trainable kernel slides through; non-overlapping regions (streid = pool size); no channel interaction (independent per channel)
+\structure{Solution} \alert{\textbf{pooling:}} fixed non-trainable kernel slides through; non-overlapping regions (streid = pool size); no channel interaction (independent per channel)
 
 
 \begin{columns}[c]
@@ -472,6 +491,9 @@ Retains strongest activation in each region
 \structure{Effect:} $C \times H \times W \xrightarrow{2\times2 \text{ pool}} C \times H/2 \times W/2$ --- channel dimension unchanged
 
 \end{frame}
+
+
+
 
 \begin{frame}{Global Average Pooling}
 
@@ -513,16 +535,6 @@ $C \times H \times W \xrightarrow{\text{GAP}} C \times 1 \times 1$ --- one value
 
 \end{frame}
 
-% -------------------------------------------------------
-\section{CNN Architecture}
-% -------------------------------------------------------
-
-\begin{frame}{}
-\vskip 8em
-\begin{center}
-{\Large \structure{CNN Architecture}}
-\end{center}
-\end{frame}
 
 \begin{frame}{CNN Building Block}
 
@@ -556,8 +568,6 @@ $C \times H \times W \xrightarrow{\text{GAP}} C \times 1 \times 1$ --- one value
 \tikzsetnextfilename{cnn_architecture}
 \input{\CommonPath/tikz/cnn_architecture.tex}
 \end{center}
-
-\vskip 1em
 
 \begin{columns}[t]
 \begin{column}{0.46\textwidth}
