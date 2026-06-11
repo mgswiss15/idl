@@ -246,6 +246,8 @@ These define the \textbf{convolutional layer}
 \begin{columns}[c]
 \begin{column}{0.46\textwidth}
 \tikzsetnextfilename{conv2d}
+\vspace{-3cm}
+
 \input{\CommonPath/tikz/conv2d.tex}
 \end{column}
 \begin{column}{0.46\textwidth}
@@ -254,11 +256,12 @@ These define the \textbf{convolutional layer}
 \end{column}
 \end{columns}
 
-\vskip 1em
-
-\begin{center}
-Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
-\end{center}
+\vspace{-3cm}%
+\begin{minipage}{1\textwidth}
+\centering
+Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights\\[0.5em]
+Convolution - \alert{linear transformation!}
+\end{minipage}
 
 \end{frame}
 
@@ -432,54 +435,54 @@ Convolution $=$ FC layer with \alert{sparse} and \alert{tied} weights
 
 \end{frame}
 
-% % -------------------------------------------------------
-% \section{Pooling}
-% % -------------------------------------------------------
+% -------------------------------------------------------
+\section{Pooling}
+% -------------------------------------------------------
 
-% \begin{frame}{Pooling}
+\begin{frame}{Pooling}
 
-% \vskip 2em
+\vskip 2em
 
-% \structure{Pooling:} spatial downsampling --- reduces feature map size
+\structure{Pooling:} spatial downsampling --- reduces feature map size
 
-% \vskip 1em
+\vskip 1em
 
-% \begin{columns}[t]
-% \begin{column}{0.46\textwidth}
-% \structure{Max pooling:}
-% \[
-%     y[i,j] = \max_{p,q \in \mathcal{R}_{ij}} x[p,q]
-% \]
-% \begin{itemize}
-%     \item Takes maximum over local region
-%     \item Retains strongest activation
-%     \item Most commonly used
-% \end{itemize}
-% \end{column}
-% \begin{column}{0.46\textwidth}
-% \structure{Average pooling:}
-% \[
-%     y[i,j] = \frac{1}{|\mathcal{R}_{ij}|}\sum_{p,q \in \mathcal{R}_{ij}} x[p,q]
-% \]
-% \begin{itemize}
-%     \item Takes average over local region
-%     \item Smoother downsampling
-%     \item Less common in hidden layers
-% \end{itemize}
-% \end{column}
-% \begin{column}{0.04\textwidth}
-% \end{column}
-% \end{columns}
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Max pooling:}
+\[
+    y[i,j] = \max_{p,q \in \mathcal{R}_{ij}} x[p,q]
+\]
+\begin{itemize}
+    \item Takes maximum over local region
+    \item Retains strongest activation
+    \item Most commonly used
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Average pooling:}
+\[
+    y[i,j] = \frac{1}{|\mathcal{R}_{ij}|}\sum_{p,q \in \mathcal{R}_{ij}} x[p,q]
+\]
+\begin{itemize}
+    \item Takes average over local region
+    \item Smoother downsampling
+    \item Less common in hidden layers
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
 
-% \vskip 1.5em
+\vskip 1.5em
 
-% \structure{Benefits:}
-% \begin{itemize}
-%     \item Reduces spatial dimensions --- fewer parameters in subsequent layers
-%     \item Local translation invariance --- small shifts in feature position do not affect output
-% \end{itemize}
+\structure{Benefits:}
+\begin{itemize}
+    \item Reduces spatial dimensions --- fewer parameters in subsequent layers
+    \item Local translation invariance --- small shifts in feature position do not affect output
+\end{itemize}
 
-% \end{frame}
+\end{frame}
 
 % % -------------------------------------------------------
 
