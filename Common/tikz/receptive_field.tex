@@ -22,7 +22,7 @@
 % 5x5 center highlight (cols 1-5, rows 1-5)
 \foreach \col in {1,2,3,4,5} {
     \foreach \row in {1,2,3,4,5} {
-        \draw[thwspetrol, fill=thwspetrol!25, thick]
+        \draw[carnelian, fill=carnelian!20, thick]
             (\col*\cs+\xl, \row*\cs) rectangle
             (\col*\cs+\cs-0.02+\xl, \row*\cs+\cs-0.02);
     }
@@ -30,7 +30,7 @@
 % top-left 3x3 stronger (cols 1-3, rows 3-5)
 \foreach \col in {1,2,3} {
     \foreach \row in {3,4,5} {
-        \draw[thwspetrol, fill=thwspetrol!60, thick]
+        \draw[thwspetrol, fill=thwspetrol!25, thick]
             (\col*\cs+\xl, \row*\cs) rectangle
             (\col*\cs+\cs-0.02+\xl, \row*\cs+\cs-0.02);
     }
@@ -50,7 +50,7 @@
 % 3x3 center highlight (cols 2-4, rows 2-4)
 \foreach \col in {2,3,4} {
     \foreach \row in {2,3,4} {
-        \draw[thwspetrol, fill=thwspetrol!35, thick]
+        \draw[carnelian, fill=carnelian!20, thick]
             (\col*\cs+\xm, \row*\cs) rectangle
             (\col*\cs+\cs-0.02+\xm, \row*\cs+\cs-0.02);
     }
@@ -98,6 +98,9 @@
     (2*\cs+\xm, 5*\cs-0.02)         % top-left of 3x3 in middle
     -- (1*\cs+\xl, 6*\cs-0.02);     % top-left of 5x5 in left
 \draw[thwspetrol, dashed, thin]
+    (2*\cs+\cs+\xm, 4*\cs-0.02)         % bottom-right of 1x1 in middle
+    -- (3*\cs+\xl, 3*\cs-0.02);     % bottom-right of 3x3 in left
+\draw[carnelian, dashed, thin]
     (5*\cs-0.02+\xm, 2*\cs)         % bottom-right of 3x3 in middle
     -- (6*\cs-0.02+\xl, 1*\cs);     % bottom-right of 5x5 in left
 

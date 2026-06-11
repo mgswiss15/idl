@@ -203,7 +203,7 @@ These define the \textbf{convolutional layer}
 
 \end{frame}
 
-\begin{frame}{2D Convolutiona}
+\begin{frame}{2D Convolution}
 
 \vskip 2em
 
@@ -405,39 +405,18 @@ Convolution - \alert{linear transformation!}
 
 \end{frame}
 
-% -------------------------------------------------------
-
-\begin{frame}{Receptive Field}
-
-\vskip 2em
-
-\structure{Receptive field:} region of the input that influences a given neuron's output
-
-\begin{itemize}
-    \item Layer 1 ($3\times3$ filter): receptive field $= 3 \times 3$
-    \item Layer 2 ($3\times3$ filter): receptive field $= 5 \times 5$
-    \item Layer $L$ ($3\times3$ filters): receptive field $= (2L+1) \times (2L+1)$
-\end{itemize}
-
-\vskip 1em
-
-\structure{Key insight:} deep networks have large receptive fields despite small local filters
-
-\begin{itemize}
-    \item Early layers detect local features (edges, corners)
-    \item Later layers combine local features into complex patterns (eyes, wheels, faces)
-    \item Hierarchical feature learning --- the hallmark of deep networks
-\end{itemize}
-
-\vskip 1em
-
-\structure{Two $3\times3$ filters} have the same receptive field as one $5\times5$ filter but fewer parameters: $2 \times 9 = 18$ vs $25$
-
-\end{frame}
 
 % -------------------------------------------------------
 \section{Pooling}
 % -------------------------------------------------------
+
+
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Pooling}}
+\end{center}
+\end{frame}
 
 \begin{frame}{Pooling}
 
