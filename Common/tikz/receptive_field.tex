@@ -1,23 +1,17 @@
 % receptive_field.tex
 % Three 7x7 grids showing growing receptive field
 % Left: input, 5x5 center highlighted, top-left 3x3 stronger
-% Middle: layer1, 3x3 center highlighted, top-left 3x3 stronger  
+% Middle: layer1, 3x3 center highlighted, top-left cell stronger
 % Right: layer2, center pixel highlighted
+% Dashed lines connect highlighted regions between grids
 
 \begin{tikzpicture}[scale=0.72]
 
 \def\cs{0.40}   % cell size
-\def\gap{0.8}   % gap between grids
+\def\gap{1.2}   % gap between grids
 
-% colors
-% light highlight: thwspetrol!25
-% medium highlight: thwspetrol!50
-% strong highlight: thwspetrol!75
-% output: carnelian!60
-
-% ── LEFT GRID: input, 5x5 + top-left 3x3 ────────────────────────
+% ── LEFT GRID: input ─────────────────────────────────────────────
 \def\xl{0}
-% plain grid
 \foreach \col in {0,...,6} {
     \foreach \row in {0,...,6} {
         \draw[thwspetrol!20, fill=thwspetrol!6]
@@ -33,7 +27,7 @@
             (\col*\cs+\cs-0.02+\xl, \row*\cs+\cs-0.02);
     }
 }
-% top-left 3x3 stronger highlight (cols 1-3, rows 3-5 in bottom-up)
+% top-left 3x3 stronger (cols 1-3, rows 3-5)
 \foreach \col in {1,2,3} {
     \foreach \row in {3,4,5} {
         \draw[thwspetrol, fill=thwspetrol!60, thick]
@@ -44,13 +38,8 @@
 \node[font=\scriptsize, thwspetrol] at (\xl+3*\cs, -0.35) {input};
 \node[font=\scriptsize, thwsgrey]   at (\xl+3*\cs, -0.65) {RF: $5{\times}5$};
 
-% ── ARROW ────────────────────────────────────────────────────────
-\def\xarrow{7*\cs+\gap/2}
-\draw[->, thick, thwsgrey] (7*\cs+0.1, 3*\cs) -- (7*\cs+\gap-0.1, 3*\cs);
-
-% ── MIDDLE GRID: layer1, 3x3 + top-left 3x3 ─────────────────────
+% ── MIDDLE GRID: layer1 ──────────────────────────────────────────
 \pgfmathsetmacro\xm{7*\cs+\gap}
-% plain grid
 \foreach \col in {0,...,6} {
     \foreach \row in {0,...,6} {
         \draw[thwspetrol!20, fill=thwspetrol!6]
@@ -66,27 +55,14 @@
             (\col*\cs+\cs-0.02+\xm, \row*\cs+\cs-0.02);
     }
 }
-% top-left 3x3 of highlight stronger (cols 2-4, rows 4 in bottom-up = top)
-% top-left means lowest col, highest row (bottom-up coords)
-\foreach \col in {2,3,4} {
-    \foreach \row in {4,3,2} {
-        \pgfmathtruncatemacro\dostrong{ifthenelse(\col==2 && \row==4,1,0)}
-    }
-}
-% top-left corner of 3x3 block: col=2, row=4 (one cell only - corner)
-% actually top-left 3x3 of the 3x3 = the whole 3x3, so second highlight is top-left cell
+% top-left cell stronger (col=2, row=4)
 \draw[thwspetrol, fill=thwspetrol!70, thick]
     (2*\cs+\xm, 4*\cs) rectangle (2*\cs+\cs-0.02+\xm, 4*\cs+\cs-0.02);
 \node[font=\scriptsize, thwspetrol] at (\xm+3*\cs, -0.35) {layer 1};
 \node[font=\scriptsize, thwsgrey]   at (\xm+3*\cs, -0.65) {RF: $3{\times}3$};
 
-% ── ARROW ────────────────────────────────────────────────────────
-\pgfmathsetmacro\xarrow{\xm+7*\cs+0.1}
-\draw[->, thick, thwsgrey] (\xm+7*\cs+0.1, 3*\cs) -- (\xm+7*\cs+\gap-0.1, 3*\cs);
-
-% ── RIGHT GRID: layer2, center pixel ─────────────────────────────
+% ── RIGHT GRID: layer2 ───────────────────────────────────────────
 \pgfmathsetmacro\xr{\xm+7*\cs+\gap}
-% plain grid
 \foreach \col in {0,...,6} {
     \foreach \row in {0,...,6} {
         \draw[thwspetrol!20, fill=thwspetrol!6]
@@ -99,5 +75,30 @@
     (3*\cs+\xr, 3*\cs) rectangle (3*\cs+\cs-0.02+\xr, 3*\cs+\cs-0.02);
 \node[font=\scriptsize, carnelian] at (\xr+3*\cs, -0.35) {layer 2};
 \node[font=\scriptsize, thwsgrey]  at (\xr+3*\cs, -0.65) {RF: $7{\times}7$};
+
+% ── ARROWS between grids ─────────────────────────────────────────
+\draw[->, thick, thwsgrey] (7*\cs+0.1, 3*\cs) -- (7*\cs+\gap-0.1, 3*\cs);
+\draw[->, thick, thwsgrey] (\xm+7*\cs+0.1, 3*\cs) -- (\xm+7*\cs+\gap-0.1, 3*\cs);
+
+% ── DASHED LINES: right grid center pixel -> middle grid 3x3 ─────
+% top-left corner of center pixel in right grid -> top-left of 3x3 in middle
+\draw[carnelian, dashed, thin]
+    (3*\cs+\xr, 3*\cs+\cs-0.02)    % top-left of center pixel
+    -- (2*\cs+\xm+\cs-0.02+7*\cs+\gap-7*\cs-\gap, 4*\cs+\cs-0.02);  % top-left of 3x3
+% simpler: compute directly
+\draw[carnelian, dashed, thin]
+    (3*\cs+\xr, 4*\cs-0.02)         % top-left corner of center pixel
+    -- (2*\cs+\xm, 5*\cs-0.02);     % top-left corner of 3x3 highlight
+\draw[carnelian, dashed, thin]
+    (4*\cs-0.02+\xr, 3*\cs)         % bottom-right corner of center pixel
+    -- (5*\cs-0.02+\xm, 2*\cs);     % bottom-right corner of 3x3 highlight
+
+% ── DASHED LINES: middle grid 3x3 -> left grid 5x5 ───────────────
+\draw[thwspetrol, dashed, thin]
+    (2*\cs+\xm, 5*\cs-0.02)         % top-left of 3x3 in middle
+    -- (1*\cs+\xl, 6*\cs-0.02);     % top-left of 5x5 in left
+\draw[thwspetrol, dashed, thin]
+    (5*\cs-0.02+\xm, 2*\cs)         % bottom-right of 3x3 in middle
+    -- (6*\cs-0.02+\xl, 1*\cs);     % bottom-right of 5x5 in left
 
 \end{tikzpicture}
