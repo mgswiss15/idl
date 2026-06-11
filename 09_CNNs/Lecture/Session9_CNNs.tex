@@ -410,7 +410,6 @@ Convolution - \alert{linear transformation!}
 \section{Pooling}
 % -------------------------------------------------------
 
-
 \begin{frame}{}
 \vskip 8em
 \begin{center}
@@ -463,61 +462,69 @@ Convolution - \alert{linear transformation!}
 
 \end{frame}
 
-% % -------------------------------------------------------
+% -------------------------------------------------------
 
-% \begin{frame}{Global Average Pooling}
+\begin{frame}{Global Average Pooling}
 
-% \vskip 2em
+\vskip 2em
 
-% \structure{Global average pooling (GAP):} averages entire feature map to a single value per channel
+\structure{Global average pooling (GAP):} averages entire feature map to a single value per channel
 
-% \[
-%     y_c = \frac{1}{H \cdot W} \sum_{i=1}^{H}\sum_{j=1}^{W} x_c[i,j]
-% \]
+\[
+    y_c = \frac{1}{H \cdot W} \sum_{i=1}^{H}\sum_{j=1}^{W} x_c[i,j]
+\]
 
-% \begin{itemize}
-%     \item Output: vector of length $C_{\text{out}}$ --- one value per feature map
-%     \item Replaces large FC layers at the end of the network
-%     \item Dramatically reduces parameters
-%     \item Forces each feature map to represent a single concept
-% \end{itemize}
+\begin{itemize}
+    \item Output: vector of length $C_{\text{out}}$ --- one value per feature map
+    \item Replaces large FC layers at the end of the network
+    \item Dramatically reduces parameters
+    \item Forces each feature map to represent a single concept
+\end{itemize}
 
-% \vskip 1em
+\vskip 1em
 
-% \structure{Used in:} ResNet, GoogLeNet, MobileNet --- modern standard
+\structure{Used in:} ResNet, GoogLeNet, MobileNet --- modern standard
 
-% \vskip 0.5em
+\vskip 0.5em
 
-% \structure{In PyTorch:} \texttt{nn.AdaptiveAvgPool2d((1,1))} followed by \texttt{flatten}
+\structure{In PyTorch:} \texttt{nn.AdaptiveAvgPool2d((1,1))} followed by \texttt{flatten}
 
-% \end{frame}
+\end{frame}
 
-% % -------------------------------------------------------
-% \section{CNN Architecture}
-% % -------------------------------------------------------
+% -------------------------------------------------------
+\section{CNN Architecture}
+% -------------------------------------------------------
 
-% \begin{frame}{CNN Building Block}
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{CNN Architecture}}
+\end{center}
+\end{frame}
 
-% \vskip 2em
+\begin{frame}{CNN Building Block}
 
-% \structure{Standard pattern:} Conv $\to$ BatchNorm $\to$ ReLU $\to$ (Pool)
+\vskip 2em
 
-% \vskip 1em
+\structure{Standard pattern:} Conv $\to$ BatchNorm $\to$ ReLU $\to$ (Pool)
+
+\vskip 1em
 
 % \begin{center}
+% \tikzsetnextfilename{cnn_block}
 % \input{\CommonPath/tikz/cnn_block.tex}
 % \end{center}
 
-% \vskip 1em
+\vskip 1em
 
-% \begin{itemize}
-%     \item \structure{Conv:} extract features via learned filters
-%     \item \structure{BatchNorm:} stabilise activations --- essential for deep CNNs
-%     \item \structure{ReLU:} non-linearity --- enables complex feature combinations
-%     \item \structure{Pool:} spatial downsampling --- reduce resolution, increase receptive field
-% \end{itemize}
+\begin{itemize}
+    \item \structure{Conv:} extract features via learned filters
+    \item \structure{BatchNorm:} stabilise activations --- essential for deep CNNs
+    \item \structure{ReLU:} non-linearity --- enables complex feature combinations
+    \item \structure{Pool:} spatial downsampling --- reduce resolution, increase receptive field
+\end{itemize}
 
-% \end{frame}
+\end{frame}
 
 % % -------------------------------------------------------
 
