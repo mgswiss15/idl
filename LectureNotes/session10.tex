@@ -10,17 +10,18 @@ Session 9 introduced the theory and architecture of convolutional neural network
 Training a CNN from scratch on every new problem would be enormously wasteful — the low-level visual features learned by early layers are essentially the same regardless of the task. Transfer learning exploits this by reusing weights learned on one task as the starting point for another. This section covers when and how to do this effectively.
 
 \subsubsection{Three Regimes}
+
 There are three distinct regimes for working with CNNs, each appropriate in different circumstances.
 
 \textbf{Training from scratch} means initialising all weights randomly and optimising the full network on your own dataset. This requires a large labelled dataset (tens of thousands to millions of examples), significant compute (days to weeks on multiple GPUs), and is only justified when you have a genuinely novel architecture, a domain so different that pretrained weights would be useless, or when you are a large organisation with the necessary resources. For most practitioners, training from scratch is not a realistic option.
 
-\textbf{Pretraining followed by fine-tuning} means starting from a model trained on a large source dataset and then continuing training on your target dataset. This is the standard approach in research settings where moderate labelled data is available and strong performance is required. The pretrained weights provide a much better initialisation than random, allowing faster convergence and better generalisation.
+\textbf{Pretraining followed by fine-tuning} means deliberately designing a two-phase training pipeline. In the first phase, you train on a large \textbf{surrogate dataset} --- one that is not your final target but is large enough to learn rich visual representations. In the second phase, you fine-tune on your small target dataset. This approach is valuable when no suitable pretrained model exists for your domain, but a related large dataset does. For example, a medical imaging researcher might pretrain on a large general radiology dataset and then fine-tune on a small collection of annotated cases for a specific rare condition. The surrogate dataset does not need to be perfectly aligned with the target task --- it just needs to be large enough to learn useful features that transfer.
 
-\textbf{Downloading and adapting} is the dominant modern workflow. Pretrained models are freely available from torchvision, timm, and HuggingFace. You download a model, replace its classification head with one appropriate for your task, and either use it as a fixed feature extractor or fine-tune some layers. This approach works surprisingly well even for tasks quite different from the original pretraining, requires relatively little data and compute, and is how the vast majority of real CNN applications are built.
+\textbf{Downloading and adapting} is the dominant modern workflow. Pretrained models are freely available from torchvision, timm, and HuggingFace, trained by large organisations on massive datasets. You download a model, replace its classification head with one appropriate for your task, and either use it as a fixed feature extractor or fine-tune some layers. This approach works surprisingly well even for tasks quite different from the original pretraining, requires relatively little data and compute, and is how the vast majority of real CNN applications are built today.
 
 \subsubsection{Why Pretrained Models Work}
 
-The reason transfer learning works so well is the hierarchical nature of what CNNs learn. As demonstrated by \textcite{Zeiler2014}, different layers of a CNN learn features at different levels of specificity:
+The reason transfer learning works so well is the hierarchical nature of what CNNs learn. As demonstrated by \cite{Zeiler2014}, different layers of a CNN learn features at different levels of specificity:
 
 \begin{itemize}
     \item \textbf{Early layers} learn general low-level features: edges, colour gradients, oriented bars. These features are essentially universal — they appear in medical images, satellite imagery, microscopy, and natural photographs alike. A filter that detects a horizontal edge in an ImageNet-trained network is equally useful for detecting edges in a chest X-ray.

@@ -7,6 +7,10 @@
         {
             "name": "pdflatex (shell-escape)",
             "tools": ["pdflatex-shell-escape"]
+        },
+        {
+            "name": "pdflatex + biber (shell-escape)",
+            "tools": ["pdflatex-shell-escape", "biber", "pdflatex-shell-escape", "pdflatex-shell-escape"]
         }
     ],
     "latex-workshop.latex.tools": [
