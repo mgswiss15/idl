@@ -55,11 +55,15 @@ Pretrain + fine-tune &
 
 \vskip 1.5em
 
-\structure{Modern workflow:} download pretrained model from HuggingFace / torchvision / timm, adapt to task
+\structure{Modern workflow:} 
+\begin{enumerate}
+  \item download pretrained from torchvision / timm / HuggingFace 
+  \item adapt to task
+\end{enumerate}
 
 \vskip 0.5em
 
-Training from scratch --- rare, reserved for large organisations with compute and data budget
+Training from scratch rare - large organisations with compute and data budget
 
 \end{frame}
 
@@ -71,10 +75,10 @@ Training from scratch --- rare, reserved for large organisations with compute an
 
 \structure{Key insight:} CNN layers learn features of increasing specificity
 
-\vskip 1em
+\vskip 2em
 
 \begin{columns}[t]
-\begin{column}{0.46\textwidth}
+\begin{column}{0.5\textwidth}
 \structure{Early layers --- general:}
 \begin{itemize}
     \item Edges, colours, orientations
@@ -82,7 +86,7 @@ Training from scratch --- rare, reserved for large organisations with compute an
     \item Transfer well to new domains
 \end{itemize}
 \end{column}
-\begin{column}{0.46\textwidth}
+\begin{column}{0.5\textwidth}
 \structure{Later layers --- specific:}
 \begin{itemize}
     \item Object parts, textures, patterns
@@ -90,17 +94,15 @@ Training from scratch --- rare, reserved for large organisations with compute an
     \item Need adaptation for new task
 \end{itemize}
 \end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 2em
 
-\structure{Pretrained on:} ImageNet (1.2M images), LAION-5B (5.8B image-text pairs), proprietary datasets
+\structure{Pretrained:} ImageNet (1.2M images), LAION-5B (5.8B image-text pairs), proprietary
 
-\vskip 0.5em
+\vskip 2em
 
-\structure{Works because:} low-level visual features are universal --- edges and textures appear in medical images, satellite imagery, microscopy
+\structure{Works because:} low-level visual features universal - edges exist in all images
 
 \end{frame}
 
@@ -111,7 +113,7 @@ Training from scratch --- rare, reserved for large organisations with compute an
 \vskip 2em
 
 \begin{columns}[t]
-\begin{column}{0.46\textwidth}
+\begin{column}{0.5\textwidth}
 \structure{Feature extraction:}
 \begin{itemize}
     \item Freeze all pretrained layers
@@ -124,7 +126,7 @@ Training from scratch --- rare, reserved for large organisations with compute an
 \alert{+} No risk of catastrophic forgetting\\
 \alert{-} Limited adaptation to new domain
 \end{column}
-\begin{column}{0.46\textwidth}
+\begin{column}{0.5\textwidth}
 \structure{Fine-tuning:}
 \begin{itemize}
     \item Unfreeze some or all layers
@@ -137,11 +139,9 @@ Training from scratch --- rare, reserved for large organisations with compute an
 \alert{-} Needs more data\\
 \alert{-} Risk of catastrophic forgetting
 \end{column}
-\begin{column}{0.04\textwidth}
-\end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 2em
 
 \structure{Catastrophic forgetting:} large learning rate overwrites pretrained weights --- use $10\times$--$100\times$ smaller learning rate than original training
 
@@ -201,7 +201,7 @@ Training from scratch --- rare, reserved for large organisations with compute an
     \item New head: standard learning rate (e.g. \texttt{1e-3})
     \item Fine-tuned layers: much smaller (e.g. \texttt{1e-5})
     \item \textbf{Discriminative learning rates} --- different rates per layer group
-    \item Warmup before fine-tuning improves stability
+    \item Warmup --- start small, increase gradually $\to$ new head stabilization
 \end{itemize}
 
 \vskip 1em
@@ -210,7 +210,6 @@ Training from scratch --- rare, reserved for large organisations with compute an
 \begin{itemize}
     \item More aggressive data augmentation when dataset is small
     \item Early stopping essential --- fine-tuning overfits quickly
-    \item Monitor validation loss, not training loss
 \end{itemize}
 
 \end{frame}
@@ -235,8 +234,8 @@ Training from scratch --- rare, reserved for large organisations with compute an
 \vskip 1em
 
 \begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{\texttt{torchvision.models}:}
+\begin{column}{0.5\textwidth}
+\structure{\href{https://pytorch.org/vision/stable/models.html}{torchvision.models}:}
 \begin{itemize}
     \item Official PyTorch model zoo
     \item ResNet, VGG, EfficientNet, ViT
@@ -244,13 +243,16 @@ Training from scratch --- rare, reserved for large organisations with compute an
     \item Simple API
 \end{itemize}
 
+\vskip 0.5em
+
 {\scriptsize\ttfamily
-model = torchvision.models\\
-\hspace{1em}.resnet50(weights='DEFAULT')
+from torchvision.models import resnet50,\\
+\hspace{1em}ResNet50\_Weights\\
+model = resnet50(weights=ResNet50\_Weights.DEFAULT)
 }
 \end{column}
-\begin{column}{0.46\textwidth}
-\structure{\texttt{timm} (PyTorch Image Models):}
+\begin{column}{0.5\textwidth}
+\structure{\href{https://github.com/huggingface/pytorch-image-models}{timm} (PyTorch Image Models):}
 \begin{itemize}
     \item 700+ pretrained models
     \item State-of-the-art architectures
@@ -258,19 +260,19 @@ model = torchvision.models\\
     \item Community standard
 \end{itemize}
 
+\vskip 0.5em
+
 {\scriptsize\ttfamily
-import timm\\
-model = timm.create\_model(\\
-\hspace{1em}'resnet50', pretrained=True)
+import timm\\[0.5em]
+model = timm.create\_model('resnet50',\\
+\hspace{1em}pretrained=True)\\
 }
-\end{column}
-\begin{column}{0.04\textwidth}
 \end{column}
 \end{columns}
 
-\vskip 1em
+\vskip 2em
 
-\structure{HuggingFace:} \texttt{transformers} library for vision-language models (CLIP, ViT, DINO)
+\structure{\href{https://huggingface.co/models?pipeline_tag=image-classification}{HuggingFace}:} \texttt{transformers} library for vision-language models (CLIP, ViT, DINO)
 
 \end{frame}
 
@@ -278,31 +280,51 @@ model = timm.create\_model(\\
 
 \begin{frame}{Adapting Pretrained Model}
 
-\vskip 2em
+\vskip 1em
 
 \structure{Replace classifier head:}
 
+\vskip 0.5em
+
 {\scriptsize\ttfamily
-model = torchvision.models.resnet50(weights='DEFAULT')\\[0.3em]
+model = resnet50(weights=ResNet50\_Weights.DEFAULT)\\[0.5em]
 \# freeze all layers\\
 for param in model.parameters():\\
-\hspace{1.5em}param.requires\_grad = False\\[0.3em]
+\hspace{1.5em}param.requires\_grad = False\\[0.5em]
 \# replace FC head\\
 num\_features = model.fc.in\_features\\
-model.fc = nn.Linear(num\_features, num\_classes)\\[0.3em]
+model.fc = nn.Linear(num\_features, num\_classes)\\[0.5em]
 \# only head parameters are trainable\\
-optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-3)
+optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-3)\\
 }
 
 \vskip 1em
 
 \structure{For fine-tuning:} unfreeze layers selectively
 
+\vskip 0.5em
+
 {\scriptsize\ttfamily
 \# unfreeze last ResNet block\\
 for param in model.layer4.parameters():\\
-\hspace{1.5em}param.requires\_grad = True
+\hspace{1.5em}param.requires\_grad = True\\[0.5em]
+
+\# fine-tune with discriminative learning rate\\
+optimizer = torch.optim.Adam([\\
+\hspace{1.5em}\{'params': model.layer4.parameters(), 'lr': 1e-5\},\\
+\hspace{1.5em}\{'params': model.fc.parameters(),     'lr': 1e-3\},\\
+])\\
 }
+
+\vspace{-5cm}\hspace{9.5cm}%
+\begin{minipage}{0.3\textwidth}
+\alert{\textbf{All basics hold:}}\\
+{\scriptsize\ttfamily
+model.train()\\
+model.eval()\\
+optimizer.zero\_grad()\\
+}
+\end{minipage}
 
 \end{frame}
 
@@ -310,33 +332,34 @@ for param in model.layer4.parameters():\\
 
 \begin{frame}{Image Transforms Pipeline}
 
-\vskip 2em
+\vskip 1em
 
-\structure{Standard training pipeline:}
+\structure{Standard training/ validation / test pipeline:}
+
+\vskip 0.5em
 
 {\scriptsize\ttfamily
-from torchvision import transforms\\[0.3em]
+from torchvision import transforms\\[0.5em]
 train\_transform = transforms.Compose([\\
 \hspace{1.5em}transforms.RandomResizedCrop(224),\\
 \hspace{1.5em}transforms.RandomHorizontalFlip(),\\
-\hspace{1.5em}transforms.ColorJitter(\\
-\hspace{3em}brightness=0.2, contrast=0.2),\\
+\hspace{1.5em}transforms.ColorJitter(brightness=0.2, contrast=0.2),\\
 \hspace{1.5em}transforms.ToTensor(),\\
-\hspace{1.5em}transforms.Normalize(\\
-\hspace{3em}mean=[0.485, 0.456, 0.406],\\
-\hspace{3em}std=[0.229, 0.224, 0.225])\\
-])\\[0.3em]
+\hspace{1.5em}transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])\\
+])\\[0.5em]
 val\_transform = transforms.Compose([\\
 \hspace{1.5em}transforms.Resize(256),\\
 \hspace{1.5em}transforms.CenterCrop(224),\\
 \hspace{1.5em}transforms.ToTensor(),\\
 \hspace{1.5em}transforms.Normalize(...)\\
-])
+])\\
 }
 
-\vskip 0.5em
-
-\structure{Note:} normalisation values are ImageNet statistics --- use same values for pretrained models
+\vskip 1em
+\begin{itemize}
+    \item No augmentation at validation/ test --- deterministic transforms only
+    \item Normalisation statistics must match pretraining - check torchvision / timm
+\end{itemize}
 
 \end{frame}
 
@@ -351,164 +374,211 @@ val\_transform = transforms.Compose([\\
 \end{center}
 \end{frame}
 
-\begin{frame}{Beyond Classification}
+\begin{frame}{Vision Tasks}
 
-\vskip 2em
+\vskip 3em
 
-\structure{Image classification:} one label per image
-
-\vskip 0.5em
-
-\structure{Richer tasks:}
-
-\vskip 0.5em
-
-\begin{columns}[t]
-\begin{column}{0.30\textwidth}
-\structure{Object detection}
-\begin{itemize}
-    \item Locate and classify multiple objects
-    \item Output: bounding boxes + labels
-\end{itemize}
+\begin{columns}[c]
+\begin{column}{0.25\textwidth}
+\centering
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco1.png}\\[0.3em]
+{\small Classification}
 \end{column}
-\begin{column}{0.30\textwidth}
-\structure{Semantic segmentation}
-\begin{itemize}
-    \item Classify every pixel
-    \item Output: label map same size as input
-\end{itemize}
+\begin{column}{0.25\textwidth}
+\centering
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco2.png}\\[0.3em]
+{\small Object detection}
 \end{column}
-\begin{column}{0.30\textwidth}
-\structure{Instance segmentation}
-\begin{itemize}
-    \item Separate instances of same class
-    \item Output: per-instance masks
-\end{itemize}
+\begin{column}{0.25\textwidth}
+\centering
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco3.png}\\[0.3em]
+{\small Semantic segmentation}
 \end{column}
-\begin{column}{0.04\textwidth}
+\begin{column}{0.25\textwidth}
+\centering
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco4.png}\\[0.3em]
+{\small Instance segmentation}
 \end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 2em
 
 \structure{All built on CNN backbones} --- pretrained feature extractors + task-specific heads
 
 \end{frame}
 
-% -------------------------------------------------------
-
-\begin{frame}{\href{https://arxiv.org/abs/1506.02640}{YOLO} \textnormal{\small (Redmon et al., 2016)}}
-
-\vskip 2em
-
-\structure{You Only Look Once} --- real-time object detection
-
-\vskip 1em
-
-\begin{columns}[c]
-\begin{column}{0.55\textwidth}
-\includegraphics[width=\textwidth]{\CommonPath/Pics/yolo.png}
-\end{column}
-\begin{column}{0.41\textwidth}
-\structure{Key idea:}
-\begin{itemize}
-    \item Divide image into $S \times S$ grid
-    \item Each cell predicts bounding boxes + confidence + class probabilities
-    \item Single forward pass --- very fast
-\end{itemize}
-
-\vskip 1em
-
-\structure{Output:} $S \times S \times (B \times 5 + C)$ tensor\\
-$B$ boxes, $C$ classes per cell
-
-\vskip 1em
-
-\structure{Now at v10} --- state of the art for real-time detection
-\end{column}
-\begin{column}{0.03\textwidth}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-% -------------------------------------------------------
-\section{Segmentation}
-% -------------------------------------------------------
-
-\begin{frame}{\href{https://arxiv.org/abs/1505.04597}{U-Net} \textnormal{\small (Ronneberger et al., 2015)}}
+\begin{frame}{Object Detection}
 
 \vskip 2em
 
 \begin{columns}[c]
-\begin{column}{0.55\textwidth}
-\includegraphics[width=\textwidth]{\CommonPath/Pics/unet.png}
+\begin{column}{0.25\textwidth}
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco2.png}
 \end{column}
-\begin{column}{0.41\textwidth}
-\structure{Encoder-decoder architecture:}
-\begin{itemize}
-    \item \structure{Encoder:} conv blocks + pooling, extract features, reduce resolution
-    \item \structure{Decoder:} upsample + conv, recover resolution
-    \item \structure{Skip connections:} concatenate encoder features to decoder --- recover spatial detail
-\end{itemize}
+\begin{column}{0.75\textwidth}
+\structure{Output:} bounding boxes + class labels + confidence scores per object instance
 
-\vskip 1em
+\vskip 0.5em
 
-Output: pixel-wise label map, same size as input
-
-\vskip 1em
-
-Originally for medical image segmentation --- now widely used
-
-\end{column}
-\begin{column}{0.03\textwidth}
+\structure{Annotation:} bounding box around every object instance
 \end{column}
 \end{columns}
-
-\end{frame}
-
-% -------------------------------------------------------
-
-\begin{frame}{Semantic vs Instance Segmentation}
 
 \vskip 2em
 
-\begin{columns}[t]
-\begin{column}{0.46\textwidth}
-\structure{Semantic segmentation:}
+\structure{Two main strategies:}
 \begin{itemize}
-    \item Every pixel assigned class label
-    \item All instances of same class merged
-    \item Cannot distinguish individual objects
-    \item U-Net, DeepLab, SegFormer
+    \item \structure{Two-stage} (\href{https://arxiv.org/abs/1506.01497}{Faster R-CNN}):  region proposal network $\to$ classify and refine --- higher accuracy, slower
+    \item \structure{One-stage} (\href{https://arxiv.org/abs/1506.02640}{YOLO}, \href{https://arxiv.org/abs/1512.02325}{SSD}): directly predict boxes and classes in single pass --- faster, real-time capable
 \end{itemize}
+
+\vskip 1em
+
+\structure{Evaluation:} IoU and mAP --- see next slide
+
+\end{frame}
+
+\begin{frame}{Evaluation --- IoU and mAP}
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.4\textwidth}
+\tikzsetnextfilename{iou}
+\input{\CommonPath/tikz/iou.tex}
 \end{column}
-\begin{column}{0.46\textwidth}
-\structure{Instance segmentation:}
+\begin{column}{0.6\textwidth}
+\structure{IoU (Intersection over Union):}
 \begin{itemize}
-    \item Separate mask per object instance
-    \item Distinguishes individual objects
-    \item Combines detection + segmentation
-    \item Mask R-CNN, YOLACT
+    \item Overlap between predicted and ground truth box
+    \item Prediction correct if IoU $>$ threshold (e.g. 0.5)
+    \item  $\text{IoU} = \dfrac{|\text{intersection}|}{|\text{union}|}  \in [0, 1]$
 \end{itemize}
-\end{column}
-\begin{column}{0.04\textwidth}
+
 \end{column}
 \end{columns}
 
-\vskip 1.5em
+\vskip 2em
+
+\structure{Average Precision (AP):}
+\begin{itemize}
+    \item Vary confidence threshold --- plot precision-recall curve
+    \item AP $=$ area under that curve per class
+    \item mAP $=$ mean AP across all classes
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Semantic Segmentation}
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.25\textwidth}
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco3.png}
+\end{column}
+\begin{column}{0.75\textwidth}
+\structure{Output:} pixel-wise class label map --- same spatial size as input
+
+\vskip 0.5em
+
+\structure{Annotation:} careful pixel-level boundary tracing
+\end{column}
+\end{columns}
+
+\vskip 2em
+
+\structure{Main strategy:} encoder-decoder architecture
+\begin{itemize}
+    \item \structure{Encoder:} CNN backbone reduces resolution, extracts features
+    \item \structure{Decoder:} upsamples back to input resolution
+    \item \structure{Skip connections:} recover spatial detail lost in encoding
+\end{itemize}
+
+\vskip 0.5em
+
+Key methods: \href{https://arxiv.org/abs/1505.04597}{U-Net}, \href{https://arxiv.org/abs/1706.05587}{DeepLab v3}, \href{https://arxiv.org/abs/2105.15203}{SegFormer}
+
+\vskip 1em
+
+\structure{Evaluation:} mean Intersection over Union (mIoU) --- mean IoU across all classes
+
+\end{frame}
+
+\begin{frame}{Instance Segmentation}
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.25\textwidth}
+\includegraphics[width=\textwidth]{\CommonPath/Pics/coco4.png}
+\end{column}
+\begin{column}{0.75\textwidth}
+\structure{Output:} per-instance binary mask + class label --- distinguishes individual objects of same class
+
+\vskip 0.5em
+
+\structure{Annotation:} per-instance pixel masks
+\end{column}
+\end{columns}
+
+\vskip 2em
+
+\structure{Main strategy:} detect then segment
+\begin{itemize}
+    \item \href{https://arxiv.org/abs/1703.06870}{Mask R-CNN}: extends Faster R-CNN with mask prediction head --- binary mask per detected box
+    \item \href{https://arxiv.org/abs/2304.02643}{SAM} (Segment Anything): foundation model, prompt-based --- any object, zero-shot
+\end{itemize}
+
+\vskip 0.5em
 
 \structure{Panoptic segmentation:} unified --- semantic for background, instance for objects --- modern standard
 
+\vskip 1em
+
+\structure{Evaluation:} mAP on masks rather than boxes
+
 \end{frame}
 
-% -------------------------------------------------------
-\section{Summary}
-% -------------------------------------------------------
+
+\begin{frame}{Annotation Cost}
+
+\vskip 2em
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Task} & \textbf{Annotation type} & \textbf{Time per image} & \textbf{Example dataset} \\
+\midrule
+Classification & Image-level label & Seconds & ImageNet \\
+Detection & Bounding boxes & Minutes & COCO \\
+Semantic segmentation & Pixel-wise labels & 30--90 min & Cityscapes \\
+Instance segmentation & Per-instance masks & Hours & COCO \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vskip 1em
+
+\begin{center}
+{\setlength{\fboxsep}{8pt}\colorbox{thwsorange!10}{\structure{Annotation cost = the real bottleneck --- not model complexity}}}
+\end{center}
+
+\vskip 1em
+
+\structure{Modern tools to reduce cost:}
+\begin{itemize}
+    \item \href{https://arxiv.org/abs/2304.02643}{SAM} (Segment Anything Model) --- interactive, prompt-based annotation assistance
+    \item Semi-supervised and weakly supervised methods --- learn from cheap labels
+    \item Synthetic data --- generate annotated data automatically
+\end{itemize}
+
+\end{frame}
+
 
 \begin{frame}{Summary}
 
-\vskip 1em
+\vskip 2em
 
 \begin{columns}[t]
 \begin{column}{0.48\textwidth}
@@ -516,7 +586,6 @@ Originally for medical image segmentation --- now widely used
 \begin{itemize}
     \item Download pretrained model
     \item Feature extraction vs fine-tuning
-    \item Discriminative learning rates
     \item Freeze progressively
 \end{itemize}
 
@@ -524,24 +593,19 @@ Originally for medical image segmentation --- now widely used
 
 \structure{Practical tools:}
 \begin{itemize}
-    \item \texttt{torchvision.models}
-    \item \texttt{timm}
-    \item HuggingFace
-    \item ImageNet normalisation
+    \item Pretrained model libraries
+    \item Image transformations
 \end{itemize}
 \end{column}
 \begin{column}{0.48\textwidth}
 \structure{Beyond classification:}
 \begin{itemize}
-    \item Detection: YOLO, bounding boxes
-    \item Segmentation: U-Net, pixel labels
-    \item Instance: Mask R-CNN
+    \item Object detection
+    \item Semantic segmentation
+    \item Instance segmentation
     \item All use CNN backbones
 \end{itemize}
 
-\vskip 0.5em
-
-\structure{Next:} L11 --- Sequence Models \& RNNs
 \end{column}
 \end{columns}
 

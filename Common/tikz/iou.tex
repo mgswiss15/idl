@@ -1,0 +1,35 @@
+% iou.tex — Intersection over Union illustration
+\begin{tikzpicture}[scale=0.8]
+
+% ground truth box (petrol)
+\draw[thwspetrol, thick, fill=thwspetrol!15]
+    (0, 0) rectangle (3.0, 2.0);
+
+% predicted box (orange)
+\draw[thwsorange, thick, fill=thwsorange!15]
+    (1.0, 0.5) rectangle (4.0, 2.8);
+
+% intersection (darker fill, drawn on top)
+\draw[thwsgrey, thick, fill=thwspetrol!35]
+    (1.0, 0.5) rectangle (3.0, 2.0);
+
+% labels
+\node[thwspetrol, font=\small, anchor=north east] at (0.9, 2.0)
+    {ground truth};
+\node[thwsorange, font=\small, anchor=south west] at (3.1, 0.5)
+    {predicted};
+\node[font=\small, anchor=center] at (2.0, 1.25)
+    {intersect.};
+
+% union brace annotation
+\draw[decorate, decoration={brace, amplitude=4pt, mirror}, thwsblue]
+    (0, -0.15) -- (4.0, -0.15);
+\node[thwsblue, font=\small, anchor=north] at (2.0, -0.3)
+    {union};
+
+% % formula
+% \node[font=\small] at (2.0, -0.85)
+%     {$\text{IoU} = \dfrac{|\text{intersection}|}{|\text{union}|}
+%     \in [0, 1]$};
+
+\end{tikzpicture}
