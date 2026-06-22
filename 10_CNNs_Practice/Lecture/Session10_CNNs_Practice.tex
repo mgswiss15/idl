@@ -28,9 +28,9 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
 \tableofcontents
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 \section{Transfer Learning}
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{Three Regimes}
 
@@ -67,7 +67,7 @@ Training from scratch rare - large organisations with compute and data budget
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{Why Pretrained Models Work}
 
@@ -79,7 +79,7 @@ Training from scratch rare - large organisations with compute and data budget
 
 \begin{columns}[t]
 \begin{column}{0.5\textwidth}
-\structure{Early layers --- general:}
+\structure{Early layers - general:}
 \begin{itemize}
     \item Edges, colours, orientations
     \item Useful across almost all visual tasks
@@ -87,7 +87,7 @@ Training from scratch rare - large organisations with compute and data budget
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
-\structure{Later layers --- specific:}
+\structure{Later layers - specific:}
 \begin{itemize}
     \item Object parts, textures, patterns
     \item Specific to source task
@@ -106,7 +106,7 @@ Training from scratch rare - large organisations with compute and data budget
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{Feature Extraction vs Fine-tuning}
 
@@ -143,11 +143,11 @@ Training from scratch rare - large organisations with compute and data budget
 
 \vskip 2em
 
-\structure{Catastrophic forgetting:} large learning rate overwrites pretrained weights --- use $10\times$--$100\times$ smaller learning rate than original training
+\structure{Catastrophic forgetting:} large learning rate overwrites pretrained weights - use $10\times$--$100\times$ smaller learning rate than original training
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{When to Use Which}
 
@@ -181,7 +181,7 @@ Training from scratch rare - large organisations with compute and data budget
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{Practical Tuning}
 
@@ -189,7 +189,7 @@ Training from scratch rare - large organisations with compute and data budget
 
 \structure{Freezing strategy:}
 \begin{itemize}
-    \item Start fully frozen --- train head only
+    \item Start fully frozen - train head only
     \item Unfreeze progressively from top (later layers first)
     \item Earlier layers = more general = freeze longer
 \end{itemize}
@@ -200,8 +200,8 @@ Training from scratch rare - large organisations with compute and data budget
 \begin{itemize}
     \item New head: standard learning rate (e.g. \texttt{1e-3})
     \item Fine-tuned layers: much smaller (e.g. \texttt{1e-5})
-    \item \textbf{Discriminative learning rates} --- different rates per layer group
-    \item Warmup --- start small, increase gradually $\to$ new head stabilization
+    \item \textbf{Discriminative learning rates} - different rates per layer group
+    \item Warmup - start small, increase gradually $\to$ new head stabilization
 \end{itemize}
 
 \vskip 1em
@@ -209,14 +209,14 @@ Training from scratch rare - large organisations with compute and data budget
 \structure{Other considerations:}
 \begin{itemize}
     \item More aggressive data augmentation when dataset is small
-    \item Early stopping essential --- fine-tuning overfits quickly
+    \item Early stopping essential - fine-tuning overfits quickly
 \end{itemize}
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 \section{Practical CNN Training}
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{}
 \vskip 8em
@@ -276,7 +276,7 @@ model = timm.create\_model('resnet50',\\
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{Adapting Pretrained Model}
 
@@ -328,7 +328,7 @@ optimizer.zero\_grad()\\
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{Image Transforms Pipeline}
 
@@ -357,15 +357,15 @@ val\_transform = transforms.Compose([\\
 
 \vskip 1em
 \begin{itemize}
-    \item No augmentation at validation/ test --- deterministic transforms only
+    \item No augmentation at validation/ test - deterministic transforms only
     \item Normalisation statistics must match pretraining - check torchvision / timm
 \end{itemize}
 
 \end{frame}
 
-% -------------------------------------------------------
+% -------------------
 \section{Beyond Classification}
-% -------------------------------------------------------
+% -------------------
 
 \begin{frame}{}
 \vskip 8em
@@ -403,7 +403,7 @@ val\_transform = transforms.Compose([\\
 
 \vskip 2em
 
-\structure{All built on CNN backbones} --- pretrained feature extractors + task-specific heads
+\structure{All built on CNN backbones} - pretrained feature extractors + task-specific heads
 
 \end{frame}
 
@@ -428,17 +428,17 @@ val\_transform = transforms.Compose([\\
 
 \structure{Two main strategies:}
 \begin{itemize}
-    \item \structure{Two-stage} (\href{https://arxiv.org/abs/1506.01497}{Faster R-CNN}):  region proposal network $\to$ classify and refine --- higher accuracy, slower
-    \item \structure{One-stage} (\href{https://arxiv.org/abs/1506.02640}{YOLO}, \href{https://arxiv.org/abs/1512.02325}{SSD}): directly predict boxes and classes in single pass --- faster, real-time capable
+    \item \structure{Two-stage} (\href{https://arxiv.org/abs/1506.01497}{Faster R-CNN}):  region proposal network $\to$ classify and refine - higher accuracy, slower
+    \item \structure{One-stage} (\href{https://arxiv.org/abs/1506.02640}{YOLO}, \href{https://arxiv.org/abs/1512.02325}{SSD}): directly predict boxes and classes in single pass - faster, real-time capable
 \end{itemize}
 
 \vskip 1em
 
-\structure{Evaluation:} IoU and mAP --- see next slide
+\structure{Evaluation:} IoU and mAP - see next slide
 
 \end{frame}
 
-\begin{frame}{Evaluation --- IoU and mAP}
+\begin{frame}{Evaluation - IoU and mAP}
 
 \vskip 2em
 
@@ -462,7 +462,7 @@ val\_transform = transforms.Compose([\\
 
 \structure{Average Precision (AP):}
 \begin{itemize}
-    \item Vary confidence threshold --- plot precision-recall curve
+    \item Vary confidence threshold - plot precision-recall curve
     \item AP $=$ area under that curve per class
     \item mAP $=$ mean AP across all classes
 \end{itemize}
@@ -478,7 +478,7 @@ val\_transform = transforms.Compose([\\
 \includegraphics[width=\textwidth]{\CommonPath/Pics/coco3.png}
 \end{column}
 \begin{column}{0.75\textwidth}
-\structure{Output:} pixel-wise class label map --- same spatial size as input
+\structure{Output:} pixel-wise class label map - same spatial size as input
 
 \vskip 0.5em
 
@@ -501,7 +501,7 @@ Key methods: \href{https://arxiv.org/abs/1505.04597}{U-Net}, \href{https://arxiv
 
 \vskip 1em
 
-\structure{Evaluation:} mean Intersection over Union (mIoU) --- mean IoU across all classes
+\structure{Evaluation:} mean Intersection over Union (mIoU) - mean IoU across all classes
 
 \end{frame}
 
@@ -514,7 +514,7 @@ Key methods: \href{https://arxiv.org/abs/1505.04597}{U-Net}, \href{https://arxiv
 \includegraphics[width=\textwidth]{\CommonPath/Pics/coco4.png}
 \end{column}
 \begin{column}{0.75\textwidth}
-\structure{Output:} per-instance binary mask + class label --- distinguishes individual objects of same class
+\structure{Output:} per-instance binary mask + class label - distinguishes individual objects of same class
 
 \vskip 0.5em
 
@@ -526,13 +526,13 @@ Key methods: \href{https://arxiv.org/abs/1505.04597}{U-Net}, \href{https://arxiv
 
 \structure{Main strategy:} detect then segment
 \begin{itemize}
-    \item \href{https://arxiv.org/abs/1703.06870}{Mask R-CNN}: extends Faster R-CNN with mask prediction head --- binary mask per detected box
-    \item \href{https://arxiv.org/abs/2304.02643}{SAM} (Segment Anything): foundation model, prompt-based --- any object, zero-shot
+    \item \href{https://arxiv.org/abs/1703.06870}{Mask R-CNN}: extends Faster R-CNN with mask prediction head - binary mask per detected box
+    \item \href{https://arxiv.org/abs/2304.02643}{SAM} (Segment Anything): foundation model, prompt-based - any object, zero-shot
 \end{itemize}
 
 \vskip 0.5em
 
-\structure{Panoptic segmentation:} unified --- semantic for background, instance for objects --- modern standard
+\structure{Panoptic segmentation:} unified - semantic for background, instance for objects - modern standard
 
 \vskip 1em
 
@@ -561,16 +561,16 @@ Instance segmentation & Per-instance masks & Hours & COCO \\
 \vskip 1em
 
 \begin{center}
-{\setlength{\fboxsep}{8pt}\colorbox{thwsorange!10}{\structure{Annotation cost = the real bottleneck --- not model complexity}}}
+{\setlength{\fboxsep}{8pt}\colorbox{thwsorange!10}{\structure{Annotation cost = the real bottleneck - not model complexity}}}
 \end{center}
 
 \vskip 1em
 
 \structure{Modern tools to reduce cost:}
 \begin{itemize}
-    \item \href{https://arxiv.org/abs/2304.02643}{SAM} (Segment Anything Model) --- interactive, prompt-based annotation assistance
-    \item Semi-supervised and weakly supervised methods --- learn from cheap labels
-    \item Synthetic data --- generate annotated data automatically
+    \item \href{https://arxiv.org/abs/2304.02643}{SAM} (Segment Anything Model) - interactive, prompt-based annotation assistance
+    \item Semi-supervised and weakly supervised methods - learn from cheap labels
+    \item Synthetic data - generate annotated data automatically
 \end{itemize}
 
 \end{frame}
