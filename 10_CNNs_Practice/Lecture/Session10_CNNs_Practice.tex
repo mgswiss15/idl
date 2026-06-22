@@ -1,0 +1,550 @@
+\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller, t]{beamer}
+\newcommand{\CommonPath}{../../Common}
+\newcommand{\coursename}{Intro to DL - S10}
+\usepackage{\CommonPath/slidespreamble}
+\usepackage{\CommonPath/math_commands}
+\setbeameroption{hide notes}
+
+\title{Introduction to Deep Learning}
+\subtitle{Session 10: CNNs in Practice \\[1em]
+\small May 2026}
+\author{Magda Gregorová - \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}
+\institute{\includegraphics[width=0.3\textwidth]{thws-logo_vert_en_orange-rgb.png}}
+\hypersetup{
+pdftitle={Introduction to Deep Learning},
+pdfauthor={Magda Gregorová},
+pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, torchvision}
+}
+\date{{\color{skyblue1}\footnotesize Licensed according to
+\href{https://creativecommons.org/licenses/by-sa/4.0}{\color{skyblue1}CC-BY-SA 4.0}}}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+\begin{frame}{Lecture Overview}
+\tableofcontents
+\end{frame}
+
+% -------------------------------------------------------
+\section{Transfer Learning}
+% -------------------------------------------------------
+
+\begin{frame}{Three Regimes}
+
+\vskip 2em
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Regime} & \textbf{When} & \textbf{Data needed} & \textbf{Compute} \\
+\midrule
+Train from scratch &
+    Novel architecture, very & Large labelled & Very high \\
+ & different domain & dataset & \\[0.5em]
+Pretrain + fine-tune &
+    Moderate dataset, & Moderate & Medium \\
+ & research setting & & \\[0.5em]
+\alert{Download \& adapt} &
+    \alert{Most practical tasks} & \alert{Small--medium} & \alert{Low} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vskip 1.5em
+
+\structure{Modern workflow:} download pretrained model from HuggingFace / torchvision / timm, adapt to task
+
+\vskip 0.5em
+
+Training from scratch --- rare, reserved for large organisations with compute and data budget
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{Why Pretrained Models Work}
+
+\vskip 2em
+
+\structure{Key insight:} CNN layers learn features of increasing specificity
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Early layers --- general:}
+\begin{itemize}
+    \item Edges, colours, orientations
+    \item Useful across almost all visual tasks
+    \item Transfer well to new domains
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Later layers --- specific:}
+\begin{itemize}
+    \item Object parts, textures, patterns
+    \item Specific to source task
+    \item Need adaptation for new task
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1.5em
+
+\structure{Pretrained on:} ImageNet (1.2M images), LAION-5B (5.8B image-text pairs), proprietary datasets
+
+\vskip 0.5em
+
+\structure{Works because:} low-level visual features are universal --- edges and textures appear in medical images, satellite imagery, microscopy
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{Feature Extraction vs Fine-tuning}
+
+\vskip 2em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Feature extraction:}
+\begin{itemize}
+    \item Freeze all pretrained layers
+    \item Replace and train FC head only
+\end{itemize}
+
+\vskip 0.5em
+\alert{+} Fast, few trainable parameters\\
+\alert{+} Works with small datasets\\
+\alert{+} No risk of catastrophic forgetting\\
+\alert{-} Limited adaptation to new domain
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Fine-tuning:}
+\begin{itemize}
+    \item Unfreeze some or all layers
+    \item Train with small learning rate
+\end{itemize}
+
+\vskip 0.5em
+\alert{+} Better performance\\
+\alert{+} Adapts to new domain\\
+\alert{-} Needs more data\\
+\alert{-} Risk of catastrophic forgetting
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1.5em
+
+\structure{Catastrophic forgetting:} large learning rate overwrites pretrained weights --- use $10\times$--$100\times$ smaller learning rate than original training
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{When to Use Which}
+
+\vskip 2em
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+ & \textbf{Similar domain} & \textbf{Different domain} \\
+\midrule
+\structure{Small dataset} &
+    Feature extraction &
+    Feature extraction \\
+ & (freeze all, train head) & (try different layer depths) \\[0.8em]
+\structure{Large dataset} &
+    Fine-tune all layers &
+    Fine-tune all layers \\
+ & (small learning rate) & (more epochs, careful tuning) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vskip 1.5em
+
+\structure{Rule of thumb:}
+\begin{itemize}
+    \item Less data $\to$ freeze more layers
+    \item More similar to source domain $\to$ reuse more layers
+    \item Always start with feature extraction, add fine-tuning if needed
+\end{itemize}
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{Practical Tuning}
+
+\vskip 1em
+
+\structure{Freezing strategy:}
+\begin{itemize}
+    \item Start fully frozen --- train head only
+    \item Unfreeze progressively from top (later layers first)
+    \item Earlier layers = more general = freeze longer
+\end{itemize}
+
+\vskip 1em
+
+\structure{Learning rates:}
+\begin{itemize}
+    \item New head: standard learning rate (e.g. \texttt{1e-3})
+    \item Fine-tuned layers: much smaller (e.g. \texttt{1e-5})
+    \item \textbf{Discriminative learning rates} --- different rates per layer group
+    \item Warmup before fine-tuning improves stability
+\end{itemize}
+
+\vskip 1em
+
+\structure{Other considerations:}
+\begin{itemize}
+    \item More aggressive data augmentation when dataset is small
+    \item Early stopping essential --- fine-tuning overfits quickly
+    \item Monitor validation loss, not training loss
+\end{itemize}
+
+\end{frame}
+
+% -------------------------------------------------------
+\section{Practical CNN Training}
+% -------------------------------------------------------
+
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Practical CNN Training}}
+\end{center}
+\end{frame}
+
+\begin{frame}{torchvision and timm}
+
+\vskip 2em
+
+\structure{Two main sources of pretrained models:}
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{\texttt{torchvision.models}:}
+\begin{itemize}
+    \item Official PyTorch model zoo
+    \item ResNet, VGG, EfficientNet, ViT
+    \item Pretrained on ImageNet
+    \item Simple API
+\end{itemize}
+
+{\scriptsize\ttfamily
+model = torchvision.models\\
+\hspace{1em}.resnet50(weights='DEFAULT')
+}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{\texttt{timm} (PyTorch Image Models):}
+\begin{itemize}
+    \item 700+ pretrained models
+    \item State-of-the-art architectures
+    \item Multiple pretraining datasets
+    \item Community standard
+\end{itemize}
+
+{\scriptsize\ttfamily
+import timm\\
+model = timm.create\_model(\\
+\hspace{1em}'resnet50', pretrained=True)
+}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1em
+
+\structure{HuggingFace:} \texttt{transformers} library for vision-language models (CLIP, ViT, DINO)
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{Adapting Pretrained Model}
+
+\vskip 2em
+
+\structure{Replace classifier head:}
+
+{\scriptsize\ttfamily
+model = torchvision.models.resnet50(weights='DEFAULT')\\[0.3em]
+\# freeze all layers\\
+for param in model.parameters():\\
+\hspace{1.5em}param.requires\_grad = False\\[0.3em]
+\# replace FC head\\
+num\_features = model.fc.in\_features\\
+model.fc = nn.Linear(num\_features, num\_classes)\\[0.3em]
+\# only head parameters are trainable\\
+optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-3)
+}
+
+\vskip 1em
+
+\structure{For fine-tuning:} unfreeze layers selectively
+
+{\scriptsize\ttfamily
+\# unfreeze last ResNet block\\
+for param in model.layer4.parameters():\\
+\hspace{1.5em}param.requires\_grad = True
+}
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{Image Transforms Pipeline}
+
+\vskip 2em
+
+\structure{Standard training pipeline:}
+
+{\scriptsize\ttfamily
+from torchvision import transforms\\[0.3em]
+train\_transform = transforms.Compose([\\
+\hspace{1.5em}transforms.RandomResizedCrop(224),\\
+\hspace{1.5em}transforms.RandomHorizontalFlip(),\\
+\hspace{1.5em}transforms.ColorJitter(\\
+\hspace{3em}brightness=0.2, contrast=0.2),\\
+\hspace{1.5em}transforms.ToTensor(),\\
+\hspace{1.5em}transforms.Normalize(\\
+\hspace{3em}mean=[0.485, 0.456, 0.406],\\
+\hspace{3em}std=[0.229, 0.224, 0.225])\\
+])\\[0.3em]
+val\_transform = transforms.Compose([\\
+\hspace{1.5em}transforms.Resize(256),\\
+\hspace{1.5em}transforms.CenterCrop(224),\\
+\hspace{1.5em}transforms.ToTensor(),\\
+\hspace{1.5em}transforms.Normalize(...)\\
+])
+}
+
+\vskip 0.5em
+
+\structure{Note:} normalisation values are ImageNet statistics --- use same values for pretrained models
+
+\end{frame}
+
+% -------------------------------------------------------
+\section{Beyond Classification}
+% -------------------------------------------------------
+
+\begin{frame}{}
+\vskip 8em
+\begin{center}
+{\Large \structure{Beyond Classification}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Beyond Classification}
+
+\vskip 2em
+
+\structure{Image classification:} one label per image
+
+\vskip 0.5em
+
+\structure{Richer tasks:}
+
+\vskip 0.5em
+
+\begin{columns}[t]
+\begin{column}{0.30\textwidth}
+\structure{Object detection}
+\begin{itemize}
+    \item Locate and classify multiple objects
+    \item Output: bounding boxes + labels
+\end{itemize}
+\end{column}
+\begin{column}{0.30\textwidth}
+\structure{Semantic segmentation}
+\begin{itemize}
+    \item Classify every pixel
+    \item Output: label map same size as input
+\end{itemize}
+\end{column}
+\begin{column}{0.30\textwidth}
+\structure{Instance segmentation}
+\begin{itemize}
+    \item Separate instances of same class
+    \item Output: per-instance masks
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1.5em
+
+\structure{All built on CNN backbones} --- pretrained feature extractors + task-specific heads
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{\href{https://arxiv.org/abs/1506.02640}{YOLO} \textnormal{\small (Redmon et al., 2016)}}
+
+\vskip 2em
+
+\structure{You Only Look Once} --- real-time object detection
+
+\vskip 1em
+
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
+\includegraphics[width=\textwidth]{\CommonPath/Pics/yolo.png}
+\end{column}
+\begin{column}{0.41\textwidth}
+\structure{Key idea:}
+\begin{itemize}
+    \item Divide image into $S \times S$ grid
+    \item Each cell predicts bounding boxes + confidence + class probabilities
+    \item Single forward pass --- very fast
+\end{itemize}
+
+\vskip 1em
+
+\structure{Output:} $S \times S \times (B \times 5 + C)$ tensor\\
+$B$ boxes, $C$ classes per cell
+
+\vskip 1em
+
+\structure{Now at v10} --- state of the art for real-time detection
+\end{column}
+\begin{column}{0.03\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% -------------------------------------------------------
+\section{Segmentation}
+% -------------------------------------------------------
+
+\begin{frame}{\href{https://arxiv.org/abs/1505.04597}{U-Net} \textnormal{\small (Ronneberger et al., 2015)}}
+
+\vskip 2em
+
+\begin{columns}[c]
+\begin{column}{0.55\textwidth}
+\includegraphics[width=\textwidth]{\CommonPath/Pics/unet.png}
+\end{column}
+\begin{column}{0.41\textwidth}
+\structure{Encoder-decoder architecture:}
+\begin{itemize}
+    \item \structure{Encoder:} conv blocks + pooling, extract features, reduce resolution
+    \item \structure{Decoder:} upsample + conv, recover resolution
+    \item \structure{Skip connections:} concatenate encoder features to decoder --- recover spatial detail
+\end{itemize}
+
+\vskip 1em
+
+Output: pixel-wise label map, same size as input
+
+\vskip 1em
+
+Originally for medical image segmentation --- now widely used
+
+\end{column}
+\begin{column}{0.03\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% -------------------------------------------------------
+
+\begin{frame}{Semantic vs Instance Segmentation}
+
+\vskip 2em
+
+\begin{columns}[t]
+\begin{column}{0.46\textwidth}
+\structure{Semantic segmentation:}
+\begin{itemize}
+    \item Every pixel assigned class label
+    \item All instances of same class merged
+    \item Cannot distinguish individual objects
+    \item U-Net, DeepLab, SegFormer
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\structure{Instance segmentation:}
+\begin{itemize}
+    \item Separate mask per object instance
+    \item Distinguishes individual objects
+    \item Combines detection + segmentation
+    \item Mask R-CNN, YOLACT
+\end{itemize}
+\end{column}
+\begin{column}{0.04\textwidth}
+\end{column}
+\end{columns}
+
+\vskip 1.5em
+
+\structure{Panoptic segmentation:} unified --- semantic for background, instance for objects --- modern standard
+
+\end{frame}
+
+% -------------------------------------------------------
+\section{Summary}
+% -------------------------------------------------------
+
+\begin{frame}{Summary}
+
+\vskip 1em
+
+\begin{columns}[t]
+\begin{column}{0.48\textwidth}
+\structure{Transfer learning:}
+\begin{itemize}
+    \item Download pretrained model
+    \item Feature extraction vs fine-tuning
+    \item Discriminative learning rates
+    \item Freeze progressively
+\end{itemize}
+
+\vskip 0.5em
+
+\structure{Practical tools:}
+\begin{itemize}
+    \item \texttt{torchvision.models}
+    \item \texttt{timm}
+    \item HuggingFace
+    \item ImageNet normalisation
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\structure{Beyond classification:}
+\begin{itemize}
+    \item Detection: YOLO, bounding boxes
+    \item Segmentation: U-Net, pixel labels
+    \item Instance: Mask R-CNN
+    \item All use CNN backbones
+\end{itemize}
+
+\vskip 0.5em
+
+\structure{Next:} L11 --- Sequence Models \& RNNs
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\end{document}
