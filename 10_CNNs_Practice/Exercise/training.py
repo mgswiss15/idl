@@ -6,11 +6,11 @@ MG 24/6/2026
 
 import torch
 
-def train_model(model, train_loader, val_loader, criterion, optimizer, device):
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device):
     train_losses = []
     val_losses = []
 
-    for epoch in range(3):
+    for epoch in range(num_epochs):
         model.train()
         train_loss = 0.0
         for images, labels in train_loader:

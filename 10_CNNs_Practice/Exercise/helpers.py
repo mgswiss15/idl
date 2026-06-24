@@ -15,6 +15,16 @@ def plot_losses(train_losses, val_losses):
     plt.legend()
 
 
+def plot_data_examples(dataset):
+    fig, axes = plt.subplots(1, 5, figsize=(10, 4))
+    for ax, idx in zip(axes.ravel(), range(10)):
+        img, label = dataset[idx]
+        ax.imshow(img.permute(1, 2, 0))
+        ax.set_title(label)
+        ax.axis("off")
+    plt.tight_layout()
+
+
 def get_mean_std(dataset):
     loader = DataLoader(dataset, batch_size=256, shuffle=False)
 

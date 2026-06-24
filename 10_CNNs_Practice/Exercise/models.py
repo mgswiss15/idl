@@ -21,5 +21,5 @@ class SimpleCNN(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = self.fc(x.flatten())
+        x = self.fc(x.flatten(1))
         return x
