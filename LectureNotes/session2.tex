@@ -17,6 +17,7 @@ The goal is to learn a parameterised function $f_\theta: \inspace \to \outspace$
 
 \begin{figure}[h]
  \centering
+ \tikzsetnextfilename{supervised_learning}
  \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/supervised_learning.tex}}
  \caption{Supervised learning: given data pairs $(\vx, y)$, learn a model $f_\theta$ that approximates the true relationship $f^*$.}
  \label{fig:supervised_learning}
@@ -28,6 +29,7 @@ Supervised learning encompasses two fundamental task types. In \textbf{regressio
  \centering
  \begin{minipage}{0.45\textwidth}
  \centering
+ \tikzsetnextfilename{classification_2d}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/classification_2d.tex}}
  \caption{Binary classification: two classes separated by a decision boundary.}
  \label{fig:classification_2d}
@@ -35,6 +37,7 @@ Supervised learning encompasses two fundamental task types. In \textbf{regressio
  \hfill
  \begin{minipage}{0.48\textwidth}
  \centering
+ \tikzsetnextfilename{regression_1d}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d.tex}}
  \caption{Regression: fitting a continuous function to data points.}
  \label{fig:regression_1d}
@@ -54,6 +57,7 @@ The simplest parameterised function we will work with is an affine function - of
 
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
+ \tikzsetnextfilename{linear_neuron}
  \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/linear_neuron.tex}}
  \caption{Graphical representation of the linear model as a single neuron.}
  \label{fig:linear_neuron}
@@ -66,6 +70,7 @@ The representational capacity of the linear model is severely limited - it can o
  \centering
  \begin{minipage}{0.5\textwidth}
  \centering
+ \tikzsetnextfilename{regression_1d_line}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_line.tex}}
  \caption{A linear model fits the data well when the true relationship is linear.}
  \label{fig:regression_linear}
@@ -73,6 +78,7 @@ The representational capacity of the linear model is severely limited - it can o
  \hfill
  \begin{minipage}{0.43\textwidth}
  \centering
+ \tikzsetnextfilename{regression_1d_nonlinear}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_nonlinear.tex}}
  \caption{A linear model fails to capture nonlinear relationships in the data.}
  \label{fig:regression_nonlinear}
@@ -87,6 +93,7 @@ This observation motivates the central question of the lecture: how can we const
 
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
+ \tikzsetnextfilename{relu_neuron}
  \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu_neuron.tex}}
  \caption{A nonlinear neuron applies activation function $\act$ to the linear combination of its inputs.}
  \label{fig:relu_neuron}
@@ -99,6 +106,7 @@ The activation function is what gives the neural network its expressive power -c
 
 \begin{wrapfigure}{l}{0.3\textwidth}
  \centering
+ \tikzsetnextfilename{relu}
  \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/relu.tex}}
  \caption{The ReLU activation function: inactive (zero) for $x \leq 0$, active (linear) for $x > 0$.}
  \label{fig:relu}
@@ -109,6 +117,7 @@ The choice of activation function matters. The most widely used activation funct
 \end{equation}
 \begin{wrapfigure}{r}{0.3\textwidth}
  \centering
+ \tikzsetnextfilename{regression_1d_relu_simple}
  \resizebox{0.25\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_relu_simple.tex}}
  \caption{A single ReLU applied to a linear function produces one breakpoint at $x = -\theta_0 / \theta_1$.}
  \label{fig:relu_single}
@@ -130,11 +139,13 @@ Each term contributes one breakpoint at $x = -\theta_{j0} / \theta_{j1}$. The re
  \centering
  \begin{minipage}{0.48\textwidth}
  \centering
+ \tikzsetnextfilename{relu_combi_simple_plot}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combi_simple_plot.tex}}
  \end{minipage}
  \hfill
  \begin{minipage}{0.48\textwidth}
  \centering
+ \tikzsetnextfilename{relu_combi_double_plot}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combi_double_plot.tex}}
  \end{minipage}
  \caption{Left: combination of two ReLU functions producing two breakpoint. Right: combination of three ReLU functions producing three breakpoints. More neurons yield more expressive functions.}
@@ -149,16 +160,19 @@ Note that in the full representation (left), the input $x$ and bias constant $1$
  \centering
  \begin{minipage}{0.32\textwidth}
  \centering
+ \tikzsetnextfilename{relu_combination}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combination.tex}}
  \end{minipage}
  \hfill
  \begin{minipage}{0.32\textwidth}
  \centering
+ \tikzsetnextfilename{relu_combination_midway}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combination_midway.tex}}
  \end{minipage}
  \hfill
  \begin{minipage}{0.32\textwidth}
  \centering
+ \tikzsetnextfilename{relu_combination_simple}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/relu_combination_simple.tex}}
  \end{minipage}
  \caption{Three levels of abstraction for a two-neuron network. Left: full representation with all weights $\theta_{j1}, \theta_{j0}$ and output weights labelled. Centre: simplified representation with bias nodes shown as dashed. Right: compact schematic showing topology only.}
@@ -181,11 +195,13 @@ Each hidden neuron $j$ has its own parameters $\theta_{j1}$ (weight) and $\theta
  \centering
  \begin{minipage}{0.45\textwidth}
  \centering
+ \tikzsetnextfilename{mlp_single_input}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/mlp_single_input.tex}}
  \end{minipage}
  \hfill
  \begin{minipage}{0.52\textwidth}
  \centering
+ \tikzsetnextfilename{mlp_multi_input}
  \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/mlp_multi_input.tex}}
  \end{minipage}
  \caption{Left: one-hidden-layer network with a single input $x$ and $k$ hidden neurons. Right: extension to $d$ inputs $\vx = (x_1, \ldots, x_d)$. Each hidden neuron applies a ReLU activation; the output neuron computes a plain weighted sum.}
@@ -209,6 +225,7 @@ The piecewise linear intuition suggests that a shallow network with enough neuro
 
 \begin{wrapfigure}{r}{0.3\textwidth}
     \centering
+    \tikzsetnextfilename{regression_1d_piecewise}
     \resizebox{0.28\textwidth}{!}{\input{\CommonPath/tikz/regression_1d_piecewise.tex}}
     \caption{A piecewise linear function approximating a nonlinear curve.}
     \label{fig:piecewise_approx}
@@ -249,6 +266,7 @@ The same shallow network architecture used for regression - a linear combination
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
+        \tikzsetnextfilename{classification_2d_math}
         \resizebox{0.9\textwidth}{!}{\input{\CommonPath/tikz/classification_2d_math.tex}}
         \caption{A linear classifier separates two classes with a hyperplane. The weight vector $\pvec$ is normal to the decision boundary.}
         \label{fig:classification_linear}
@@ -256,6 +274,7 @@ The same shallow network architecture used for regression - a linear combination
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
+        \tikzsetnextfilename{classification_2d_nonlinear}
         \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/classification_2d_nonlinear.tex}}
         \caption{A nonlinearly separable dataset. A neural network with a nonlinear decision boundary $f_\theta(\vx) = 0$ is required.}
         \label{fig:classification_nonlinear}
@@ -286,6 +305,7 @@ Indeed, the mathematical objects we have been working with - piecewise linear fu
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
+        \tikzsetnextfilename{artificial_neuron}
         \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/artificial_neuron.tex}}
         \caption{The artificial neuron: a weighted sum of inputs followed by a nonlinear activation function.}
         \label{fig:artificial_neuron}

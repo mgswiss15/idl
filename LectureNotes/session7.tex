@@ -48,6 +48,7 @@ Two failure modes arise from the training-population gap:
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
+\tikzsetnextfilename{overfit_underfit}
 \resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/overfit_underfit.tex}}
 \caption{Training and validation loss over epochs. Train loss decreases monotonically; validation loss initially decreases then increases as the model begins to overfit. The gap between the two curves is the generalisation gap.}
 \label{fig:overfit_underfit}
@@ -86,6 +87,7 @@ A theoretical underpinning for this observation comes from the connection to sta
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
+\tikzsetnextfilename{flat_sharp_minima}
 \resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/flat_sharp_minima.tex}}
 \caption{Sharp and flat minima. The sharp minimum (carnelian) has high curvature - a small shift in parameters causes a large increase in loss. The flat minimum (petrol) has low curvature - loss remains low over a wide region of parameter space.}
 \label{fig:flat_sharp}
@@ -101,6 +103,7 @@ The practical importance of this observation was demonstrated by \textcite{Keska
 
 \begin{wrapfigure}{r}{0.42\textwidth}
 \centering
+\tikzsetnextfilename{double_descent}
 \resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/double_descent.tex}}
 \caption{Double descent. The classical U-shaped bias-variance curve (left) predicts a single optimal complexity. Beyond the interpolation threshold, test loss decreases again as model complexity grows further.}
 \label{fig:double_descent}
@@ -136,6 +139,7 @@ In PyTorch, weight decay is available via the \texttt{weight\_decay} parameter w
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
+\tikzsetnextfilename{dropout}
 \resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/dropout.tex}}
 \caption{Dropout during training. One neuron (grey, crossed) is randomly zeroed. Each forward pass uses a different subnetwork.}
 \label{fig:dropout}
@@ -208,6 +212,7 @@ Note that invariance can also be built directly into the architecture rather tha
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
+\tikzsetnextfilename{early_stopping}
 \resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/early_stopping.tex}}
 \caption{Early stopping. Training loss decreases monotonically; validation loss eventually increases. The best model is saved at the validation minimum and deployed rather than the final model.}
 \label{fig:early_stopping}
@@ -300,6 +305,7 @@ This sounds alarming: ReLU has zero gradient for half the input space. In a deep
 In practice, the dying ReLU problem is less severe than it first appears. A neuron dies only if its pre-activation is negative for \emph{all} training examples simultaneously - in a diverse dataset, pre-activations vary across examples and the average gradient over a mini-batch is nonzero. He initialisation further reduces the risk by keeping pre-activations in a healthy range at the start of training. Batch normalisation helps too: by keeping the pre-activation distribution centred at zero throughout training, it prevents the drift toward predominantly negative values that would increase the risk of neurons dying. It also guarantees that approximately half the pre-activations remain positive at all times - and for sufficiently wide networks, this is always enough active neurons to represent the necessary functions. ReLU therefore remains the recommended baseline: simple, computationally cheap, and well-protected by the standard training recipe of He initialisation and batch normalisation.
 \begin{wrapfigure}{r}{0.38\textwidth}
 \centering
+\tikzsetnextfilename{activation_functions}
 \resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/activation_functions.tex}}
 \caption{ReLU, LeakyReLU ($\alpha=0.1$), and ELU. LeakyReLU introduces a small negative slope; ELU uses a smooth exponential curve. Both maintain a nonzero gradient for negative pre-activations.}
 \label{fig:activation_functions}

@@ -294,15 +294,15 @@ The publication of \textbf{AlexNet} by \textcite{Krizhevsky2012} in 2012 is gene
 that stunned the computer vision community: it achieved a top-5 error rate of 15.3\%, compared to 26.2\% for the second-placed entry. The architecture -- five convolutional layers followed by three fully connected layers, with approximately 60 million parameters -- was not radically different in structure from LeNet, but it incorporated four innovations that collectively made deep CNNs tractable. \textbf{ReLU activations} replaced sigmoid and tanh nonlinearities, dramatically accelerating training by avoiding the vanishing gradient problem that afflicts saturating activations. \textbf{Dropout} was applied in the fully connected layers as a regulariser. \textbf{Data augmentation} -- random crops and horizontal flips during training -- reduced overfitting. And critically, the network was trained on two \textbf{NVIDIA GTX 580 GPUs}, demonstrating that GPU parallelism could make large-scale CNN training feasible.
 
 \subsubsection{VGGNet}
-
-\textbf{VGGNet} \parencite{Simonyan2015} pursued a different question: what is the effect of network depth when all other design choices are held constant? The answer was a principled simplification: use only $3 \times 3$ filters throughout the entire network, and increase depth systematically. The flagship VGG-16 model uses 13 convolutional layers and 3 fully connected layers with approximately 138 million parameters.
-
 \begin{wrapfigure}{r}{0.3\textwidth}
     \centering
     \includegraphics[width=0.28\textwidth]{\CommonPath/Pics/vgg.png}
     \caption{VGG architecture: uniform $3\times3$ filters stacked to increasing depth.}
     \label{fig:vgg}
 \end{wrapfigure}
+
+\textbf{VGGNet} \parencite{Simonyan2015} pursued a different question: what is the effect of network depth when all other design choices are held constant? The answer was a principled simplification: use only $3 \times 3$ filters throughout the entire network, and increase depth systematically. The flagship VGG-16 model uses 13 convolutional layers and 3 fully connected layers with approximately 138 million parameters.
+
 
 The key insight was that two stacked $3 \times 3$ convolutions cover the same receptive field as one $5 \times 5$ convolution, but with strictly fewer parameters ($2 \times 9 = 18$ vs $25$) and an additional non-linearity between them. This makes the network more expressive while remaining parameter-efficient. The main weakness of VGGNet is its three large fully connected layers, which together account for roughly 100 million of the 138 million parameters and impose a heavy memory burden. Despite this, VGGNet's clean and uniform design made it an excellent baseline and its features were widely reused for transfer learning.
 

@@ -18,11 +18,13 @@ The natural extension is to stack additional layers: the output of one layer bec
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering
+        \tikzsetnextfilename{mlp_multi_input_y}
         \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/mlp_multi_input_y.tex}}
     \end{minipage}
     \hfill
     \begin{minipage}{0.50\textwidth}
         \centering
+        \tikzsetnextfilename{mlp_deep}
         \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/mlp_deep.tex}}
     \end{minipage}
     \caption{Left: shallow network with one hidden layer. Right: deep network with two hidden layers. Each additional layer introduces another linear transform followed by a nonlinearity.}
@@ -46,6 +48,7 @@ The matrix $\boldsymbol{\Theta}$ has $k$ rows and $d$ columns. Each row $j$ cont
 
 \begin{wrapfigure}{r}{0.35\textwidth}
 \centering
+\tikzsetnextfilename{matrix_vector_multiply}
 \resizebox{0.33\textwidth}{!}{\input{\CommonPath/tikz/matrix_vector_multiply.tex}}
 \caption{Hidden layer computation as matrix-vector operation.}
 \label{fig:matrix_vector_multiply}
@@ -75,6 +78,7 @@ with output
 
 \begin{wrapfigure}{r}{0.5\textwidth}
 \centering
+\tikzsetnextfilename{mlp_layer_notation}
 \resizebox{0.48\textwidth}{!}{\input{\CommonPath/tikz/mlp_layer_notation.tex}}
 \caption{Layer notation.}
 \label{fig:layer_notation}
@@ -95,6 +99,7 @@ The total number of parameters is the sum over all layers of the number of weigh
 
 \begin{wrapfigure}{r}{0.52\textwidth}
 \centering
+\tikzsetnextfilename{mlp_dimensions}
 \resizebox{0.50\textwidth}{!}{\input{\CommonPath/tikz/mlp_dimensions.tex}}
 \caption{Network with $d=3$, $k_1=k_2=4$, $m=2$. Total: $16+20+10=46$ parameters.}
 \label{fig:mlp_dimensions}
@@ -116,6 +121,7 @@ In practice, we process multiple training samples simultaneously in a \textbf{ba
 
 \begin{wrapfigure}{l}{0.4\textwidth}
 \centering
+\tikzsetnextfilename{batch_matrix_multiply}
 \resizebox{0.38\textwidth}{!}{\input{\CommonPath/tikz/batch_matrix_multiply.tex}}
 \caption{Batch forward pass.}
 \label{fig:batch_matrix_multiply}
@@ -142,6 +148,7 @@ We now have a network $f_\theta$ and a dataset $\dataset = \{(\vx^{(i)}, y^{(i)}
 
 \begin{wrapfigure}{r}{0.35\textwidth}
 \centering
+\tikzsetnextfilename{learning_problem}
 \resizebox{0.33\textwidth}{!}{\input{\CommonPath/tikz/learning_problem.tex}}
 \caption{Many functions fit the data. Which is best?}
 \label{fig:learning_problem}
@@ -169,6 +176,7 @@ The choice of $\ell$ depends on the task. For regression we use Mean Squared Err
 
 \begin{wrapfigure}{r}{0.35\textwidth}
 \centering
+\tikzsetnextfilename{mse_loss}
 \resizebox{0.33\textwidth}{!}{\input{\CommonPath/tikz/mse_loss.tex}}
 \caption{MSE loss. Vertical lines show residuals $\yhat^{(i)} - y^{(i)}$.}
 \label{fig:mse_loss}
@@ -206,6 +214,7 @@ where $\eta > 0$ is the \textbf{learning rate}, controlling the step size. Start
 
 \begin{wrapfigure}{r}{0.42\textwidth}
 \centering
+\tikzsetnextfilename{gradient_descent_2d}
 \resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/gradient_descent_2d.tex}}
 \caption{Gradient descent on a quadratic loss. Steps from $\theta_0$ towards minimum $\theta^*$.}
 \label{fig:gradient_descent}
