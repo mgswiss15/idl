@@ -352,7 +352,7 @@ This is equivalent to applying a fully connected layer at every spatial position
 
 \subsubsection{Batch Normalisation in CNNs}
 
-Batch normalisation was introduced in Session 7 for fully connected networks. In the convolutional setting, the natural generalisation is \textbf{BatchNorm2d}, which normalises over the batch \emph{and} spatial dimensions for each channel separately. For channel $c$, the mean and variance are computed as:
+Batch normalisation was introduced in section \ref{sec:regularization} for fully connected networks. In the convolutional setting, the natural generalisation is \textbf{BatchNorm2d}, which normalises over the batch \emph{and} spatial dimensions for each channel separately. For channel $c$, the mean and variance are computed as:
 
 \begin{align}
     \mu_c &= \frac{1}{N \cdot H \cdot W}\sum_{n,i,j} x_c^{(n)}[i,j], \\
@@ -381,6 +381,8 @@ The result is a vector of length $C$ -- one number per channel -- which is then 
 \subsection{Summary}
 \label{sec:cnns:summary}
 
-Convolutional neural networks impose three structural biases on the processing of spatial data: local connectivity, parameter sharing, and translation invariance. Together, these allow CNNs to extract meaningful features from images using orders of magnitude fewer parameters than a comparably capable fully connected network. The building blocks -- convolution, batch normalisation, ReLU, and pooling -- are assembled into a backbone that extracts a hierarchy of increasingly abstract features, followed by a task-specific head.
+Convolutional neural networks impose two structural biases on the processing of spatial data: local connectivity, which restricts each neuron to a small spatial neighbourhood, and translation invariance, which ensures that a learned feature detector responds identically regardless of where a pattern appears. Both are achieved through the convolution operation, which applies the same filter weights at every spatial location -- a design that also keeps parameter count independent of image size.
 
-The development from LeNet (1998) to AlexNet (2012), VGGNet (2014), and ResNet (2016) charts the empirical discovery of the principles that make deep CNNs work in practice: GPU training, ReLU activations, systematic use of depth, and -- most consequentially -- residual connections that allow gradient information to flow through networks of arbitrary depth. Session 10 builds directly on the backbone/head distinction introduced here, showing how pretrained backbones can be reused for new tasks without training from scratch.
+Together, these allow CNNs to extract meaningful features from images using orders of magnitude fewer parameters than a comparably capable fully connected network. The building blocks -- convolution, batch normalisation, ReLU, and pooling -- are assembled into a backbone that extracts a hierarchy of increasingly abstract features, followed by a task-specific head.
+
+The development from LeNet (1998) to AlexNet (2012), VGGNet (2014), and ResNet (2016) charts the empirical discovery of the principles that make deep CNNs work in practice: GPU training, ReLU activations, systematic use of depth, and -- most consequentially -- residual connections that allow gradient information to flow through networks of arbitrary depth. Session \ref{sec:transfer} builds directly on the backbone/head distinction introduced here, showing how pretrained backbones can be reused for new tasks without training from scratch.
