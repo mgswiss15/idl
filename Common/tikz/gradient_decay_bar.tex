@@ -1,0 +1,40 @@
+% Figure F: Gradient magnitude decay — bar chart
+\begin{tikzpicture}
+\begin{axis}[
+  width=10cm, height=5.5cm,
+  ybar,
+  bar width=0.5cm,
+  xlabel={Timestep (distance from loss)},
+  ylabel={Gradient magnitude},
+  xtick={1,2,3,4,5,6,7,8},
+  xticklabels={$t{=}T$,$t{=}T{-}1$,$t{=}T{-}2$,$t{=}T{-}3$,
+               $t{=}T{-}4$,$t{=}T{-}5$,$t{=}T{-}6$,$t{=}T{-}7$},
+  xticklabel style={font=\scriptsize, rotate=30, anchor=east},
+  yticklabel style={font=\scriptsize},
+  xlabel style={font=\small},
+  ylabel style={font=\small},
+  ymajorgrids=true,
+  grid style={dashed, thwsgrey!60},
+  axis line style={thwsgrey!80},
+  ymin=0, ymax=1.15,
+  enlarge x limits=0.08,
+  /pgf/number format/1000 sep={},
+]
+\addplot[fill=thwsblue!60, draw=thwsblue] coordinates {
+  (1, 1.0)
+  (2, 0.65)
+  (3, 0.42)
+  (4, 0.27)
+  (5, 0.18)
+  (6, 0.11)
+  (7, 0.07)
+  (8, 0.05)
+};
+\end{axis}
+
+% Annotation
+\node[font=\scriptsize, align=center, color=carnelian] at (7.5, 3.5)
+  {\alert{early inputs receive}\\nearly zero gradient};
+\draw[->, >=stealth, color=carnelian, thick] (7.5, 3.1) -- (6.2, 1.5);
+
+\end{tikzpicture}

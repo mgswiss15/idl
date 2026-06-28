@@ -1,0 +1,98 @@
+% Figure H: LSTM cell — forget gate and input gate highlighted
+\begin{tikzpicture}[
+  hnode/.style  = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.65cm,
+                   fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  cnode/.style  = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.65cm,
+                   fill=thwsorange!20, draw=thwsorange!80!black, thick, font=\small},
+  gate/.style   = {draw, circle, minimum size=0.7cm, thick, font=\small},
+  fgate/.style  = [gate, fill=carnelian!20, draw=carnelian],
+  igate/.style  = [gate, fill=thwsblue!20, draw=thwsblue],
+  ogate/.style  = [gate, fill=thwspetrol!15, draw=thwspetrol!60, opacity=0.4],
+  opgate/.style = [gate, fill=thwspetrol!15, draw=thwspetrol, opacity=0.4],
+  addnode/.style= {draw, circle, minimum size=0.6cm, fill=thwsorange!10,
+                   draw=thwsorange!80!black, thick, font=\small},
+  mulnode/.style= {draw, circle, minimum size=0.6cm, fill=thwsgrey!30,
+                   draw=thwsgrey!80, thick, font=\small},
+  tanhbox/.style= {draw, rounded corners=3pt, minimum width=0.8cm, minimum height=0.55cm,
+                   fill=thwspetrol!15, draw=thwspetrol, thick, font=\scriptsize},
+  arr/.style    = {->, >=stealth, thick},
+  carr/.style   = {->, >=stealth, thick, color=thwsorange!80!black, line width=1.5pt},
+  harr/.style   = {->, >=stealth, thick, color=thwsblue, line width=1.5pt},
+  dimmed/.style = {opacity=0.25},
+  lbl/.style    = {font=\scriptsize},
+]
+
+% ---- Cell state stream (top, horizontal) ----
+\node[cnode] (c_in)  at (0, 2.8)  {$\mathbf{c}^{(t-1)}$};
+\node[mulnode] (mul_f) at (2.4, 2.8) {$\odot$};
+\node[addnode] (add)   at (4.8, 2.8) {$+$};
+\node[cnode] (c_out) at (7.2, 2.8)  {$\mathbf{c}^{(t)}$};
+
+\draw[carr] (c_in)  -- (mul_f);
+\draw[carr] (mul_f) -- (add);
+\draw[carr] (add)   -- (c_out);
+
+% ---- Hidden state stream (bottom) ----
+\node[hnode] (h_in)  at (0, 0.6)   {$\mathbf{h}^{(t-1)}$};
+\node[hnode] (h_out) at (7.2, 0.6) {$\mathbf{h}^{(t)}$};
+
+% ---- Input ----
+\node[font=\small] (x_in) at (3.6, -0.8) {$\mathbf{x}^{(t)}$};
+
+% Concat line (horizontal backbone at h level)
+\draw[harr] (h_in.east) -- (6.4, 0.6);
+
+% ---- Forget gate ----
+\node[fgate] (fg) at (2.4, 0.6) {$\sigma$};
+\draw[arr, color=carnelian] (h_in) -- (fg);
+\draw[arr, color=carnelian] (x_in.north) to[out=100, in=270] (fg.south);
+\draw[arr, color=carnelian] (fg) -- (mul_f)
+     node[midway, right, lbl, color=carnelian] {$\mathbf{f}^{(t)}$};
+
+% Forget gate label box
+\node[draw, rounded corners=3pt, fill=carnelian!10, draw=carnelian,
+      font=\scriptsize, align=left] at (0.8, 4.4)
+  {\textbf{Forget gate:}\\
+   $\mathbf{f}^{(t)} = \sigma(\mathbf{W}_f \mathbf{h}^{(t-1)} + \mathbf{U}_f \mathbf{x}^{(t)} + \mathbf{b}_f)$\\
+   How much of $\mathbf{c}^{(t-1)}$ to \textit{erase}};
+
+% ---- Input gate + candidate ----
+\node[igate]  (ig)   at (4.0, 0.6) {$\sigma$};
+\node[tanhbox](tc)   at (4.0, 1.8) {$\tanh$};
+\node[mulnode](mul_i) at (4.8, 1.8) {$\odot$};
+
+\draw[arr, color=thwsblue] (h_in.east) to[out=0, in=180] (ig.west);
+\draw[arr, color=thwsblue] (x_in.north) to[out=80, in=270] (ig.south);
+\draw[arr, color=thwsblue] (ig) -- node[right, lbl, color=thwsblue] {$\mathbf{i}^{(t)}$} (mul_i);
+
+\draw[arr, color=thwspetrol] (h_in.east) to[out=15, in=180] (tc.west);
+\draw[arr, color=thwspetrol] (x_in.north) to[out=85, in=270] (tc.south);
+\draw[arr, color=thwspetrol] (tc) -- node[above, lbl, color=thwspetrol]
+     {$\tilde{\mathbf{c}}^{(t)}$} (mul_i);
+
+\draw[arr, color=thwsblue!70!thwspetrol] (mul_i) -- (add);
+
+% Input gate label box
+\node[draw, rounded corners=3pt, fill=thwsblue!8, draw=thwsblue,
+      font=\scriptsize, align=left] at (5.5, 4.4)
+  {\textbf{Input gate + candidate:}\\
+   $\mathbf{i}^{(t)} = \sigma(\mathbf{W}_i \mathbf{h}^{(t-1)} + \mathbf{U}_i \mathbf{x}^{(t)} + \mathbf{b}_i)$\\
+   $\tilde{\mathbf{c}}^{(t)} = \tanh(\mathbf{W}_c \mathbf{h}^{(t-1)} + \mathbf{U}_c \mathbf{x}^{(t)} + \mathbf{b}_c)$\\
+   What new information to \textit{write}};
+
+% Cell update annotation
+\node[draw, rounded corners=3pt, fill=thwsorange!10, draw=thwsorange!80!black,
+      font=\scriptsize, align=center] at (4.8, -1.6)
+  {$\mathbf{c}^{(t)} = \mathbf{f}^{(t)} \odot \mathbf{c}^{(t-1)} + \mathbf{i}^{(t)} \odot \tilde{\mathbf{c}}^{(t)}$};
+
+% Output gate — dimmed (not focus of this slide)
+\node[ogate] (og) at (6.0, 0.6) {$\sigma$};
+\node[tanhbox, opacity=0.25](to) at (6.6, 1.8) {$\tanh$};
+\node[mulnode, opacity=0.25](mul_o) at (7.2, 1.8) {$\odot$};
+\draw[arr, dimmed] (og) -- (mul_o);
+\draw[arr, dimmed] (to) -- (mul_o);
+\draw[arr, dimmed] (mul_o) -- (h_out);
+\draw[arr, dimmed, color=thwsorange!80!black] (c_out.south) to[out=270, in=90] (to.north);
+\node[font=\tiny, dimmed] at (6.0, 0.05) {(output gate — next slide)};
+
+\end{tikzpicture}

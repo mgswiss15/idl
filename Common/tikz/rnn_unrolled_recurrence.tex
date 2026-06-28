@@ -1,0 +1,62 @@
+% Figure A: Unrolled recurrence — weight sharing made explicit
+\begin{tikzpicture}[
+  node distance = 1.2cm and 1.4cm,
+  hnode/.style  = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.62cm,
+                   fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  xnode/.style  = {draw, circle, minimum size=0.62cm,
+                   fill=thwsorange!20, draw=thwsorange!80!black, thick, font=\small},
+  fnode/.style  = {draw, rounded corners=4pt, minimum width=0.85cm, minimum height=0.62cm,
+                   fill=thwspetrol!15, draw=thwspetrol, thick, font=\small},
+  arr/.style    = {->, thick, >=stealth},
+  warr/.style   = {->, thick, >=stealth, color=carnelian},
+]
+
+% Hidden state nodes
+\node[hnode] (h0) {$\mathbf{h}^{(0)}$};
+\node[fnode, right=of h0] (f1) {$f$};
+\node[hnode, right=of f1] (h1) {$\mathbf{h}^{(1)}$};
+\node[fnode, right=of h1] (f2) {$f$};
+\node[hnode, right=of f2] (h2) {$\mathbf{h}^{(2)}$};
+\node[fnode, right=of h2] (f3) {$f$};
+\node[hnode, right=of f3] (h3) {$\mathbf{h}^{(3)}$};
+
+% Input nodes
+\node[xnode, below=0.9cm of f1] (x1) {$\mathbf{x}^{(1)}$};
+\node[xnode, below=0.9cm of f2] (x2) {$\mathbf{x}^{(2)}$};
+\node[xnode, below=0.9cm of f3] (x3) {$\mathbf{x}^{(3)}$};
+
+% Output nodes
+\node[xnode, above=0.9cm of f1, fill=thwsgrey!40, draw=thwsgrey!80] (y1) {$\mathbf{y}^{(1)}$};
+\node[xnode, above=0.9cm of f2, fill=thwsgrey!40, draw=thwsgrey!80] (y2) {$\mathbf{y}^{(2)}$};
+\node[xnode, above=0.9cm of f3, fill=thwsgrey!40, draw=thwsgrey!80] (y3) {$\mathbf{y}^{(3)}$};
+
+% Horizontal arrows
+\draw[arr] (h0) -- (f1);
+\draw[arr] (f1) -- (h1);
+\draw[arr] (h1) -- (f2);
+\draw[arr] (f2) -- (h2);
+\draw[arr] (h2) -- (f3);
+\draw[arr] (f3) -- (h3);
+
+% Input arrows
+\draw[arr] (x1) -- (f1);
+\draw[arr] (x2) -- (f2);
+\draw[arr] (x3) -- (f3);
+
+% Output arrows
+\draw[arr] (f1) -- (y1);
+\draw[arr] (f2) -- (y2);
+\draw[arr] (f3) -- (y3);
+
+% h0 label: initialized to zero
+\node[below=0.15cm of h0, font=\small, text=thwsblue] {$= \mathbf{0}$};
+
+% Weight-sharing braces under f nodes
+\draw[warr, bend right=60] (f2.south east) to
+      node[below, font=\scriptsize\itshape, color=carnelian] {same weights $\mathbf{W}_h,\mathbf{W}_x$}
+      (f3.south west);
+\draw[warr, bend right=60] (f1.south east) to
+      node[below, font=\scriptsize\itshape, color=carnelian] {same weights $\mathbf{W}_h,\mathbf{W}_x$}
+      (f2.south west);
+
+\end{tikzpicture}

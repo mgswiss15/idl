@@ -1,0 +1,76 @@
+% Figure J: GRU cell — reset and update gates
+\begin{tikzpicture}[
+  hnode/.style  = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.65cm,
+                   fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  gate/.style   = {draw, circle, minimum size=0.70cm, thick, font=\small},
+  rgate/.style  = [gate, fill=carnelian!20, draw=carnelian],
+  zgate/.style  = [gate, fill=thwspetrol!20, draw=thwspetrol],
+  tanhbox/.style= {draw, rounded corners=3pt, minimum width=0.85cm, minimum height=0.58cm,
+                   fill=thwsblue!10, draw=thwsblue, thick, font=\scriptsize},
+  mulnode/.style= {draw, circle, minimum size=0.58cm, fill=thwsgrey!25,
+                   draw=thwsgrey!80, thick, font=\small},
+  addnode/.style= {draw, circle, minimum size=0.58cm, fill=thwsorange!15,
+                   draw=thwsorange!80!black, thick, font=\small},
+  arr/.style    = {->, >=stealth, thick},
+  lbl/.style    = {font=\scriptsize},
+]
+
+% Inputs
+\node[hnode] (h_in)  at (0, 1.5)  {$\mathbf{h}^{(t-1)}$};
+\node[font=\small] (x_in) at (3.0, -0.5) {$\mathbf{x}^{(t)}$};
+
+% ---- Reset gate ----
+\node[rgate] (rg) at (1.8, 0.4) {$\sigma$};
+\node[mulnode](rm) at (1.8, 1.5) {$\odot$};
+
+\draw[arr, color=carnelian] (h_in) -- node[above, lbl, color=carnelian] {} (rm);
+\draw[arr, color=carnelian] (h_in.south) to[out=270, in=90] (rg.north);
+\draw[arr, color=carnelian] (x_in.north) to[out=120, in=270] (rg.south);
+\draw[arr, color=carnelian] (rg) -- node[right, lbl, color=carnelian] {$\mathbf{r}^{(t)}$} (rm);
+
+% Candidate hidden state
+\node[tanhbox] (tc) at (3.0, 1.5) {$\tanh$};
+\draw[arr] (rm) -- (tc);
+\draw[arr] (x_in.north) -- (tc.south);
+
+% ---- Update gate ----
+\node[zgate] (zg) at (4.8, 0.4) {$\sigma$};
+\draw[arr, color=thwspetrol] (h_in.south) to[out=300, in=180] (zg.west);
+\draw[arr, color=thwspetrol] (x_in.north) to[out=60, in=270] (zg.south);
+
+% Interpolation
+\node[addnode] (interp) at (6.2, 1.5) {$+$};
+\node[mulnode] (mul_z1) at (5.2, 2.4) {$\odot$};    % z * candidate
+\node[mulnode] (mul_z2) at (5.2, 0.8) {$\odot$};    % (1-z) * h_prev
+
+% (1-z) branch
+\node[font=\scriptsize] (onez) at (4.8, 1.5) {$1-\mathbf{z}^{(t)}$};
+\draw[arr, color=thwspetrol] (zg) -- node[right, lbl, color=thwspetrol] {$\mathbf{z}^{(t)}$} (mul_z1);
+\draw[arr, color=thwspetrol] (zg) -- (onez);
+\draw[arr, color=thwspetrol] (onez) -- (mul_z2);
+\draw[arr] (h_in.east) to[out=0, in=180] (mul_z2);
+\draw[arr] (tc) -- node[above, lbl] {$\tilde{\mathbf{h}}^{(t)}$} (mul_z1);
+
+\draw[arr] (mul_z1) -- (interp);
+\draw[arr] (mul_z2) -- (interp);
+
+% Output
+\node[hnode] (h_out) at (7.6, 1.5) {$\mathbf{h}^{(t)}$};
+\draw[arr] (interp) -- (h_out);
+
+% Annotation boxes
+\node[draw, rounded corners=3pt, fill=carnelian!8, draw=carnelian,
+      font=\scriptsize, align=left, anchor=west] at (0, -1.5)
+  {\textbf{Reset:} $\mathbf{r}^{(t)} = \sigma(\mathbf{W}_r \mathbf{h}^{(t-1)} + \mathbf{U}_r \mathbf{x}^{(t)} + \mathbf{b}_r)$\quad
+   controls how much past $\mathbf{h}$ enters candidate};
+
+\node[draw, rounded corners=3pt, fill=thwspetrol!8, draw=thwspetrol,
+      font=\scriptsize, align=left, anchor=west] at (0, -2.3)
+  {\textbf{Update:} $\mathbf{z}^{(t)} = \sigma(\mathbf{W}_z \mathbf{h}^{(t-1)} + \mathbf{U}_z \mathbf{x}^{(t)} + \mathbf{b}_z)$\quad
+   interpolates old and new hidden state};
+
+\node[draw, rounded corners=3pt, fill=thwsblue!8, draw=thwsblue,
+      font=\scriptsize, align=center, anchor=west] at (0, -3.1)
+  {$\mathbf{h}^{(t)} = (1-\mathbf{z}^{(t)}) \odot \mathbf{h}^{(t-1)} + \mathbf{z}^{(t)} \odot \tilde{\mathbf{h}}^{(t)}$};
+
+\end{tikzpicture}

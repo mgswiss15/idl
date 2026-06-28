@@ -1,0 +1,89 @@
+% Figure I: LSTM cell — complete, output gate highlighted
+\begin{tikzpicture}[
+  hnode/.style  = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.65cm,
+                   fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  cnode/.style  = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.65cm,
+                   fill=thwsorange!20, draw=thwsorange!80!black, thick, font=\small},
+  gate/.style   = {draw, circle, minimum size=0.7cm, thick, font=\small},
+  fgate/.style  = [gate, fill=carnelian!15, draw=carnelian, opacity=0.45],
+  igate/.style  = [gate, fill=thwsblue!15, draw=thwsblue, opacity=0.45],
+  ogate/.style  = [gate, fill=thwspetrol!25, draw=thwspetrol, thick],
+  addnode/.style= {draw, circle, minimum size=0.6cm, fill=thwsorange!10,
+                   draw=thwsorange!80!black, thick, font=\small},
+  mulnode/.style= {draw, circle, minimum size=0.6cm, fill=thwsgrey!30,
+                   draw=thwsgrey!80, thick, font=\small},
+  tanhbox/.style= {draw, rounded corners=3pt, minimum width=0.8cm, minimum height=0.55cm,
+                   fill=thwspetrol!15, draw=thwspetrol, thick, font=\scriptsize},
+  arr/.style    = {->, >=stealth, thick},
+  carr/.style   = {->, >=stealth, thick, color=thwsorange!80!black, line width=1.5pt},
+  harr/.style   = {->, >=stealth, thick, color=thwsblue, line width=1.5pt},
+  oarr/.style   = {->, >=stealth, thick, color=thwspetrol, line width=1.5pt},
+  dimmed/.style = {opacity=0.30},
+  lbl/.style    = {font=\scriptsize},
+]
+
+% ---- Cell state stream ----
+\node[cnode] (c_in)  at (0, 2.8)  {$\mathbf{c}^{(t-1)}$};
+\node[mulnode] (mul_f) at (2.4, 2.8) {$\odot$};
+\node[addnode] (add)   at (4.8, 2.8) {$+$};
+\node[cnode] (c_out) at (7.2, 2.8)  {$\mathbf{c}^{(t)}$};
+
+\draw[carr] (c_in)  -- (mul_f);
+\draw[carr] (mul_f) -- (add);
+\draw[carr] (add)   -- (c_out);
+
+% ---- Hidden state stream ----
+\node[hnode] (h_in)  at (0, 0.6)   {$\mathbf{h}^{(t-1)}$};
+\node[hnode] (h_out) at (7.2, 0.6) {$\mathbf{h}^{(t)}$};
+\draw[harr, dimmed] (h_in.east) -- (6.4, 0.6);
+
+% ---- Input ----
+\node[font=\small] (x_in) at (3.6, -0.8) {$\mathbf{x}^{(t)}$};
+
+% ---- Forget gate (dimmed) ----
+\node[fgate] (fg) at (2.4, 0.6) {$\sigma$};
+\draw[arr, color=carnelian, dimmed] (h_in) -- (fg);
+\draw[arr, color=carnelian, dimmed] (x_in.north) to[out=100, in=270] (fg.south);
+\draw[arr, color=carnelian, dimmed] (fg) -- node[midway, right, lbl, color=carnelian] {$\mathbf{f}^{(t)}$} (mul_f);
+
+% ---- Input gate + candidate (dimmed) ----
+\node[igate]  (ig)    at (4.0, 0.6) {$\sigma$};
+\node[tanhbox, opacity=0.35](tc)    at (4.0, 1.8) {$\tanh$};
+\node[mulnode, opacity=0.35](mul_i) at (4.8, 1.8) {$\odot$};
+
+\draw[arr, color=thwsblue, dimmed] (h_in.east) to[out=0, in=180] (ig.west);
+\draw[arr, color=thwsblue, dimmed] (x_in.north) to[out=80, in=270] (ig.south);
+\draw[arr, color=thwsblue, dimmed] (ig) -- node[right, lbl, color=thwsblue] {$\mathbf{i}^{(t)}$} (mul_i);
+\draw[arr, dimmed, color=thwspetrol] (h_in.east) to[out=15, in=180] (tc.west);
+\draw[arr, dimmed, color=thwspetrol] (x_in.north) to[out=85, in=270] (tc.south);
+\draw[arr, dimmed, color=thwspetrol] (tc) -- (mul_i);
+\draw[arr, dimmed] (mul_i) -- (add);
+
+% ---- Output gate (HIGHLIGHTED) ----
+\node[ogate] (og) at (6.0, 0.6) {$\sigma$};
+\node[tanhbox](to) at (6.6, 1.8) {$\tanh$};
+\node[mulnode](mul_o) at (7.2, 1.8) {$\odot$};
+
+\draw[oarr] (h_in.east) to[out=5, in=200] (og.west);
+\draw[oarr] (x_in.north) to[out=75, in=270] (og.south);
+\draw[oarr] (og) -- node[left, lbl, color=thwspetrol] {$\mathbf{o}^{(t)}$} (mul_o);
+\draw[oarr] (c_out.south) to[out=270, in=90] (to.north);
+\draw[oarr] (to) -- node[above, lbl, color=thwspetrol] {$\tanh(\mathbf{c}^{(t)})$} (mul_o);
+\draw[oarr] (mul_o) -- (h_out);
+
+% Output gate label box
+\node[draw, rounded corners=3pt, fill=thwspetrol!10, draw=thwspetrol,
+      font=\scriptsize, align=left] at (4.5, 4.4)
+  {\textbf{Output gate:}\\
+   $\mathbf{o}^{(t)} = \sigma(\mathbf{W}_o \mathbf{h}^{(t-1)} + \mathbf{U}_o \mathbf{x}^{(t)} + \mathbf{b}_o)$\\
+   $\mathbf{h}^{(t)} = \mathbf{o}^{(t)} \odot \tanh(\mathbf{c}^{(t)})$\\
+   What to \textit{expose} from cell state};
+
+% Gradient highway annotation
+\node[draw, rounded corners=3pt, fill=thwsorange!10, draw=thwsorange!80!black,
+      font=\scriptsize, align=center] at (3.6, -1.7)
+  {\structure{Gradient highway:}\;
+   $\dfrac{\partial \mathbf{c}^{(t)}}{\partial \mathbf{c}^{(t-1)}} = \mathbf{f}^{(t)}$\;—\;
+   no matrix multiply in the cell path};
+
+\end{tikzpicture}

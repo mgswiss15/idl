@@ -1,0 +1,580 @@
+\documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller, t]{beamer}
+\newcommand{\CommonPath}{../../Common}
+\newcommand{\coursename}{Intro to DL - S10}
+\usepackage{\CommonPath/slidespreamble}
+\usepackage{\CommonPath/math_commands}
+\setbeameroption{hide notes}
+
+\title{Introduction to Deep Learning}
+\subtitle{Session 10: CNNs in Practice \\[1em]
+\small May 2026}
+\author{Magda Gregorová - \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}
+\institute{\includegraphics[width=0.3\textwidth]{thws-logo_vert_en_orange-rgb.png}}
+\hypersetup{
+pdftitle={Introduction to Deep Learning},
+pdfauthor={Magda Gregorová},
+pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, torchvision}
+}
+\date{{\color{skyblue1}\footnotesize Licensed according to
+\href{https://creativecommons.org/licenses/by-sa/4.0}{\color{skyblue1}CC-BY-SA 4.0}}}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+\begin{frame}{Lecture Overview}
+\tableofcontents
+\end{frame}
+
+% ==================================================================
+%  SECTION 1 — The Sequence Problem
+% ==================================================================
+
+\section{The Sequence Problem}
+
+\begin{frame}{The Sequence Problem}
+  \vskip 2em
+
+  Many real-world inputs are \structure{ordered and variable-length} — their
+  meaning depends on position and context.
+
+  \vskip 1.2em
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Sequence inputs}
+      \begin{itemize}
+        \item Natural language: \textit{``The food was not good''}
+        \item Speech: 16\,000 samples/second
+        \item Time series: stock prices, sensor readings
+        \item Video: ordered frames
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Key properties}
+      \begin{itemize}
+        \item \structure{Variable length} — no fixed input dimension
+        \item \structure{Order matters} — permuting changes meaning
+        \item \structure{Long-range dependencies} — word at step 1 may determine meaning at step 50
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vskip 1.2em
+  \begin{center}
+    {\setlength{\fboxsep}{8pt}\colorbox{thwsorange!10}{%
+      \structure{We need a model that processes sequences
+        step-by-step and accumulates context.}}}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Three Approaches to Sequence Modeling}
+  \vskip 2em
+
+  \begin{center}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{lccc}
+    \toprule
+    & \textbf{MLP} & \textbf{1D CNN} & \textbf{RNN} \\
+    \midrule
+    Handles variable length    & \alert{no}        & \alert{no*}  & \structure{yes} \\
+    Long-range dependencies    & \alert{no}        & limited      & \structure{yes} \\
+    Parallelizable training    & \structure{yes}   & \structure{yes} & \alert{no} \\
+    Parameter sharing in time  & \alert{no}        & \structure{yes (local)} & \structure{yes (global)} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vskip 0.8em
+  \small{*requires padding or global pooling}
+
+  \vskip 1.0em
+  \textbf{1D CNNs} — fast, parallelizable, strong for \structure{local patterns}
+  (n-grams, short-term trends); receptive field bounded by depth.
+  Useful when long-range context is not needed.
+
+  \vskip 0.6em
+  \textbf{RNNs} — process step-by-step; \structure{unbounded context}
+  via hidden state; sequential by design.
+  \alert{This session focuses on RNNs.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{The Recurrence Idea}
+  \vskip 2em
+
+  At each timestep $t$, compute \structure{hidden state}
+  $\mathbf{h}^{(t)}$ from current input and previous state:
+  \[
+    \mathbf{h}^{(t)} = f\!\left(\mathbf{x}^{(t)},\, \mathbf{h}^{(t-1)}\right),
+    \qquad \mathbf{h}^{(0)} = \mathbf{0}
+  \]
+
+  \vskip 0.8em
+  \begin{center}\resizebox{0.8\textwidth}{!}{%
+    \tikzsetnextfilename{rnn_unrolled_recurrence}
+    \input{\CommonPath/tikz/rnn_unrolled_recurrence.tex}
+  }
+  \end{center}
+
+  \vskip 0.8em
+  \begin{center}
+    {\setlength{\fboxsep}{8pt}\colorbox{thwsorange!10}{%
+      \structure{Same $f$, same weights $\mathbf{W}_h$, $\mathbf{W}_x$
+        at every timestep — this \emph{is} parameter sharing across time.}}}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Task Shapes}
+  \vskip 2em
+
+  The same recurrent architecture supports
+  \structure{four input/output configurations}
+  depending on where outputs are read:
+
+  \vskip 1.0em
+  \begin{center}
+    \tikzsetnextfilename{rnn_task_shapes}
+    \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/rnn_task_shapes.tex}}
+  \end{center}
+
+  \vskip 0.8em
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.24\textwidth}\centering
+      sentiment analysis\\document classification
+    \end{column}
+    \begin{column}{0.24\textwidth}\centering
+      image captioning\\music generation
+    \end{column}
+    \begin{column}{0.24\textwidth}\centering
+      POS tagging\\named entity recognition
+    \end{column}
+    \begin{column}{0.24\textwidth}\centering
+      machine translation\\speech recognition
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% % ==================================================================
+
+\section{Vanila RNNs}
+{
+\setbeamertemplate{footline}{}
+\begin{frame}{}
+  \vskip 8em
+  {\Large \structure{Vanilla RNNs}}
+\end{frame}
+}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{The RNN Cell: Forward Pass}
+  \vskip 2em
+
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \tikzsetnextfilename{rnn_cell_rolled}
+      \input{\CommonPath/tikz/rnn_cell_rolled.tex}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \vskip 0.5em
+      \[
+        \mathbf{h}^{(t)} = \tanh\!\bigl(
+          \underbrace{\mathbf{W}_h}_{\text{recurrent}} \mathbf{h}^{(t-1)}
+          + \underbrace{\mathbf{W}_x}_{\text{input}} \mathbf{x}^{(t)}
+          + \mathbf{b}
+        \bigr)
+      \]
+      \[
+        \mathbf{y}^{(t)} = \mathbf{W}_y\, \mathbf{h}^{(t)}
+      \]
+      \vskip 0.8em
+      \begin{itemize}
+        \item $\mathbf{W}_h \in \mathbb{R}^{d_h \times d_h}$ — mixes
+              previous hidden state
+        \item $\mathbf{W}_x \in \mathbb{R}^{d_h \times d_x}$ — projects
+              current input
+        \item $\tanh$ squashes to $(-1, 1)$; keeps hidden state bounded
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{Unrolling the RNN}
+%   \vskip 2em
+
+%   Apply the same cell repeatedly — one step per input token:
+
+%   \vskip 0.8em
+%   \begin{center}
+%     \tikzsetnextfilename{rnn_cell_unrolled}
+%     \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/rnn_cell_unrolled.tex}}
+%   \end{center}
+
+%   \vskip 0.8em
+%   \begin{itemize}
+%     \item Unrolling reveals the \structure{computational graph used for
+%           backpropagation}
+%     \item The same $\mathbf{W}_h$, $\mathbf{W}_x$, $\mathbf{b}$ appear at
+%           every node — gradients from all steps accumulate into one update
+%     \item $\mathbf{h}^{(0)} = \mathbf{0}$ is a fixed initial condition
+%           (sometimes learned)
+%   \end{itemize}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{Backpropagation Through Time}
+%   \vskip 2em
+
+%   \begin{center}
+%     \tikzsetnextfilename{bptt_backward}
+%     \resizebox{0.90\textwidth}{!}{\input{\CommonPath/tikz/bptt_backward.tex}}
+%   \end{center}
+
+%   \vskip 0.6em
+%   The gradient of the loss with respect to $\mathbf{W}_h$ involves a
+%   \structure{product of $T$ Jacobians}:
+%   \[
+%     \frac{\partial \mathcal{L}}{\partial \mathbf{W}_h}
+%     \;\propto\;
+%     \prod_{t=1}^{T} \frac{\partial \mathbf{h}^{(t)}}{\partial \mathbf{h}^{(t-1)}}
+%   \]
+%   Each factor involves $\mathbf{W}_h$ and the derivative of $\tanh$
+%   (which is $\leq 1$). \alert{Multiplying $T$ small numbers → gradient vanishes.}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{The Vanishing Gradient Problem}
+%   \vskip 2em
+
+%   \begin{columns}[T]
+%     \begin{column}{0.55\textwidth}
+%       \tikzsetnextfilename{gradient_decay_bar}
+%       \input{\CommonPath/tikz/gradient_decay_bar.tex}
+%     \end{column}
+%     \begin{column}{0.42\textwidth}
+%       \vskip 0.4em
+%       \textbf{Two failure modes:}
+%       \begin{itemize}
+%         \item \alert{Vanishing} — gradient $\to 0$; early inputs
+%               have no influence on learning
+%         \item \alert{Exploding} — gradient $\to \infty$; training
+%               diverges
+%       \end{itemize}
+%       \vskip 0.8em
+%       \textbf{Band-aids:}
+%       \begin{itemize}
+%         \item Exploding: \structure{gradient clipping}
+%               (scale down if $\|\nabla\| > \tau$)
+%         \item Vanishing: \alert{no clean fix} — we need a
+%               better architecture
+%       \end{itemize}
+%       \vskip 0.8em
+%       {\setlength{\fboxsep}{7pt}\colorbox{thwsorange!10}{%
+%         \structure{Idea: protect gradient flow\\with gated memory.}}}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
+
+% % ==================================================================
+% %  Section divider
+% % ==================================================================
+
+% {
+% \setbeamertemplate{footline}{}
+% \begin{frame}{}
+%   \vskip 8em
+%   {\Large \structure{LSTMs and GRUs}}
+% \end{frame}
+% }
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{The LSTM Idea: Two Streams}
+%   \vskip 2em
+
+%   \textbf{Problem:} in a vanilla RNN, gradient must travel through a
+%   chain of matrix multiplications.
+
+%   \vskip 0.8em
+%   \textbf{LSTM solution:} add a separate \structure{cell state}
+%   $\mathbf{c}^{(t)}$ that carries information with \emph{additive} updates
+%   — a gradient highway alongside the hidden state $\mathbf{h}^{(t)}$.
+
+%   \vskip 0.8em
+%   \begin{center}
+%     \tikzsetnextfilename{rnn_vs_lstm_streams}
+%     \resizebox{0.92\textwidth}{!}{\input{\CommonPath/tikz/rnn_vs_lstm_streams.tex}}
+%   \end{center}
+
+%   \vskip 0.6em
+%   \structure{Gates} (learned $\sigma$ layers) control what is written,
+%   erased, and read from the cell state at each step.
+%   \hfill \href{https://www.bioinf.jku.at/publications/older/2604.pdf}{Hochreiter \& Schmidhuber, 1997}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{LSTM: Forget Gate and Input Gate}
+%   \vskip 2em
+
+%   \begin{center}
+%     \tikzsetnextfilename{lstm_cell_forget_input}
+%     \resizebox{0.90\textwidth}{!}{\input{\CommonPath/tikz/lstm_cell_forget_input.tex}}
+%   \end{center}
+
+%   \vskip 0.4em
+%   \small
+%   \begin{columns}[T]
+%     \begin{column}{0.48\textwidth}
+%       \textbf{\textcolor{carnelian}{Forget gate}} — what to erase:
+%       \[
+%         \mathbf{f}^{(t)} = \sigma\!\bigl(
+%           \mathbf{W}_f \mathbf{h}^{(t-1)} + \mathbf{U}_f \mathbf{x}^{(t)} + \mathbf{b}_f
+%         \bigr)
+%       \]
+%     \end{column}
+%     \begin{column}{0.48\textwidth}
+%       \textbf{\textcolor{thwsblue}{Input gate + candidate}} — what to write:
+%       \begin{align*}
+%         \mathbf{i}^{(t)} &= \sigma\!\bigl(\mathbf{W}_i \mathbf{h}^{(t-1)} + \mathbf{U}_i \mathbf{x}^{(t)} + \mathbf{b}_i\bigr) \\
+%         \tilde{\mathbf{c}}^{(t)} &= \tanh\!\bigl(\mathbf{W}_c \mathbf{h}^{(t-1)} + \mathbf{U}_c \mathbf{x}^{(t)} + \mathbf{b}_c\bigr)
+%       \end{align*}
+%     \end{column}
+%   \end{columns}
+%   \vskip 0.4em
+%   \textbf{Cell state update:}
+%   $\quad\mathbf{c}^{(t)} = \mathbf{f}^{(t)} \odot \mathbf{c}^{(t-1)} + \mathbf{i}^{(t)} \odot \tilde{\mathbf{c}}^{(t)}$
+%   \quad ($\odot$ = element-wise)
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{LSTM: Output Gate and Gradient Highway}
+%   \vskip 2em
+
+%   \begin{center}
+%     \tikzsetnextfilename{lstm_cell_output}
+%     \resizebox{0.90\textwidth}{!}{\input{\CommonPath/tikz/lstm_cell_output.tex}}
+%   \end{center}
+
+%   \vskip 0.4em
+%   \small
+%   \textbf{\textcolor{thwspetrol}{Output gate}} — what to expose from the cell state:
+%   \[
+%     \mathbf{o}^{(t)} = \sigma\!\bigl(
+%       \mathbf{W}_o \mathbf{h}^{(t-1)} + \mathbf{U}_o \mathbf{x}^{(t)} + \mathbf{b}_o
+%     \bigr),
+%     \qquad
+%     \mathbf{h}^{(t)} = \mathbf{o}^{(t)} \odot \tanh\!\bigl(\mathbf{c}^{(t)}\bigr)
+%   \]
+
+%   \vskip 0.2em
+%   \textbf{Why gradients flow:}
+%   $\;\dfrac{\partial \mathbf{c}^{(t)}}{\partial \mathbf{c}^{(t-1)}} = \mathbf{f}^{(t)}$
+%   — no matrix multiply in the cell path, analogous to
+%   \structure{ResNet skip connections}.
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{GRU: A Leaner Alternative}
+%   \vskip 2em
+
+%   The \structure{Gated Recurrent Unit} (GRU) achieves similar gating with
+%   \emph{two} gates and no separate cell state.
+%   \hfill\href{https://arxiv.org/abs/1406.1078}{Cho et al., 2014}
+
+%   \vskip 0.8em
+%   \begin{center}
+%     \tikzsetnextfilename{gru_cell}
+%     \resizebox{0.82\textwidth}{!}{\input{\CommonPath/tikz/gru_cell.tex}}
+%   \end{center}
+
+%   \vskip 0.6em
+%   \small
+%   \begin{columns}[T]
+%     \begin{column}{0.50\textwidth}
+%       \textbf{\textcolor{carnelian}{Reset gate}} $\mathbf{r}^{(t)}$:
+%       how much past $\mathbf{h}$ enters the candidate state
+%     \end{column}
+%     \begin{column}{0.46\textwidth}
+%       \textbf{\textcolor{thwspetrol}{Update gate}} $\mathbf{z}^{(t)}$:
+%       interpolates old and new hidden state — simultaneously plays the
+%       role of forget and input gates
+%     \end{column}
+%   \end{columns}
+
+%   \vskip 0.5em
+%   {\setlength{\fboxsep}{7pt}\colorbox{thwsorange!10}{%
+%     \structure{Rule of thumb: start with GRU (fewer parameters);
+%       switch to LSTM if the task needs more memory capacity.}}}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{Practical Configurations}
+%   \vskip 2em
+
+%   \begin{center}
+%     \tikzsetnextfilename{rnn_practical_configs}
+%     \resizebox{0.90\textwidth}{!}{\input{\CommonPath/tikz/rnn_practical_configs.tex}}
+%   \end{center}
+
+%   \vskip 0.6em
+%   \small
+%   \begin{columns}[T]
+%     \begin{column}{0.32\textwidth}
+%       \textbf{(a) Stacked} — feed $\mathbf{h}^{(t)}$ of layer $l$ as
+%       input to layer $l{+}1$; adds representational depth
+%     \end{column}
+%     \begin{column}{0.32\textwidth}
+%       \textbf{(b) Bidirectional} — forward + backward pass,
+%       concatenate states; \alert{requires full sequence at inference},
+%       cannot generate autoregressively
+%     \end{column}
+%     \begin{column}{0.32\textwidth}
+%       \textbf{(c) Dropout} — apply only to
+%       \structure{non-recurrent connections}; naive dropout on $\mathbf{W}_h$
+%       damages memory
+%       \href{https://arxiv.org/abs/1409.2329}{(Zaremba et al., 2014)}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
+
+% % ==================================================================
+% %  Section divider
+% % ==================================================================
+
+% {
+% \setbeamertemplate{footline}{}
+% \begin{frame}{}
+%   \vskip 8em
+%   {\Large \structure{PyTorch and the Road Ahead}}
+% \end{frame}
+% }
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{RNNs in PyTorch}
+%   \vskip 2em
+
+%   \texttt{nn.RNN}, \texttt{nn.LSTM}, \texttt{nn.GRU} share a unified
+%   interface:
+
+%   \vskip 0.6em
+%   {\scriptsize\ttfamily
+%   \# Define\\
+%   rnn = nn.RNN(input\_size=64, hidden\_size=128,\\
+%   \phantom{rnn = nn.RNN(}num\_layers=2, batch\_first=True,\\
+%   \phantom{rnn = nn.RNN(}bidirectional=False, dropout=0.3)\\[0.5em]
+%   lstm = nn.LSTM(input\_size=64, hidden\_size=128,\\
+%   \phantom{lstm = nn.LSTM(}num\_layers=2, batch\_first=True)\\[0.5em]
+%   \# Forward pass \quad x: (batch, seq\_len, input\_size) if batch\_first=True\\
+%   output, h\_n = rnn(x)~~~~~~~~~~~~~~~~~\# h\_n: (num\_layers, batch, hidden\_size)\\[0.5em]
+%   output, (h\_n, c\_n) = lstm(x)~~~~~~~~~\# LSTM returns both h and c\\[0.5em]
+%   \# output: (batch, seq\_len, hidden\_size)  — all timestep outputs\\
+%   \# h\_n:~~~ (num\_layers, batch, hidden\_size) — final hidden state only\\
+%   \# c\_n:~~~ (num\_layers, batch, hidden\_size) — final cell state (LSTM only)
+%   }
+
+%   \vskip 0.6em
+%   \begin{itemize}
+%     \item \structure{\texttt{batch\_first=True}} — swaps batch and sequence
+%           dimensions; recommended for readability
+%     \item For many-to-one tasks: use \texttt{h\_n[-1]} (last layer, final step)
+%     \item For many-to-many tasks: use \texttt{output} (all timesteps)
+%   \end{itemize}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{Encoder--Decoder and the Bottleneck}
+%   \vskip 2em
+
+%   \begin{center}
+%     \tikzsetnextfilename{encoder_decoder_bottleneck}
+%     \resizebox{0.92\textwidth}{!}{\input{\CommonPath/tikz/encoder_decoder_bottleneck.tex}}
+%   \end{center}
+
+%   \vskip 0.6em
+%   \begin{itemize}
+%     \item \structure{Encoder}: reads source sequence, compresses into
+%           a single fixed-size context vector $\mathbf{c} = \mathbf{h}^{(T)}$
+%     \item \structure{Decoder}: generates target sequence conditioned on
+%           $\mathbf{c}$
+%     \item \alert{Problem}: for long sequences, one vector cannot hold
+%           all relevant information — translation quality degrades measurably
+%           beyond $\sim$20 tokens
+%   \end{itemize}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{What Comes Next: Attention}
+%   \vskip 2em
+
+%   \textbf{The question:}
+%   instead of compressing everything into one vector, what if the decoder
+%   could \structure{look at all encoder hidden states}
+%   $\{\mathbf{h}^{(1)}, \ldots, \mathbf{h}^{(T)}\}$,
+%   weighted by how relevant each one is to the current decoding step?
+
+%   \vskip 1.4em
+%   This is the \structure{attention mechanism} —
+%   introduced by \href{https://arxiv.org/abs/1409.0473}{Bahdanau et al., 2015}.
+
+%   \vskip 1.4em
+%   It also resolves a deeper architectural tension: RNNs are
+%   \alert{inherently sequential} — step $t$ cannot be computed before
+%   step $t{-}1$. This limits parallelism at training time.
+
+%   \vskip 1.4em
+%   \begin{center}
+%     {\setlength{\fboxsep}{9pt}\colorbox{thwsorange!10}{%
+%       \structure{Session 12 — Attention \& Transformers:
+%         parallel sequence processing from scratch.}}}
+%   \end{center}
+% \end{frame}
+
+% % ------------------------------------------------------------------
+
+% \begin{frame}{Summary}
+%   \vskip 2em
+
+%   \renewcommand{\arraystretch}{1.5}
+%   \begin{center}
+%   \begin{tabular}{llll}
+%     \toprule
+%     & \textbf{RNN} & \textbf{LSTM} & \textbf{GRU} \\
+%     \midrule
+%     Mechanism     & single hidden state  & cell state + gates   & merged gating \\
+%     Gates         & none                 & 3 (f, i, o)          & 2 (r, z) \\
+%     Long-range    & \alert{poor}         & \structure{good}     & \structure{good} \\
+%     Parameters    & fewest               & most                 & moderate \\
+%     Speed         & fastest              & slowest              & moderate \\
+%     \bottomrule
+%   \end{tabular}
+%   \end{center}
+
+%   \vskip 1.0em
+%   \textbf{Common thread:} all three process sequences
+%   \alert{step-by-step} — no parallelism across the time axis.
+
+%   \vskip 0.6em
+%   \textbf{Next:} attention removes this constraint entirely —
+%   and leads to the Transformer architecture that powers modern LLMs.
+% \end{frame}
+
+\end{document}

@@ -1,0 +1,101 @@
+% Figure K: Three practical RNN configurations
+\begin{tikzpicture}[
+  hnode/.style = {draw, rounded corners=3pt, minimum width=0.75cm, minimum height=0.52cm,
+                  fill=thwsblue!15, draw=thwsblue, thick, font=\tiny},
+  hnode2/.style= {draw, rounded corners=3pt, minimum width=0.75cm, minimum height=0.52cm,
+                  fill=thwspetrol!15, draw=thwspetrol, thick, font=\tiny},
+  xnode/.style = {circle, draw, minimum size=0.48cm,
+                  fill=thwsorange!25, draw=thwsorange!80!black, thick, font=\tiny},
+  ynode/.style = {circle, draw, minimum size=0.48cm,
+                  fill=thwsgrey!40, draw=thwsgrey!80, thick, font=\tiny},
+  arr/.style   = {->, >=stealth, semithick},
+  barr/.style  = {->, >=stealth, semithick, color=carnelian},
+  hdr/.style   = {font=\small\bfseries, color=thwsblue},
+  drop/.style  = {draw, dashed, rounded corners=2pt, minimum width=0.75cm,
+                  minimum height=0.52cm, fill=thwsgrey!20, draw=thwsgrey!60,
+                  thick, font=\tiny, opacity=0.6},
+]
+
+%% ====== (a) Stacked 2-layer LSTM ======
+\node[hdr] at (1.2, 4.2) {(a) Stacked};
+
+% Layer 1
+\foreach \i in {1,2,3} {
+  \node[xnode] (xs\i) at (\i*0.85-0.85, 0) {};
+  \node[hnode] (h1s\i) at (\i*0.85-0.85, 1.0) {};
+  \draw[arr] (xs\i) -- (h1s\i);
+}
+\foreach \i/\j in {1/2,2/3} \draw[arr] (h1s\i) -- (h1s\j);
+
+% Layer 2
+\foreach \i in {1,2,3} {
+  \node[hnode2] (h2s\i) at (\i*0.85-0.85, 2.0) {};
+  \draw[arr] (h1s\i) -- (h2s\i);   % between layers
+}
+\foreach \i/\j in {1/2,2/3} \draw[arr] (h2s\i) -- (h2s\j);
+
+% Output from layer 2
+\foreach \i in {1,2,3} {
+  \node[ynode] (ys\i) at (\i*0.85-0.85, 3.0) {};
+  \draw[arr] (h2s\i) -- (ys\i);
+}
+
+% Labels
+\node[font=\tiny\itshape, color=thwsblue,   right=0.05cm of h1s3] {layer 1};
+\node[font=\tiny\itshape, color=thwspetrol, right=0.05cm of h2s3] {layer 2};
+
+%% ====== (b) Bidirectional ======
+\begin{scope}[xshift=3.8cm]
+\node[hdr] at (1.2, 4.2) {(b) Bidirectional};
+
+% Forward (blue)
+\foreach \i in {1,2,3} {
+  \node[xnode]  (xb\i)  at (\i*0.85-0.85, 0)   {};
+  \node[hnode]  (hfb\i) at (\i*0.85-0.85, 1.0) {};
+  \node[hnode2] (hrb\i) at (\i*0.85-0.85, 2.0) {};
+  \draw[arr]  (xb\i) -- (hfb\i);
+  \draw[arr]  (xb\i) -- (hrb\i);
+}
+\foreach \i/\j in {1/2,2/3} \draw[arr]       (hfb\i) -- (hfb\j);
+\foreach \i/\j in {3/2,2/1} \draw[barr]      (hrb\i) -- (hrb\j);
+
+% Concatenated output
+\foreach \i in {1,2,3} {
+  \node[ynode] (yb\i) at (\i*0.85-0.85, 3.0) {};
+  \draw[arr] (hfb\i) -- (yb\i);
+  \draw[arr] (hrb\i) -- (yb\i);
+}
+
+\node[font=\tiny\itshape, color=thwsblue,   right=0.05cm of hfb3] {forward $\rightarrow$};
+\node[font=\tiny\itshape, color=carnelian, right=0.05cm of hrb1] {backward $\leftarrow$};
+\node[font=\tiny, color=black!50, below=0.1cm of xb2] {full seq.\ needed at inference};
+\end{scope}
+
+%% ====== (c) Dropout (non-recurrent only) ======
+\begin{scope}[xshift=7.6cm]
+\node[hdr] at (1.2, 4.2) {(c) Dropout};
+
+\foreach \i in {1,2,3} {
+  \node[xnode] (xd\i)  at (\i*0.85-0.85, 0)   {};
+  \node[hnode] (h1d\i) at (\i*0.85-0.85, 1.0) {};
+  \node[hnode2](h2d\i) at (\i*0.85-0.85, 2.0) {};
+  \node[ynode] (yd\i)  at (\i*0.85-0.85, 3.0) {};
+
+  % Vertical arrows (input connections — dropout applied here)
+  \draw[arr, dashed, color=thwsgrey!70] (xd\i) -- (h1d\i);
+  \draw[arr, dashed, color=thwsgrey!70] (h1d\i) -- (h2d\i);
+  \draw[arr, dashed, color=thwsgrey!70] (h2d\i) -- (yd\i);
+}
+% Horizontal recurrent arrows — NO dropout (solid)
+\foreach \i/\j in {1/2,2/3} {
+  \draw[arr, color=thwsblue,   thick] (h1d\i) -- (h1d\j);
+  \draw[arr, color=thwspetrol, thick] (h2d\i) -- (h2d\j);
+}
+
+\node[font=\tiny, align=center, color=thwsgrey!70] at (1.2, -0.6)
+  {dashed = dropout};
+\node[font=\tiny, align=center, color=thwsblue] at (1.2, -0.95)
+  {solid = no dropout};
+\end{scope}
+
+\end{tikzpicture}

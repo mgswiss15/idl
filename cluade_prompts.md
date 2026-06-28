@@ -6,10 +6,43 @@ Here are the condensed versions:
 
 Generate Beamer slides for Session X of an Introduction to Deep Learning course at THWS. Audience: first-semester Masters students with CS Bachelor background.
 
-Discuss content and structure before writing any LaTeX. Generate section by section and wait for feedback.
+Discuss content and structure before writing any LaTeX. 
 
-BEAMER SETUP:
+---
+Generate complete presentation and then we discuss section by section.
+
+BEAMER DOCUMENT HEAD:
 \documentclass[compress, xcolor={svgnames}, aspectratio=169, smaller, t]{beamer}
+\newcommand{\CommonPath}{../../Common}
+\newcommand{\coursename}{Intro to DL - S10}
+\usepackage{\CommonPath/slidespreamble}
+\usepackage{\CommonPath/math_commands}
+\setbeameroption{hide notes}
+
+\title{Introduction to Deep Learning}
+\subtitle{Session 10: CNNs in Practice \\[1em]
+\small May 2026}
+\author{Magda Gregorová - \href{mailto:magda.gregorova@thws.de}{magda.gregorova@thws.de}}
+\institute{\includegraphics[width=0.3\textwidth]{thws-logo_vert_en_orange-rgb.png}}
+\hypersetup{
+pdftitle={Introduction to Deep Learning},
+pdfauthor={Magda Gregorová},
+pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, torchvision}
+}
+\date{{\color{skyblue1}\footnotesize Licensed according to
+\href{https://creativecommons.org/licenses/by-sa/4.0}{\color{skyblue1}CC-BY-SA 4.0}}}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+\begin{frame}{Lecture Overview}
+\tableofcontents
+\end{frame}
+
+OHTER BEAMER SETUP:
 - \vskip 2em after every frame title
 - No articles in frame titles, no overlays, no slide notes blocks
 - Section divider: empty frame with \vskip 8em and {\Large \structure{Title}}

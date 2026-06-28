@@ -1,0 +1,69 @@
+% Figure G: RNN (single stream) vs LSTM (two streams) comparison
+\begin{tikzpicture}[
+  hnode/.style = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.62cm,
+                  fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  cnode/.style = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.62cm,
+                  fill=thwsorange!20, draw=thwsorange!80!black, thick, font=\small},
+  cell/.style  = {draw, rounded corners=5pt, minimum width=0.9cm, minimum height=0.62cm,
+                  fill=thwspetrol!15, draw=thwspetrol, thick, font=\scriptsize},
+  valve/.style = {draw, diamond, minimum size=0.55cm,
+                  fill=carnelian!15, draw=carnelian, thick, font=\tiny},
+  arr/.style   = {->, >=stealth, thick},
+  carr/.style  = {->, >=stealth, thick, color=thwsorange!80!black},
+  hdr/.style   = {font=\small\bfseries, color=thwsblue},
+]
+
+%% ---- LEFT: Vanilla RNN ----
+\node[hdr] at (1.5, 2.0) {Vanilla RNN};
+\node[font=\scriptsize, color=black!60] at (1.5, 1.65) {single hidden stream};
+
+\node[hnode] (rh0) at (0, 0.8)   {$\mathbf{h}^{(t-1)}$};
+\node[cell]  (rf)  at (1.5, 0.8) {$\tanh$};
+\node[hnode] (rh1) at (3.0, 0.8) {$\mathbf{h}^{(t)}$};
+\node[font=\tiny, color=thwsblue, below=0.5cm of rf]
+             (rx)               {$\mathbf{x}^{(t)}$};
+
+\draw[arr] (rh0) -- (rf);
+\draw[arr] (rf)  -- (rh1);
+\draw[arr] (rx)  -- (rf);
+
+% Single stream label
+\node[font=\scriptsize\itshape, color=thwsblue, above=0.12cm of rf] {one stream};
+
+%% ---- RIGHT: LSTM ----
+\node[hdr] at (8.5, 2.0) {LSTM};
+\node[font=\scriptsize, color=black!60] at (8.5, 1.65) {cell state + hidden state};
+
+% Cell state stream (top, orange)
+\node[cnode] (lc0) at (5.8, 1.2) {$\mathbf{c}^{(t-1)}$};
+\node[valve] (lv1) at (7.0, 1.2) {$f$};
+\node[valve] (lv2) at (8.2, 1.2) {$+$};
+\node[cnode] (lc1) at (9.6, 1.2) {$\mathbf{c}^{(t)}$};
+
+\draw[carr] (lc0) -- (lv1);
+\draw[carr] (lv1) -- (lv2);
+\draw[carr] (lv2) -- (lc1);
+
+% Hidden state stream (bottom, blue)
+\node[hnode] (lh0) at (5.8, 0.1) {$\mathbf{h}^{(t-1)}$};
+\node[cell]  (lg)  at (7.6, 0.1) {gates};
+\node[hnode] (lh1) at (9.6, 0.1) {$\mathbf{h}^{(t)}$};
+
+\draw[arr] (lh0) -- (lg);
+\draw[arr] (lg)  to[out=90, in=270] (lv2);
+\draw[arr] (lv2.south) to[out=270, in=90] (lh1.north);
+
+% Input
+\node[font=\tiny, color=black!60, below=0.45cm of lg] {$\mathbf{x}^{(t)}$};
+\draw[arr] (lg.south)+(0,-0.3) -- (lg.south);
+
+% Stream labels
+\node[font=\scriptsize\itshape, color=thwsorange!80!black, above=0.1cm of lv2]
+     {cell state $\mathbf{c}$ — gradient highway};
+\node[font=\scriptsize\itshape, color=thwsblue, below=0.12cm of lg]
+     {};
+
+%% Divider
+\draw[dashed, color=thwsgrey!70, thick] (4.4, -0.5) -- (4.4, 2.3);
+
+\end{tikzpicture}

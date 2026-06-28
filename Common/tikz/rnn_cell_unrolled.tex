@@ -1,0 +1,49 @@
+% Figure D: Unrolled RNN — weight labels at every step, outputs shown
+\begin{tikzpicture}[
+  hnode/.style = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.65cm,
+                  fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  cell/.style  = {draw, rounded corners=5pt, minimum width=0.95cm, minimum height=0.65cm,
+                  fill=thwspetrol!15, draw=thwspetrol, thick, font=\scriptsize},
+  xnode/.style = {draw, circle, minimum size=0.62cm,
+                  fill=thwsorange!25, draw=thwsorange!80!black, thick, font=\scriptsize},
+  ynode/.style = {draw, circle, minimum size=0.62cm,
+                  fill=thwsgrey!40, draw=thwsgrey!80, thick, font=\scriptsize},
+  arr/.style   = {->, >=stealth, thick},
+  wlbl/.style  = {font=\tiny, color=carnelian},
+  xlbl/.style  = {font=\tiny, color=thwsorange!80!black},
+]
+
+\def\step{2.6}
+
+% t=0 (init)
+\node[hnode] (h0) at (0,0) {$\mathbf{h}^{(0)}$};
+\node[font=\tiny, below=0.1cm of h0, color=thwsblue] {$=\mathbf{0}$};
+
+\foreach \t/\tlab in {1/$t{=}1$, 2/$t{=}2$, 3/$t{=}3$} {
+  \pgfmathsetmacro\xpos{\t*\step}
+  \node[cell]  (f\t) at (\xpos, 0)    {$\tanh$};
+  \node[hnode] (h\t) at (\xpos+1.1, 0) {$\mathbf{h}^{(\t)}$};
+  \node[xnode] (x\t) at (\xpos, -1.3) {$\mathbf{x}^{(\t)}$};
+  \node[ynode] (y\t) at (\xpos, +1.3) {$\mathbf{y}^{(\t)}$};
+
+  % input arrow
+  \draw[arr] (x\t) -- node[right, xlbl] {$\mathbf{W}_x$} (f\t);
+  % output arrow
+  \draw[arr] (f\t) -- (y\t);
+  % cell to hidden
+  \draw[arr] (f\t) -- (h\t);
+}
+
+% recurrent arrows with Wh labels
+\draw[arr] (h0)  -- node[above, wlbl] {$\mathbf{W}_h$} (f1);
+\draw[arr] (h1)  -- node[above, wlbl] {$\mathbf{W}_h$} (f2);
+\draw[arr] (h2)  -- node[above, wlbl] {$\mathbf{W}_h$} (f3);
+
+% Brace annotation: same weights
+\draw[decorate, decoration={brace, amplitude=6pt, mirror},
+      color=carnelian, thick]
+  (f1.south west) -- (f3.south east)
+  node[midway, below=8pt, font=\scriptsize\itshape, color=carnelian]
+       {same $\mathbf{W}_h$, $\mathbf{W}_x$, $\mathbf{b}$ at every step};
+
+\end{tikzpicture}

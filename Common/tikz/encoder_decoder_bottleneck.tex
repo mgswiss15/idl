@@ -1,0 +1,60 @@
+% Figure L: Encoder-decoder with bottleneck annotation
+\begin{tikzpicture}[
+  hnode/.style = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.62cm,
+                  fill=thwsblue!15, draw=thwsblue, thick, font=\small},
+  dnode/.style = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.62cm,
+                  fill=thwspetrol!15, draw=thwspetrol, thick, font=\small},
+  cnode/.style = {draw, rounded corners=4pt, minimum width=1.0cm, minimum height=0.62cm,
+                  fill=carnelian!15, draw=carnelian, thick, font=\small},
+  xnode/.style = {font=\small},
+  ynode/.style = {font=\small},
+  arr/.style   = {->, >=stealth, thick},
+  hdr/.style   = {font=\small\bfseries},
+]
+
+%% Encoder
+\node[hdr, color=thwsblue] at (1.4, 2.0) {Encoder};
+
+\foreach \i/\w in {1/Die, 2/Katze, 3/sitzt} {
+  \node[xnode] (xe\i) at (\i*1.5-1.5, -0.6) {\textit{\w}};
+  \node[hnode] (he\i) at (\i*1.5-1.5, 0.6) {};
+  \draw[arr] (xe\i) -- (he\i);
+}
+\draw[arr] (he1) -- (he2);
+\draw[arr] (he2) -- (he3);
+
+%% Context vector (bottleneck)
+\node[cnode] (ctx) at (5.2, 0.6) {$\mathbf{c}$};
+\draw[arr] (he3) -- node[above, font=\scriptsize] {} (ctx);
+
+% Bottleneck brace
+\draw[decorate, decoration={brace, amplitude=6pt},
+      color=carnelian, thick]
+  (ctx.north west) -- (ctx.north east)
+  node[midway, above=8pt, font=\scriptsize\itshape, color=carnelian, align=center]
+       {\alert{bottleneck}:\\entire sequence\\in one vector};
+
+%% Decoder
+\node[hdr, color=thwspetrol] at (9.0, 2.0) {Decoder};
+
+\foreach \i/\w in {1/The, 2/cat, 3/sits} {
+  \node[dnode] (hd\i) at (5.2+\i*1.5, 0.6) {};
+  \node[ynode] (yd\i) at (5.2+\i*1.5, 1.8) {\textit{\w}};
+  \draw[arr] (hd\i) -- (yd\i);
+}
+\draw[arr] (ctx) -- (hd1);
+\draw[arr] (hd1) -- (hd2);
+\draw[arr] (hd2) -- (hd3);
+
+% Also feed context to each decoder step
+\draw[arr, dashed, color=carnelian] (ctx.south) to[out=270, in=240] (hd2.south);
+\draw[arr, dashed, color=carnelian] (ctx.south) to[out=270, in=250] (hd3.south);
+
+%% Problem annotation
+\node[draw, rounded corners=4pt, fill=carnelian!8, draw=carnelian,
+      font=\scriptsize, align=center] at (5.8, -1.5)
+  {For long sequences: fixed-size $\mathbf{c}$ cannot hold all relevant information\\
+   $\Rightarrow$ translation quality degrades with sentence length
+   \quad\href{https://arxiv.org/abs/1409.0473}{Bahdanau et al., 2015}};
+
+\end{tikzpicture}
