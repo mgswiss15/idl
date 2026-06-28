@@ -24,9 +24,8 @@ Artificial intelligence, machine learning, and deep learning are often used inte
 
 \begin{wrapfigure}{r}{0.35\textwidth}
     \centering
-    \resizebox{0.35\textwidth}{!}{
-        \input{\CommonPath/tikz/ai_ml_dl.tex}
-    }
+    \tikzsetnextfilename{ai_ml_dl}
+    \resizebox{0.35\textwidth}{!}{\input{\CommonPath/tikz/ai_ml_dl.tex}}
     \caption{The relationship between AI, machine learning, deep learning, and generative AI.}
     \label{fig:ai_ml_dl}
 \end{wrapfigure}
@@ -52,6 +51,7 @@ Figure~\ref{fig:history} shows the key milestones in the development of deep lea
 
 \begin{figure}[h]
     \centering
+    \tikzsetnextfilename{ai_history.tex}
     \input{\CommonPath/tikz/ai_history.tex}
     \caption{Key milestones in the history of deep learning. Shaded regions indicate AI winters and the cold spell of the early 2000s.}
     \label{fig:history}
@@ -105,6 +105,7 @@ Figure~\ref{fig:dataset_scale} shows the growth in dataset scale over time. Two 
 
 \begin{figure}[h]
     \centering
+    \tikzsetnextfilename{dataset_scale.tex}
     \input{\CommonPath/tikz/dataset_scale.tex}
     \caption{Image dataset sizes and resolutions over time. Blue line: number of images (log scale, left axis). Orange line: image side size in pixels (linear scale, right axis).}
     \label{fig:dataset_scale}
@@ -119,6 +120,7 @@ Cloud platforms such as AWS, Microsoft Azure, and Google Cloud democratised acce
 
 \begin{figure}[h]
     \centering
+    \tikzsetnextfilename{gpu_performance.tex}
     \input{\CommonPath/tikz/gpu_performance.tex}
     \caption{GPU performance in TFLOPS (FP32) from 2012 to 2024.}
     \label{fig:gpu_performance}
@@ -135,6 +137,7 @@ Figure~\ref{fig:imagenet_accuracy} illustrates the impact of these algorithmic a
 
 \begin{figure}[h]
     \centering
+    \tikzsetnextfilename{imagenet_accuracy}
     \input{\CommonPath/tikz/imagenet_accuracy.tex}
     \caption{ImageNet top-5 accuracy from 2011 to 2022. Each labelled point corresponds to a key architectural innovation. The dashed red line indicates approximate human performance.}
     \label{fig:imagenet_accuracy}
