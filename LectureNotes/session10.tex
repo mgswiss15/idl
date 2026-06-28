@@ -34,70 +34,88 @@ Modern pretrained models are trained on increasingly large datasets: ImageNet (1
 
 \subsubsection{Feature Extraction vs Fine-tuning}
 
+Recall that a CNN trained for classification consists of two functional parts. The \textbf{convolutional backbone} --- the stack of convolutional and pooling layers --- acts as a feature extractor: it maps an input image to a compact feature vector encoding what is present in the image. The \textbf{classification head} is typically a single fully connected layer (or a small MLP) that maps this feature vector to class scores. When we adapt a pretrained model, we discard the original head (which outputs scores for the source task's classes) and replace it with a new one sized for our target task.
+
 Once you have a pretrained model, there are two main strategies for adapting it to a new task.
 
 \textbf{Feature extraction} treats the pretrained network as a fixed feature extractor. All pretrained layers are frozen — their weights are not updated during training — and only a new classification head is trained. The pretrained network maps each input image to a feature vector, and the head learns to classify these vectors for the new task. Feature extraction is appropriate when the target dataset is small (hundreds to a few thousand examples), when compute is limited, or when the target domain is similar enough to the source that the pretrained features are directly useful.
 
 \textbf{Fine-tuning} unfreezes some or all of the pretrained layers and trains them alongside the new head, typically with a much smaller learning rate. This allows the network to adapt its pretrained features to the specific characteristics of the target domain, at the cost of needing more data and compute. Fine-tuning is appropriate when the target dataset is large enough to avoid overfitting the deeper layers, or when the target domain is sufficiently different from the source that direct feature transfer is insufficient.
 
-\textbf{Catastrophic forgetting} is a key risk in fine-tuning: if the learning rate is too large, gradient updates on the new task will overwrite the pretrained weights, destroying the useful features learned during pretraining. The network ``forgets'' what it learned before. The standard mitigation is to use a learning rate $10\times$--$100\times$ smaller than the original pretraining learning rate when fine-tuning pretrained layers.
-
+\textbf{Catastrophic forgetting} is a key risk in fine-tuning: if the learning rate is too large, the large noisy gradients from the randomly initialised head propagate back into the backbone and overwrite the pretrained weights, destroying the useful representations built up during pretraining. The standard mitigation is to use a learning rate $10\times$--$100\times$ smaller than the original pretraining learning rate when fine-tuning pretrained layers.
 \subsubsection{When to Use Which}
 
 The choice between feature extraction and fine-tuning depends on two factors: the size of the target dataset and the similarity between the source and target domains.
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+ & \textbf{Similar domain} & \textbf{Different domain} \\
+\midrule
+\textbf{Small dataset} &
+    Feature extraction &
+    Feature extraction \\
+ & (freeze all, train head) & (try different layer depths) \\[0.8em]
+\textbf{Large dataset} &
+    Fine-tune all layers &
+    Fine-tune all layers \\
+ & (small learning rate) & (more epochs, careful tuning) \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\begin{itemize}
-    \item \textbf{Small dataset, similar domain}: feature extraction. The pretrained features are directly useful, and the small dataset is not large enough to fine-tune without overfitting.
-    \item \textbf{Small dataset, different domain}: feature extraction, but experiment with which layers to use as features. Early layers (more general) may transfer better than late layers (more specific to the source task).
-    \item \textbf{Large dataset, similar domain}: fine-tune all layers with a small learning rate. Enough data to adapt the network without overfitting.
-    \item \textbf{Large dataset, different domain}: fine-tune all layers, possibly for more epochs and with more careful hyperparameter tuning.
-\end{itemize}
+\textbf{Feature extraction} is the right choice when the target dataset is small. With few examples, fine-tuning the backbone risks overfitting --- the network will memorise the training set rather than learning to generalise. If the target domain is similar to the source, the pretrained features transfer directly and a new head trained on top is often sufficient. If the domain is different, it is worth experimenting with which layers to use as features: earlier layers capture more general low-level structure and may transfer better than later layers which are tuned to source-task semantics.
 
-A practical rule of thumb: always start with feature extraction. It is fast, safe, and often surprisingly competitive. Add fine-tuning only if feature extraction is clearly insufficient, and proceed gradually.
+\textbf{Fine-tuning} becomes appropriate when enough labelled data is available to adapt the backbone without overfitting. With a similar domain, fine-tuning all layers with a small learning rate typically yields the best results. With a different domain, more epochs, a lower learning rate, and more aggressive data augmentation may be needed to fully adapt the representations.
 
 \subsubsection{Practical Tuning}
 
-Several practical considerations arise when adapting pretrained models.
+The starting point for any transfer learning workflow is always to freeze the entire backbone and train only the new head. Once the head has stabilised --- typically after a few epochs --- you can begin unfreezing layers progressively from the top, since later layers are the most task-specific and most in need of adaptation. Earlier layers, which encode general low-level features, should remain frozen longer or not be touched at all.
 
-\textbf{Freezing strategy.} Start with all pretrained layers frozen and train only the new head. If performance is insufficient, unfreeze layers progressively from the top — that is, unfreeze the later layers first, since they are the most task-specific and most in need of adaptation. Earlier layers, which contain more general features, should be frozen longer. This progressive unfreezing avoids catastrophic forgetting in the early stages of adaptation.
+When unfreezing layers, use different learning rates for different parts of the network. The new head, which starts from random initialisation, can tolerate a standard learning rate such as \texttt{1e-3}. Fine-tuned backbone layers should use a much smaller rate --- \texttt{1e-5} or lower --- to avoid overwriting the pretrained representations. This technique, known as \textbf{discriminative learning rates}, is straightforward to implement in PyTorch by passing parameter groups with per-group learning rates to the optimiser.
 
-\textbf{Discriminative learning rates.} When fine-tuning multiple layer groups, it is common to use different learning rates for different parts of the network — a technique called discriminative learning rates. Later layers, which need more adaptation, receive a larger learning rate; earlier layers, which are already well-trained, receive a smaller one. A typical setup might use \texttt{1e-3} for the new head, \texttt{1e-5} for the last pretrained block, and \texttt{1e-6} for earlier blocks. In PyTorch, this is implemented by passing parameter groups with per-group learning rates to the optimiser.
+It also helps to warm up the learning rate for the backbone layers at the start of fine-tuning: begin with a very small value and increase it gradually over the first few epochs. This gives the randomly initialised head time to stabilise and produce reasonable gradients before the backbone weights are significantly updated.
 
-\textbf{Learning rate warmup.} When fine-tuning, it can help to start with a very small learning rate and increase it gradually over the first few epochs. At the start of fine-tuning, the new head is randomly initialised and may produce large, noisy gradients. Warmup gives the head time to stabilise before the pretrained layers are significantly updated.
+Early stopping is essential when fine-tuning --- the combination of a small dataset and a powerful pretrained model means overfitting can happen within just a few epochs. Monitor validation loss carefully and save the checkpoint at the best validation performance rather than the final one.
 
-\textbf{Data augmentation.} More aggressive augmentation helps when the target dataset is small. Standard augmentations — random crops, horizontal flips, colour jitter — reduce overfitting and improve generalisation. Domain-specific augmentations can be added on top.
-
-\textbf{Early stopping.} Fine-tuning can overfit quickly on small datasets. Monitor validation loss carefully and stop when it begins to rise. The model at the best validation loss should be saved and used, not the model at the end of training.
+Finally, data augmentation deserves particular attention when the target dataset is small. Standard augmentations --- random crops, horizontal flips, colour jitter --- are always worth applying. For domains far from natural images, domain-specific augmentations can be added on top and often provide a significant boost.
 
 % - - - - - - - - - - - - - - - - -
 \subsection{Practical CNN Training}
 \slideref{Session 10: torchvision and timm, Adapting Pretrained Model, Image Transforms Pipeline}
 
+This section covers the practical PyTorch tools for putting transfer learning into practice: where to find pretrained models, how to adapt them in code, and how to preprocess images correctly.
+
 \subsubsection{Sources of Pretrained Models}
 
-Three main sources of pretrained models are available for PyTorch users.
+Before writing any code, two decisions need to be made: which model architecture to use, and which pretrained weights to load. These choices interact and depend on your task, your dataset, and your available compute.
 
-\textbf{torchvision.models} is the official PyTorch model zoo, providing pretrained versions of standard architectures including ResNet, VGG, EfficientNet, and Vision Transformers. The API is straightforward:
+\paragraph{Choosing an architecture.} The right architecture depends on several factors. Accuracy is the obvious one, but it should not be the only consideration. Larger models --- more layers, more parameters --- generally achieve higher accuracy on standard benchmarks, but they are slower to train and run, consume more memory, and have a larger carbon footprint. For transfer learning on a small dataset, a smaller model is often the better choice: it is faster to fine-tune, less likely to overfit, and easier to deploy. A good starting point is to identify the accuracy-efficiency tradeoff that fits your constraints, then pick an architecture in that range. Resources such as the \href{https://paperswithcode.com/}{Papers with Code} maintain up-to-date leaderboards comparing architectures on standard benchmarks, with links to the original papers and open-source implementations. This makes it straightforward to survey the accuracy-efficiency landscape, identify architectures worth considering, and find the corresponding code and pretrained weights.
+
+\paragraph{Choosing weights.} Once an architecture is chosen, the weights determine what features the backbone has learned. The common assumption --- that weights performing well on the original task will transfer well to a new one --- does not always hold. Transfer performance depends on how similar the source and target domains are, how the model was trained (the training recipe matters as much as the dataset), and sometimes on factors that are hard to predict in advance. Weights trained with modern recipes using mixup, label smoothing, or self-supervised objectives sometimes transfer better than older ImageNet checkpoints even for the same architecture. The safest approach is to treat weight selection as a hyperparameter: if compute allows, benchmark a few candidate weights on a small validation set rather than assuming the highest ImageNet accuracy corresponds to the best transfer performance.
+
+\paragraph{Sources of pretrained models.} Three main sources are available for PyTorch users.
+
+\textbf{\href{https://pytorch.org/vision/stable/models.html}{torchvision.models}} is the official PyTorch model zoo, maintained by the PyTorch team. It covers a curated set of standard architectures --- ResNet, VGG, EfficientNet, Vision Transformers --- pretrained on ImageNet with well-documented training configurations. Because it is officially maintained, it is the most reliable source in terms of correctness and long-term stability. The API is simple and consistent, and each model entry documents exactly which weights are available and what normalisation statistics they require. The main limitation is breadth: torchvision covers the established classics but does not track the research frontier closely.
 
 \begin{verbatim}
 from torchvision.models import resnet50, ResNet50_Weights
 model = resnet50(weights=ResNet50_Weights.DEFAULT)
 \end{verbatim}
 
-\textbf{timm} (PyTorch Image Models) is a community-maintained library with over 700 pretrained models, including many state-of-the-art architectures not available in torchvision. It has become the standard resource for vision research:
+\textbf{\href{https://github.com/huggingface/pytorch-image-models}{timm}} (PyTorch Image Models) is a community-maintained library with over 700 pretrained models, including many architectures and weight variants not available in torchvision. It is the standard resource in vision research when you need something beyond the classics. A key advantage is that timm standardises the interface across architectures, so switching between models requires minimal code changes. The trade-off is that being community-maintained means quality and documentation can vary across models. In practice, the most popular models in timm are well-tested and widely used. Weights in timm often come from multiple sources and training recipes, which makes the choice richer but also more demanding --- the \href{https://huggingface.co/docs/timm/index}{documentation} and model cards should be consulted carefully.
 
 \begin{verbatim}
 import timm
 model = timm.create_model('resnet50', pretrained=True)
 \end{verbatim}
 
-\textbf{HuggingFace} hosts pretrained vision-language models including CLIP, DINO, and Vision Transformers via the \texttt{transformers} library. It is particularly useful for models trained with self-supervised or contrastive objectives on large-scale data.
+\textbf{\href{https://huggingface.co/models}{HuggingFace}} is a large model hub hosting contributions from both the research community and industry. For pure CNN-based vision tasks it largely overlaps with timm, but it becomes essential when working with more recent model families that combine vision with language --- such as CLIP or DINO --- based on architectures called Vision Transformers which go beyond what our introductory course covers. For now it is worth knowing that HuggingFace is where you would find them, and that the \href{https://huggingface.co/docs/transformers/index}{transformers library} provides a consistent interface across a very wide range of model types. The quality and reliability of models on HuggingFace varies significantly --- always check the model card and prefer models from established organisations or with a strong download and community track record.
 
-Each source provides models with documented pretraining configurations, including the normalisation statistics used during training — important for preprocessing (see below).
+For straightforward CNN transfer learning tasks, torchvision is the natural first stop for its reliability and simplicity. timm is the next step when you need more architectural choices or more recent weights. HuggingFace becomes relevant when your task requires vision-language models or when you are looking for community-contributed specialised weights.
 
 \subsubsection{Adapting a Pretrained Model}
 
-The standard adaptation workflow in PyTorch is:
+Once a pretrained model is loaded, the standard adaptation workflow has two steps: replace the classification head with one sized for your target task, and decide which parameters to train. In PyTorch this is done by manipulating \texttt{requires\_grad} flags on parameter groups and constructing the optimiser accordingly. The following example shows feature extraction with a ResNet-50 backbone.
 
 \begin{verbatim}
 model = resnet50(weights=ResNet50_Weights.DEFAULT)
@@ -114,9 +132,9 @@ model.fc = nn.Linear(num_features, num_classes)
 optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-3)
 \end{verbatim}
 
-Note that replacing \texttt{model.fc} automatically makes the new layer's parameters trainable (since they are freshly initialised), while all other parameters remain frozen.
+In ResNet, the classification head is a single fully connected layer accessible as \texttt{model.fc} --- it maps the 2048-dimensional output of the backbone to class scores. Replacing it with a new \texttt{nn.Linear} sized for your number of classes, while freezing all other parameters, gives a feature extraction setup where only the new head is trained.
 
-For fine-tuning with discriminative learning rates:
+For fine-tuning, selected backbone layers can be unfrozen and trained alongside the head, typically with a much smaller learning rate. The following example unfreezes the last ResNet block (\texttt{layer4}) and uses discriminative learning rates --- a higher rate for the new head and a lower one for the unfrozen backbone layers.
 
 \begin{verbatim}
 # unfreeze last ResNet block
@@ -134,38 +152,47 @@ All the basics from earlier sessions still apply: \texttt{model.train()} and \te
 
 \subsubsection{Image Transforms Pipeline}
 
-Images must be preprocessed before being fed to a CNN. PyTorch provides the \texttt{torchvision.transforms} module for this. A standard pipeline consists of:
+Before images can be fed to a CNN, they must be converted into the format the network expects. This involves a pipeline of transformations applied to each image, constructed using \texttt{torchvision.transforms.Compose}.
+
+Three transformations are always required. \texttt{ToTensor} converts a PIL image or NumPy array to a PyTorch tensor and scales pixel values from $[0, 255]$ to $[0, 1]$. \texttt{Resize} brings the image to the spatial dimensions the network expects --- most ImageNet-pretrained models require $224 \times 224$ input, and feeding a different size will either cause an error or silently produce wrong results. \texttt{Normalize} then standardises each channel by subtracting the mean and dividing by the standard deviation.
+
+Normalisation is important because the pretrained model was trained on data preprocessed with specific statistics --- using different values shifts the input distribution away from what the network expects, degrading performance. When using a pretrained model, the normalisation statistics must therefore match those used during pretraining, not be computed from your own dataset. Both torchvision and timm document the correct statistics for each pretrained model; for ImageNet-pretrained models the standard values are mean \texttt{[0.485, 0.456, 0.406]} and standard deviation \texttt{[0.229, 0.224, 0.225]} per channel. Models pretrained on specialised data --- medical images, satellite imagery, microscopy --- can have statistics that differ substantially from these values, and using ImageNet statistics with such models will hurt performance.
+
+Data augmentation applies random perturbations to training images to artificially increase the effective size of the dataset and improve generalisation. \texttt{RandomResizedCrop} crops a random region of the image and resizes it to the target size, encouraging the network to be robust to scale and position. \texttt{RandomHorizontalFlip} mirrors the image with 50\% probability, useful for tasks where left-right symmetry holds. \texttt{ColorJitter} randomly varies brightness, contrast, saturation, and hue, making the model robust to lighting conditions. These are among the most commonly used augmentations, but many more are available --- including \texttt{RandomRotation}, \texttt{RandomGrayscale}, \texttt{GaussianBlur}, and \texttt{RandomErasing} --- and the full list is documented in the \href{https://pytorch.org/vision/stable/transforms.html}{torchvision transforms documentation}. 
+
+The right choice of augmentations is task-dependent and is one of the places in the deep learning pipeline where domain expertise and careful thinking about the data genuinely matter. Horizontal flipping is appropriate for natural images but not for tasks where orientation carries meaning --- reading text, analysing ECGs, or classifying asymmetric skin lesions. Aggressive colour jitter helps when lighting conditions vary but can destroy diagnostically relevant colour information in histology or dermatology images. Geometric distortions such as random rotation are useful for aerial or satellite imagery where objects can appear at any angle, but inappropriate for tasks where vertical orientation is meaningful. There is no universal recipe: the best augmentation strategy comes from understanding what variability is present in the real deployment environment and what properties of the image are irrelevant to the label. A useful heuristic is to ask for each augmentation --- could this transform turn a correctly labelled image into a wrongly labelled one? If yes, it should not be used.
+
+Regardless of which augmentations are chosen, they must only be applied during training. At validation and test time the transform pipeline should contain only deterministic operations --- resizing, cropping, and normalisation. Random augmentations at validation time would make the loss noisy across epochs, undermining early stopping, and would make test results non-reproducible.
 
 \begin{verbatim}
 from torchvision import transforms
 
 train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(224),      # random crop and resize
-    transforms.RandomHorizontalFlip(),       # data augmentation
+    transforms.RandomResizedCrop(224),
+    transforms.RandomHorizontalFlip(),
     transforms.ColorJitter(brightness=0.2, contrast=0.2),
-    transforms.ToTensor(),                   # convert to tensor, scale to [0,1]
-    transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225])          # normalise
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
 ])
 
 val_transform = transforms.Compose([
     transforms.Resize(256),
-    transforms.CenterCrop(224),             # deterministic crop
+    transforms.CenterCrop(224),
     transforms.ToTensor(),
     transforms.Normalize(...)
 ])
 \end{verbatim}
 
-Two important points. First, \textbf{no augmentation at validation or test time} — the validation transform uses only deterministic operations (resize and center crop) to ensure consistent, reproducible evaluation. Applying random augmentations at validation time would make the loss noisy and unreliable as a stopping criterion.
+The transform pipeline is applied on the fly during data loading --- each image is transformed as it is fetched by the \texttt{DataLoader}, not pre-processed and stored on disk. This has an important consequence: every time an image is loaded, a fresh set of random transformations is applied. The same image will be cropped to a different region, flipped or not, with different brightness, each time it appears in training. Over many epochs the network effectively sees many slightly different versions of each image, which is precisely what gives augmentation its regularising effect --- it makes it harder for the network to memorise individual training examples and forces it to learn features that are robust to the kinds of variation the augmentations introduce.
 
-Second, \textbf{normalisation statistics must match the pretraining dataset}. The values \texttt{[0.485, 0.456, 0.406]} and \texttt{[0.229, 0.224, 0.225]} are the per-channel mean and standard deviation of ImageNet. If the model was pretrained on a different dataset, different statistics apply. Using wrong normalisation values shifts the input distribution away from what the network was trained on, degrading performance. Both torchvision and timm document the correct statistics for each pretrained model.
+The order of transformations in the pipeline matters. Geometric transformations such as \texttt{RandomResizedCrop} and \texttt{RandomHorizontalFlip} should come first, while the image is still in PIL format. \texttt{ToTensor} should follow, converting the image to a tensor, after which pixel-level operations such as \texttt{Normalize} and \texttt{ColorJitter} are applied. Applying \texttt{Normalize} before \texttt{ToTensor} would fail outright since \texttt{Normalize} operates on tensors. More subtly, applying colour augmentations before resizing is slightly wasteful --- you are jittering pixels that may be discarded by the crop. Following the order shown in the code example above is a safe and standard convention.
 
 % - - - - - - - - - - - - - - - - -
 \subsection{Beyond Classification}
 \slideref{Session 10: Vision Tasks, Object Detection, Evaluation -- IoU and mAP, Semantic Segmentation, Instance Segmentation, Annotation Cost}
 
-Image classification assigns a single label to an entire image. Many real-world applications require richer outputs: locating objects, labelling every pixel, or distinguishing individual instances of the same class. Figure~\ref{fig:vision_tasks} illustrates the four main visual tasks.
+Image classification assigns one or more labels to an entire image. Many real-world applications require richer outputs: locating objects, labelling every pixel, or distinguishing individual instances of the same class. Figure~\ref{fig:vision_tasks} illustrates the four main visual tasks. This section provides a brief introduction to each --- enough to understand what these tasks involve and how CNNs are applied to them. A full treatment, including the details of modern architectures and training procedures, is beyond the scope of these notes and is typically covered by a dedicated course on computer vision.
 
 \begin{figure}[h]
 \centering
@@ -176,7 +203,7 @@ Image classification assigns a single label to an entire image. Many real-world 
 \includegraphics[width=0.22\textwidth]{\CommonPath/Pics/coco4.png} \\
 Classification & Object detection & Semantic segmentation & Instance segmentation
 \end{tabular}
-\caption{Four main visual tasks. Classification assigns one label to the whole image. Object detection localises and classifies multiple objects with bounding boxes. Semantic segmentation assigns a class label to every pixel. Instance segmentation additionally distinguishes individual objects of the same class.}
+\caption{Four main visual tasks. Classification assigns one ro more labels to the whole image. Object detection localises and classifies multiple objects with bounding boxes. Semantic segmentation assigns a class label to every pixel. Instance segmentation additionally distinguishes individual objects of the same class.}
 \label{fig:vision_tasks}
 \end{figure}
 
@@ -184,23 +211,16 @@ All four tasks share a common pattern: a pretrained CNN backbone extracts featur
 
 \subsubsection{Object Detection}
 
-Object detection requires the network to output, for each object in the image, a bounding box (four coordinates), a class label, and a confidence score. Unlike classification, multiple objects of different classes can be present simultaneously.
+Object detection requires the network to output a variable number of predictions, one per object present in the image. Each prediction consists of a bounding box --- defined by four coordinates, typically the centre position, width, and height --- a class label identifying what type of object it is, and a confidence score reflecting how certain the network is about that prediction. Unlike classification, the number of objects is not known in advance and can vary from image to image. A street scene might contain dozens of pedestrians, cars, and traffic signs simultaneously, each needing to be localised and identified independently.
 
 \paragraph{Two-stage detectors.}
-The R-CNN family of detectors \parencite{Ren2015} uses a two-stage approach. In the first stage, a \textbf{Region Proposal Network (RPN)} scans the feature map and proposes candidate regions that might contain objects, using anchor boxes of different scales and aspect ratios at each spatial location. In the second stage, each proposed region is extracted, pooled to a fixed size (RoI pooling), and passed through a classifier and bounding box regressor. Faster R-CNN introduced the RPN, making the whole pipeline end-to-end trainable and reducing inference time to around 0.2 seconds per image. Two-stage detectors generally achieve higher accuracy but are slower than one-stage approaches.
+The R-CNN family of detectors \parencite{Ren2015} uses a two-stage approach. In the first stage, a \textbf{Region Proposal Network (RPN)} scans the feature map and proposes candidate regions that might contain objects, using anchor boxes of different scales and aspect ratios at each spatial location. In the second stage, each proposed region is extracted, pooled to a fixed size (RoI pooling), and passed through a classifier and bounding box regressor. Faster R-CNN introduced the RPN, making the whole pipeline end-to-end trainable and reducing inference time to around 0.2 seconds per image. Two-stage detectors generally achieve higher accuracy but are slower than single-stage approaches.
 
-\paragraph{One-stage detectors.}
-YOLO \parencite{Redmon2016} (You Only Look Once) and SSD predict bounding boxes and class probabilities directly from the feature map in a single forward pass. YOLO divides the image into an $S \times S$ grid; each cell predicts $B$ bounding boxes with confidence scores and $C$ class probabilities, producing an $S \times S \times (B \times 5 + C)$ output tensor. This single-pass design makes YOLO extremely fast and suitable for real-time applications. Modern YOLO versions (now at v10/v11) have largely closed the accuracy gap with two-stage detectors while maintaining high speed.
+\paragraph{Single-stage detectors.}
+The YOLO \parencite{Redmon2016} (You Only Look Once) family of models predict bounding boxes and class probabilities directly from the feature map in a single forward pass. YOLO divides the image into an $S \times S$ grid; each cell predicts $B$ bounding boxes with confidence scores and $C$ class probabilities, producing an $S \times S \times (B \times 5 + C)$ output tensor. This single-pass design makes YOLO extremely fast and suitable for real-time applications. Modern YOLO versions (now at v10/v11) have largely closed the accuracy gap with two-stage detectors while maintaining high speed.
 
 \paragraph{Evaluation.}
 Object detection is evaluated using \textbf{Intersection over Union (IoU)} and \textbf{mean Average Precision (mAP)}.
-
-\begin{wrapfigure}{r}{0.38\textwidth}
-\centering
-\resizebox{0.36\textwidth}{!}{\input{\CommonPath/tikz/iou.tex}}
-\caption{IoU measures the overlap between predicted and ground truth bounding boxes. A prediction is counted as correct if IoU exceeds a threshold.}
-\label{fig:iou}
-\end{wrapfigure}
 
 IoU measures the overlap between a predicted bounding box and the ground truth box (Figure~\ref{fig:iou}):
 \[
@@ -208,15 +228,33 @@ IoU measures the overlap between a predicted bounding box and the ground truth b
 \]
 A prediction is counted as correct if its IoU with the ground truth exceeds a threshold, typically 0.5.
 
-Average Precision (AP) for a single class summarises the precision-recall tradeoff: as the confidence threshold is varied, different numbers of predictions are accepted, tracing out a precision-recall curve. AP is the area under this curve. Mean AP (mAP) averages AP across all classes. The COCO benchmark uses a stricter standard: mAP averaged over IoU thresholds from 0.5 to 0.95 in steps of 0.05.
+Average Precision (AP) for a single class summarises the precision-recall tradeoff across all possible confidence thresholds. As the threshold is lowered, more predictions are accepted: recall increases because more true objects are found, but precision falls because more false positives are included. Sweeping the threshold from high to low traces out the precision-recall curve. In practice, AP is not computed as the area under the smooth curve but as a stepped approximation: at each discrete recall level corresponding to an actual detection, the precision value is recorded, producing a staircase. AP is then the area under this staircase, equivalent to a weighted sum of precision values at each step. Mean AP (mAP) averages AP across all classes, giving a single number summarising detector performance across the full recognition vocabulary.
+
+
+\begin{figure}[h]
+\centering
+\begin{tabular}{cc}
+\resizebox{0.4\textwidth}{!}{\tikzsetnextfilename{iou}\input{\CommonPath/tikz/iou.tex}} &
+\resizebox{0.4\textwidth}{!}{\tikzsetnextfilename{precision_recall}\input{\CommonPath/tikz/precision_recall.tex}}
+\end{tabular}
+\caption{Left: IoU measures the overlap between predicted and ground truth bounding boxes. A prediction is counted as correct if IoU exceeds a threshold, typically 0.5. Right: Precision-recall curve for a single class. The ideal detector (dashed) maintains perfect precision at all recall levels. A real detector traces a smooth curve that falls as the confidence threshold is lowered. Average Precision (AP) is approximated as the area under the stepped interpolation; mean AP (mAP) averages this across all classes.}
+\label{fig:detection_eval}
+\end{figure}
 
 \subsubsection{Semantic Segmentation}
 
 Semantic segmentation assigns a class label to every pixel in the image, producing an output label map of the same spatial size as the input. All pixels belonging to the same class receive the same label, regardless of whether they belong to different object instances.
 
-The dominant architecture for semantic segmentation is the \textbf{encoder-decoder}. The encoder is a CNN backbone that progressively reduces spatial resolution while extracting rich features. The decoder upsamples the low-resolution feature maps back to the input resolution, recovering spatial detail. \textbf{Skip connections} between corresponding encoder and decoder layers concatenate high-resolution encoder features with upsampled decoder features, helping the decoder recover fine spatial detail that was lost during downsampling.
+The dominant architecture for semantic segmentation is the \textbf{encoder-decoder}. The encoder is a CNN backbone that progressively reduces spatial resolution while extracting rich features. The decoder upsamples the low-resolution feature maps back to the input resolution, recovering spatial detail. The challenge is that the aggressive downsampling in the encoder discards fine spatial information that is needed to produce accurate pixel-level predictions.
 
-\textbf{U-Net} \parencite{Ronneberger2015} introduced this architecture for medical image segmentation and remains widely used. \textbf{DeepLab v3} \parencite{Chen2017} uses atrous (dilated) convolutions to capture multi-scale context without reducing resolution. \textbf{SegFormer} \parencite{Xie2021} replaces the CNN backbone with a Vision Transformer, achieving state-of-the-art results on standard benchmarks.
+\textbf{U-Net} \parencite{Ronneberger2015}, illustrated in Figure~\ref{fig:unet}, addressed this by introducing \textbf{skip connections} between corresponding encoder and decoder layers. These connections concatenate high-resolution encoder features directly with the upsampled decoder features at each resolution level, allowing the decoder to recover spatial detail that would otherwise be lost. Originally developed for medical image segmentation, U-Net remains one of the most widely used segmentation architectures.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{\CommonPath/Pics/unet.png}
+\caption{The U-Net architecture. The encoder (left) progressively halves spatial resolution while doubling feature channels. The decoder (right) upsamples back to the input resolution. Skip connections (horizontal arrows) concatenate encoder and decoder features at each resolution level, recovering fine spatial detail lost during encoding.}
+\label{fig:unet}
+\end{figure}
 
 Semantic segmentation is evaluated using \textbf{mean Intersection over Union (mIoU)}: IoU is computed per class (comparing predicted and ground truth pixel masks for each class) and averaged across all classes.
 
@@ -224,17 +262,13 @@ Semantic segmentation is evaluated using \textbf{mean Intersection over Union (m
 
 Instance segmentation goes beyond semantic segmentation by distinguishing individual object instances. Two people standing next to each other receive different instance masks even though they belong to the same class. The output is a set of per-instance binary masks, each paired with a class label and confidence score.
 
-\textbf{Mask R-CNN} \parencite{He2017} extends Faster R-CNN with an additional mask prediction head. For each detected bounding box, a small FCN predicts a binary mask for that instance. RoI Align (an improvement over RoI pooling that preserves spatial alignment) extracts fixed-size features from each proposed region, which are then passed to the mask head. Mask R-CNN is the standard baseline for instance segmentation.
+\textbf{Panoptic segmentation} unifies semantic and instance segmentation into a single output: background regions such as sky, road, and grass receive semantic labels, while foreground objects receive individual instance masks. It has become the modern standard for comprehensive scene understanding.
 
-\textbf{SAM} (Segment Anything Model) \parencite{Kirillov2023} is a foundation model trained on 1 billion masks. Given a prompt (a point, box, or text), SAM segments the corresponding object in zero-shot — without task-specific fine-tuning. SAM has become an important tool not only for inference but also for annotation assistance, dramatically reducing the cost of creating instance segmentation datasets.
-
-\textbf{Panoptic segmentation} combines semantic and instance segmentation into a unified output: background regions (sky, road, grass) receive semantic labels while foreground objects receive instance masks. It has become the modern standard for comprehensive scene understanding.
-
-Instance segmentation is evaluated using mAP computed on masks rather than bounding boxes — IoU is measured between predicted and ground truth pixel masks.
+For practitioners, several powerful tools are freely available. \textbf{SAM} (Segment Anything Model) \parencite{Kirillov2023} is a foundation model trained on one billion masks that can segment any object in any image given a simple prompt --- a point, a bounding box, or a text description --- without task-specific fine-tuning. SAM has become widely used both for inference and as an annotation assistance tool, dramatically reducing the cost of creating segmentation datasets. It is available via the \href{https://github.com/facebookresearch/sam2}{Meta AI GitHub repository}. \textbf{Detectron2} \parencite{Wu2019}, also from Meta AI, is a full object detection and segmentation library implementing Mask R-CNN and many other architectures, available at \href{https://github.com/facebookresearch/detectron2}{GitHub}.
 
 \subsubsection{Annotation Cost}
 
-A practical consideration often underestimated by practitioners is annotation cost. The annotation requirements differ dramatically across tasks:
+A practical consideration often underestimated by practitioners is annotation cost. The annotation requirements differ dramatically across tasks, as shown in Table~\ref{tab:annotation}.
 
 \begin{table}[h]
 \centering
@@ -252,10 +286,9 @@ Instance segmentation & Per-instance masks & Hours & COCO \\
 \label{tab:annotation}
 \end{table}
 
-Annotation cost is frequently the real bottleneck in building vision systems — not model complexity or compute. A state-of-the-art instance segmentation model is of little value if you cannot afford to annotate enough training data. Several approaches help reduce this burden:
+In practice, data is almost always the bottleneck --- not the model. Given a well-annotated dataset, training a competitive model is straightforward: the architectures are well understood, pretrained weights are freely available, and the training procedure is largely standardised. The hard part is getting the data right. A poorly annotated dataset will produce a poorly performing model regardless of how sophisticated the architecture is, and no amount of hyperparameter tuning will fix labels that are inconsistent, incomplete, or simply wrong.
 
-\textbf{SAM for annotation assistance} — SAM can generate high-quality segmentation masks interactively, with a human providing only a point or bounding box prompt. This can reduce mask annotation time by an order of magnitude.
+\textbf{This means that investing time and effort in data collection, cleaning, and annotation pays far greater dividends than optimising the model. Before reaching for a more complex architecture, it is worth asking whether the dataset is the real limiting factor. More data, better labels, and more careful quality control will often outperform a fancier model trained on the same flawed dataset.
+}
 
-\textbf{Semi-supervised and weakly supervised methods} — train models using a small amount of expensive annotations combined with a large amount of cheap annotations (e.g. image-level labels for a detection model). Many recent methods exploit this tradeoff effectively.
-
-\textbf{Synthetic data} — render annotated training data automatically from 3D simulations or procedural generation. Particularly useful for specialised domains where real annotations are prohibitively expensive (autonomous driving, robotics).
+Several practical strategies help manage annotation cost. \textbf{SAM} can generate high-quality segmentation masks interactively from simple point or bounding box prompts, reducing mask annotation time by an order of magnitude. \textbf{Semi-supervised and weakly supervised methods} exploit a small amount of expensive annotations combined with a large amount of cheap ones --- for example using image-level labels to supervise a detection model. \textbf{Synthetic data} generated from 3D simulations or procedural pipelines provides automatically annotated training examples, particularly useful in domains where real annotations are prohibitively expensive such as autonomous driving or robotics. The common thread is to be clever about data: think carefully about what annotations are truly needed, use the cheapest label type that is sufficient for the task, and leverage tools that reduce the human effort required.

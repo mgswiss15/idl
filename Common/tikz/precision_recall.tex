@@ -1,0 +1,86 @@
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.55\textwidth,
+    height=0.45\textwidth,
+    xlabel={Recall},
+    ylabel={Precision},
+    xmin=0, xmax=1.05,
+    ymin=0, ymax=1.15,
+    xtick={0,0.2,0.4,0.6,0.8,1.0},
+    ytick={0,0.2,0.4,0.6,0.8,1.0},
+    /pgf/number format/1000 sep={},
+    axis lines=left,
+    grid=major,
+    grid style={dashed, gray!30},
+]
+
+% % Shade AP area as rectangles
+% \foreach \x/\h in {
+%     0.0/1.00, 0.1/0.98, 0.2/0.95, 0.3/0.90,
+%     0.4/0.83, 0.5/0.74, 0.6/0.63, 0.7/0.50,
+%     0.8/0.36, 0.9/0.21} {
+%     \fill[carnelian!30, fill opacity=0.7]
+%         (axis cs:\x, 0) rectangle (axis cs:\x+0.1, \h);
+% }
+
+% Shade AP area as rectangles
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.0,0) rectangle (axis cs:0.1,0.98);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.1,0) rectangle (axis cs:0.2,0.95);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.2,0) rectangle (axis cs:0.3,0.90);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.3,0) rectangle (axis cs:0.4,0.83);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.4,0) rectangle (axis cs:0.5,0.74);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.5,0) rectangle (axis cs:0.6,0.63);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.6,0) rectangle (axis cs:0.7,0.50);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.7,0) rectangle (axis cs:0.8,0.36);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.8,0) rectangle (axis cs:0.9,0.21);
+\fill[carnelian!30, fill opacity=0.7] (axis cs:0.9,0) rectangle (axis cs:1.0,0.08);
+
+
+% Ideal curve
+\addplot[thick, dashed, thwsgrey!80!black] coordinates {
+    (0,1) (1,1) (1,0)
+};
+
+% Smooth realistic curve
+\addplot[thick, thwspetrol, smooth, name path=curve] coordinates {
+    (0.0, 1.00)
+    (0.1, 0.98)
+    (0.2, 0.95)
+    (0.3, 0.90)
+    (0.4, 0.83)
+    (0.5, 0.74)
+    (0.6, 0.63)
+    (0.7, 0.50)
+    (0.8, 0.36)
+    (0.9, 0.21)
+    (1.0, 0.08)
+};
+
+% Stepped approximation
+\addplot[thick, carnelian, const plot mark right] coordinates {
+    (0.0, 1.00)
+    (0.1, 0.98)
+    (0.2, 0.95)
+    (0.3, 0.90)
+    (0.4, 0.83)
+    (0.5, 0.74)
+    (0.6, 0.63)
+    (0.7, 0.50)
+    (0.8, 0.36)
+    (0.9, 0.21)
+    (1.0, 0.08)
+};
+
+% Annotations
+\node[thwsgrey!60!black, font=\small] at (axis cs:0.5, 1.08) {Ideal};
+
+\node[thwspetrol, font=\small] at (axis cs:0.72, 0.7) [anchor=west] {PR curve};
+\draw[->, thwspetrol, thin] (axis cs:0.72, 0.68) -- (axis cs:0.66, 0.55);
+
+\node[carnelian, font=\small] at (axis cs:0.45, 0.20) [anchor=west] {PR practice};
+\draw[->, carnelian, thin] (axis cs:0.55, 0.24) -- (axis cs:0.6, 0.48);
+
+\node[carnelian, font=\small] at (axis cs:0.20, 0.45) [anchor=west] {AP};
+
+\end{axis}
+\end{tikzpicture}

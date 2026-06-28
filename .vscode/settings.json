@@ -34,6 +34,13 @@
                 "-file-line-error",
                 "%DOC%"
             ]
+        },
+        {
+        "name": "biber",
+        "command": "biber",
+        "args": [
+            "%DOCFILE%"
+        ]
         }
     ]
 }
