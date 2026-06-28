@@ -1,0 +1,370 @@
+% Session 9 — Convolutional Neural Networks
+% Standalone section: \input{} this file from the main LectureNotes document.
+% No preamble, no \begin{document}.
+
+\section{Convolutional Neural Networks}
+\label{sec:cnns}
+
+Convolutional neural networks (CNNs) are a class of neural networks designed to process data that has a natural spatial or sequential structure. Their defining property is the use of a \textbf{convolution operation} in place of general matrix multiplication, which endows the network with three structural biases that are indispensable for image processing: \textbf{local connectivity}, \textbf{parameter sharing}, and \textbf{translation invariance}. This session introduces the convolution operation from first principles, builds up to the full CNN architecture, and traces the development from the earliest successful networks to the residual architectures that form the backbone of modern computer vision.
+
+% -------------------------------------------------------
+\subsection{Why Not MLPs for Images?}
+\label{sec:cnns:why_not_mlps}
+
+\slideref{Images in Computers; Images as Data; How to Look at Images}
+
+Before motivating the convolutional layer, it is worth understanding precisely why a standard fully connected network is poorly suited to image data. The problem is not expressiveness --- given enough neurons, an MLP can in principle approximate any function --- but \textbf{computational cost} and \textbf{inductive bias}.
+
+\subsubsection{Images as Structured Tensors}
+
+A digital image is represented as a three-dimensional tensor of shape $C \times H \times W$, where $C$ is the number of channels, $H$ is the height in pixels, and $W$ is the width in pixels. Each entry is a pixel intensity, either an integer in the range $[0, 255]$ or a normalised float in $[0, 1]$, stored in 8 bits per channel. The two formats relevant for most deep learning work are \textbf{grayscale} ($C = 1$), where pixel values run from black ($0$) to white ($255$), and \textbf{RGB} ($C = 3$), the standard format for camera images and screens, with separate red, green, and blue channels. Other formats exist -- RGBA with an additional transparency channel, CMYK used in printing, and high-dimensional medical or hyperspectral images that may carry many channels at 16-bit depth -- but these are typically converted to RGB or grayscale before being fed to a network.
+
+\begin{wrapfigure}{r}{0.3\textwidth}
+    \centering
+    \includegraphics[width=0.28\textwidth]{\CommonPath/Pics/rgb.png}
+    \caption{An RGB image decomposed into its three colour channels.}
+    \label{fig:rgb}
+\end{wrapfigure}
+
+Image sizes vary enormously across tasks. Benchmark datasets designed for classification at modest resolution include MNIST ($28 \times 28$, grayscale, 784 pixels per image) and ImageNet ($224 \times 224$, RGB, 150\,528 pixels). Real-world sources produce far larger inputs: a medical CT slice is typically $512 \times 512$ (262\,144 pixels), a full-HD screen captures $1920 \times 1080$ pixels (over 6 million), and a modern phone camera can produce $4000 \times 3000$ images with 36 million pixels per frame.
+
+\subsubsection{The Parameter Explosion}
+
+The standard MLP approach to images is to \textbf{flatten} the input tensor to a vector $\vx \in \mathbb{R}^{H \cdot W \cdot C}$ and pass it through a sequence of fully connected layers. The weight matrix of the first hidden layer alone has dimensions $(H \cdot W \cdot C) \times d_1$, where $d_1$ is the number of hidden units. For a modest hidden layer of $d_1 = 1024$ units applied to an ImageNet image, this gives $150\,528 \times 1024 \approx 154$ million parameters -- for a \emph{single} layer. Training such a model would be prohibitively expensive in memory and computation, and the model would require an enormous amount of data just to avoid overfitting.
+
+\subsubsection{The Missing Inductive Bias}
+
+Parameter count alone does not fully explain the problem. A fully connected layer treats every input pixel as equally related to every other pixel. This is wrong for images: pixels that are spatially close carry far more information about each other than pixels at opposite ends of the image. More importantly, a fully connected layer must \textbf{relearn} the same feature detector from scratch at every spatial location. A filter that detects a horizontal edge in the top-left corner of an image is identical in function to one that detects a horizontal edge in the bottom-right, but an MLP represents them as entirely separate parameters.
+
+Human vision operates differently. We look for \textbf{local patterns} -- edges, corners, textures -- and we recognise the same pattern regardless of where it appears in our visual field. Simple detected features combine into increasingly complex ones as we move from early to later visual processing stages. The convolutional layer translates these three properties directly into a neural network primitive: local connectivity restricts each neuron to a small spatial patch; parameter sharing uses the \textbf{same filter weights at every location}; and as a consequence, any feature a filter detects at one position is detected identically everywhere else, giving translation invariance as an emergent property.
+
+% -------------------------------------------------------
+\subsection{The Convolution Operation}
+\label{sec:cnns:convolution}
+
+\slideref{Convolution --- The Operation; 1D Convolution; 2D Convolution; Padding; Stride; Multiple Input Channels; Multiple Output Channels; Convolution as Matrix Multiplication}
+
+The convolution operation is the mathematical engine of a CNN. This section develops it in full generality, starting from the simple one-dimensional case and extending to the multi-channel two-dimensional setting used in practice.
+
+\subsubsection{1D Convolution}
+
+Let $\vx \in \mathbb{R}^n$ be an input signal and $\kernel \in \mathbb{R}^k$ be a \textbf{filter} (also called a \textbf{kernel}) of length $k$. The 1D convolution of $\vx$ with $\kernel$ produces an output signal whose value at position $i$ is the dot product of the filter with the local patch of $\vx$ starting at $i$:
+
+\begin{equation}
+    (\vx * \kernel)[i] = \sum_{j=0}^{k-1} \vx[i+j]\; \kernel[j].
+    \label{eq:conv1d}
+\end{equation}
+
+Here $i$ indexes the output position and $j$ indexes the position within the filter. The filter \textbf{slides} across the signal from left to right: at each position $i$, it computes a single dot product, producing one value of the output. For a filter of length $k = 3$ with weights $(1, -1, 2)$ and the input patch $(1, 3, 4)$ at position $i = 1$, the output is $1 \cdot 1 + 3 \cdot (-1) + 4 \cdot 2 = 6$.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+    \centering
+    \tikzsetnextfilename{conv1d}
+    \resizebox{0.43\textwidth}{!}{\input{\CommonPath/tikz/conv1d.tex}}
+    \caption{1D convolution: a filter of length 3 slides over an input signal, computing a dot product at each position.}
+    \label{fig:conv1d}
+\end{wrapfigure}
+
+This operation embodies all three desirable properties simultaneously. Local connectivity is enforced because each output value depends on only $k$ contiguous input values, not the entire signal. Parameter sharing is enforced because the same filter weights $\kernel$ are used at every position $i$ -- a filter that detects a particular local pattern detects it identically wherever it occurs. Translation invariance follows: if a pattern shifts by one position in the input, the same filter detects it one position later in the output.
+
+\subsubsection{2D Convolution}
+
+For images, the filter must slide in two spatial dimensions. Given a single-channel input $\mX \in \mathbb{R}^{H \times W}$ and a filter $\kernel \in \mathbb{R}^{k \times k}$, the 2D convolution at output position $(i, j)$ is:
+
+\begin{equation}
+    (\mX * \kernel)[i,j] = \sum_{p=0}^{k-1}\sum_{q=0}^{k-1} \mX[i+p,\, j+q]\; \kernel[p,q].
+    \label{eq:conv2d}
+\end{equation}
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+    \centering
+    \tikzsetnextfilename{conv2d}
+    \resizebox{0.43\textwidth}{!}{\input{\CommonPath/tikz/conv2d.tex}}
+    \caption{2D convolution: a $3\times3$ filter applied to a single spatial location of a $5\times5$ input. The filter computes a dot product with the local patch.}
+    \label{fig:conv2d}
+\end{wrapfigure}
+
+The double sum ranges over all rows $p$ and columns $q$ within the filter. Output position $(i, j)$ thus sees the $k \times k$ patch of $\mX$ anchored at $(i, j)$. Without any padding, the filter can be placed at $(H - k + 1) \times (W - k + 1)$ valid positions, so the output has shape $(H - k + 1) \times (W - k + 1)$. For a $5 \times 5$ input with a $3 \times 3$ filter, the output is $3 \times 3$.
+
+\subsubsection{Padding}
+
+A practical difficulty with the basic formula above is that the output is smaller than the input. With $L$ convolutional layers and no padding, the spatial dimensions shrink by $k - 1$ at each layer, quickly consuming the available resolution. For a 10-layer network with $3 \times 3$ filters, a $224 \times 224$ input would shrink to $204 \times 204$, which may be acceptable, but a $28 \times 28$ input would be exhausted long before the network is deep enough to learn useful features.
+
+\begin{wrapfigure}{r}{0.42\textwidth}
+    \centering
+    \tikzsetnextfilename{conv2d_padding}
+    \resizebox{0.40\textwidth}{!}{\input{\CommonPath/tikz/conv2d_padding.tex}}
+    \caption{Same padding adds zeros around the input border so the output has the same spatial dimensions as the input.}
+    \label{fig:padding}
+\end{wrapfigure}
+
+The standard solution is to add a border of zeros around the input before convolving. Two conventions are in common use. \textbf{Valid padding} ($p = 0$) applies no padding at all, so the output strictly shrinks; this is appropriate when spatial reduction at each layer is intentional. \textbf{Same padding} sets $p = (k-1)/2$, which adds enough zeros to keep the output the same size as the input for odd filter sizes. Same padding is by far the most common choice in modern architectures: it decouples spatial resolution from filter size and makes it straightforward to design networks of arbitrary depth. Border pixels receive less coverage than central pixels, but in practice this edge effect is negligible.
+
+\subsubsection{Stride}
+
+Stride controls \textbf{how far the filter moves} between consecutive applications. With stride $s = 1$ (the default), the filter advances one pixel at a time. With stride $s = 2$, it skips every other position, halving the output dimensions. The general output size formula for an input of height $H$, filter size $k$, padding $p$, and stride $s$ is:
+
+\begin{equation}
+    H_{\mathrm{out}} = \left\lfloor \frac{H + 2p - k}{s} \right\rfloor + 1,
+    \label{eq:output_size}
+\end{equation}
+
+and analogously for the width. Strided convolution is an alternative to pooling for spatial downsampling: it reduces resolution while simultaneously applying a learned filter, rather than discarding information with a fixed max or average operation. Modern architectures such as ResNet use strided convolution at resolution-changing boundaries instead of pooling.
+
+\begin{figure}[h]
+    \centering
+    \tikzsetnextfilename{conv2d_stride}
+    \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/conv2d_stride.tex}}
+    \caption{Stride 1 (top) and stride 2 (bottom) applied to the same input. Stride 2 halves the output spatial dimensions.}
+    \label{fig:stride}
+\end{figure}
+
+\subsubsection{Multiple Input Channels}
+
+Real images have $C_{\mathrm{in}} > 1$ channels. A single filter must respond to the full depth of its input, so it too must have $C_{\mathrm{in}}$ slices -- one per input channel. The filter $\kernel \in \mathbb{R}^{C_{\mathrm{in}} \times k \times k}$ is applied by convolving each slice independently with its corresponding input channel and summing the results:
+
+\begin{equation}
+    (\mX * \kernel)[i,j] = \sum_{c=0}^{C_{\mathrm{in}}-1}\sum_{p=0}^{k-1}\sum_{q=0}^{k-1}
+    \mX[c,\, i+p,\, j+q]\; \kernel[c,\, p,\, q].
+    \label{eq:conv2d_multichannel}
+\end{equation}
+
+The inner double sum convolves filter slice $c$ with input channel $c$; the outer sum over $c$ accumulates the results across all channels. Regardless of $C_{\mathrm{in}}$, a single filter produces a single \textbf{feature map} -- a $1 \times H' \times W'$ output. The feature map captures a single learned pattern detected across all input channels simultaneously.
+
+\begin{figure}[h]
+    \centering
+    \tikzsetnextfilename{conv2d_channels}
+    \resizebox{0.65\textwidth}{!}{\input{\CommonPath/tikz/conv2d_channels.tex}}
+    \caption{A filter with $C_{\mathrm{in}}$ slices applied to a multi-channel input. Each filter slice convolves with one channel; the results are summed to produce one feature map.}
+    \label{fig:conv_channels}
+\end{figure}
+
+\subsubsection{Multiple Output Channels}
+
+A single filter detects a single pattern. To detect $C_{\mathrm{out}}$ different patterns, we use $C_{\mathrm{out}}$ independent filters, each producing its own feature map. Filter $f$ produces:
+
+\begin{equation}
+    \vh_f[i,j] = \sum_{c=0}^{C_{\mathrm{in}}-1}\sum_{p=0}^{k-1}\sum_{q=0}^{k-1}
+    \mX[c,\, i+p,\, j+q]\; \kernel_f[c,\, p,\, q],
+    \qquad f = 0,\ldots,C_{\mathrm{out}}-1.
+    \label{eq:conv2d_multiout}
+\end{equation}
+
+The $C_{\mathrm{out}}$ feature maps are stacked into an output tensor of shape $C_{\mathrm{out}} \times H' \times W'$. The total number of learnable parameters in the layer, including one bias per filter, is $C_{\mathrm{out}} \times C_{\mathrm{in}} \times k \times k + C_{\mathrm{out}}$. This is \textbf{independent of the spatial dimensions} $H$ and $W$ of the input -- a critical contrast with a fully connected layer, where parameter count grows linearly with image size.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+    \centering
+    \tikzsetnextfilename{conv2d_filters}
+    \resizebox{0.43\textwidth}{!}{\input{\CommonPath/tikz/conv2d_filters.tex}}
+    \caption{$C_{\mathrm{out}}$ filters each applied independently to the full input volume, producing $C_{\mathrm{out}}$ feature maps stacked into the output tensor.}
+    \label{fig:conv_filters}
+\end{wrapfigure}
+
+In typical CNN designs, the number of channels \textbf{increases} with depth while spatial dimensions decrease. Early layers use few filters to detect simple low-level patterns in the original image resolution; later layers use many filters to detect complex semantic patterns in reduced-resolution feature maps.
+
+\subsubsection{Convolution as Sparse, Tied Matrix Multiplication}
+
+It is instructive to observe that convolution is \textbf{a special case of matrix multiplication}. If we flatten both the input and the output to vectors, the convolution operation can be written as $\vh = \mW \vx$ where $\mW$ is a specific matrix structure. Two structural constraints distinguish it from a general weight matrix. First, \textbf{sparsity}: each row of $\mW$ has only $k^2$ non-zero entries (the filter size), because each output neuron depends on only a small local patch of the input. Second, \textbf{weight tying}: the non-zero entries in every row are identical copies of the same filter weights, shifted by one position from row to row.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \tikzsetnextfilename{conv2d_matrix}
+    \resizebox{0.38\textwidth}{!}{\input{\CommonPath/tikz/conv2d_matrix.tex}}
+    \caption{The weight matrix corresponding to a convolution. Non-zero entries (coloured) repeat the same filter values; most entries are zero (local connectivity).}
+    \label{fig:conv_matrix}
+\end{wrapfigure}
+
+This perspective is theoretically important for two reasons. Since convolution is a linear transformation, the composition Conv $\to$ ReLU $\to$ Conv $\to$ ReLU $\to \cdots$ has exactly the same representational structure as an MLP, but with far fewer parameters and an explicit inductive bias toward spatial locality. Furthermore, the sparse tied structure means that the gradient of the loss with respect to the filter weights is simply the \textbf{sum of gradients across all spatial positions} -- which is exactly the correlation operation applied in backpropagation.
+
+% -------------------------------------------------------
+\subsection{CNN Architecture}
+\label{sec:cnns:architecture}
+
+\slideref{Receptive Field; What Do CNNs Learn?; Pooling; CNN Building Block; Full CNN Architecture}
+
+Individual convolutional layers are stacked into a complete network according to a design pattern that has remained largely stable since the early 2010s. This section describes how the layers fit together and what the resulting network learns.
+
+\subsubsection{Receptive Field}
+
+The \textbf{receptive field} of a neuron is the region of the input image that can influence that neuron's output. For a single convolutional layer with a $3 \times 3$ filter, each output neuron sees a $3 \times 3$ patch of the input. After a second $3 \times 3$ layer, each output neuron is influenced by a $5 \times 5$ patch of the \emph{first} layer's input, because its $3 \times 3$ neighbourhood in the first feature map each covers a $3 \times 3$ patch of the original input. In general, $L$ layers of $3 \times 3$ convolutions yield a receptive field of $(2L + 1) \times (2L + 1)$.
+
+\begin{figure}[h]
+    \centering
+    \tikzsetnextfilename{receptive_field}
+    \resizebox{0.7\textwidth}{!}{\input{\CommonPath/tikz/receptive_field.tex}}
+    \caption{Receptive field growth with depth. Each additional $3\times3$ convolutional layer extends the receptive field by 2 pixels in each dimension.}
+    \label{fig:receptive_field}
+\end{figure}
+
+This is the key to the \textbf{hierarchical feature} story. Early layers have small receptive fields and detect simple local patterns: oriented edges, colour gradients, and small textures. Later layers, with large receptive fields, can combine these local detections into representations of complex structures such as object parts or entire objects. \textcite{Zeiler2014} made this hierarchy directly visible by developing a technique for projecting feature map activations back to pixel space. Their results confirmed that early layers respond to edges and colour blobs, intermediate layers to textures and repeated patterns, and deep layers to object parts and faces.
+
+\subsubsection{Pooling}
+
+Convolution produces feature maps that are spatially highly redundant: neighbouring output neurons have strongly overlapping receptive fields and therefore highly correlated values. \textbf{Pooling} is a fixed, non-trainable operation that reduces spatial redundancy by summarising each local region into a single value.
+
+The most common variant is \textbf{max pooling}, which takes the maximum value within a rectangular region $\mathcal{R}_{ij}$:
+\begin{equation}
+    y[i,j] = \max_{p,q \in \mathcal{R}_{ij}} x[p,q].
+    \label{eq:maxpool}
+\end{equation}
+
+\begin{wrapfigure}{r}{0.3\textwidth}
+    \centering
+    \tikzsetnextfilename{maxpool}
+    \resizebox{0.28\textwidth}{!}{\input{\CommonPath/tikz/maxpool.tex}}
+    \caption{$2\times2$ max pooling reduces each $2\times2$ region to its maximum, halving both spatial dimensions.}
+    \label{fig:maxpool}
+\end{wrapfigure}
+
+Max pooling retains the strongest activation in each region, which corresponds intuitively to detecting whether a feature is present at all within that neighbourhood, regardless of its precise location. \textbf{Average pooling} instead computes the mean, which carries information about the average activation level. The pooling operation applies independently to each channel, leaving the channel dimension unchanged.
+
+A $2 \times 2$ pool with stride 2 (the standard choice) halves both spatial dimensions: a $C \times H \times W$ feature map becomes $C \times H/2 \times W/2$. Each pooling layer therefore doubles the effective receptive field of all subsequent neurons. Pooling and strided convolution serve a similar purpose -- downsampling -- but strided convolution is generally preferred in modern architectures because the downsampling filter is learned rather than fixed.
+
+\subsubsection{The Standard CNN Building Block}
+
+Modern CNNs organise their convolutional layers into a repeating \textbf{building block}. The standard pattern is:
+\[
+    \text{Conv} \to \text{BatchNorm} \to \text{ReLU} \to (\text{Pool}),
+\]
+where the pooling step is applied selectively rather than after every layer. Each component has a distinct role: the convolution extracts features via learned filters; batch normalisation stabilises the distribution of activations and is essential for training networks deeper than roughly ten layers; ReLU introduces the non-linearity without which a stack of convolutional layers collapses to a single linear map; and pooling reduces spatial resolution.
+
+\begin{figure}[h]
+    \centering
+    \tikzsetnextfilename{cnn_block}
+    \resizebox{0.5\textwidth}{!}{\input{\CommonPath/tikz/cnn_block.tex}}
+    \caption{The standard CNN building block: Conv $\to$ BatchNorm $\to$ ReLU, with optional pooling for spatial downsampling.}
+    \label{fig:cnn_block}
+\end{figure}
+
+\subsubsection{Full CNN Architecture: Backbone and Head}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \tikzsetnextfilename{cnn_architecture}
+    \resizebox{0.48\textwidth}{!}{\input{\CommonPath/tikz/cnn_architecture.tex}}
+    \caption{Full CNN architecture for image classification. The backbone (convolutional blocks) extracts features; the head (fully connected layers) maps to class scores.}
+    \label{fig:cnn_architecture}
+\end{wrapfigure}
+
+A complete CNN for image classification consists of two functionally distinct stages. The first stage -- the \textbf{backbone} -- is a sequence of convolutional blocks that transform the raw image into a rich feature representation. Across these blocks, the spatial dimensions decrease (via pooling or strided convolution) while the channel count increases, following a characteristic pattern such as $3 \to 32 \to 64 \to 128$ channels. The backbone acts as a \textbf{general-purpose feature extractor}: its filters learn to detect progressively more abstract and semantically meaningful patterns in the image.
+
+The second stage -- the \textbf{head} -- maps the extracted feature representation to the desired output. For image classification, the head typically flattens (or globally average-pools) the final feature map and passes it through one or more fully connected layers, ending with a softmax over the class scores. The head is inherently \textbf{task-specific}: the same backbone can be paired with different heads for classification, detection, or segmentation. This backbone/head distinction becomes central in Session 10, when we discuss how to reuse pretrained backbones for new tasks.
+
+% -------------------------------------------------------
+\subsection{Classic Architectures}
+\label{sec:cnns:architectures}
+
+\slideref{LeNet-5; AlexNet; VGG; ResNet; Residual Block}
+
+The history of CNN architectures is not merely a catalogue of engineering milestones -- it is a record of the key ideas that unlocked the potential of deep learning for vision. Each architecture discussed below contributed one or more insights that are now standard practice.
+
+\subsubsection{LeNet-5}
+
+\textbf{LeNet-5} \parencite{LeCun1998} was the first CNN to demonstrate practical success on a real-world task. Trained on handwritten digits, it introduced the now-canonical pattern of alternating convolutional layers and pooling layers followed by fully connected classification layers:
+\[
+    \text{Conv} \to \text{Pool} \to \text{Conv} \to \text{Pool} \to \text{FC} \to \text{FC},
+\]
+with approximately 60\,000 parameters in total. The network was small by modern standards but sufficiently powerful to be deployed commercially for cheque reading. Its fundamental limitation was a shortage of compute: deeper networks capable of handling more complex tasks could not be trained efficiently on the hardware of the 1990s.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.48\textwidth]{\CommonPath/Pics/lenet.png}
+    \caption{LeNet-5 architecture: two convolutional blocks followed by fully connected layers for digit classification.}
+    \label{fig:lenet}
+\end{wrapfigure}
+
+\subsubsection{AlexNet}
+
+The publication of \textbf{AlexNet} by \textcite{Krizhevsky2012} in 2012 is generally identified as the beginning of the modern deep learning era for computer vision. AlexNet won the ImageNet Large Scale Visual Recognition Challenge (ILSVRC 2012) by a margin that stunned the computer vision community: it achieved a top-5 error rate of 15.3\%, compared to 26.2\% for the second-placed entry. The architecture -- five convolutional layers followed by three fully connected layers, with approximately 60 million parameters -- was not radically different in structure from LeNet, but it incorporated four innovations that collectively made deep CNNs tractable. \textbf{ReLU activations} replaced sigmoid and tanh nonlinearities, dramatically accelerating training by avoiding the vanishing gradient problem that afflicts saturating activations. \textbf{Dropout} was applied in the fully connected layers as a regulariser. \textbf{Data augmentation} -- random crops and horizontal flips during training -- reduced overfitting. And critically, the network was trained on two \textbf{NVIDIA GTX 580 GPUs}, demonstrating that GPU parallelism could make large-scale CNN training feasible.
+
+\subsubsection{VGGNet}
+
+\textbf{VGGNet} \parencite{Simonyan2015} pursued a different question: what is the effect of network depth when all other design choices are held constant? The answer was a principled simplification: use only $3 \times 3$ filters throughout the entire network, and increase depth systematically. The flagship VGG-16 model uses 13 convolutional layers and 3 fully connected layers with approximately 138 million parameters.
+
+\begin{wrapfigure}{r}{0.3\textwidth}
+    \centering
+    \includegraphics[width=0.28\textwidth]{\CommonPath/Pics/vgg.png}
+    \caption{VGG architecture: uniform $3\times3$ filters stacked to increasing depth.}
+    \label{fig:vgg}
+\end{wrapfigure}
+
+The key insight was that two stacked $3 \times 3$ convolutions cover the same receptive field as one $5 \times 5$ convolution, but with strictly fewer parameters ($2 \times 9 = 18$ vs $25$) and an additional non-linearity between them. This makes the network more expressive while remaining parameter-efficient. The main weakness of VGGNet is its three large fully connected layers, which together account for roughly 100 million of the 138 million parameters and impose a heavy memory burden. Despite this, VGGNet's clean and uniform design made it an excellent baseline and its features were widely reused for transfer learning.
+
+\subsubsection{ResNet}
+
+By 2015, it was well established that deeper networks generally achieve better accuracy, yet practitioners had observed a frustrating phenomenon: beyond a certain depth, adding more layers actually \textbf{degraded} training accuracy. This was not overfitting -- the training loss itself was higher for deeper models -- but an optimisation failure. \textbf{ResNet} \parencite{He2016} diagnosed the problem and proposed a structural fix.
+
+The key observation is that a deeper network should, in principle, be at least as good as its shallower counterpart: the additional layers could simply learn the identity mapping and pass their input through unchanged. Yet learning the identity is apparently difficult for a standard convolutional layer. The \textbf{residual connection} (also called a skip connection) reformulates the problem by adding a direct shortcut from the input of a block to its output:
+
+\begin{equation}
+    \vy = \text{ReLU}(\mathcal{F}(\vx) + \vx).
+    \label{eq:residual}
+\end{equation}
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+    \centering
+    \tikzsetnextfilename{residual_block}
+    \resizebox{0.23\textwidth}{!}{\input{\CommonPath/tikz/residual_block.tex}}
+    \caption{Residual block: the block learns the residual $\mathcal{F}(\vx) = \vy - \vx$ rather than the full mapping $\vy$.}
+    \label{fig:residual_block}
+\end{wrapfigure}
+
+Here $\mathcal{F}(\vx)$ represents two (or three) convolutional layers. Instead of learning the full output mapping $\vy = \mathcal{F}(\vx)$, the block learns the \textbf{residual} $\mathcal{F}(\vx) = \vy - \vx$. When the optimal transformation is close to the identity, the block only needs to learn values close to zero rather than memorising a copy of its input -- a much easier optimisation task. The shortcut also provides a \textbf{direct gradient path} from the loss back to early layers, substantially reducing vanishing gradient problems in very deep networks.
+
+The basic residual block consists of two Conv-BN-ReLU sequences. For deeper variants (ResNet-50 and above), a \textbf{bottleneck block} replaces these two layers with three: a $1 \times 1$ convolution that reduces the channel count, a $3 \times 3$ convolution that processes the reduced representation, and a $1 \times 1$ convolution that restores the channel count. This achieves a similar receptive field to the basic block with significantly fewer parameters. When the shortcut must bridge layers with different channel counts or spatial dimensions, a \textbf{projection shortcut} is used: a $1 \times 1$ strided convolution applied to $\vx$ to match the shape of $\mathcal{F}(\vx)$.
+
+With residual connections, \textcite{He2016} successfully trained networks with 50, 101, and 152 layers -- depths that had been completely inaccessible before. ResNet remains one of the most widely used backbone architectures in computer vision.
+
+% -------------------------------------------------------
+\subsection{Modern Details}
+\label{sec:cnns:modern}
+
+\slideref{$1\times1$ Convolutions; Batch Norm in CNNs; Global Average Pooling}
+
+Beyond the high-level architecture choices discussed above, several lower-level design elements have become standard ingredients in modern CNNs. This section covers three of the most consequential: $1 \times 1$ convolutions, batch normalisation adapted to the convolutional setting, and global average pooling.
+
+\subsubsection{\texorpdfstring{$1 \times 1$}{1x1} Convolutions}
+
+A $1 \times 1$ convolution applies a learned linear combination across channels at each spatial location independently:
+
+\begin{equation}
+    y_c[i,j] = \sum_{c'=0}^{C_{\mathrm{in}}-1} w_{c,c'}\, x_{c'}[i,j] + b_c.
+    \label{eq:conv1x1}
+\end{equation}
+
+This is equivalent to applying a fully connected layer at every spatial position with shared weights. Despite its name, a $1 \times 1$ convolution has no spatial extent: it performs no spatial mixing, but it mixes information \textbf{across channels}. Its uses are widespread: it changes the channel count cheaply (expanding or compressing the feature volume), injects a non-linearity between channel combinations without spatial processing, and serves as the projection shortcut in residual connections when dimensions must change.
+
+\subsubsection{Batch Normalisation in CNNs}
+
+Batch normalisation was introduced in Session 7 for fully connected networks. In the convolutional setting, the natural generalisation is \textbf{BatchNorm2d}, which normalises over the batch \emph{and} spatial dimensions for each channel separately. For channel $c$, the mean and variance are computed as:
+
+\begin{align}
+    \mu_c &= \frac{1}{N \cdot H \cdot W}\sum_{n,i,j} x_c^{(n)}[i,j], \\
+    \sigma^2_c &= \frac{1}{N \cdot H \cdot W}\sum_{n,i,j}\left(x_c^{(n)}[i,j] - \mu_c\right)^2,
+    \label{eq:batchnorm2d}
+\end{align}
+
+where $N$ is the batch size. There is one mean and variance per channel -- not per spatial location -- reflecting the parameter-sharing philosophy of convolution: the statistics of a feature map should be consistent across spatial positions. Each channel also has learnable scale and shift parameters $\gamma_c$ and $\beta_c$.
+
+The standard placement in a CNN block is Conv $\to$ BatchNorm2d $\to$ ReLU. BatchNorm2d is practically essential for training deep CNNs: without it, networks deeper than roughly ten layers become extremely difficult to optimise. It allows higher learning rates, reduces sensitivity to weight initialisation, and acts as a mild regulariser.
+
+\subsubsection{Global Average Pooling}
+
+Flattening the final convolutional feature map before passing it to fully connected layers can be expensive. If the last feature map has shape $C \times H' \times W'$, the flattened vector has $C \cdot H' \cdot W'$ entries, and a fully connected layer from that vector to $d$ hidden units requires $C \cdot H' \cdot W' \cdot d$ parameters.
+
+\textbf{Global average pooling} (GAP) eliminates this cost by reducing each feature map to a single scalar:
+
+\begin{equation}
+    y_c = \frac{1}{H \cdot W} \sum_{i=1}^{H}\sum_{j=1}^{W} x_c[i,j], \qquad c = 1,\ldots,C.
+    \label{eq:gap}
+\end{equation}
+
+The result is a vector of length $C$ -- one number per channel -- which is then passed directly to the classification layer without any intermediate fully connected layers. The intuition is that each feature map represents one learned concept; its average activation across the image measures how strongly that concept is present. This representation is compact, spatial-dimension-agnostic (the same GAP layer works for any input resolution), and dramatically reduces parameter count compared to flattening. In PyTorch, GAP is implemented as \verb|nn.AdaptiveAvgPool2d((1, 1))| followed by \verb|flatten|.
+
+% -------------------------------------------------------
+\subsection{Summary}
+\label{sec:cnns:summary}
+
+Convolutional neural networks impose three structural biases on the processing of spatial data: local connectivity, parameter sharing, and translation invariance. Together, these allow CNNs to extract meaningful features from images using orders of magnitude fewer parameters than a comparably capable fully connected network. The building blocks -- convolution, batch normalisation, ReLU, and pooling -- are assembled into a backbone that extracts a hierarchy of increasingly abstract features, followed by a task-specific head.
+
+The development from LeNet (1998) to AlexNet (2012), VGGNet (2014), and ResNet (2016) charts the empirical discovery of the principles that make deep CNNs work in practice: GPU training, ReLU activations, systematic use of depth, and -- most consequentially -- residual connections that allow gradient information to flow through networks of arbitrary depth. Session 10 builds directly on the backbone/head distinction introduced here, showing how pretrained backbones can be reused for new tasks without training from scratch.
