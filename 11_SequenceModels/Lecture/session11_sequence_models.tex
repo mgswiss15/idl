@@ -94,11 +94,11 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
   \vskip 1.0em
   \textbf{1D CNNs} — fast, parallelizable, strong for \structure{local patterns}
   (n-grams, short-term trends); receptive field bounded by depth.
-  Useful when long-range context is not needed.
+  Useful when long-range context not needed.
 
   \vskip 0.6em
   \textbf{RNNs} — process step-by-step; \structure{unbounded context}
-  via hidden state; sequential by design.
+  via hidden state; sequential by design. \\
   \alert{This session focuses on RNNs.}
 \end{frame}
 
@@ -106,27 +106,27 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
 
 \begin{frame}{The Recurrence Idea}
   \vskip 2em
+ 
+  \begin{columns}[c]
+    \begin{column}{0.45\textwidth}
+      \tikzsetnextfilename{rnn_unrolled_recurrence}
+      \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/rnn_unrolled_recurrence.tex}}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      At each timestep $t$, compute \structure{hidden state}
+      $\mathbf{h}^{(t)}$ from current input and previous state:
+      \[
+        \mathbf{h}^{(t)} = f\!\left(\mathbf{x}^{(t)},\, \mathbf{h}^{(t-1)}\right),
+        \quad \mathbf{h}^{(0)} = \mathbf{0}
+      \]
+    \end{column}
+  \end{columns}
 
-  At each timestep $t$, compute \structure{hidden state}
-  $\mathbf{h}^{(t)}$ from current input and previous state:
-  \[
-    \mathbf{h}^{(t)} = f\!\left(\mathbf{x}^{(t)},\, \mathbf{h}^{(t-1)}\right),
-    \qquad \mathbf{h}^{(0)} = \mathbf{0}
-  \]
-
-  \vskip 0.8em
-  \begin{center}\resizebox{0.8\textwidth}{!}{%
-    \tikzsetnextfilename{rnn_unrolled_recurrence}
-    \input{\CommonPath/tikz/rnn_unrolled_recurrence.tex}
-  }
-  \end{center}
-
-  \vskip 0.8em
-  \begin{center}
+  \vskip 2.0em
+\centering
     {\setlength{\fboxsep}{8pt}\colorbox{thwsorange!10}{%
       \structure{Same $f$, same weights $\mathbf{W}_h$, $\mathbf{W}_x$
-        at every timestep — this \emph{is} parameter sharing across time.}}}
-  \end{center}
+        at every timestep — parameter sharing across time.}}}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -179,16 +179,16 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
   \vskip 2em
 
   \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
+    \begin{column}{0.45\textwidth}
       \tikzsetnextfilename{rnn_cell_rolled}
       \input{\CommonPath/tikz/rnn_cell_rolled.tex}
     \end{column}
-    \begin{column}{0.45\textwidth}
+    \begin{column}{0.60\textwidth}
       \vskip 0.5em
       \[
-        \mathbf{h}^{(t)} = \tanh\!\bigl(
-          \underbrace{\mathbf{W}_h}_{\text{recurrent}} \mathbf{h}^{(t-1)}
-          + \underbrace{\mathbf{W}_x}_{\text{input}} \mathbf{x}^{(t)}
+        \mathbf{h}^{(t)} = \tanh \, \bigl(
+          \underbrace{\mathbf{W}_h \mathbf{h}^{(t-1)}}_{\text{recurrent}}
+          + \underbrace{\mathbf{W}_x \mathbf{x}^{(t)}}_{\text{input}} 
           + \mathbf{b}
         \bigr)
       \]
@@ -201,57 +201,62 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
               previous hidden state
         \item $\mathbf{W}_x \in \mathbb{R}^{d_h \times d_x}$ — projects
               current input
-        \item $\tanh$ squashes to $(-1, 1)$; keeps hidden state bounded
+        \item $\tanh$ squashs to $(-1, 1)$; keeps $\vh$ bounded
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
-% % ------------------------------------------------------------------
+% ------------------------------------------------------------------
 
-% \begin{frame}{Unrolling the RNN}
-%   \vskip 2em
+\begin{frame}{Unrolling the RNN}
+  \vskip 2em
 
-%   Apply the same cell repeatedly — one step per input token:
+Unrolling reveals the \structure{computational graph used for backpropagation}
 
-%   \vskip 0.8em
-%   \begin{center}
-%     \tikzsetnextfilename{rnn_cell_unrolled}
-%     \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/rnn_cell_unrolled.tex}}
-%   \end{center}
+\vskip 2em
 
-%   \vskip 0.8em
-%   \begin{itemize}
-%     \item Unrolling reveals the \structure{computational graph used for
-%           backpropagation}
-%     \item The same $\mathbf{W}_h$, $\mathbf{W}_x$, $\mathbf{b}$ appear at
-%           every node — gradients from all steps accumulate into one update
-%     \item $\mathbf{h}^{(0)} = \mathbf{0}$ is a fixed initial condition
-%           (sometimes learned)
-%   \end{itemize}
-% \end{frame}
+\begin{columns}[c]
+    \begin{column}{0.35\textwidth}
+      \tikzsetnextfilename{rnn_unrolled_recurrence}
+      \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/rnn_unrolled_recurrence.tex}}
+    \end{column}
+    \begin{column}{0.55\textwidth}
 
-% % ------------------------------------------------------------------
+  \begin{itemize}
+    \item The same $\mathbf{W}_h$, $\mathbf{W}_x$, at
+          every node — gradients from all steps accumulate into one update
+    \item $\mathbf{h}^{(0)} = \mathbf{0}$ is a fixed initial condition
+          (sometimes learned)
+  \end{itemize}
 
-% \begin{frame}{Backpropagation Through Time}
-%   \vskip 2em
+    \end{column}
+  \end{columns}  
 
-%   \begin{center}
-%     \tikzsetnextfilename{bptt_backward}
-%     \resizebox{0.90\textwidth}{!}{\input{\CommonPath/tikz/bptt_backward.tex}}
-%   \end{center}
 
-%   \vskip 0.6em
-%   The gradient of the loss with respect to $\mathbf{W}_h$ involves a
-%   \structure{product of $T$ Jacobians}:
-%   \[
-%     \frac{\partial \mathcal{L}}{\partial \mathbf{W}_h}
-%     \;\propto\;
-%     \prod_{t=1}^{T} \frac{\partial \mathbf{h}^{(t)}}{\partial \mathbf{h}^{(t-1)}}
-%   \]
-%   Each factor involves $\mathbf{W}_h$ and the derivative of $\tanh$
-%   (which is $\leq 1$). \alert{Multiplying $T$ small numbers → gradient vanishes.}
-% \end{frame}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Backpropagation Through Time}
+  \vskip 2em
+
+  % \begin{center}
+  %   \tikzsetnextfilename{bptt_backward}
+  %   \resizebox{0.90\textwidth}{!}{\input{\CommonPath/tikz/bptt_backward.tex}}
+  % \end{center}
+
+  \vskip 0.6em
+  The gradient of the loss with respect to $\mathbf{W}_h$ involves a
+  \structure{product of $T$ Jacobians}:
+  \[
+    \frac{\partial \mathcal{L}}{\partial \mathbf{W}_h}
+    \;\propto\;
+    \prod_{t=1}^{T} \frac{\partial \mathbf{h}^{(t)}}{\partial \mathbf{h}^{(t-1)}}
+  \]
+  Each factor involves $\mathbf{W}_h$ and the derivative of $\tanh$
+  (which is $\leq 1$). \alert{Multiplying $T$ small numbers → gradient vanishes.}
+\end{frame}
 
 % % ------------------------------------------------------------------
 

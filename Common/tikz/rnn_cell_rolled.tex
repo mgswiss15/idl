@@ -1,13 +1,10 @@
-% Figure C: Rolled RNN cell — explicit labels, output shown
+% Figure C: Rolled RNN cell — hidden states only, continuation arrow to the right
 \begin{tikzpicture}[
-  node distance = 1.4cm and 2.0cm,
-  hnode/.style = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.7cm,
+  hnode/.style = {draw, rounded corners=4pt, minimum width=1.1cm, minimum height=0.65cm,
                   fill=thwsblue!15, draw=thwsblue, thick, font=\small},
-  cell/.style  = {draw, rounded corners=6pt, minimum width=1.2cm, minimum height=0.9cm,
-                  fill=thwspetrol!15, draw=thwspetrol, thick, font=\normalsize},
-  xnode/.style = {draw, circle, minimum size=0.7cm,
+  xnode/.style = {draw, circle, minimum size=0.65cm,
                   fill=thwsorange!25, draw=thwsorange!80!black, thick, font=\small},
-  ynode/.style = {draw, circle, minimum size=0.7cm,
+  ynode/.style = {draw, circle, minimum size=0.65cm,
                   fill=thwsgrey!40, draw=thwsgrey!80, thick, font=\small},
   arr/.style   = {->, >=stealth, thick},
   lbl/.style   = {font=\scriptsize, midway},
@@ -15,24 +12,17 @@
 
 % Nodes
 \node[hnode] (hprev) {$\mathbf{h}^{(t-1)}$};
-\node[cell,  right=1.3cm of hprev] (cell) {$\tanh$};
-\node[hnode, right=1.3cm of cell]  (hnext) {$\mathbf{h}^{(t)}$};
-\node[xnode, below=1.0cm of cell]  (xt)   {$\mathbf{x}^{(t)}$};
-\node[ynode, above=1.0cm of cell]  (yt)   {$\mathbf{y}^{(t)}$};
+\node[hnode, right=1.4cm of hprev] (hnext) {$\mathbf{h}^{(t)}$};
+\node[xnode, below=1.0cm of hnext] (xt)   {$\mathbf{x}^{(t)}$};
+\node[ynode, above=1.0cm of hnext] (yt)   {$\mathbf{y}^{(t)}$};
 
-% Arrows with weight labels
-\draw[arr] (hprev) -- node[above, lbl, color=carnelian] {$\mathbf{W}_h$} (cell);
-\draw[arr] (xt)    -- node[right, lbl, color=thwsorange!80!black] {$\mathbf{W}_x$} (cell);
-\draw[arr] (cell)  -- node[above, lbl] {} (hnext);
-\draw[arr] (cell)  -- node[right, lbl, color=black!50] {$\mathbf{W}_y$} (yt);
+% Arrows
+\draw[arr] (hprev) -- node[above, lbl, color=carnelian] {$\mathbf{W}_h$} (hnext);
+\draw[arr] (xt)    -- node[right, lbl, color=thwsorange!80!black] {$\mathbf{W}_x$} (hnext);
+\draw[arr] (hnext) -- node[right, lbl, color=black!50] {$\mathbf{W}_y$} (yt);
 
-% Self-loop label
-\node[font=\scriptsize, color=carnelian, below right=0.05cm and 0.1cm of hprev]
-     {recurrent};
-
-% Equation annotation
-\node[font=\scriptsize, align=left, anchor=west] at (5.2cm, 0)
-  {$\mathbf{h}^{(t)} = \tanh\!\bigl(\mathbf{W}_h\,\mathbf{h}^{(t-1)} + \mathbf{W}_x\,\mathbf{x}^{(t)} + \mathbf{b}\bigr)$\\[0.5em]
-   $\mathbf{y}^{(t)} = \mathbf{W}_y\,\mathbf{h}^{(t)}$};
+% Continuation arrow to the right
+\draw[arr] (hnext.east) -- node[above, lbl, color=carnelian] {$\mathbf{W}_h$}
+           ++(1.4cm, 0) node[right, font=\scriptsize, color=thwsblue] {$\cdots$};
 
 \end{tikzpicture}
