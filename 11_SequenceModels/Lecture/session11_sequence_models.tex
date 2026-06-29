@@ -69,6 +69,39 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
   \end{center}
 \end{frame}
 
+\begin{frame}{How Sequence Data is Organized}
+  \vskip 2em
+ 
+  \begin{columns}[c]
+    \begin{column}{0.4\textwidth}
+      \tikzsetnextfilename{sequence_data_layout}
+      \resizebox{\textwidth}{!}{\input{\CommonPath/tikz/sequence_data_layout.tex}}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+       Dataset:  $B$ independent sequences.
+      Each sequence: $T$ timesteps.
+      Each timestep: is an observation:
+ 
+      \vskip 0.8em
+      \begin{itemize}
+        \item \structure{Scalar} $x^{(t)} \in \mathbb{R}$ — e.g.\ one
+              closing price per day
+        \item \structure{Vector} $\mathbf{x}^{(t)} \in \mathbb{R}^{d}$
+              — e.g.\ a $d$-dimensional word embedding
+      \end{itemize}
+ 
+      \vskip 0.8em
+      PyTorch convention (\texttt{batch\_first=True}):
+      \vskip 0.4em
+      \begin{center}
+        {\setlength{\fboxsep}{7pt}\colorbox{thwsorange!10}{%
+          \structure{\texttt{(B, T, d)}}}}\\[0.3em]
+        \small batch $\times$ time $\times$ features
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
 % ------------------------------------------------------------------
 
 \begin{frame}{Three Approaches to Sequence Modeling}
@@ -169,6 +202,7 @@ pdfkeywords={transfer learning, fine-tuning, object detection, segmentation, tor
 \setbeamertemplate{footline}{}
 \begin{frame}{}
   \vskip 8em
+\centering
   {\Large \structure{Vanilla RNNs}}
 \end{frame}
 }
