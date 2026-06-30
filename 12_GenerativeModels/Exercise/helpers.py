@@ -49,20 +49,36 @@ def plot_examples_with_codes(model, dataset, device, n=5):
     plt.tight_layout()
 
 
-def plot_latent_scatter_ae(model, dataset, device, n_points=2000):
+def encode_dataset(model, dataset, device, is_vae=False, batch_size=256, n_points=None):
+    """Encode an entire dataset into latent codes. For a VAE, uses the mean mu
+    (not a sampled z) so the result is deterministic. n_points=None encodes
+    the whole dataset; otherwise stops early once n_points have been collected."""
     model.eval()
-    loader = DataLoader(dataset, batch_size=256, shuffle=False)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     zs, labels = [], []
     with torch.no_grad():
         for images, lbls in loader:
             images = images.to(device)
-            z = model.encode(images)
+            if is_vae:
+                mu, logvar = model.encode(images)
+                z = mu
+            else:
+                z = model.encode(images)
             zs.append(z.cpu())
             labels.append(lbls)
-            if sum(t.size(0) for t in zs) >= n_points:
+            if n_points is not None and sum(t.size(0) for t in zs) >= n_points:
                 break
-    zs = torch.cat(zs)[:n_points]
-    labels = torch.cat(labels)[:n_points]
+
+    zs = torch.cat(zs)
+    labels = torch.cat(labels)
+    if n_points is not None:
+        zs = zs[:n_points]
+        labels = labels[:n_points]
+    return zs, labels
+
+
+def plot_latent_scatter_ae(model, dataset, device, n_points=2000):
+    zs, labels = encode_dataset(model, dataset, device, is_vae=False, n_points=n_points)
 
     plt.figure(figsize=(6, 6))
     scatter = plt.scatter(zs[:, 0], zs[:, 1], c=labels, cmap="tab10", s=8)
@@ -72,19 +88,7 @@ def plot_latent_scatter_ae(model, dataset, device, n_points=2000):
 
 
 def plot_latent_scatter_vae(model, dataset, device, n_points=2000):
-    model.eval()
-    loader = DataLoader(dataset, batch_size=256, shuffle=False)
-    mus, labels = [], []
-    with torch.no_grad():
-        for images, lbls in loader:
-            images = images.to(device)
-            mu, logvar = model.encode(images)
-            mus.append(mu.cpu())
-            labels.append(lbls)
-            if sum(t.size(0) for t in mus) >= n_points:
-                break
-    mus = torch.cat(mus)[:n_points]
-    labels = torch.cat(labels)[:n_points]
+    mus, labels = encode_dataset(model, dataset, device, is_vae=True, n_points=n_points)
 
     plt.figure(figsize=(6, 6))
     scatter = plt.scatter(mus[:, 0], mus[:, 1], c=labels, cmap="tab10", s=8)
@@ -129,7 +133,7 @@ def plot_interpolation(model, dataset, device, idx1, idx2, n_steps=10, is_vae=Fa
     fig, axes = plt.subplots(1, n_steps, figsize=(1.8 * n_steps, 2.4))
     for ax, img, z in zip(axes.ravel(), x_hat, zs.cpu()):
         ax.imshow(img.squeeze(0), cmap="gray")
-        ax.set_title(f"({z[0]:.2f}, {z[1]:.2f})", fontsize=8)
+        ax.set_title(f"z=({z[0]:.2f}, {z[1]:.2f})", fontsize=9)
         ax.axis("off")
     plt.tight_layout()
 
@@ -165,3 +169,12 @@ def plot_reconstructions(model, dataset, device, indices, is_vae=False):
     axes[0, 0].set_ylabel("original")
     axes[1, 0].set_ylabel("reconstruction")
     plt.tight_layout()
+
+
+def plot_probe_accuracies(names, accuracies):
+    plt.figure(figsize=(6, 4))
+    bars = plt.bar(names, accuracies)
+    plt.ylabel("test accuracy")
+    plt.ylim(0, 1)
+    for bar, acc in zip(bars, accuracies):
+        plt.text(bar.get_x() + bar.get_width() / 2, acc + 0.02, f"{acc:.2f}", ha="center")

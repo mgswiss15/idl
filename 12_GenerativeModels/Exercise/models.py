@@ -8,37 +8,59 @@ import torch
 import torch.nn as nn
 
 
-class AE(nn.Module):
-    """Plain (non-variational) autoencoder. CNN encoder/decoder, 2D bottleneck."""
+class Encoder(nn.Module):
+    """Conv trunk shared by AE and VAE: 28x28 image -> flattened feature vector.
+    Stops before any latent projection -- that part differs between AE and VAE."""
+
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)   # 28 -> 14
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)  # 14 -> 7
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        h = self.relu(self.conv1(x))
+        h = self.relu(self.conv2(h))
+        h = h.flatten(1)  # (batch, 32*7*7)
+        return h
+
+
+class Decoder(nn.Module):
+    """Conv trunk shared by AE and VAE: latent vector -> 28x28 image.
+    Identical for both -- only what feeds into it differs."""
 
     def __init__(self, latent_dim=2):
         super().__init__()
-
-        # encoder: 28x28 -> 14x14 -> 7x7 -> latent_dim
-        self.enc_conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
-        self.enc_conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
-        self.enc_fc = nn.Linear(32 * 7 * 7, latent_dim)
+        self.fc = nn.Linear(latent_dim, 32 * 7 * 7)
+        self.deconv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)  # 7 -> 14
+        self.deconv2 = nn.ConvTranspose2d(16, 1, kernel_size=3, stride=2, padding=1, output_padding=1)   # 14 -> 28
         self.relu = nn.ReLU()
-
-        # decoder: latent_dim -> 7x7 -> 14x14 -> 28x28
-        self.dec_fc = nn.Linear(latent_dim, 32 * 7 * 7)
-        self.dec_conv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.dec_conv2 = nn.ConvTranspose2d(16, 1, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.sigmoid = nn.Sigmoid()
 
+    def forward(self, z):
+        h = self.relu(self.fc(z))
+        h = h.view(-1, 32, 7, 7)
+        h = self.relu(self.deconv1(h))
+        x_hat = self.sigmoid(self.deconv2(h))
+        return x_hat
+
+
+class AE(nn.Module):
+    """Plain (non-variational) autoencoder: a single latent vector per image."""
+
+    def __init__(self, latent_dim=2):
+        super().__init__()
+        self.encoder = Encoder()
+        self.fc_latent = nn.Linear(32 * 7 * 7, latent_dim)
+        self.decoder = Decoder(latent_dim)
+
     def encode(self, x):
-        h = self.relu(self.enc_conv1(x))
-        h = self.relu(self.enc_conv2(h))
-        h = h.flatten(1)
-        z = self.enc_fc(h)
+        h = self.encoder(x)
+        z = self.fc_latent(h)
         return z
 
     def decode(self, z):
-        h = self.relu(self.dec_fc(z))
-        h = h.view(-1, 32, 7, 7)
-        h = self.relu(self.dec_conv1(h))
-        x_hat = self.sigmoid(self.dec_conv2(h))
-        return x_hat
+        return self.decoder(z)
 
     def forward(self, x):
         z = self.encode(x)
@@ -47,32 +69,21 @@ class AE(nn.Module):
 
 
 class VAE(nn.Module):
-    """Variational autoencoder. Same CNN backbone as AE, but encoder outputs
-    a mean and log-variance, and we sample the latent code via the
-    reparameterization trick."""
+    """Variational autoencoder: same encoder/decoder trunks as the AE, but the
+    encoder produces a mean and log-variance, and the latent code is sampled
+    via the reparameterization trick."""
 
     def __init__(self, latent_dim=2):
         super().__init__()
-
-        # encoder: 28x28 -> 14x14 -> 7x7 -> (mu, logvar)
-        self.enc_conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
-        self.enc_conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
-        self.enc_fc_mu = nn.Linear(32 * 7 * 7, latent_dim)
-        self.enc_fc_logvar = nn.Linear(32 * 7 * 7, latent_dim)
-        self.relu = nn.ReLU()
-
-        # decoder: latent_dim -> 7x7 -> 14x14 -> 28x28 (identical to AE decoder)
-        self.dec_fc = nn.Linear(latent_dim, 32 * 7 * 7)
-        self.dec_conv1 = nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.dec_conv2 = nn.ConvTranspose2d(16, 1, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.sigmoid = nn.Sigmoid()
+        self.encoder = Encoder()
+        self.fc_mu = nn.Linear(32 * 7 * 7, latent_dim)
+        self.fc_logvar = nn.Linear(32 * 7 * 7, latent_dim)
+        self.decoder = Decoder(latent_dim)
 
     def encode(self, x):
-        h = self.relu(self.enc_conv1(x))
-        h = self.relu(self.enc_conv2(h))
-        h = h.flatten(1)
-        mu = self.enc_fc_mu(h)
-        logvar = self.enc_fc_logvar(h)
+        h = self.encoder(x)
+        mu = self.fc_mu(h)
+        logvar = self.fc_logvar(h)
         return mu, logvar
 
     def reparameterize(self, mu, logvar):
@@ -82,11 +93,7 @@ class VAE(nn.Module):
         return z
 
     def decode(self, z):
-        h = self.relu(self.dec_fc(z))
-        h = h.view(-1, 32, 7, 7)
-        h = self.relu(self.dec_conv1(h))
-        x_hat = self.sigmoid(self.dec_conv2(h))
-        return x_hat
+        return self.decoder(z)
 
     def forward(self, x):
         mu, logvar = self.encode(x)

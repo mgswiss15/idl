@@ -5,35 +5,13 @@ MG 30/6/2026
 """
 
 import torch
-import torch.nn.functional as F
+import torch.nn as nn
 
 
-def train_ae(model, train_loader, optimizer, num_epochs, device):
-    train_losses = []
-
-    for epoch in range(num_epochs):
-        model.train()
-        train_loss = 0.0
-        for images, _ in train_loader:
-            images = images.to(device)
-            x_hat, z = model(images)
-
-            # reconstruction loss only (L2), summed over pixels, averaged over batch
-            loss = F.mse_loss(x_hat, images, reduction="sum") / images.size(0)
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            train_loss += loss.item()
-
-        train_loss /= len(train_loader)
-        train_losses.append(train_loss)
-        print(f"Epoch {epoch+1}: train_loss={train_loss:.4f}")
-
-    return model, train_losses
-
-
-def train_vae(model, train_loader, optimizer, num_epochs, device, recon_loss="l2"):
+def train_model(model, train_loader, criterion, optimizer, num_epochs, device, is_vae=False):
+    """Single training loop for both AE (is_vae=False) and VAE (is_vae=True).
+    criterion is the reconstruction loss, e.g. nn.MSELoss(reduction='sum') or
+    nn.BCELoss(reduction='sum'). For the AE the KL term is simply zero throughout."""
     train_losses = []
     recon_losses = []
     kl_losses = []
@@ -43,18 +21,15 @@ def train_vae(model, train_loader, optimizer, num_epochs, device, recon_loss="l2
         epoch_loss, epoch_recon, epoch_kl = 0.0, 0.0, 0.0
         for images, _ in train_loader:
             images = images.to(device)
-            x_hat, mu, logvar = model(images)
 
-            # reconstruction term: -log p(x|z), summed over pixels, averaged over batch
-            if recon_loss == "l2":
-                recon = F.mse_loss(x_hat, images, reduction="sum") / images.size(0)
-            elif recon_loss == "bce":
-                recon = F.binary_cross_entropy(x_hat, images, reduction="sum") / images.size(0)
+            if is_vae:
+                x_hat, mu, logvar = model(images)
+                recon = criterion(x_hat, images) / images.size(0)
+                kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) / images.size(0)
             else:
-                raise ValueError(f"Unknown recon_loss: {recon_loss}")
-
-            # KL(q(z|x) || N(0,I)), summed over latent dims, averaged over batch
-            kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) / images.size(0)
+                x_hat, z = model(images)
+                recon = criterion(x_hat, images) / images.size(0)
+                kl = torch.zeros(1, device=device)
 
             loss = recon + kl
 
@@ -73,3 +48,29 @@ def train_vae(model, train_loader, optimizer, num_epochs, device, recon_loss="l2
         print(f"Epoch {epoch+1}: loss={epoch_loss/n:.4f}, recon={epoch_recon/n:.4f}, kl={epoch_kl/n:.4f}")
 
     return model, train_losses, recon_losses, kl_losses
+
+
+def train_probe(z_train, y_train, z_test, y_test, num_epochs, device, lr=0.1):
+    """Train a simple linear classifier (logistic regression) on top of frozen
+    latent codes, to probe how much class information they carry."""
+    probe = nn.Linear(z_train.size(1), 10).to(device)
+    optimizer = torch.optim.Adam(probe.parameters(), lr=lr)
+    criterion = nn.CrossEntropyLoss()
+
+    z_train, y_train = z_train.to(device), y_train.to(device)
+    z_test, y_test = z_test.to(device), y_test.to(device)
+
+    for epoch in range(num_epochs):
+        probe.train()
+        logits = probe(z_train)
+        loss = criterion(logits, y_train)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    probe.eval()
+    with torch.no_grad():
+        preds = probe(z_test).argmax(dim=1)
+        accuracy = (preds == y_test).float().mean().item()
+
+    return probe, accuracy
