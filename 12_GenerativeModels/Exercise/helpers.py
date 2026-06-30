@@ -126,9 +126,10 @@ def plot_interpolation(model, dataset, device, idx1, idx2, n_steps=10, is_vae=Fa
         zs = torch.stack([(1 - a) * z1 + a * z2 for a in alphas])
         x_hat = model.decode(zs).cpu()
 
-    fig, axes = plt.subplots(1, n_steps, figsize=(1.5 * n_steps, 2))
-    for ax, img in zip(axes.ravel(), x_hat):
+    fig, axes = plt.subplots(1, n_steps, figsize=(1.8 * n_steps, 2.4))
+    for ax, img, z in zip(axes.ravel(), x_hat, zs.cpu()):
         ax.imshow(img.squeeze(0), cmap="gray")
+        ax.set_title(f"({z[0]:.2f}, {z[1]:.2f})", fontsize=8)
         ax.axis("off")
     plt.tight_layout()
 
