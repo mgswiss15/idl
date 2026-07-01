@@ -50,6 +50,23 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, device, i
     return model, train_losses, recon_losses, kl_losses
 
 
+def evaluate_reconstruction(model, test_loader, criterion, device, is_vae=False):
+    """Average reconstruction error on held-out data, using the same
+    sum-over-pixels / mean-over-batch convention as training."""
+    model.eval()
+    total_recon = 0.0
+    with torch.no_grad():
+        for images, _ in test_loader:
+            images = images.to(device)
+            if is_vae:
+                x_hat, mu, logvar = model(images)
+            else:
+                x_hat, z = model(images)
+            recon = criterion(x_hat, images) / images.size(0)
+            total_recon += recon.item()
+    return total_recon / len(test_loader)
+
+
 def train_probe(z_train, y_train, z_test, y_test, num_epochs, device, lr=0.1):
     """Train a simple linear classifier (logistic regression) on top of frozen
     latent codes, to probe how much class information they carry."""
